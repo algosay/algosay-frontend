@@ -1,9 +1,29 @@
 import React from 'react';
+import axios from 'axios'; // Added axios import for the API call
 
 const AIParseSection = ({ 
-  aiPrompt, setAiPrompt, handleAIParse, isParsing, 
+  aiPrompt, setAiPrompt, isParsing, setIsParsing, // Replaced handleAIParse prop with setIsParsing
   aiMessage, needsInfoQuestion, aiExplanation, isConfirmed, setIsConfirmed 
 }) => {
+
+  // Added the handleAIParse function directly inside the component
+  const handleAIParse = async () => {
+    setIsParsing(true);
+    try {
+      // API endpoint hardcoded as requested (No process.env)
+      const response = await axios.post("https://algosay-backend.onrender.com/parse_strategy", {
+        prompt: aiPrompt
+      });
+      
+      // ... antha response-ai handle pannura baaki logic ...
+      
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      setIsParsing(false);
+    }
+  };
+
   return (
     <>
       {/* 🧠 MAIN AI INPUT SECTION */}
