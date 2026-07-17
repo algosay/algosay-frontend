@@ -1,49 +1,14 @@
 import React from 'react';
-import axios from 'axios';
 
 const AIParseSection = ({ 
-  aiPrompt, setAiPrompt, isParsing, setIsParsing, 
-  aiMessage, setAiMessage,             // 🟢 Puthusa Add panni irukkom
-  needsInfoQuestion, setNeedsInfoQuestion, // 🟢 Puthusa Add panni irukkom
-  aiExplanation, setAiExplanation,         // 🟢 Puthusa Add panni irukkom
+  aiPrompt, setAiPrompt, 
+  isParsing, 
+  aiMessage, 
+  needsInfoQuestion, 
+  aiExplanation, 
   isConfirmed, setIsConfirmed,
-  onParsedDataSuccess                  // 🟢 Puthusa Add panni irukkom (To pass data to parent)
+  handleAIParse // 🟢 Passed from parent (App.js)
 }) => {
-
-  const handleAIParse = async () => {
-    setIsParsing(true);
-    
-    // Pazhaiya results-ah clear panrom
-    if(setAiMessage) setAiMessage(null);
-    if(setAiExplanation) setAiExplanation(null);
-    if(setNeedsInfoQuestion) setNeedsInfoQuestion(null);
-
-    try {
-      const response = await axios.post("https://algosay-backend.onrender.com/parse_strategy", {
-        prompt: aiPrompt
-      });
-      
-      const data = response.data; // Axios-la result 'data'-kulla thaan irukkum
-
-      if (data.status === "success") {
-        // AI kudutha explanation-ah state-la set panrom (Ithuthaan UI-la theriyum)
-        if(setAiExplanation) setAiExplanation(data.explanation);
-        if(setAiMessage) setAiMessage("Strategy Auto-Mapped Successfully! ✨");
-        
-        // Parent component-ku full config (legs, risk) anupa intha callback use aagum
-        if(onParsedDataSuccess) onParsedDataSuccess(data);
-      } else {
-        // AI-ku innum details thevai patta
-        if(setNeedsInfoQuestion) setNeedsInfoQuestion(data.message || "Can you specify the timeframe?");
-      }
-      
-    } catch (error) {
-      console.error("Error connecting to AI:", error);
-      if(setAiMessage) setAiMessage("Failed to parse strategy. Please try again.");
-    } finally {
-      setIsParsing(false);
-    }
-  };
 
   return (
     <>
