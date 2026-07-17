@@ -1,24 +1,45 @@
 import React from 'react';
-import axios from 'axios'; // Added axios import for the API call
+import axios from 'axios';
 
 const AIParseSection = ({ 
-  aiPrompt, setAiPrompt, isParsing, setIsParsing, // Replaced handleAIParse prop with setIsParsing
-  aiMessage, needsInfoQuestion, aiExplanation, isConfirmed, setIsConfirmed 
+  aiPrompt, setAiPrompt, isParsing, setIsParsing, 
+  aiMessage, setAiMessage,             // 🟢 Puthusa Add panni irukkom
+  needsInfoQuestion, setNeedsInfoQuestion, // 🟢 Puthusa Add panni irukkom
+  aiExplanation, setAiExplanation,         // 🟢 Puthusa Add panni irukkom
+  isConfirmed, setIsConfirmed,
+  onParsedDataSuccess                  // 🟢 Puthusa Add panni irukkom (To pass data to parent)
 }) => {
 
-  // Added the handleAIParse function directly inside the component
   const handleAIParse = async () => {
     setIsParsing(true);
+    
+    // Pazhaiya results-ah clear panrom
+    if(setAiMessage) setAiMessage(null);
+    if(setAiExplanation) setAiExplanation(null);
+    if(setNeedsInfoQuestion) setNeedsInfoQuestion(null);
+
     try {
-      // API endpoint hardcoded as requested (No process.env)
       const response = await axios.post("https://algosay-backend.onrender.com/parse_strategy", {
         prompt: aiPrompt
       });
       
-      // ... antha response-ai handle pannura baaki logic ...
+      const data = response.data; // Axios-la result 'data'-kulla thaan irukkum
+
+      if (data.status === "success") {
+        // AI kudutha explanation-ah state-la set panrom (Ithuthaan UI-la theriyum)
+        if(setAiExplanation) setAiExplanation(data.explanation);
+        if(setAiMessage) setAiMessage("Strategy Auto-Mapped Successfully! ✨");
+        
+        // Parent component-ku full config (legs, risk) anupa intha callback use aagum
+        if(onParsedDataSuccess) onParsedDataSuccess(data);
+      } else {
+        // AI-ku innum details thevai patta
+        if(setNeedsInfoQuestion) setNeedsInfoQuestion(data.message || "Can you specify the timeframe?");
+      }
       
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Error connecting to AI:", error);
+      if(setAiMessage) setAiMessage("Failed to parse strategy. Please try again.");
     } finally {
       setIsParsing(false);
     }
@@ -36,7 +57,7 @@ const AIParseSection = ({
               <p className="text-xs text-gray-400">Describe your strategy logic to auto-configure settings.</p>
             </div>
           </div>
-          {/* ✨ VISUAL INDICATOR: Dual-Directional Mode Active */}
+          {/* ✨ VISUAL INDICATOR */}
           <div className="bg-blue-500/10 border border-blue-500/30 text-blue-400 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
             Split Directional Mapping Enabled
           </div>
@@ -46,7 +67,6 @@ const AIParseSection = ({
           <textarea
             className="flex-grow bg-[#121212] border border-[#333] rounded-lg p-4 text-white focus:outline-none focus:border-blue-500 text-sm placeholder:text-gray-600 transition-colors resize-none"
             rows="2"
-            /* 🟥 Dynamic Split Placeholder Prompt Updated 🟩 */
             placeholder="e.g., Sell Nifty ATM 10 lots at 9:20 AM with 25% SL and 50% Target, then Buy OTM CE/PE 10 lots at 9:45 AM with 80% SL..."
             value={aiPrompt}
             onChange={(e) => setAiPrompt(e.target.value)}

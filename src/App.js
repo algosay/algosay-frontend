@@ -88,104 +88,107 @@ function App() {
         return; 
       }
 
-      // 🚨 NEW: Extracting specific directional configurations 🚨
-      if (data.buy_configuration) setBuyConfiguration(data.buy_configuration);
-      if (data.sell_configuration) setSellConfiguration(data.sell_configuration);
+      // 🟢 SUCCESS STATUS CHECK ADDED 🟢
+      if (data.status === 'success') {
+        // 🚨 NEW: Extracting specific directional configurations 🚨
+        if (data.buy_configuration) setBuyConfiguration(data.buy_configuration);
+        if (data.sell_configuration) setSellConfiguration(data.sell_configuration);
 
-      const inst = data.instrument_settings || {};
-      const entry = data.entry_settings || {};
-      const risk = data.risk_management || {};
-      const dates = data.date_settings || {}; 
+        const inst = data.instrument_settings || {};
+        const entry = data.entry_settings || {};
+        const risk = data.risk_management || {};
+        const dates = data.date_settings || {}; 
 
-      // 🚨 NEW: Dynamic Fallbacks - Checking dual configs first to fix the Futures/Options UI bug
-      const primaryConfig = data.buy_configuration || data.sell_configuration || inst;
-      const primaryEntry = data.buy_configuration || data.sell_configuration || entry;
+        // 🟢 NULL CRASH FIX: Added || {} at the end to prevent undefined errors
+        const primaryConfig = data.buy_configuration || data.sell_configuration || inst || {};
+        const primaryEntry = data.buy_configuration || data.sell_configuration || entry || {};
 
-      // Extract Specific Buy/Sell Config details returned from backend
-      const rawBuy = data.buy_configuration || {};
-      const rawSell = data.sell_configuration || {};
+        // Extract Specific Buy/Sell Config details returned from backend
+        const rawBuy = data.buy_configuration || {};
+        const rawSell = data.sell_configuration || {};
 
-      // 🛠️ Dynamic mapping to independent Split States to fix UI defaults bug
-      setSellTicker(rawSell.ticker || rawSell.asset || primaryConfig.ticker || 'NIFTY');
-      setSellTimeframe(rawSell.timeframe || primaryConfig.timeframe || '5m');
-      setSellUnderlyingFrom(rawSell.underlyingFrom || rawSell.segment || 'Options');
-      setSellEntryTime(rawSell.entryTime || rawSell.entry_time || '09:20');
-      setSellExitTime(rawSell.exitTime || rawSell.exit_time || primaryEntry.exitTime || '15:15');
+        // 🛠️ Dynamic mapping to independent Split States to fix UI defaults bug
+        setSellTicker(rawSell.ticker || rawSell.asset || primaryConfig.ticker || 'NIFTY');
+        setSellTimeframe(rawSell.timeframe || primaryConfig.timeframe || '5m');
+        setSellUnderlyingFrom(rawSell.underlyingFrom || rawSell.segment || 'Options');
+        setSellEntryTime(rawSell.entryTime || rawSell.entry_time || '09:20');
+        setSellExitTime(rawSell.exitTime || rawSell.exit_time || primaryEntry.exitTime || '15:15');
 
-      setBuyTicker(rawBuy.ticker || rawBuy.asset || primaryConfig.ticker || 'NIFTY');
-      setBuyTimeframe(rawBuy.timeframe || primaryConfig.timeframe || '5m');
-      setBuyUnderlyingFrom(rawBuy.underlyingFrom || rawBuy.segment || 'Options');
-      setBuyEntryTime(rawBuy.entryTime || rawBuy.entry_time || '09:45');
-      setBuyExitTime(rawBuy.exitTime || rawBuy.exit_time || primaryEntry.exitTime || '15:15');
+        setBuyTicker(rawBuy.ticker || rawBuy.asset || primaryConfig.ticker || 'NIFTY');
+        setBuyTimeframe(rawBuy.timeframe || primaryConfig.timeframe || '5m');
+        setBuyUnderlyingFrom(rawBuy.underlyingFrom || rawBuy.segment || 'Options');
+        setBuyEntryTime(rawBuy.entryTime || rawBuy.entry_time || '09:45');
+        setBuyExitTime(rawBuy.exitTime || rawBuy.exit_time || primaryEntry.exitTime || '15:15');
 
-      // Global parameters alignment (Retaining legacy states safely)
-      setTicker(primaryConfig.ticker || 'BANKNIFTY');
-      setTimeframe(primaryConfig.timeframe || '15m'); 
-      setUnderlyingFrom(primaryConfig.underlyingFrom || primaryConfig.segment || 'Futures');
-      setQty(inst.qty || 150); 
-      
-      setTransactionType(primaryConfig.transactionType || inst.transactionType || 'BUY');
-      
-      setStrategyType(primaryEntry.strategyType || 'Intraday');
-      setEntryTime(primaryEntry.entryTime || '09:15');
-      setExitTime(primaryEntry.exitTime || '15:15');
+        // Global parameters alignment (Retaining legacy states safely)
+        setTicker(primaryConfig.ticker || 'BANKNIFTY');
+        setTimeframe(primaryConfig.timeframe || '15m'); 
+        setUnderlyingFrom(primaryConfig.underlyingFrom || primaryConfig.segment || 'Futures');
+        setQty(inst.qty || 150); 
+        
+        setTransactionType(primaryConfig.transactionType || inst.transactionType || 'BUY');
+        
+        setStrategyType(primaryEntry.strategyType || 'Intraday');
+        setEntryTime(primaryEntry.entryTime || '09:15');
+        setExitTime(primaryEntry.exitTime || '15:15');
 
-      setFromDate(dates.fromDate || '');
-      setToDate(dates.toDate || '');
-      
-      setTrailMoveX(risk.trailMoveX || 0);
-      setTrailPointY(risk.trailPointY || 0);
+        setFromDate(dates.fromDate || '');
+        setToDate(dates.toDate || '');
+        
+        setTrailMoveX(risk.trailMoveX || 0);
+        setTrailPointY(risk.trailPointY || 0);
 
-      // Indicators Mapping
-      if (data.indicators && Array.isArray(data.indicators)) {
-        const mappedIndicators = data.indicators.map((ind, idx) => {
-          let parsedSettings = '';
-          if (ind.settings) {
-            parsedSettings = typeof ind.settings === 'object' ? JSON.stringify(ind.settings).replace(/["{}]/g, '').replace(/:/g, ': ') : ind.settings;
-          } else {
-            const { name, indicator, ...rest } = ind;
-            parsedSettings = Object.entries(rest).map(([k, v]) => `${k}: ${v}`).join(', ');
-          }
-          return { id: Date.now() + idx, name: ind.name || ind.indicator || 'Unknown', settings: parsedSettings || 'Default Settings' };
-        });
-        setIndicators(mappedIndicators);
-      } else {
-        setIndicators([]);
-      }
-      
-      if (data.legs && Array.isArray(data.legs)) {
-        // 🚨 FIX: Explicitly mapping entryTime, exitTime, and strikeDistance for EVERY individual leg!
-        const mappedLegs = data.legs.map((leg, idx) => ({
-          id: leg.id || Date.now() + idx,
-          segment: leg.segment || 'Options',
-          position: leg.position || 'Buy',
-          lots: leg.lots || 1,
-          optionType: leg.optionType || 'CE', 
-          expiry: leg.expiry || 'Weekly',
-          strikeType: leg.strikeType || 'ATM',
-          strikeDistance: leg.strikeDistance || leg.strike_distance || 0, // <-- ADDED OTM/ITM Distance Support
-          entryTime: leg.entryTime || leg.entry_time || '', // <-- ADDED Leg-level Entry Time
-          exitTime: leg.exitTime || leg.exit_time || '',    // <-- ADDED Leg-level Exit Time
-          stopLoss: leg.stop_loss || leg.stopLoss || '', 
-          target: leg.target || '',
-          slUnit: leg.sl_unit || leg.slUnit || '%',
-          targetUnit: leg.target_unit || leg.targetUnit || '%',
-          trailX: leg.trail_sl?.x || leg.trailX || '',
-          trailY: leg.trail_sl?.y || leg.trailY || '',
-          slReentry: leg.sl_reentry || leg.slReentry || 0,
-          targetReexecute: leg.target_reexecute || leg.targetReexecute || 0,
-          waitAndTrade: leg.wait_and_trade || leg.waitAndTrade || false,
-          costToCost: leg.cost_to_cost || leg.costToCost || false,
-          moveToStoploss: leg.move_to_stoploss || leg.moveToStoploss || false
-        }));
-        setLegs(mappedLegs);
-      } else {
-        setLegs([]);
-      }
+        // Indicators Mapping
+        if (data.indicators && Array.isArray(data.indicators)) {
+          const mappedIndicators = data.indicators.map((ind, idx) => {
+            let parsedSettings = '';
+            if (ind.settings) {
+              parsedSettings = typeof ind.settings === 'object' ? JSON.stringify(ind.settings).replace(/["{}]/g, '').replace(/:/g, ': ') : ind.settings;
+            } else {
+              const { name, indicator, ...rest } = ind;
+              parsedSettings = Object.entries(rest).map(([k, v]) => `${k}: ${v}`).join(', ');
+            }
+            return { id: Date.now() + idx, name: ind.name || ind.indicator || 'Unknown', settings: parsedSettings || 'Default Settings' };
+          });
+          setIndicators(mappedIndicators);
+        } else {
+          setIndicators([]);
+        }
+        
+        if (data.legs && Array.isArray(data.legs)) {
+          // 🚨 FIX: Explicitly mapping entryTime, exitTime, and strikeDistance for EVERY individual leg!
+          const mappedLegs = data.legs.map((leg, idx) => ({
+            id: leg.id || Date.now() + idx,
+            segment: leg.segment || 'Options',
+            position: leg.position || 'Buy',
+            lots: leg.lots || 1,
+            optionType: leg.optionType || 'CE', 
+            expiry: leg.expiry || 'Weekly',
+            strikeType: leg.strikeType || 'ATM',
+            strikeDistance: leg.strikeDistance || leg.strike_distance || 0, // <-- ADDED OTM/ITM Distance Support
+            entryTime: leg.entryTime || leg.entry_time || '', // <-- ADDED Leg-level Entry Time
+            exitTime: leg.exitTime || leg.exit_time || '',    // <-- ADDED Leg-level Exit Time
+            stopLoss: leg.stop_loss || leg.stopLoss || '', 
+            target: leg.target || '',
+            slUnit: leg.sl_unit || leg.slUnit || '%',
+            targetUnit: leg.target_unit || leg.targetUnit || '%',
+            trailX: leg.trail_sl?.x || leg.trailX || '',
+            trailY: leg.trail_sl?.y || leg.trailY || '',
+            slReentry: leg.sl_reentry || leg.slReentry || 0,
+            targetReexecute: leg.target_reexecute || leg.targetReexecute || 0,
+            waitAndTrade: leg.wait_and_trade || leg.waitAndTrade || false,
+            costToCost: leg.cost_to_cost || leg.costToCost || false,
+            moveToStoploss: leg.move_to_stoploss || leg.moveToStoploss || false
+          }));
+          setLegs(mappedLegs);
+        } else {
+          setLegs([]);
+        }
 
-      setAiExplanation(data.explanation || 'Strategy parameters have been successfully extracted.');
-      setAiMessage('✅ Strategy successfully processed.');
-      setIsConfirmed(true);
+        setAiExplanation(data.explanation || 'Strategy parameters have been successfully extracted.');
+        setAiMessage('✅ Strategy successfully processed.');
+        setIsConfirmed(true);
+      } // End of success check
     } catch (err) {
       setError('System Error: Unable to process the strategy.');
     } finally {
@@ -291,12 +294,15 @@ function App() {
 
       <div className="w-full max-w-[96%] xl:max-w-[98%] mx-auto p-4 md:p-6 lg:p-8">
         
+        {/* 🟢 PROPS FIX: Added handleAIParse and Setters to actually trigger and update state! */}
         <AIParseSection 
           aiPrompt={aiPrompt} setAiPrompt={setAiPrompt} 
           isParsing={isParsing} setIsParsing={setIsParsing} 
-          aiMessage={aiMessage} needsInfoQuestion={needsInfoQuestion} 
-          aiExplanation={aiExplanation} 
+          aiMessage={aiMessage} setAiMessage={setAiMessage}
+          needsInfoQuestion={needsInfoQuestion} setNeedsInfoQuestion={setNeedsInfoQuestion}
+          aiExplanation={aiExplanation} setAiExplanation={setAiExplanation}
           isConfirmed={isConfirmed} setIsConfirmed={setIsConfirmed} 
+          handleAIParse={handleAIParse} 
         />
 
         {aiExplanation && (
