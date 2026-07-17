@@ -293,7 +293,7 @@ function App() {
         
         <AIParseSection 
           aiPrompt={aiPrompt} setAiPrompt={setAiPrompt} 
-          handleAIParse={handleAIParse} isParsing={isParsing} 
+          isParsing={isParsing} setIsParsing={setIsParsing} 
           aiMessage={aiMessage} needsInfoQuestion={needsInfoQuestion} 
           aiExplanation={aiExplanation} 
           isConfirmed={isConfirmed} setIsConfirmed={setIsConfirmed} 
