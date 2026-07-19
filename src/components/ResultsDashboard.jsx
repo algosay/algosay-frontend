@@ -96,7 +96,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
       try {
         const startingCapital = result.Estimated_Margin || result.Starting_Capital || result.estimated_margin || 100000;
         
-        const response = await fetch('http://127.0.0.1:8000/api/recalculate_metrics', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/recalculate_metrics`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ trade_ledger: filteredLedger, starting_capital: startingCapital })
@@ -144,7 +144,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
         ledger: activeResult.Trade_Ledger || activeResult.ledger
       };
 
-      const response = await fetch('http://127.0.0.1:8000/api/get_strategy_insights', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/get_strategy_insights`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload) 
