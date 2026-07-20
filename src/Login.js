@@ -21,15 +21,16 @@ const Login = ({ onLoginSuccess }) => {
     <div className="flex min-h-screen w-full font-sans text-gray-800 bg-gray-50">
       
       {/* LEFT SIDE: App Innovation & Trust Building */}
-      <div className="hidden md:flex flex-col w-1/2 bg-white relative overflow-hidden">
+      <div className="hidden md:flex flex-col w-1/2 bg-white relative overflow-hidden px-12 lg:px-20 py-10">
+        
         {/* Abstract Premium Background Elements */}
         <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-blue-100 via-white to-white -z-10"></div>
         <div className="absolute -left-32 top-32 w-96 h-96 bg-blue-50 rounded-full mix-blend-multiply filter blur-3xl opacity-70"></div>
         <div className="absolute right-0 bottom-0 w-72 h-72 bg-purple-50 rounded-full mix-blend-multiply filter blur-3xl opacity-70"></div>
         
-        {/* TOP LEFT: Giant App Name & Logo */}
-        <div className="absolute top-10 left-12 flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
+        {/* TOP LEFT: App Name & Logo */}
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30 shrink-0">
             <span className="text-white font-black text-2xl">A</span>
           </div>
           <span className="text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-700">
@@ -38,62 +39,86 @@ const Login = ({ onLoginSuccess }) => {
         </div>
 
         {/* MAIN CONTENT: Centered Vertically */}
-        <div className="flex flex-col justify-center h-full px-12 lg:px-20 mt-16">
+        <div className="flex flex-col justify-center flex-grow mt-6">
           <h3 className="text-xs font-bold text-blue-600 uppercase tracking-[0.2em] mb-4">
             The Next Evolution in Quant Trading
           </h3>
-          <h1 className="text-4xl lg:text-5xl font-extrabold text-gray-900 leading-[1.15] mb-6">
+          <h1 className="text-4xl lg:text-5xl font-extrabold text-gray-900 leading-[1.15] mb-4">
             Code-Free Custom Strategies, Powered by AI.
           </h1>
-          <p className="text-lg text-gray-600 mb-10 leading-relaxed max-w-lg">
+          <p className="text-base text-gray-600 mb-6 leading-relaxed max-w-lg">
             Unlike traditional platforms where you manually click through dozens of dropdowns, AlgoSay uses an advanced Neural Engine to understand your logic. Just type it, and we test it.
           </p>
 
           {/* STEP-BY-STEP INNOVATION EXPLANATION */}
-          <div className="space-y-6 max-w-md">
+          <div className="space-y-4 max-w-lg">
             
             <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-lg shadow-inner">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-sm shadow-inner">
                 1
               </div>
               <div>
-                <h4 className="text-base font-bold text-gray-900">Describe Naturally</h4>
-                <p className="text-sm text-gray-500 mt-1">Explain your logic in plain English or Tanglish (e.g., "Sell ATM CE at 9:20 AM with 25% SL").</p>
+                <h4 className="text-sm font-bold text-gray-900">Describe Naturally & AI Auto-Mapping</h4>
+                <p className="text-xs text-gray-500 mt-1">Explain your logic in plain English or Tanglish. Our AI instantly translates your text into precision options legs, strikes, and execution rules.</p>
               </div>
             </div>
 
+            {/* 🚨 UPDATE: Point 2 - AI Diagnostics 🚨 */}
             <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold text-lg shadow-inner">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold text-sm shadow-inner">
                 2
               </div>
               <div>
-                <h4 className="text-base font-bold text-gray-900">AI Auto-Mapping</h4>
-                <p className="text-sm text-gray-500 mt-1">Our AI instantly translates your text into precision options legs, strikes, and execution rules.</p>
+                <h4 className="text-sm font-bold text-gray-900">AI Strategy Diagnostics & Improvement</h4>
+                <p className="text-xs text-gray-500 mt-1">The moment your backtest completes, our AI analyzes your MFE/MAE and trade sequence to generate a personalized report on exactly how to improve your strategy.</p>
               </div>
             </div>
 
+            {/* 🚨 UPDATE: Point 3 - Deep Filtering 🚨 */}
             <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-bold text-lg shadow-inner">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-bold text-sm shadow-inner">
                 3
               </div>
               <div>
-                <h4 className="text-base font-bold text-gray-900">Institutional Execution</h4>
-                <p className="text-sm text-gray-500 mt-1">Run blazing-fast historical backtests with ultra-precise options options matching and expiry checks.</p>
+                <h4 className="text-sm font-bold text-gray-900">Granular Deep Filtering Engine</h4>
+                <p className="text-xs text-gray-500 mt-1">Slice your data with precision using 0DTE, Day-wise, Win/Loss, and Buy/Sell leg filters to find your true hidden edge.</p>
               </div>
             </div>
 
-            {/* 🚨 NEW: 4TH POINT ADDED HERE 🚨 */}
+            {/* 🚨 UPDATE: Point 4 - Advanced Metrics 🚨 */}
             <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center text-rose-600 font-bold text-lg shadow-inner">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center text-rose-600 font-bold text-sm shadow-inner">
                 4
               </div>
               <div>
-                <h4 className="text-base font-bold text-gray-900">Advanced Diagnostics</h4>
-                <p className="text-sm text-gray-500 mt-1">Go beyond basic PnL. Analyze MFE/MAE, Drawdown curves, Heatmaps, and real Net ROI (after taxes & brokerage).</p>
+                <h4 className="text-sm font-bold text-gray-900">Institutional Pro Metrics</h4>
+                <p className="text-xs text-gray-500 mt-1">Go beyond basic PnL. We provide Profit Factor, Sortino Ratio, System Survival Probability, Kelly Sizing, Stress Level Index, Tail Ratio & Scalability.</p>
               </div>
             </div>
 
           </div>
+
+          {/* 🚨 UPDATE: 10 FREE BACKTESTS CTA BOX (Acts as Login Trigger) 🚨 */}
+          <div 
+            onClick={handleGoogleLogin}
+            className={`mt-8 p-4 rounded-xl cursor-pointer transition-all border border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 hover:border-blue-400 hover:shadow-lg flex items-center justify-between group max-w-md ${isLoading ? 'opacity-70 pointer-events-none' : ''}`}
+          >
+            <div className="flex items-center gap-4">
+               <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center shadow-lg text-white text-2xl group-hover:scale-110 transition-transform">
+                 🎁
+               </div>
+               <div>
+                 <h4 className="text-base font-extrabold text-blue-900">Claim 10 Free Backtests</h4>
+                 <p className="text-xs text-blue-700 font-semibold mt-0.5">Click here to Sign In and start building.</p>
+               </div>
+            </div>
+            <div className="text-blue-600 bg-white p-2 rounded-full shadow-sm group-hover:bg-blue-600 group-hover:text-white transition-colors">
+               <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
+               </svg>
+            </div>
+          </div>
+
         </div>
       </div>
 
