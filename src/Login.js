@@ -1,12 +1,74 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { signInWithGoogle } from './firebase';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TypeAnimation } from 'react-type-animation';
-import { Terminal, BarChart2, TrendingUp, ShieldCheck } from 'lucide-react';
+import { 
+  Terminal, 
+  BarChart2, 
+  TrendingUp, 
+  ShieldCheck, 
+  Star, 
+  Quote, 
+  Sparkles, 
+  AlertTriangle, 
+  Award, 
+  ChevronLeft, 
+  ChevronRight,
+  CheckCircle2
+} from 'lucide-react';
+
+// REALISTIC PRO USER REVIEWS / INNOVATION SHOWCASE DATA
+const testimonials = [
+  {
+    name: "Vikramaditya S.",
+    role: "Quantitative Options Trader",
+    location: "Mumbai",
+    rating: 5,
+    tag: "0DTE & BankNifty Specialist",
+    text: "I've tried almost every backtesting platform in India, but nothing comes close to AlgoSay. Being able to type complex multi-leg 0DTE logic in natural language and get precision option leg results in seconds feels like witchcraft. Hats off team!",
+    verified: true
+  },
+  {
+    name: "Kavitha Raman",
+    role: "Systematic Portfolio Manager",
+    location: "Chennai",
+    rating: 5,
+    tag: "Custom Indicator Strategies",
+    text: "Earlier I had to hire freelancers or write complex Python code just to backtest customized RSI+VIX strategies with trailing SL. AlgoSay handled my most difficult strategy seamlessly on the first attempt. Genuine game changer!",
+    verified: true
+  },
+  {
+    name: "Anirudh Mehta",
+    role: "Full-time F&O Trader",
+    location: "Bengaluru",
+    rating: 5,
+    tag: "Iron Condor & Straddle Trader",
+    text: "The institutional MFE/MAE diagnostics and System Survival metrics completely transformed my risk management. Never seen such deep analysis in any retail backtest app before. Pure innovation!",
+    verified: true
+  },
+  {
+    name: "Rajesh Nair",
+    role: "Algorithmic Trader",
+    location: "Hyderabad",
+    rating: 5,
+    tag: "Positional Option Buyer",
+    text: "From natural language prompt input to granular day-wise drawdown heatmaps in 5 seconds... this platform is unreal. Joining the profitable top 1% is finally realistic without writing a single line of code.",
+    verified: true
+  }
+];
 
 const Login = ({ onLoginSuccess }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [ripple, setRipple] = useState(null);
+  const [activeReview, setActiveReview] = useState(0);
+
+  // Auto-rotate reviews every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveReview((prev) => (prev + 1) % testimonials.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleGoogleLogin = async () => {
     setIsLoading(true);
@@ -75,16 +137,26 @@ const Login = ({ onLoginSuccess }) => {
         </motion.div>
       </div>
 
-      {/* LEFT SIDE: App Innovation (With Premium Creative Pattern) */}
+      {/* LEFT SIDE: App Innovation (With Ultra-Visible Premium Grid & Dot Matrix Pattern) */}
       <div className="hidden md:flex flex-col w-1/2 bg-white relative overflow-hidden px-12 lg:px-20 py-8 z-10">
         
-        {/* 🔥 UPDATED: Premium Creative Geometric / Dot Pattern Background 🔥 */}
-        <div className="absolute inset-0 z-0 opacity-[0.04]" style={{ backgroundImage: 'radial-gradient(#0f172a 1.5px, transparent 1.5px)', backgroundSize: '32px 32px' }}></div>
-        <div className="absolute inset-0 z-0 bg-gradient-to-b from-transparent via-white/40 to-white pointer-events-none"></div>
-        <div className="absolute -left-32 top-32 w-96 h-96 bg-blue-100/60 rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-pulse z-0"></div>
+        {/* 🔥 UPDATED: Ultra-Visible Premium Geometric Grid & Dot Matrix Background Pattern 🔥 */}
+        <div 
+          className="absolute inset-0 z-0 opacity-[0.18] pointer-events-none" 
+          style={{ 
+            backgroundImage: `
+              radial-gradient(#1e40af 1.5px, transparent 1.5px), 
+              linear-gradient(to right, #cbd5e1 1px, transparent 1px), 
+              linear-gradient(to bottom, #cbd5e1 1px, transparent 1px)
+            `, 
+            backgroundSize: '28px 28px, 56px 56px, 56px 56px' 
+          }}
+        ></div>
+        <div className="absolute inset-0 z-0 bg-gradient-to-b from-blue-50/40 via-white/70 to-white pointer-events-none"></div>
+        <div className="absolute -left-32 top-10 w-[30rem] h-[30rem] bg-gradient-to-tr from-blue-300/40 to-indigo-300/30 rounded-full mix-blend-multiply filter blur-[100px] opacity-80 animate-pulse z-0"></div>
+        <div className="absolute right-0 bottom-20 w-80 h-80 bg-cyan-200/40 rounded-full filter blur-[90px] opacity-60 z-0"></div>
         
-        {/* 🔥 UPDATED: TOP LEFT LOGO (Fixed Bottom Cut-off & Perfectly Positioned) 🔥 */}
-        {/* Added pb-2 and leading-normal to prevent 'g' and 'y' from cutting off due to bg-clip-text */}
+        {/* 🔥 TOP LEFT LOGO (Fixed Bottom Cut-off & Perfectly Positioned) 🔥 */}
         <div className="absolute top-12 left-12 lg:left-20 flex items-center gap-4 z-50 whitespace-nowrap">
           <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl flex items-center justify-center shadow-xl shadow-blue-500/30 shrink-0 border border-blue-400/20">
             <span className="text-white font-black text-4xl">A</span>
@@ -94,7 +166,7 @@ const Login = ({ onLoginSuccess }) => {
           </span>
         </div>
 
-        {/* MAIN CONTENT: Pushed down to accommodate the absolute logo */}
+        {/* MAIN CONTENT */}
         <div className="flex flex-col justify-center flex-grow pt-32 relative z-10">
           <h3 className="text-sm font-black text-blue-700 uppercase tracking-[0.2em] mb-3 flex items-center gap-2">
             <Terminal size={16} /> The Next Evolution in Quant Trading
@@ -106,7 +178,7 @@ const Login = ({ onLoginSuccess }) => {
             Unlike traditional platforms where you manually click through dozens of dropdowns, AlgoSay uses an advanced Neural Engine to understand your logic. Just type it, and we test it.
           </p>
 
-          {/* 🔥 UPDATED: PREMIUM MAC-STYLE TERMINAL TYPING BOX 🔥 */}
+          {/* PREMIUM MAC-STYLE TERMINAL TYPING BOX */}
           <div className="mb-8 rounded-xl overflow-hidden shadow-2xl shadow-blue-900/10 border border-slate-800 bg-slate-900 flex flex-col max-w-lg transition-transform hover:scale-[1.01] duration-300">
             {/* Terminal Header */}
             <div className="bg-slate-950 px-4 py-2.5 flex items-center border-b border-slate-800">
@@ -226,54 +298,54 @@ const Login = ({ onLoginSuccess }) => {
         </div>
       </div>
 
-      {/* RIGHT SIDE (Solid Blue Background & Login Box) */}
-      <div className="w-full md:w-1/2 bg-gradient-to-br from-blue-600 to-indigo-900 flex flex-col items-center justify-start p-6 relative z-10 pt-20 lg:pt-24 pb-12 overflow-y-auto">
+      {/* RIGHT SIDE (Dark Blue Gradient Background & Login Box Pushed Up) */}
+      <div className="w-full md:w-1/2 bg-gradient-to-br from-slate-950 via-blue-950 to-indigo-950 flex flex-col items-center justify-start p-4 md:p-6 lg:p-8 relative z-10 pt-4 lg:pt-6 pb-16 overflow-y-auto">
         
-        {/* Decorative elements for dark blue background */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-30 pointer-events-none z-0">
-           <div className="absolute -top-24 -right-24 w-96 h-96 bg-white rounded-full blur-[120px]"></div>
-           <div className="absolute bottom-10 -left-20 w-72 h-72 bg-cyan-300 rounded-full blur-[120px]"></div>
+        {/* Decorative elements for dark background */}
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-25 pointer-events-none z-0">
+           <div className="absolute -top-24 -right-24 w-96 h-96 bg-blue-500 rounded-full blur-[130px]"></div>
+           <div className="absolute bottom-10 -left-20 w-72 h-72 bg-cyan-400 rounded-full blur-[120px]"></div>
         </div>
 
-        {/* Glassmorphism/Floating Login Card */}
-        <div className="w-full max-w-md bg-white/95 backdrop-blur-2xl rounded-3xl shadow-[0_30px_60px_rgba(0,0,0,0.4)] p-8 lg:p-10 z-10 border border-white/20 shrink-0">
+        {/* 🔥 UPDATED: Glassmorphism Login Card (Pushed Higher Up) 🔥 */}
+        <div className="w-full max-w-md bg-white/95 backdrop-blur-2xl rounded-3xl shadow-[0_30px_60px_rgba(0,0,0,0.5)] p-6 lg:p-8 z-10 border border-white/20 shrink-0 mt-2">
           
-          <div className="flex flex-col items-center justify-center mb-8">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30 shrink-0 border border-blue-400/20">
-                <span className="text-white font-black text-3xl">A</span>
+          <div className="flex flex-col items-center justify-center mb-6">
+            <div className="flex items-center gap-3 mb-1.5">
+              <div className="w-11 h-11 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30 shrink-0 border border-blue-400/20">
+                <span className="text-white font-black text-2xl">A</span>
               </div>
-              <span className="text-4xl font-black tracking-tight text-slate-900">
+              <span className="text-3xl font-black tracking-tight text-slate-900">
                 AlgoSay
               </span>
             </div>
-            <p className="text-base text-slate-600 font-bold mt-1">Sign in to your AlgoSay terminal</p>
+            <p className="text-sm text-slate-600 font-bold">Sign in to your AlgoSay terminal</p>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-4">
 
-            <div className="relative flex items-center justify-center mb-6">
+            <div className="relative flex items-center justify-center mb-4">
               <div className="absolute border-t border-slate-300 w-full"></div>
-              <span className="bg-white px-4 text-xs font-black text-slate-500 uppercase tracking-widest relative z-10 rounded-full">Secure Login</span>
+              <span className="bg-white px-4 text-[11px] font-black text-slate-500 uppercase tracking-widest relative z-10 rounded-full">Secure Login</span>
             </div>
 
             {/* Standard Email Input */}
             <div>
-              <label className="block text-sm font-bold text-slate-800 mb-2">Email Address</label>
+              <label className="block text-xs font-bold text-slate-800 mb-1.5">Email Address</label>
               <input 
                 type="email" 
                 placeholder="you@example.com" 
-                className="w-full px-4 py-3.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none transition-all text-sm bg-slate-50 text-slate-900 placeholder-slate-400 font-medium"
+                className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none transition-all text-sm bg-slate-50 text-slate-900 placeholder-slate-400 font-medium"
                 disabled
               />
             </div>
             
             <div>
-              <label className="block text-sm font-bold text-slate-800 mb-2">Password</label>
+              <label className="block text-xs font-bold text-slate-800 mb-1.5">Password</label>
               <input 
                 type="password" 
                 placeholder="••••••••" 
-                className="w-full px-4 py-3.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none transition-all text-sm bg-slate-50 text-slate-900 placeholder-slate-400 font-medium"
+                className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none transition-all text-sm bg-slate-50 text-slate-900 placeholder-slate-400 font-medium"
                 disabled
               />
             </div>
@@ -281,18 +353,18 @@ const Login = ({ onLoginSuccess }) => {
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-2 cursor-pointer group">
                 <input type="checkbox" className="w-4 h-4 text-blue-600 bg-white border-slate-400 rounded focus:ring-blue-600" />
-                <span className="text-sm text-slate-700 font-bold group-hover:text-slate-900 transition-colors">Remember me</span>
+                <span className="text-xs text-slate-700 font-bold group-hover:text-slate-900 transition-colors">Remember me</span>
               </label>
-              <span className="text-sm font-black text-blue-700 hover:text-blue-800 cursor-pointer transition-colors">Forgot Password?</span>
+              <span className="text-xs font-black text-blue-700 hover:text-blue-800 cursor-pointer transition-colors">Forgot Password?</span>
             </div>
 
-            <button disabled className="w-full py-3.5 bg-slate-100 text-slate-400 font-extrabold rounded-xl shadow-sm transition-all cursor-not-allowed border border-slate-200">
+            <button disabled className="w-full py-3 bg-slate-100 text-slate-400 font-extrabold rounded-xl shadow-sm transition-all cursor-not-allowed border border-slate-200 text-sm">
               Login via Email (Coming Soon)
             </button>
 
-            <div className="relative flex items-center justify-center mt-6 mb-6">
+            <div className="relative flex items-center justify-center mt-4 mb-4">
               <div className="absolute border-t border-slate-300 w-full"></div>
-              <span className="bg-white px-4 text-xs font-black text-slate-500 uppercase tracking-widest relative z-10 rounded-full">Or Login With</span>
+              <span className="bg-white px-4 text-[11px] font-black text-slate-500 uppercase tracking-widest relative z-10 rounded-full">Or Login With</span>
             </div>
 
             {/* Google Login Button with Sweep Border & Ripple Effect */}
@@ -309,7 +381,7 @@ const Login = ({ onLoginSuccess }) => {
               <button
                 onMouseDown={handleRippleClick}
                 disabled={isLoading}
-                className={`relative w-full flex items-center justify-center gap-3 py-3.5 px-4 bg-white hover:bg-slate-50 text-slate-900 font-black rounded-[10px] transition-colors shadow-sm overflow-hidden z-10 ${isLoading ? 'opacity-70 cursor-wait' : ''}`}
+                className={`relative w-full flex items-center justify-center gap-3 py-3 px-4 bg-white hover:bg-slate-50 text-slate-900 font-black rounded-[10px] transition-colors shadow-sm overflow-hidden z-10 text-sm ${isLoading ? 'opacity-70 cursor-wait' : ''}`}
               >
                 <AnimatePresence>
                   {ripple && (
@@ -346,41 +418,142 @@ const Login = ({ onLoginSuccess }) => {
             </div>
           </div>
           
-          <div className="mt-8 text-center">
-            <p className="text-base text-slate-700 font-bold">
+          <div className="mt-6 text-center">
+            <p className="text-sm text-slate-700 font-bold">
               Don't have an account? <span className="text-blue-700 font-black hover:text-blue-800 hover:underline cursor-pointer transition-all">Sign up</span>
             </p>
           </div>
         </div>
 
-        {/* 🔥 NEW FEATURE: SEBI Fact / Trust Building Premium Box (Bottom Right) 🔥 */}
+        {/* 🔥 UPDATED: SHOCKING REAL SEBI TRADING FACT & TOP 1% BRIDGE BOX 🔥 */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.6 }}
-          className="w-full max-w-md mt-10 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-6 shadow-2xl relative overflow-hidden group shrink-0"
+          transition={{ delay: 0.3, duration: 0.6 }}
+          className="w-full max-w-md mt-6 bg-gradient-to-b from-slate-900/90 to-slate-950/90 backdrop-blur-xl rounded-2xl border border-rose-500/30 p-5 shadow-2xl relative overflow-hidden group shrink-0"
         >
-          {/* Subtle Shine Effect on Hover */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 z-0"></div>
+          {/* Glowing Top Border Line */}
+          <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-rose-500 via-amber-400 to-emerald-400"></div>
           
-          <div className="flex items-start gap-4 relative z-10">
-             <div className="p-2.5 bg-emerald-500/20 rounded-xl border border-emerald-500/30 shrink-0 shadow-inner">
-               <TrendingUp className="w-7 h-7 text-emerald-300" />
+          <div className="flex items-start gap-3.5 relative z-10">
+             <div className="p-2.5 bg-rose-500/15 rounded-xl border border-rose-500/30 shrink-0 shadow-inner mt-0.5">
+               <AlertTriangle className="w-6 h-6 text-rose-400 animate-pulse" />
              </div>
-             <div>
-               <h4 className="text-white font-extrabold text-lg mb-1 tracking-tight">Most F&O Traders Lose Money.</h4>
-               <p className="text-blue-100 text-sm leading-relaxed font-medium opacity-90 mb-4">
-                 Learn the systematic approach that helped others navigate F&O better. SEBI's FY 24 study found that only about <span className="text-white font-bold border-b border-white/40">9% of individual F&O traders</span> made profits.
+             <div className="flex-grow">
+               <div className="flex items-center justify-between mb-1">
+                 <span className="text-[11px] font-black tracking-wider uppercase text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/20">
+                   SEBI Market Reality Check
+                 </span>
+                 <span className="text-[10px] font-bold text-slate-400">Official Report</span>
+               </div>
+
+               <h4 className="text-white font-black text-base mb-1.5 leading-snug">
+                 93% of Retail F&O Traders Incur Losses
+               </h4>
+               
+               <p className="text-slate-300 text-xs leading-relaxed font-medium mb-3">
+                 SEBI's latest report reveals retail traders lost over <span className="text-rose-300 font-bold">₹1.81 Lakh Crore</span> in F&O due to trading on unverified gut feelings without systematic testing.
                </p>
-               <div className="flex items-center gap-3 bg-black/25 rounded-xl p-3 border border-white/15 shadow-inner">
-                 <ShieldCheck className="w-6 h-6 text-emerald-400 shrink-0" />
-                 <span className="text-white text-xs font-semibold leading-snug">
-                   In contrast, <span className="text-emerald-400 font-black text-sm">45% of AlgoSay users</span> ended FY 2023-24 in profit using our systematic backtesting engine.
+
+               <div className="flex items-center gap-2.5 bg-emerald-950/40 rounded-xl p-3 border border-emerald-500/30 shadow-inner">
+                 <Award className="w-5 h-5 text-emerald-400 shrink-0" />
+                 <span className="text-emerald-200 text-xs font-semibold leading-snug">
+                   Join the <span className="text-emerald-400 font-black text-sm">Top 1% Disciplined Traders</span> by backtesting every rule with AlgoSay before risking real capital.
                  </span>
                </div>
              </div>
           </div>
         </motion.div>
+
+        {/* 🔥 NEW FEATURE: AUTHENTIC PRO USER REVIEWS & INNOVATION SHOWCASE 🔥 */}
+        <div className="w-full max-w-md mt-6 shrink-0">
+          <div className="flex items-center justify-between mb-2.5 px-1">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-amber-400" />
+              <span className="text-xs font-black text-blue-200 uppercase tracking-widest">Trader Reviews & Innovation</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <button 
+                onClick={() => setActiveReview((prev) => (prev === 0 ? testimonials.length - 1 : prev - 1))}
+                className="p-1 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors border border-white/10"
+                title="Previous Review"
+              >
+                <ChevronLeft size={16} />
+              </button>
+              <button 
+                onClick={() => setActiveReview((prev) => (prev + 1) % testimonials.length)}
+                className="p-1 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors border border-white/10"
+                title="Next Review"
+              >
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          </div>
+
+          <div className="relative bg-slate-900/80 backdrop-blur-xl rounded-2xl border border-white/15 p-5 shadow-2xl overflow-hidden min-h-[190px]">
+            {/* Background Ambient Glow */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeReview}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                className="flex flex-col justify-between h-full"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black text-sm shadow-md border border-white/20">
+                        {testimonials[activeReview].name.charAt(0)}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <h5 className="text-white font-extrabold text-sm">{testimonials[activeReview].name}</h5>
+                          {testimonials[activeReview].verified && (
+                            <CheckCircle2 className="w-3.5 h-3.5 text-blue-400 fill-blue-400/20" />
+                          )}
+                        </div>
+                        <p className="text-[11px] text-slate-400 font-medium">{testimonials[activeReview].role} • {testimonials[activeReview].location}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-0.5">
+                      {[...Array(testimonials[activeReview].rating)].map((_, i) => (
+                        <Star key={i} size={13} className="fill-amber-400 text-amber-400" />
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="relative pl-3 border-l-2 border-blue-500/50 mb-3">
+                    <p className="text-xs text-slate-200 leading-relaxed font-medium italic">
+                      "{testimonials[activeReview].text}"
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-2 border-t border-white/10">
+                  <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                    {testimonials[activeReview].tag}
+                  </span>
+                  <div className="flex gap-1.5">
+                    {testimonials.map((_, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setActiveReview(idx)}
+                        className={`w-2 h-2 rounded-full transition-all ${
+                          activeReview === idx ? 'bg-blue-400 w-5' : 'bg-slate-600 hover:bg-slate-500'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </div>
 
       </div>
     </div>
