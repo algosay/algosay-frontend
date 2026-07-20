@@ -1,10 +1,82 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { TypeAnimation } from 'react-type-animation';
 import AlgoSayLogo from './AlgoSayLogo'; 
-import { Cpu, Wand2, Activity, Filter, BarChart3 } from 'lucide-react'; // 💎 Added new Premium Icons
+import { Cpu, Wand2, Activity, Filter, BarChart3, TrendingUp, TrendingDown, RefreshCw } from 'lucide-react'; // 💎 Added Live Ticker Icons
 
 const HomeView = ({ onNavigate, custom, viewVariants }) => {
+  // 💎 Live Spot Prices State from Yahoo Finance (Nifty 50, Bank Nifty, Sensex)
+  const [indices, setIndices] = useState([
+    { symbol: '^NSEI', name: 'NIFTY 50', price: 24350.15, change: 85.40, percent: 0.35 },
+    { symbol: '^NSEBANK', name: 'BANK NIFTY', price: 52120.80, change: -120.30, percent: -0.23 },
+    { symbol: '^BSESN', name: 'SENSEX', price: 79890.50, change: 240.10, percent: 0.30 }
+  ]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // 💎 Yahoo Finance Live Spot Price Fetcher Function
+  const fetchMarketData = async () => {
+    setIsRefreshing(true);
+    try {
+      const symbols = [
+        { sym: '^NSEI', name: 'NIFTY 50' },
+        { sym: '^NSEBANK', name: 'BANK NIFTY' },
+        { sym: '^BSESN', name: 'SENSEX' }
+      ];
+
+      const updatedData = await Promise.all(
+        symbols.map(async (item) => {
+          try {
+            // Yahoo Finance Public Chart API endpoint
+            const res = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(item.sym)}?interval=1m&range=1d`);
+            if (res.ok) {
+              const data = await res.json();
+              const result = data?.chart?.result?.[0];
+              const meta = result?.meta;
+              if (meta) {
+                const currentPrice = meta.regularMarketPrice;
+                const prevClose = meta.previousClose || meta.chartPreviousClose || currentPrice;
+                const change = currentPrice - prevClose;
+                const percent = prevClose ? (change / prevClose) * 100 : 0;
+                return {
+                  symbol: item.sym,
+                  name: item.name,
+                  price: currentPrice,
+                  change: change,
+                  percent: percent
+                };
+              }
+            }
+          } catch (err) {
+            console.warn(`Yahoo Finance Fetch Warning for ${item.name}:`, err);
+          }
+          return null;
+        })
+      );
+
+      const validResults = updatedData.filter(Boolean);
+      if (validResults.length > 0) {
+        setIndices(prev => prev.map(old => {
+          const matched = validResults.find(v => v.symbol === old.symbol);
+          return matched ? matched : old;
+        }));
+      }
+    } catch (error) {
+      console.error("Market Ticker Error:", error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  // 💎 Auto-Fetch on Mount & Auto Refresh Every 15 Seconds
+  useEffect(() => {
+    fetchMarketData();
+    const interval = setInterval(() => {
+      fetchMarketData();
+    }, 15000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   // 💎 Premium Spring Animations (High-end feel)
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -116,8 +188,43 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
       <div className="absolute top-0 right-0 w-[45rem] h-[45rem] bg-gradient-to-bl from-blue-100/50 via-indigo-50/30 to-transparent rounded-full mix-blend-multiply blur-[120px] opacity-80 pointer-events-none z-0"></div>
       <div className="absolute bottom-0 left-0 w-[40rem] h-[40rem] bg-gradient-to-tr from-slate-100 to-transparent rounded-full mix-blend-multiply blur-[100px] pointer-events-none z-0"></div>
 
+      {/* 📈 💎 NEW: LIVE YAHOO FINANCE MARKET SPOT TICKER TAB (TOP BAR) */}
+      <div className="w-full bg-slate-900/90 backdrop-blur-md text-white text-xs font-mono py-2.5 px-4 rounded-xl shadow-lg mb-6 border border-slate-800 relative z-50 flex items-center justify-between overflow-x-auto gap-4">
+        <div className="flex items-center gap-2 shrink-0 border-r border-slate-700/80 pr-4">
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span className="font-bold text-slate-200 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+            LIVE MARKET SPOT
+          </span>
+          <button 
+            onClick={fetchMarketData} 
+            title="Refresh Live Spot Data"
+            className="p-1 hover:text-blue-400 transition-colors ml-1"
+          >
+            <RefreshCw size={12} className={isRefreshing ? "animate-spin text-blue-400" : "text-slate-400"} />
+          </button>
+        </div>
+
+        <div className="flex items-center gap-4 sm:gap-8 overflow-x-auto whitespace-nowrap scrollbar-none py-0.5">
+          {indices.map((idx, i) => {
+            const isPositive = idx.change >= 0;
+            return (
+              <div key={i} className="flex items-center gap-2.5 px-3 py-1 rounded-lg bg-slate-800/80 border border-slate-700/60 shadow-inner">
+                <span className="font-bold text-slate-300 tracking-wide text-[11px]">{idx.name}</span>
+                <span className="font-extrabold text-white">
+                  {idx.price ? idx.price.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '---'}
+                </span>
+                <span className={`flex items-center gap-0.5 text-[11px] font-extrabold px-1.5 py-0.5 rounded ${isPositive ? 'text-emerald-400 bg-emerald-500/10' : 'text-rose-400 bg-rose-500/10'}`}>
+                  {isPositive ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+                  {isPositive ? '+' : ''}{idx.change ? idx.change.toFixed(2) : '0.00'} ({isPositive ? '+' : ''}{idx.percent ? idx.percent.toFixed(2) : '0.00'}%)
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
       {/* HEADER: Logo & Login/Signup Buttons */}
-      <div className="flex items-center justify-between z-50 mt-4 mb-12">
+      <div className="flex items-center justify-between z-50 mt-2 mb-12">
         
         {/* LOGO SECTION */}
         <div className="flex items-center gap-3 whitespace-nowrap cursor-pointer" onClick={() => onNavigate(false)}>
