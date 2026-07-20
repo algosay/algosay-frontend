@@ -258,7 +258,10 @@ const Login = ({ onLoginSuccess }) => {
                   <Terminal size={14} /> The Next Evolution in Quant Trading
                 </h3>
                 <h1 className="text-4xl lg:text-5xl font-extrabold text-gray-900 leading-[1.15] mb-4">
-  Turn Everyday Words into Institutional Backtest. <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Just Say It.</span>
+  Turn Everyday Words into <br className="hidden lg:block" />
+  <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+    Backtests.
+  </span>
 </h1>
                 <p className="text-base text-slate-600 font-medium mb-8 leading-relaxed max-w-lg">
                   Unlike traditional platforms where you manually click through dozens of dropdowns, AlgoSay uses an advanced Neural Engine to understand your logic. Just type it, and we test it.
