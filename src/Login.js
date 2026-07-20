@@ -77,8 +77,19 @@ const Login = ({ onLoginSuccess }) => {
                 3
               </div>
               <div>
-                <h4 className="text-base font-bold text-gray-900">Institutional Insights</h4>
-                <p className="text-sm text-gray-500 mt-1">Run blazing-fast historical backtests and get AI-driven diagnostics on your drawdown and MFE/MAE.</p>
+                <h4 className="text-base font-bold text-gray-900">Institutional Execution</h4>
+                <p className="text-sm text-gray-500 mt-1">Run blazing-fast historical backtests with ultra-precise options options matching and expiry checks.</p>
+              </div>
+            </div>
+
+            {/* 🚨 NEW: 4TH POINT ADDED HERE 🚨 */}
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center text-rose-600 font-bold text-lg shadow-inner">
+                4
+              </div>
+              <div>
+                <h4 className="text-base font-bold text-gray-900">Advanced Diagnostics</h4>
+                <p className="text-sm text-gray-500 mt-1">Go beyond basic PnL. Analyze MFE/MAE, Drawdown curves, Heatmaps, and real Net ROI (after taxes & brokerage).</p>
               </div>
             </div>
 
