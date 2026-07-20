@@ -2,12 +2,12 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
-// Your web app's Firebase configuration from your screenshot
+// Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyAGXRxKdt8TTsBVzOJ5J0MeI6GlWW58FAw",
+  apiKey: "AIzaSyAGXRxKdt8TTsBvZOJ5JOMeI6GlWW58FAw",
   authDomain: "algosay-2026.firebaseapp.com",
   projectId: "algosay-2026",
-  storageBucket: "algosay-2026.appfirebasestorage.app",
+  storageBucket: "algosay-2026.firebasestorage.app",
   messagingSenderId: "645522510011",
   appId: "1:645522510011:web:65dfbef887d4a520c8599e"
 };
@@ -24,7 +24,6 @@ export const signInWithGoogle = async () => {
     const user = res.user;
     return user;
   } catch (error) {
-    // 🚨 UPDATE: Enhanced Error Logging 🚨
     console.error("Error signing in with Google:");
     console.error("Error Code:", error.code);
     console.error("Error Message:", error.message);
