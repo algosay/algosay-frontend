@@ -7,6 +7,8 @@ import {
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword 
 } from "firebase/auth";
+// 🚨 NEW: Import Firestore Database functions
+import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -22,6 +24,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
+
+// 🚨 NEW: Initialize Firestore Database
+export const db = getFirestore(app);
 
 // Google Sign-In Function
 export const signInWithGoogle = async () => {
@@ -54,5 +59,36 @@ export const signInWithEmail = async (email, password) => {
   } catch (error) {
     console.error("Login Error:", error.code, error.message);
     throw error;
+  }
+};
+
+// 🚨 NEW: Create User Profile in Database with 50 Free Credits
+export const createUserProfile = async (user) => {
+  if (!user) return;
+  
+  const userRef = doc(db, "users", user.uid);
+  const userSnap = await getDoc(userRef);
+
+  // If user doesn't exist in database, create them with 50 credits!
+  if (!userSnap.exists()) {
+    try {
+      await setDoc(userRef, {
+        uid: user.uid,
+        email: user.email,
+        credits: 10, // Welcome Bonus
+        createdAt: serverTimestamp(),
+        lastLogin: serverTimestamp()
+      });
+      console.log("New user profile created with 10 free credits!");
+    } catch (error) {
+      console.error("Error creating user profile:", error);
+    }
+  } else {
+    // If user already exists, just update their last login time
+    try {
+      await setDoc(userRef, { lastLogin: serverTimestamp() }, { merge: true });
+    } catch (error) {
+      console.error("Error updating login time:", error);
+    }
   }
 };

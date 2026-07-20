@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import HomeView from './HomeView';
 import AuthView from './AuthView';
+// 🚨 NEW: Import the database function from firebase
+import { createUserProfile } from './firebase';
 
 const Login = ({ onLoginSuccess }) => {
   const [currentView, setCurrentView] = useState('home');
@@ -23,6 +25,14 @@ const Login = ({ onLoginSuccess }) => {
       x: direction === 'right' ? -50 : 50,
       transition: { duration: 0.3, ease: "easeInOut" }
     })
+  };
+
+  // 🚨 NEW: Wrapper function to create user in database before letting them in
+  const handleAuthSuccess = async (user) => {
+    if (user) {
+      await createUserProfile(user); // Adds the 50 free credits in Firestore
+      onLoginSuccess(user); // Proceeds to the main app
+    }
   };
 
   return (
@@ -69,7 +79,7 @@ const Login = ({ onLoginSuccess }) => {
             isSignUp={isSignUp}
             setIsSignUp={setIsSignUp}
             onBack={() => setCurrentView('home')}
-            onLoginSuccess={onLoginSuccess}
+            onLoginSuccess={handleAuthSuccess} // 🚨 NEW: Passing our new wrapper function here
           />
         )}
       </AnimatePresence>
