@@ -372,7 +372,7 @@ const Login = ({ onLoginSuccess }) => {
                 {/* Header for Left Side */}
                 <div className="mb-8">
                   <h2 className="text-2xl font-black text-slate-900 mb-2">Join the top 1% Traders.</h2>
-                  <p className="text-sm font-medium text-slate-500">Don't rely on gut feelings. Backtest everything with AI.</p>
+                  <p className="text-sm font-medium text-slate-500">Don't rely on gut feelings. Backtest everything with Algosay.</p>
                 </div>
 
                 {/* SEBI Reality Check Card */}

@@ -24,7 +24,10 @@ export const signInWithGoogle = async () => {
     const user = res.user;
     return user;
   } catch (error) {
-    console.error("Error signing in with Google", error);
+    // 🚨 UPDATE: Enhanced Error Logging 🚨
+    console.error("Error signing in with Google:");
+    console.error("Error Code:", error.code);
+    console.error("Error Message:", error.message);
     throw error;
   }
 };
