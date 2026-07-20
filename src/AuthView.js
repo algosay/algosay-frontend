@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { signInWithGoogle } from '../firebase';
+import { signInWithGoogle } from './firebase';
 import AlgoSayLogo from './AlgoSayLogo';
 import { AlertTriangle, Sparkles, ChevronLeft, ChevronRight, CheckCircle2, Star, ArrowLeft } from 'lucide-react';
 
