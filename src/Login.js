@@ -14,7 +14,7 @@ const Login = ({ onLoginSuccess }) => {
     { symbol: '^BSESN', name: 'SENSEX', price: null, change: null, percent: null }
   ]);
 
-  // 💎 Yahoo Finance Live Spot Price Fetcher Function (WITH CACHE BUSTING & PARSING)
+  // 💎 Bulletproof Yahoo Finance Live Spot Price Fetcher (Multi-Proxy Fallback)
   const fetchMarketData = async () => {
     try {
       const symbols = [
@@ -26,26 +26,39 @@ const Login = ({ onLoginSuccess }) => {
       const updatedData = await Promise.all(
         symbols.map(async (item) => {
           try {
-            // Yahoo API URL + Cache Buster (Date.now() சேர்ப்பதால் பழைய டேட்டா வராது, Live டேட்டா மட்டுமே வரும்)
-            const targetUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(item.sym)}?interval=1m&range=1d&_t=${Date.now()}`;
+            // Yahoo API URL + Cache Buster (100% Live Data)
+            const targetUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(item.sym)}?interval=1m&range=1d&nocache=${Date.now()}`;
             
-            // Proxy வழியாக /get என்று அழைப்பதால் எரர் இல்லாமல் JSON ஆக டேட்டா கிடைக்கும்
-            const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
+            // 💎 MULTI-PROXY STRATEGY: Yahoo API Block-ஐ மீறி டேட்டா எடுக்க 3 Proxies வரிசையாக முயற்சி செய்யும்
+            const proxies = [
+              `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`,
+              `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`,
+              `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`
+            ];
+
+            let data = null;
+
+            // எந்த Proxy வேலை செய்கிறதோ அதிலிருந்து டேட்டாவை எடுக்கும் Loop
+            for (let proxy of proxies) {
+              try {
+                const res = await fetch(proxy);
+                if (res.ok) {
+                  data = await res.json();
+                  break; // டேட்டா கிடைத்துவிட்டால் அடுத்த Proxy-க்கு போகவேண்டாம் (Exit Loop)
+                }
+              } catch (e) {
+                // முதல் Proxy பிளாக் ஆனால் சத்தமில்லாமல் அடுத்ததை ட்ரை செய்யும்
+                console.warn(`Proxy attempt failed for ${item.name}, trying next...`);
+              }
+            }
             
-            const res = await fetch(proxyUrl);
-            
-            if (res.ok) {
-              const proxyData = await res.json();
-              
-              // Proxy-ல் இருந்து வரும் contents-ஐ JSON ஆக மாற்றுதல்
-              const data = JSON.parse(proxyData.contents); 
-              
+            if (data) {
               const result = data?.chart?.result?.[0];
               const meta = result?.meta;
               
-              if (meta) {
+              if (meta && meta.regularMarketPrice) {
                 const currentPrice = meta.regularMarketPrice;
-                const prevClose = meta.previousClose || meta.chartPreviousClose || currentPrice;
+                const prevClose = meta.chartPreviousClose || meta.previousClose || currentPrice;
                 const change = currentPrice - prevClose;
                 const percent = prevClose ? (change / prevClose) * 100 : 0;
                 
@@ -59,12 +72,13 @@ const Login = ({ onLoginSuccess }) => {
               }
             }
           } catch (err) {
-            console.warn(`Fetch Error for ${item.name}:`, err);
+            console.error(`Final Fetch Error for ${item.name}:`, err);
           }
           return null;
         })
       );
 
+      // Successfully fetched data-வை மட்டும் அப்டேட் செய்தல்
       const validResults = updatedData.filter(Boolean);
       if (validResults.length > 0) {
         setIndices(prev => prev.map(old => {
@@ -125,7 +139,7 @@ const Login = ({ onLoginSuccess }) => {
                 <span className="text-slate-300 font-bold tracking-wider">{idx.name}</span>
                 
                 {isLoading ? (
-                  <span className="text-slate-400 font-medium text-[10px] animate-pulse">Loading Live Data...</span>
+                  <span className="text-slate-400 font-medium text-[10px] animate-pulse">Fetching Real Data...</span>
                 ) : (
                   <>
                     <span className={`font-extrabold ${isPositive ? 'text-emerald-400' : 'text-rose-400'}`}>
