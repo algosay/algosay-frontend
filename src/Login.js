@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { signInWithGoogle } from './firebase';
 import { motion } from 'framer-motion';
 import { TypeAnimation } from 'react-type-animation';
-import { Terminal, Wand2 } from 'lucide-react'; // Icons for the new features
+import { Terminal, Wand2, BarChart2 } from 'lucide-react'; // Added BarChart2 for the 5th point
 
 const Login = ({ onLoginSuccess }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -32,7 +32,7 @@ const Login = ({ onLoginSuccess }) => {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
-      transition: { staggerChildren: 0.2 }
+      transition: { staggerChildren: 0.15 }
     }
   };
 
@@ -42,52 +42,52 @@ const Login = ({ onLoginSuccess }) => {
   };
 
   return (
-    <div className="flex min-h-screen w-full font-sans text-slate-300 bg-slate-950 selection:bg-blue-500/30">
+    <div className="flex min-h-screen w-full font-sans text-slate-300 selection:bg-blue-500/30">
       
-      {/* LEFT SIDE: App Innovation & Trust Building (Now in Dark Premium Theme) */}
-      <div className="hidden md:flex flex-col w-1/2 bg-slate-950 relative overflow-hidden px-12 lg:px-20 py-10 z-10">
+      {/* LEFT SIDE: App Innovation (Color 1: Deep Indigo/Blue Dark Theme) */}
+      <div className="hidden md:flex flex-col w-1/2 bg-[#0B132B] relative overflow-hidden px-12 lg:px-20 py-8 z-10">
         
-        {/* Abstract Premium Background Elements (Dark Mode) */}
-        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-blue-900/20 via-slate-950 to-slate-950 -z-10"></div>
+        {/* Abstract Premium Background Elements */}
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-blue-900/30 via-[#0B132B] to-[#0B132B] -z-10"></div>
         <div className="absolute -left-32 top-32 w-96 h-96 bg-blue-600/10 rounded-full mix-blend-screen filter blur-[100px] opacity-70 animate-pulse"></div>
-        <div className="absolute right-0 bottom-0 w-72 h-72 bg-purple-600/10 rounded-full mix-blend-screen filter blur-[100px] opacity-70"></div>
+        <div className="absolute right-0 bottom-0 w-72 h-72 bg-indigo-600/10 rounded-full mix-blend-screen filter blur-[100px] opacity-70"></div>
         
         {/* TOP LEFT: App Name & Logo */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0 border border-blue-400/20">
             <span className="text-white font-black text-2xl">A</span>
           </div>
-          <span className="text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
+          <span className="text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200">
             AlgoSay
           </span>
         </div>
 
         {/* MAIN CONTENT: Centered Vertically */}
-        <div className="flex flex-col justify-center flex-grow mt-6">
-          <h3 className="text-xs font-bold text-blue-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+        <div className="flex flex-col justify-center flex-grow">
+          <h3 className="text-xs font-bold text-blue-400 uppercase tracking-[0.2em] mb-3 flex items-center gap-2">
             <Terminal size={14} /> The Next Evolution in Quant Trading
           </h3>
-          <h1 className="text-4xl lg:text-5xl font-extrabold text-white leading-[1.15] mb-4">
+          <h1 className="text-4xl lg:text-5xl font-extrabold text-white leading-[1.15] mb-3">
             Code-Free Custom Strategies, Powered by AI.
           </h1>
-          <p className="text-base text-slate-400 mb-6 leading-relaxed max-w-lg">
+          <p className="text-sm text-blue-100/70 mb-5 leading-relaxed max-w-lg">
             Unlike traditional platforms where you manually click through dozens of dropdowns, AlgoSay uses an advanced Neural Engine to understand your logic. Just type it, and we test it.
           </p>
 
-          {/* 🔥 NEW FEATURE: LIVE TYPING ANIMATION 🔥 */}
-          <div className="mb-8 p-4 bg-slate-900/50 border border-slate-800 rounded-xl font-mono text-sm shadow-inner min-h-[80px] flex items-center max-w-lg backdrop-blur-sm">
+          {/* 🔥 UPDATED FEATURE: 5 STRATEGIES LIVE TYPING ANIMATION 🔥 */}
+          <div className="mb-6 p-4 bg-[#060B19]/60 border border-blue-900/50 rounded-xl font-mono text-sm shadow-inner min-h-[80px] flex items-center max-w-lg backdrop-blur-sm">
             <span className="text-green-400 mr-2 flex-shrink-0">algo@ai:~$</span>
             <TypeAnimation
               sequence={[
-                'Sell BankNifty ATM Straddle at 9:20 AM...',
-                1000,
-                'AI Processing logic...',
-                500,
-                'Strategy Ready! ✅ Win Rate: 68.4%',
-                2000,
-                'Applying 0DTE Filters...',
-                1000,
-                'Profit Factor optimized to 1.8 🚀',
+                'Sell BankNifty ATM Straddle at 9:20 AM with 25% SL...',
+                2500,
+                'Buy Nifty Call at 9:30 AM if India VIX < 15...',
+                2500,
+                'Iron Condor on Finnifty expiry day at 10:00 AM...',
+                2500,
+                'Short Straddle with premium matching exactly 100...',
+                2500,
+                'Buy BankNifty ATM Put if RSI > 70 and MACD crosses down...',
                 2500
               ]}
               wrapper="span"
@@ -97,15 +97,15 @@ const Login = ({ onLoginSuccess }) => {
             />
           </div>
 
-          {/* STEP-BY-STEP INNOVATION EXPLANATION (Framer Motion Staggered) */}
+          {/* STEP-BY-STEP INNOVATION EXPLANATION (Now with 5 Points) */}
           <motion.div 
             variants={containerVariants}
             initial="hidden"
             animate="show"
-            className="space-y-4 max-w-lg"
+            className="space-y-2 max-w-lg"
           >
             
-            <motion.div variants={itemVariants} className="flex items-start gap-4 p-3 rounded-xl hover:bg-slate-800/30 transition-colors border border-transparent hover:border-slate-700/50">
+            <motion.div variants={itemVariants} className="flex items-start gap-4 p-2 rounded-xl hover:bg-white/5 transition-colors border border-transparent hover:border-white/10">
               <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 font-bold text-sm shadow-inner border border-blue-500/30">
                 1
               </div>
@@ -115,8 +115,7 @@ const Login = ({ onLoginSuccess }) => {
               </div>
             </motion.div>
 
-            {/* 🚨 UPDATE: Point 2 - AI Diagnostics 🚨 */}
-            <motion.div variants={itemVariants} className="flex items-start gap-4 p-3 rounded-xl hover:bg-slate-800/30 transition-colors border border-transparent hover:border-slate-700/50">
+            <motion.div variants={itemVariants} className="flex items-start gap-4 p-2 rounded-xl hover:bg-white/5 transition-colors border border-transparent hover:border-white/10">
               <div className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 font-bold text-sm shadow-inner border border-purple-500/30">
                 2
               </div>
@@ -126,8 +125,7 @@ const Login = ({ onLoginSuccess }) => {
               </div>
             </motion.div>
 
-            {/* 🚨 UPDATE: Point 3 - Deep Filtering 🚨 */}
-            <motion.div variants={itemVariants} className="flex items-start gap-4 p-3 rounded-xl hover:bg-slate-800/30 transition-colors border border-transparent hover:border-slate-700/50">
+            <motion.div variants={itemVariants} className="flex items-start gap-4 p-2 rounded-xl hover:bg-white/5 transition-colors border border-transparent hover:border-white/10">
               <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 font-bold text-sm shadow-inner border border-green-500/30">
                 3
               </div>
@@ -137,8 +135,7 @@ const Login = ({ onLoginSuccess }) => {
               </div>
             </motion.div>
 
-            {/* 🚨 UPDATE: Point 4 - Advanced Metrics 🚨 */}
-            <motion.div variants={itemVariants} className="flex items-start gap-4 p-3 rounded-xl hover:bg-slate-800/30 transition-colors border border-transparent hover:border-slate-700/50">
+            <motion.div variants={itemVariants} className="flex items-start gap-4 p-2 rounded-xl hover:bg-white/5 transition-colors border border-transparent hover:border-white/10">
               <div className="flex-shrink-0 w-8 h-8 rounded-full bg-rose-500/20 flex items-center justify-center text-rose-400 font-bold text-sm shadow-inner border border-rose-500/30">
                 4
               </div>
@@ -148,12 +145,23 @@ const Login = ({ onLoginSuccess }) => {
               </div>
             </motion.div>
 
+            {/* 🔥 NEW 5TH FEATURE POINT 🔥 */}
+            <motion.div variants={itemVariants} className="flex items-start gap-4 p-2 rounded-xl hover:bg-white/5 transition-colors border border-transparent hover:border-white/10">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-400 font-bold text-sm shadow-inner border border-amber-500/30">
+                <BarChart2 size={16} />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-slate-200">Comprehensive Reports & Visuals</h4>
+                <p className="text-xs text-slate-400 mt-1">Export ledgers via PDF/CSV. Analyze performance with Heatmaps, PnL Curves, Drawdown charts, and deep AI insights in detailed backtest reports.</p>
+              </div>
+            </motion.div>
+
           </motion.div>
 
-          {/* 🚨 UPDATE: 10 FREE BACKTESTS CTA BOX (Acts as Login Trigger) 🚨 */}
+          {/* 10 FREE BACKTESTS CTA BOX (Acts as Login Trigger) */}
           <div 
             onClick={handleGoogleLogin}
-            className={`mt-8 p-4 rounded-xl cursor-pointer transition-all border border-blue-500/30 bg-gradient-to-r from-blue-900/40 to-indigo-900/40 hover:border-blue-400 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] flex items-center justify-between group max-w-md backdrop-blur-md ${isLoading ? 'opacity-70 pointer-events-none' : ''}`}
+            className={`mt-4 p-4 rounded-xl cursor-pointer transition-all border border-blue-500/30 bg-gradient-to-r from-blue-600/20 to-indigo-600/20 hover:border-blue-400 hover:shadow-[0_0_20px_rgba(59,130,246,0.2)] flex items-center justify-between group max-w-md backdrop-blur-md ${isLoading ? 'opacity-70 pointer-events-none' : ''}`}
           >
             <div className="flex items-center gap-4">
                <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center shadow-lg shadow-blue-500/40 text-white text-2xl group-hover:scale-110 transition-transform">
@@ -164,7 +172,7 @@ const Login = ({ onLoginSuccess }) => {
                  <p className="text-xs text-blue-300 font-semibold mt-0.5">Click here to Sign In and start building.</p>
                </div>
             </div>
-            <div className="text-blue-400 bg-slate-900/50 p-2 rounded-full shadow-sm group-hover:bg-blue-500 group-hover:text-white transition-colors border border-blue-500/20">
+            <div className="text-blue-400 bg-blue-950/50 p-2 rounded-full shadow-sm group-hover:bg-blue-500 group-hover:text-white transition-colors border border-blue-500/20">
                <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
                </svg>
@@ -174,25 +182,34 @@ const Login = ({ onLoginSuccess }) => {
         </div>
       </div>
 
-      {/* RIGHT SIDE: Login Action (Dark Premium Glassmorphism) */}
-      <div className="w-full md:w-1/2 bg-slate-950 flex items-center justify-center p-6 relative z-10">
+      {/* RIGHT SIDE: Login Action (Color 2: Very Dark Slate/Gray) */}
+      <div className="w-full md:w-1/2 bg-[#0F172A] flex items-center justify-center p-6 relative z-10">
         
         {/* Decorative elements for the dark background */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-30 pointer-events-none">
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-20 pointer-events-none">
            <div className="absolute -top-24 -right-24 w-96 h-96 bg-blue-600/20 rounded-full blur-[120px]"></div>
            <div className="absolute bottom-10 -left-20 w-72 h-72 bg-purple-600/20 rounded-full blur-[120px]"></div>
         </div>
 
         {/* Glassmorphism Login Card */}
-        <div className="w-full max-w-md bg-slate-900/60 backdrop-blur-xl rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] p-8 lg:p-10 z-10 border border-slate-700/50">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-white mb-2 tracking-tight">Welcome Back</h2>
-            <p className="text-sm text-slate-400">Sign in to your AlgoSay account</p>
+        <div className="w-full max-w-md bg-[#1E293B]/60 backdrop-blur-xl rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] p-8 lg:p-10 z-10 border border-slate-700/50">
+          
+          {/* 🔥 UPDATED: Replaced "Welcome Back" with App Name and Logo 🔥 */}
+          <div className="flex flex-col items-center justify-center mb-8">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0 border border-blue-400/20">
+                <span className="text-white font-black text-3xl">A</span>
+              </div>
+              <span className="text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
+                AlgoSay
+              </span>
+            </div>
+            <p className="text-sm text-slate-400 font-medium mt-1">Sign in to your AlgoSay terminal</p>
           </div>
 
           <div className="space-y-6">
             
-            {/* 🔥 NEW FEATURE: Try AI Sandbox (No Login Required) 🔥 */}
+            {/* Try AI Sandbox (No Login Required) */}
             <div className="p-4 bg-slate-800/40 rounded-xl border border-slate-700/50 mb-6">
               <label className="flex items-center gap-2 text-sm font-semibold text-blue-400 mb-2">
                 <Wand2 size={16} /> Try AI Prompt (Sandbox Mode)
@@ -203,7 +220,7 @@ const Login = ({ onLoginSuccess }) => {
                   value={sandboxText}
                   onChange={(e) => setSandboxText(e.target.value)}
                   placeholder="e.g. Buy Nifty Call at 9:30..." 
-                  className="w-full px-3 py-2 rounded-lg border border-slate-700 bg-slate-950 text-white placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm"
+                  className="w-full px-3 py-2 rounded-lg border border-slate-700 bg-slate-900 text-white placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm"
                 />
                 <button 
                   onClick={handleSandboxSubmit}
@@ -216,7 +233,7 @@ const Login = ({ onLoginSuccess }) => {
 
             <div className="relative flex items-center justify-center mb-6">
               <div className="absolute border-t border-slate-700/80 w-full"></div>
-              <span className="bg-[#111827] px-4 text-xs font-bold text-slate-500 uppercase tracking-widest relative z-10 rounded-full">Secure Login</span>
+              <span className="bg-[#1E293B] px-4 text-xs font-bold text-slate-400 uppercase tracking-widest relative z-10 rounded-full">Secure Login</span>
             </div>
 
             {/* Standard Email Input */}
@@ -225,7 +242,7 @@ const Login = ({ onLoginSuccess }) => {
               <input 
                 type="email" 
                 placeholder="you@example.com" 
-                className="w-full px-4 py-3 rounded-xl border border-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm bg-slate-950/50 text-white placeholder-slate-600"
+                className="w-full px-4 py-3 rounded-xl border border-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm bg-slate-900/50 text-white placeholder-slate-600"
                 disabled
               />
             </div>
@@ -235,14 +252,14 @@ const Login = ({ onLoginSuccess }) => {
               <input 
                 type="password" 
                 placeholder="••••••••" 
-                className="w-full px-4 py-3 rounded-xl border border-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm bg-slate-950/50 text-white placeholder-slate-600"
+                className="w-full px-4 py-3 rounded-xl border border-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm bg-slate-900/50 text-white placeholder-slate-600"
                 disabled
               />
             </div>
 
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-2 cursor-pointer group">
-                <input type="checkbox" className="w-4 h-4 text-blue-500 bg-slate-950 border-slate-600 rounded focus:ring-blue-500 focus:ring-offset-slate-900" />
+                <input type="checkbox" className="w-4 h-4 text-blue-500 bg-slate-900 border-slate-600 rounded focus:ring-blue-500 focus:ring-offset-slate-900" />
                 <span className="text-sm text-slate-400 font-medium group-hover:text-slate-300 transition-colors">Remember me</span>
               </label>
               <span className="text-sm font-semibold text-blue-400 hover:text-blue-300 cursor-pointer transition-colors">Forgot Password?</span>
@@ -254,10 +271,10 @@ const Login = ({ onLoginSuccess }) => {
 
             <div className="relative flex items-center justify-center mt-6 mb-6">
               <div className="absolute border-t border-slate-700/80 w-full"></div>
-              <span className="bg-[#111827] px-4 text-xs font-bold text-slate-500 uppercase tracking-widest relative z-10 rounded-full">Or Login With</span>
+              <span className="bg-[#1E293B] px-4 text-xs font-bold text-slate-400 uppercase tracking-widest relative z-10 rounded-full">Or Login With</span>
             </div>
 
-            {/* Google Login Button (The Active One) */}
+            {/* Google Login Button */}
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
