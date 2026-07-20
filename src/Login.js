@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { signInWithGoogle } from './firebase';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TypeAnimation } from 'react-type-animation';
-import { Terminal, BarChart2 } from 'lucide-react';
+import { Terminal, BarChart2, Activity, PlayCircle } from 'lucide-react';
 
 const Login = ({ onLoginSuccess }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -52,132 +52,138 @@ const Login = ({ onLoginSuccess }) => {
   };
 
   return (
-    <div className="flex min-h-screen w-full font-sans text-slate-700 selection:bg-blue-200 relative pt-8">
+    <div className="flex flex-col md:flex-row min-h-screen w-full font-sans text-slate-800 selection:bg-blue-300 relative pt-8">
       
-      {/* 🔥 NEW FEATURE: LIVE FOMO TICKER (Top of the screen) 🔥 */}
+      {/* 🔥 UPDATED FEATURE: EXTENDED LIVE FOMO TICKER (Top of the screen) 🔥 */}
       <div className="absolute top-0 left-0 w-full h-8 bg-slate-900 text-white flex items-center overflow-hidden z-50 shadow-md">
         <motion.div
           initial={{ x: "100%" }}
           animate={{ x: "-100%" }}
-          transition={{ repeat: Infinity, duration: 25, ease: "linear" }}
-          className="whitespace-nowrap flex gap-16 text-xs font-medium tracking-wide"
+          transition={{ repeat: Infinity, duration: 40, ease: "linear" }}
+          className="whitespace-nowrap flex gap-16 text-xs font-semibold tracking-wide"
         >
           <span className="flex items-center gap-2"><span className="text-yellow-400">⚡</span> User Rahul just backtested a 0DTE strategy with 72% Win Rate</span>
           <span className="flex items-center gap-2"><span className="text-orange-500">🔥</span> 15,000+ strategies mapped by AI today</span>
           <span className="flex items-center gap-2"><span className="text-blue-400">💎</span> Karthik deployed an Iron Condor with 4.2 Profit Factor</span>
           <span className="flex items-center gap-2"><span className="text-green-400">🚀</span> System survival probability metrics unlocked for pro users</span>
+          <span className="flex items-center gap-2"><span className="text-purple-400">📊</span> Priya executed a 5-year Options Backtest in 1.2 seconds</span>
+          <span className="flex items-center gap-2"><span className="text-cyan-400">📈</span> BankNifty Straddle backtest showed 18% ROI this month</span>
+          <span className="flex items-center gap-2"><span className="text-rose-400">🎯</span> User Vikram optimized SL trailing for Nifty 50</span>
+          <span className="flex items-center gap-2"><span className="text-emerald-400">✅</span> AI automatically fixed a logical error in a Calendar Spread</span>
         </motion.div>
       </div>
 
-      {/* LEFT SIDE: App Innovation (Premium Light Theme: White/Slate & Blue) */}
-      <div className="hidden md:flex flex-col w-1/2 bg-slate-50 relative overflow-hidden px-12 lg:px-20 py-8 z-10">
+      {/* LEFT SIDE: App Innovation (Now Pure White Background for high contrast) */}
+      <div className="hidden md:flex flex-col w-1/2 bg-white relative overflow-hidden px-12 lg:px-16 py-8 z-10 border-r border-slate-200">
         
-        {/* Abstract Premium Background Elements */}
-        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-blue-100 via-slate-50 to-slate-50 -z-10"></div>
-        <div className="absolute -left-32 top-32 w-96 h-96 bg-blue-400/20 rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-pulse"></div>
-        <div className="absolute right-0 bottom-0 w-72 h-72 bg-indigo-400/20 rounded-full mix-blend-multiply filter blur-[100px] opacity-70"></div>
+        {/* Very subtle background grids for technical feel */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] -z-10"></div>
         
-        {/* TOP LEFT: App Name & Logo */}
-        <div className="flex items-center gap-3 mb-4 mt-2">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0 border border-blue-400/20">
-            <span className="text-white font-black text-2xl">A</span>
+        {/* 🔥 UPDATED: TOP LEFT - Big Logo & Name (No breaking) 🔥 */}
+        <div className="flex flex-col items-start mb-8 mt-2 w-full">
+          <div className="flex items-center gap-4 whitespace-nowrap">
+            <div className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center shadow-xl shadow-blue-600/30 shrink-0">
+              <span className="text-white font-black text-3xl">A</span>
+            </div>
+            <h1 className="text-5xl lg:text-6xl font-extrabold tracking-tighter text-slate-900 leading-none">
+              AlgoSay
+            </h1>
           </div>
-          <span className="text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-blue-700">
-            AlgoSay
-          </span>
+          <div className="mt-2 ml-[72px] bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+            <Activity size={14} /> Options Backtesting Engine
+          </div>
         </div>
 
         {/* MAIN CONTENT: Centered Vertically */}
-        <div className="flex flex-col justify-center flex-grow pt-4">
-          <h3 className="text-xs font-bold text-blue-600 uppercase tracking-[0.2em] mb-3 flex items-center gap-2">
-            <Terminal size={14} /> The Next Evolution in Quant Trading
-          </h3>
-          <h1 className="text-4xl lg:text-5xl font-extrabold text-slate-900 leading-[1.15] mb-3">
-            Code-Free Custom Strategies, Powered by AI.
-          </h1>
-          <p className="text-sm text-slate-600 mb-5 leading-relaxed max-w-lg">
-            Unlike traditional platforms where you manually click through dozens of dropdowns, AlgoSay uses an advanced Neural Engine to understand your logic. Just type it, and we test it.
+        <div className="flex flex-col justify-start flex-grow pt-2">
+          
+          {/* 🔥 UPDATED: Focus heavily on "Backtesting" to make it instantly recognizable 🔥 */}
+          <h2 className="text-4xl font-extrabold text-slate-900 leading-[1.2] mb-4">
+            Test Options Strategies <br/> <span className="text-blue-600">Without Writing Code.</span>
+          </h2>
+          <p className="text-base text-slate-700 mb-6 leading-relaxed max-w-lg font-medium">
+            Stop manually crunching numbers. Just type your trading logic in plain English, and our AI Engine instantly backtests it across years of historical NSE data.
           </p>
 
-          {/* 🔥 EXISTING FEATURE: 5 STRATEGIES LIVE TYPING ANIMATION 🔥 */}
-          <div className="mb-6 p-4 bg-white border border-blue-100 rounded-xl font-mono text-sm shadow-sm min-h-[80px] flex items-center max-w-lg">
-            <span className="text-emerald-600 mr-2 flex-shrink-0">algo@ai:~$</span>
+          {/* EXISTING FEATURE: 5 STRATEGIES LIVE TYPING ANIMATION (Clearer Text) */}
+          <div className="mb-8 p-5 bg-slate-50 border border-slate-200 rounded-xl font-mono text-sm shadow-inner min-h-[90px] flex items-center max-w-lg">
+            <span className="text-emerald-600 mr-2 flex-shrink-0 font-bold">algo@backtest:~$</span>
             <TypeAnimation
               sequence={[
-                'Sell BankNifty ATM Straddle at 9:20 AM with 25% SL...',
+                'Backtest BankNifty ATM Straddle at 9:20 AM with 25% SL...',
                 2500,
-                'Buy Nifty Call at 9:30 AM if India VIX < 15...',
+                'Check Nifty Call at 9:30 AM if India VIX < 15...',
                 2500,
-                'Iron Condor on Finnifty expiry day at 10:00 AM...',
+                'Run Iron Condor on Finnifty expiry day at 10:00 AM...',
                 2500,
-                'Short Straddle with premium matching exactly 100...',
+                'Backtest Short Straddle matching premium exactly 100...',
                 2500,
-                'Buy BankNifty ATM Put if RSI > 70 and MACD crosses down...',
+                'Test BankNifty ATM Put if RSI > 70 and MACD crosses down...',
                 2500
               ]}
               wrapper="span"
               speed={50}
-              className="text-blue-600 font-medium"
+              className="text-blue-700 font-bold tracking-tight"
               repeat={Infinity}
             />
           </div>
 
-          {/* 🔥 UPDATED: STEP-BY-STEP STAGGERED ENTRY ON SCROLL 🔥 */}
+          {/* STEP-BY-STEP STAGGERED ENTRY ON SCROLL (High Contrast Text) */}
           <motion.div 
             variants={containerVariants}
             initial="hidden"
             whileInView="show"
             viewport={{ once: true, amount: 0.1 }}
-            className="space-y-2 max-w-lg"
+            className="space-y-3 max-w-lg"
           >
             
-            <motion.div variants={itemVariants} className="flex items-start gap-4 p-2 rounded-xl hover:bg-slate-100 transition-colors border border-transparent hover:border-slate-200">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-sm shadow-inner border border-blue-200">
+            <motion.div variants={itemVariants} className="flex items-start gap-4 p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-200">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-sm shadow-sm border border-blue-200">
                 1
               </div>
               <div>
-                <h4 className="text-sm font-bold text-slate-800">Describe Naturally & AI Auto-Mapping</h4>
-                <p className="text-xs text-slate-500 mt-1">Explain your logic in plain English or Tanglish. Our AI instantly translates your text into precision options legs, strikes, and execution rules.</p>
+                <h4 className="text-base font-bold text-slate-900">AI Logic Translation</h4>
+                <p className="text-sm text-slate-600 mt-1 font-medium">Explain your logic naturally. AI maps it directly into strike prices, legs, and execution rules instantly.</p>
               </div>
             </motion.div>
 
-            <motion.div variants={itemVariants} className="flex items-start gap-4 p-2 rounded-xl hover:bg-slate-100 transition-colors border border-transparent hover:border-slate-200">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold text-sm shadow-inner border border-purple-200">
+            <motion.div variants={itemVariants} className="flex items-start gap-4 p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-200">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 font-bold text-sm shadow-sm border border-purple-200">
                 2
               </div>
               <div>
-                <h4 className="text-sm font-bold text-slate-800">AI Strategy Diagnostics & Improvement</h4>
-                <p className="text-xs text-slate-500 mt-1">The moment your backtest completes, our AI analyzes your MFE/MAE and trade sequence to generate a personalized report on exactly how to improve your strategy.</p>
+                <h4 className="text-base font-bold text-slate-900">Lightning Fast Execution</h4>
+                <p className="text-sm text-slate-600 mt-1 font-medium">Crunch years of tick-by-tick options data in seconds to validate your trading edge.</p>
               </div>
             </motion.div>
 
-            <motion.div variants={itemVariants} className="flex items-start gap-4 p-2 rounded-xl hover:bg-slate-100 transition-colors border border-transparent hover:border-slate-200">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-bold text-sm shadow-inner border border-green-200">
+            <motion.div variants={itemVariants} className="flex items-start gap-4 p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-200">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-bold text-sm shadow-sm border border-green-200">
                 3
               </div>
               <div>
-                <h4 className="text-sm font-bold text-slate-800">Granular Deep Filtering Engine</h4>
-                <p className="text-xs text-slate-500 mt-1">Slice your data with precision using 0DTE, Day-wise, Win/Loss, and Buy/Sell leg filters to find your true hidden edge.</p>
+                <h4 className="text-base font-bold text-slate-900">Deep Drawdown Analytics</h4>
+                <p className="text-sm text-slate-600 mt-1 font-medium">Slice data with 0DTE, Day-wise, and Buy/Sell filters to discover exactly where your strategy fails.</p>
               </div>
             </motion.div>
 
-            <motion.div variants={itemVariants} className="flex items-start gap-4 p-2 rounded-xl hover:bg-slate-100 transition-colors border border-transparent hover:border-slate-200">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center text-rose-600 font-bold text-sm shadow-inner border border-rose-200">
+            <motion.div variants={itemVariants} className="flex items-start gap-4 p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-200">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center text-rose-700 font-bold text-sm shadow-sm border border-rose-200">
                 4
               </div>
               <div>
-                <h4 className="text-sm font-bold text-slate-800">Institutional Pro Metrics</h4>
-                <p className="text-xs text-slate-500 mt-1">Go beyond basic PnL. We provide Profit Factor, Sortino Ratio, System Survival Probability, Kelly Sizing, Stress Level Index, Tail Ratio & Scalability.</p>
+                <h4 className="text-base font-bold text-slate-900">Institutional Metrics</h4>
+                <p className="text-sm text-slate-600 mt-1 font-medium">Unlock Profit Factor, System Survival Probability, Kelly Sizing, and Stress Level Indexes.</p>
               </div>
             </motion.div>
 
-            <motion.div variants={itemVariants} className="flex items-start gap-4 p-2 rounded-xl hover:bg-slate-100 transition-colors border border-transparent hover:border-slate-200">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 font-bold text-sm shadow-inner border border-amber-200">
+            <motion.div variants={itemVariants} className="flex items-start gap-4 p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-200">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 font-bold text-sm shadow-sm border border-amber-200">
                 <BarChart2 size={16} />
               </div>
               <div>
-                <h4 className="text-sm font-bold text-slate-800">Comprehensive Reports & Visuals</h4>
-                <p className="text-xs text-slate-500 mt-1">Export ledgers via PDF/CSV. Analyze performance with Heatmaps, PnL Curves, Drawdown charts, and deep AI insights in detailed backtest reports.</p>
+                <h4 className="text-base font-bold text-slate-900">Visual Heatmaps & Reports</h4>
+                <p className="text-sm text-slate-600 mt-1 font-medium">Export ledgers and analyze PnL Curves visually to confidently deploy capital in live markets.</p>
               </div>
             </motion.div>
 
@@ -186,15 +192,15 @@ const Login = ({ onLoginSuccess }) => {
           {/* 10 FREE BACKTESTS CTA BOX */}
           <div 
             onClick={handleGoogleLogin}
-            className={`mt-4 p-4 rounded-xl cursor-pointer transition-all border border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 hover:border-blue-400 hover:shadow-lg flex items-center justify-between group max-w-md ${isLoading ? 'opacity-70 pointer-events-none' : ''}`}
+            className={`mt-6 p-4 rounded-xl cursor-pointer transition-all border border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 hover:border-blue-400 hover:shadow-lg flex items-center justify-between group max-w-md ${isLoading ? 'opacity-70 pointer-events-none' : ''}`}
           >
             <div className="flex items-center gap-4">
                <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center shadow-md shadow-blue-500/30 text-white text-2xl group-hover:scale-110 transition-transform">
-                 🎁
+                 <PlayCircle size={24} />
                </div>
                <div>
-                 <h4 className="text-base font-extrabold text-slate-900">Claim 10 Free Backtests</h4>
-                 <p className="text-xs text-blue-600 font-semibold mt-0.5">Click here to Sign In and start building.</p>
+                 <h4 className="text-base font-extrabold text-slate-900">Start Backtesting Now</h4>
+                 <p className="text-sm text-blue-700 font-bold mt-0.5">Claim 10 Free Scans on Sign Up!</p>
                </div>
             </div>
             <div className="text-blue-600 bg-white p-2 rounded-full shadow-sm group-hover:bg-blue-600 group-hover:text-white transition-colors border border-blue-200">
@@ -207,76 +213,71 @@ const Login = ({ onLoginSuccess }) => {
         </div>
       </div>
 
-      {/* RIGHT SIDE: Login Action */}
-      <div className="w-full md:w-1/2 bg-white flex items-center justify-center p-6 relative z-10 pt-12">
+      {/* RIGHT SIDE: Login Action (🔥 NOW SOLID BLUE GRADIENT & BOX MOVED UP 🔥) */}
+      <div className="w-full md:w-1/2 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-900 flex items-start justify-center p-6 relative z-10 pt-24 lg:pt-32">
         
-        {/* Decorative elements for the light background */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-40 pointer-events-none">
-           <div className="absolute -top-24 -right-24 w-96 h-96 bg-blue-100 rounded-full blur-[120px]"></div>
-           <div className="absolute bottom-10 -left-20 w-72 h-72 bg-indigo-100 rounded-full blur-[120px]"></div>
+        {/* Decorative elements for the dark blue background */}
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-30 pointer-events-none">
+           <div className="absolute -top-24 -right-24 w-96 h-96 bg-white rounded-full blur-[120px]"></div>
+           <div className="absolute bottom-10 -left-20 w-72 h-72 bg-blue-300 rounded-full blur-[120px]"></div>
         </div>
 
-        {/* Glassmorphism/Floating Login Card */}
-        <div className="w-full max-w-md bg-white/80 backdrop-blur-xl rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.05)] p-8 lg:p-10 z-10 border border-slate-100">
+        {/* Glassmorphism/Floating Login Card (Kept white for high readability against blue bg) */}
+        <div className="w-full max-w-md bg-white rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] p-8 lg:p-10 z-10 border border-white/20 relative">
           
           <div className="flex flex-col items-center justify-center mb-8">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0 border border-blue-400/20">
-                <span className="text-white font-black text-3xl">A</span>
-              </div>
-              <span className="text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600">
-                AlgoSay
-              </span>
-            </div>
-            <p className="text-sm text-slate-500 font-medium mt-1">Sign in to your AlgoSay terminal</p>
+            <h2 className="text-2xl font-extrabold text-slate-900 mb-1">Welcome Back</h2>
+            <p className="text-sm text-slate-600 font-semibold text-center">
+              Sign in to access your saved backtests and AI strategy reports.
+            </p>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-5">
 
             <div className="relative flex items-center justify-center mb-6">
               <div className="absolute border-t border-slate-200 w-full"></div>
-              <span className="bg-white px-4 text-xs font-bold text-slate-400 uppercase tracking-widest relative z-10 rounded-full">Secure Login</span>
+              <span className="bg-white px-4 text-xs font-extrabold text-slate-400 uppercase tracking-widest relative z-10 rounded-full">Secure Login</span>
             </div>
 
             {/* Standard Email Input */}
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">Email Address</label>
+              <label className="block text-sm font-bold text-slate-700 mb-2">Email Address</label>
               <input 
                 type="email" 
                 placeholder="you@example.com" 
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm bg-slate-50 text-slate-800 placeholder-slate-400"
+                className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm bg-slate-50 text-slate-900 placeholder-slate-400 font-medium"
                 disabled
               />
             </div>
             
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">Password</label>
+              <label className="block text-sm font-bold text-slate-700 mb-2">Password</label>
               <input 
                 type="password" 
                 placeholder="••••••••" 
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm bg-slate-50 text-slate-800 placeholder-slate-400"
+                className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm bg-slate-50 text-slate-900 placeholder-slate-400 font-medium"
                 disabled
               />
             </div>
 
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between py-1">
               <label className="flex items-center gap-2 cursor-pointer group">
                 <input type="checkbox" className="w-4 h-4 text-blue-600 bg-white border-slate-300 rounded focus:ring-blue-500" />
-                <span className="text-sm text-slate-600 font-medium group-hover:text-slate-800 transition-colors">Remember me</span>
+                <span className="text-sm text-slate-700 font-bold group-hover:text-slate-900 transition-colors">Remember me</span>
               </label>
-              <span className="text-sm font-semibold text-blue-600 hover:text-blue-700 cursor-pointer transition-colors">Forgot Password?</span>
+              <span className="text-sm font-bold text-blue-600 hover:text-blue-800 cursor-pointer transition-colors">Forgot Password?</span>
             </div>
 
-            <button disabled className="w-full py-3.5 bg-blue-50 text-blue-400 font-bold rounded-xl shadow-sm transition-all cursor-not-allowed border border-blue-100">
+            <button disabled className="w-full py-3.5 bg-slate-100 text-slate-400 font-bold rounded-xl shadow-sm transition-all cursor-not-allowed border border-slate-200">
               Login via Email (Coming Soon)
             </button>
 
             <div className="relative flex items-center justify-center mt-6 mb-6">
               <div className="absolute border-t border-slate-200 w-full"></div>
-              <span className="bg-white px-4 text-xs font-bold text-slate-400 uppercase tracking-widest relative z-10 rounded-full">Or Login With</span>
+              <span className="bg-white px-4 text-xs font-extrabold text-slate-400 uppercase tracking-widest relative z-10 rounded-full">Or Login With</span>
             </div>
 
-            {/* 🔥 UPDATED: Google Login Button with Sweep Border & Ripple Effect 🔥 */}
+            {/* 🔥 EXISTING: Google Login Button with Sweep Border & Ripple Effect 🔥 */}
             <div className="relative p-[2px] rounded-xl group overflow-hidden bg-slate-200">
               {/* Subtle Gradient Glow (Sweep Effect) on Hover */}
               <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-indigo-500 to-purple-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -292,7 +293,7 @@ const Login = ({ onLoginSuccess }) => {
               <button
                 onMouseDown={handleRippleClick}
                 disabled={isLoading}
-                className={`relative w-full flex items-center justify-center gap-3 py-3.5 px-4 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-[10px] transition-colors shadow-sm overflow-hidden z-10 ${isLoading ? 'opacity-70 cursor-wait' : ''}`}
+                className={`relative w-full flex items-center justify-center gap-3 py-3.5 px-4 bg-white hover:bg-slate-50 text-slate-800 font-bold rounded-[10px] transition-colors shadow-sm overflow-hidden z-10 ${isLoading ? 'opacity-70 cursor-wait' : ''}`}
               >
                 {/* Smooth Ripple Effect Span */}
                 <AnimatePresence>
@@ -331,8 +332,8 @@ const Login = ({ onLoginSuccess }) => {
           </div>
           
           <div className="mt-8 text-center">
-            <p className="text-sm text-slate-500 font-medium">
-              Don't have an account? <span className="text-blue-600 font-bold hover:text-blue-700 hover:underline cursor-pointer transition-all">Sign up</span>
+            <p className="text-sm text-slate-600 font-bold">
+              Don't have an account? <span className="text-blue-600 font-extrabold hover:text-blue-800 hover:underline cursor-pointer transition-all">Sign up</span>
             </p>
           </div>
         </div>
