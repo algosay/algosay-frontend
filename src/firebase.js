@@ -1,6 +1,12 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { 
+  getAuth, 
+  GoogleAuthProvider, 
+  signInWithPopup, 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword 
+} from "firebase/auth";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -24,9 +30,29 @@ export const signInWithGoogle = async () => {
     const user = res.user;
     return user;
   } catch (error) {
-    console.error("Error signing in with Google:");
-    console.error("Error Code:", error.code);
-    console.error("Error Message:", error.message);
+    console.error("Error signing in with Google:", error.code, error.message);
+    throw error;
+  }
+};
+
+// 🚨 NEW: Email/Password Sign Up Function
+export const signUpWithEmail = async (email, password) => {
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    return userCredential.user;
+  } catch (error) {
+    console.error("Sign Up Error:", error.code, error.message);
+    throw error;
+  }
+};
+
+// 🚨 NEW: Email/Password Login Function
+export const signInWithEmail = async (email, password) => {
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    return userCredential.user;
+  } catch (error) {
+    console.error("Login Error:", error.code, error.message);
     throw error;
   }
 };

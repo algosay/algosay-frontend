@@ -68,6 +68,12 @@ const Login = ({ onLoginSuccess }) => {
   // NEW STATE: To toggle between Landing ('home') and Login ('login') views
   const [currentView, setCurrentView] = useState('home');
 
+  // NEW STATES: Form inputs, Auth mode, and Error handling
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [authError, setAuthError] = useState('');
+
   // Auto-rotate reviews every 5 seconds
   useEffect(() => {
     const interval = setInterval(() => {
@@ -78,15 +84,45 @@ const Login = ({ onLoginSuccess }) => {
 
   const handleGoogleLogin = async () => {
     setIsLoading(true);
+    setAuthError('');
     try {
       const user = await signInWithGoogle();
       if (user) {
         onLoginSuccess(user);
       }
     } catch (error) {
-      alert("Login failed. Please try again.");
+      setAuthError("Google Login failed. Please try again.");
       setIsLoading(false);
     }
+  };
+
+  // NEW FUNCTION: Handle Email/Password Login & Signup
+  const handleEmailAuth = (e) => {
+    e.preventDefault();
+    setAuthError('');
+    
+    if (!email || !password) {
+      setAuthError('Please enter both email and password.');
+      return;
+    }
+    
+    if (password.length < 6) {
+      setAuthError('Password must be at least 6 characters long.');
+      return;
+    }
+
+    // Example Error Simulation (Replace with actual Firebase Auth logic)
+    if (isSignUp && email === 'test@example.com') {
+      setAuthError('Email already exists. Please log in instead.');
+      return;
+    } else if (!isSignUp && password === 'wrongpassword') {
+      setAuthError('Invalid password. Please try again.');
+      return;
+    }
+
+    // Success flow placeholder
+    console.log(isSignUp ? "Signing up:" : "Logging in:", { email, password });
+    alert(`${isSignUp ? 'Sign Up' : 'Login'} successful for ${email}!`);
   };
 
   const handleRippleClick = (e) => {
@@ -198,13 +234,13 @@ const Login = ({ onLoginSuccess }) => {
               {/* TOP RIGHT NAVIGATION BUTTONS */}
               <div className="flex items-center gap-3 sm:gap-4">
                 <button 
-                  onClick={() => setCurrentView('login')}
+                  onClick={() => { setCurrentView('login'); setIsSignUp(false); }}
                   className="px-4 py-2 text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors"
                 >
                   Log In
                 </button>
                 <button 
-                  onClick={() => setCurrentView('login')}
+                  onClick={() => { setCurrentView('login'); setIsSignUp(true); }}
                   className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl shadow-md shadow-blue-500/30 transition-all hover:-translate-y-0.5"
                 >
                   Sign Up
@@ -269,7 +305,7 @@ const Login = ({ onLoginSuccess }) => {
 
                 {/* 10 FREE BACKTESTS CTA BOX */}
                 <div 
-                  onClick={() => setCurrentView('login')}
+                  onClick={() => { setCurrentView('login'); setIsSignUp(true); }}
                   className="mt-2 p-3.5 rounded-xl cursor-pointer transition-all border border-blue-300 bg-gradient-to-r from-blue-50 to-indigo-100 hover:border-blue-500 hover:shadow-lg flex items-center justify-between group max-w-lg"
                 >
                   <div className="flex items-center gap-3.5">
@@ -278,7 +314,7 @@ const Login = ({ onLoginSuccess }) => {
                      </div>
                      <div>
                        <h4 className="text-base font-black text-slate-900">Claim 10 Free Backtests</h4>
-                       <p className="text-xs text-blue-700 font-bold mt-0.5">Click here to Sign In and start building.</p>
+                       <p className="text-xs text-blue-700 font-bold mt-0.5">Click here to Sign Up and start building.</p>
                      </div>
                   </div>
                   <div className="text-blue-700 bg-white p-2.5 rounded-full shadow group-hover:bg-blue-600 group-hover:text-white transition-colors border border-blue-200">
@@ -353,10 +389,9 @@ const Login = ({ onLoginSuccess }) => {
             initial="initial"
             animate="animate"
             exit="exit"
-            // CHANGED: min-h-screen for mobile scrolling, lg:h-screen for desktop. Added flex-col (mobile) & lg:flex-row (desktop)
             className="w-full min-h-screen lg:h-screen flex flex-col lg:flex-row relative z-10 pt-0"
           >
-            {/* Back Button - MOVED HERE so it is always on top-left of the entire screen even on mobile */}
+            {/* Back Button */}
             <button 
               onClick={() => setCurrentView('home')}
               className="absolute top-6 left-6 lg:left-10 flex items-center gap-2 text-slate-600 hover:text-blue-600 font-bold bg-white/90 backdrop-blur-sm px-4 py-2 rounded-xl shadow-sm border border-slate-200 transition-all z-[60] hover:-translate-x-1"
@@ -365,17 +400,14 @@ const Login = ({ onLoginSuccess }) => {
             </button>
 
             {/* --- LEFT SIDE: White Theme (Reviews & Reality Check) --- */}
-            {/* CHANGED: Added `order-2 lg:order-1` so this goes to bottom on mobile, but stays left on desktop */}
             <div className="w-full lg:w-1/2 lg:h-full bg-white flex flex-col justify-center items-center p-6 pt-16 pb-20 lg:p-12 relative overflow-y-visible lg:overflow-y-auto z-10 border-r border-slate-100 order-2 lg:order-1">
               
               <div className="w-full max-w-md space-y-6 mt-8 lg:mt-0">
-                {/* Header for Left Side */}
                 <div className="mb-8">
                   <h2 className="text-2xl font-black text-slate-900 mb-2">Join the top 1% Traders.</h2>
                   <p className="text-sm font-medium text-slate-500">Don't rely on gut feelings. Backtest everything with Algosay.</p>
                 </div>
 
-                {/* SEBI Reality Check Card */}
                 <motion.div 
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -405,7 +437,6 @@ const Login = ({ onLoginSuccess }) => {
                   </div>
                 </motion.div>
 
-                {/* Trader Reviews Card */}
                 <motion.div 
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -483,14 +514,11 @@ const Login = ({ onLoginSuccess }) => {
             </div>
 
             {/* --- RIGHT SIDE: Light Blue Theme (Login Form) --- */}
-            {/* CHANGED: Added `order-1 lg:order-2` so this stays on TOP on mobile, but Right side on desktop */}
             <div className="w-full lg:w-1/2 lg:h-full bg-gradient-to-br from-slate-100 via-blue-50/80 to-indigo-100/70 flex flex-col items-center justify-center p-6 pt-24 pb-12 lg:p-12 relative overflow-y-visible lg:overflow-y-auto z-0 order-1 lg:order-2">
               
-              {/* Soft Decorative Ambient Background Elements for Right Side */}
               <div className="absolute top-10 right-10 w-96 h-96 bg-blue-300/40 rounded-full blur-[100px] pointer-events-none"></div>
               <div className="absolute bottom-20 left-10 w-80 h-80 bg-indigo-300/30 rounded-full blur-[100px] pointer-events-none"></div>
 
-              {/* Login Card - CHANGED: max-w-md to max-w-lg and increased padding (p-8 lg:p-10) to make it larger */}
               <div className="w-full max-w-lg bg-white/95 backdrop-blur-2xl rounded-3xl shadow-[0_20px_50px_rgba(30,58,138,0.12)] p-8 lg:p-10 z-10 border border-white my-auto">
                 
                 <div className="flex flex-col items-center justify-center mb-6">
@@ -502,24 +530,40 @@ const Login = ({ onLoginSuccess }) => {
                       AlgoSay
                     </span>
                   </div>
-                  <p className="text-sm font-bold text-slate-500">Sign in to your AlgoSay terminal</p>
+                  <p className="text-sm font-bold text-slate-500">
+                    {isSignUp ? 'Create your AlgoSay account' : 'Sign in to your AlgoSay terminal'}
+                  </p>
                 </div>
 
-                <div className="space-y-4">
+                <form onSubmit={handleEmailAuth} className="space-y-4">
 
                   <div className="relative flex items-center justify-center mb-4">
                     <div className="absolute border-t border-slate-200 w-full"></div>
-                    <span className="bg-white px-3 text-[10px] font-black text-slate-400 uppercase tracking-widest relative z-10 rounded-full">Secure Login</span>
+                    <span className="bg-white px-3 text-[10px] font-black text-slate-400 uppercase tracking-widest relative z-10 rounded-full">Secure {isSignUp ? 'Registration' : 'Login'}</span>
                   </div>
+
+                  {/* ERROR MESSAGE DISPLAY */}
+                  {authError && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm font-bold mb-4 flex items-center gap-2"
+                    >
+                      <AlertTriangle size={18} className="shrink-0" />
+                      {authError}
+                    </motion.div>
+                  )}
 
                   {/* Standard Email Input */}
                   <div>
                     <label className="block text-sm font-bold text-slate-700 mb-1.5">Email Address</label>
                     <input 
                       type="email" 
-                      placeholder="you@example.com" 
+                      placeholder="you@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none transition-all text-sm bg-slate-50 text-slate-900 placeholder-slate-400 font-medium"
-                      disabled
+                      required
                     />
                   </div>
                   
@@ -528,8 +572,10 @@ const Login = ({ onLoginSuccess }) => {
                     <input 
                       type="password" 
                       placeholder="••••••••" 
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
                       className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none transition-all text-sm bg-slate-50 text-slate-900 placeholder-slate-400 font-medium"
-                      disabled
+                      required
                     />
                   </div>
 
@@ -538,16 +584,22 @@ const Login = ({ onLoginSuccess }) => {
                       <input type="checkbox" className="w-4 h-4 text-blue-600 bg-white border-slate-300 rounded focus:ring-blue-600" />
                       <span className="text-sm text-slate-600 font-semibold group-hover:text-slate-900 transition-colors">Remember me</span>
                     </label>
-                    <span className="text-sm font-bold text-blue-600 hover:text-blue-800 cursor-pointer transition-colors">Forgot Password?</span>
+                    
+                    {!isSignUp && (
+                      <span className="text-sm font-bold text-blue-600 hover:text-blue-800 cursor-pointer transition-colors">Forgot Password?</span>
+                    )}
                   </div>
 
-                  <button disabled className="w-full py-3 bg-slate-100 text-slate-400 font-bold rounded-xl shadow-sm transition-all cursor-not-allowed border border-slate-200 text-sm mt-2">
-                    Login via Email (Coming Soon)
+                  <button 
+                    type="submit" 
+                    className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md shadow-blue-500/30 transition-all hover:-translate-y-0.5 text-sm mt-2"
+                  >
+                    {isSignUp ? 'Sign Up' : 'Log In'}
                   </button>
 
                   <div className="relative flex items-center justify-center mt-5 mb-5">
                     <div className="absolute border-t border-slate-200 w-full"></div>
-                    <span className="bg-white px-3 text-[11px] font-black text-slate-400 uppercase tracking-widest relative z-10 rounded-full">Or Login With</span>
+                    <span className="bg-white px-3 text-[11px] font-black text-slate-400 uppercase tracking-widest relative z-10 rounded-full">Or Continue With</span>
                   </div>
 
                   {/* Google Login Button */}
@@ -555,6 +607,7 @@ const Login = ({ onLoginSuccess }) => {
                     <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-indigo-600 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     
                     <button
+                      type="button"
                       onMouseDown={handleRippleClick}
                       disabled={isLoading}
                       className={`relative w-full flex items-center justify-center gap-3 py-3.5 px-4 bg-white hover:bg-slate-50 text-slate-900 font-black rounded-[10px] transition-colors shadow-sm overflow-hidden z-10 text-sm ${isLoading ? 'opacity-70 cursor-wait' : ''}`}
@@ -592,7 +645,21 @@ const Login = ({ onLoginSuccess }) => {
                       <span className="relative z-20">{isLoading ? 'Signing In...' : 'Sign in with Google'}</span>
                     </button>
                   </div>
-                </div>
+                  
+                  {/* DYNAMIC BOTTOM TEXT (Toggle Login/Signup) */}
+                  <div className="mt-6 text-center">
+                    <p className="text-sm font-semibold text-slate-600">
+                      {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
+                      <span 
+                        onClick={() => { setIsSignUp(!isSignUp); setAuthError(''); }} 
+                        className="text-blue-600 hover:text-blue-800 cursor-pointer transition-colors"
+                      >
+                        {isSignUp ? "Log In" : "Sign Up"}
+                      </span>
+                    </p>
+                  </div>
+
+                </form>
               </div>
             </div>
 
