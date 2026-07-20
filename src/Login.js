@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { signInWithGoogle } from './firebase';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TypeAnimation } from 'react-type-animation';
-import { Terminal, BarChart2 } from 'lucide-react';
+import { Terminal, BarChart2, TrendingUp, ShieldCheck } from 'lucide-react';
 
 const Login = ({ onLoginSuccess }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -54,7 +54,7 @@ const Login = ({ onLoginSuccess }) => {
   return (
     <div className="flex min-h-screen w-full font-sans text-slate-800 selection:bg-blue-200 relative pt-8">
       
-      {/* 🔥 NEW FEATURE: LIVE FOMO TICKER (Top of the screen) 🔥 */}
+      {/* 🔥 LIVE FOMO TICKER (Top of the screen) 🔥 */}
       <div className="absolute top-0 left-0 w-full h-8 bg-slate-900 text-white flex items-center overflow-hidden z-50 shadow-md">
         <motion.div
           initial={{ x: "100%" }}
@@ -62,12 +62,10 @@ const Login = ({ onLoginSuccess }) => {
           transition={{ repeat: Infinity, duration: 45, ease: "linear" }}
           className="whitespace-nowrap flex gap-12 text-xs font-semibold tracking-wide"
         >
-          {/* Existing Items */}
           <span className="flex items-center gap-2"><span className="text-yellow-400">⚡</span> User Rahul just backtested a 0DTE strategy with 72% Win Rate</span>
           <span className="flex items-center gap-2"><span className="text-orange-500">🔥</span> 15,000+ strategies mapped by AI today</span>
           <span className="flex items-center gap-2"><span className="text-blue-400">💎</span> Karthik deployed an Iron Condor with 4.2 Profit Factor</span>
           <span className="flex items-center gap-2"><span className="text-green-400">🚀</span> System survival probability metrics unlocked for pro users</span>
-          {/* Newly Added Features & Strategies */}
           <span className="flex items-center gap-2"><span className="text-purple-400">✨</span> FEATURE: Zero-Code Natural Language Strategy Builder</span>
           <span className="flex items-center gap-2"><span className="text-cyan-400">🎯</span> Priya executed a Calendar Spread with 85% accuracy</span>
           <span className="flex items-center gap-2"><span className="text-red-400">📊</span> FEATURE: Institutional Grade Profit Factor & Drawdown Heatmaps</span>
@@ -77,24 +75,27 @@ const Login = ({ onLoginSuccess }) => {
         </motion.div>
       </div>
 
-      {/* LEFT SIDE: App Innovation (Now Pure White Background) */}
+      {/* LEFT SIDE: App Innovation (With Premium Creative Pattern) */}
       <div className="hidden md:flex flex-col w-1/2 bg-white relative overflow-hidden px-12 lg:px-20 py-8 z-10">
         
-        {/* Subtle Background Elements to maintain premium feel without losing white base */}
-        <div className="absolute -left-32 top-32 w-96 h-96 bg-blue-100/50 rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-pulse"></div>
+        {/* 🔥 UPDATED: Premium Creative Geometric / Dot Pattern Background 🔥 */}
+        <div className="absolute inset-0 z-0 opacity-[0.04]" style={{ backgroundImage: 'radial-gradient(#0f172a 1.5px, transparent 1.5px)', backgroundSize: '32px 32px' }}></div>
+        <div className="absolute inset-0 z-0 bg-gradient-to-b from-transparent via-white/40 to-white pointer-events-none"></div>
+        <div className="absolute -left-32 top-32 w-96 h-96 bg-blue-100/60 rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-pulse z-0"></div>
         
-        {/* 🔥 UPDATED: TOP LEFT (Absolute Logo, Large & Non-Breaking) 🔥 */}
+        {/* 🔥 UPDATED: TOP LEFT LOGO (Fixed Bottom Cut-off & Perfectly Positioned) 🔥 */}
+        {/* Added pb-2 and leading-normal to prevent 'g' and 'y' from cutting off due to bg-clip-text */}
         <div className="absolute top-12 left-12 lg:left-20 flex items-center gap-4 z-50 whitespace-nowrap">
           <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl flex items-center justify-center shadow-xl shadow-blue-500/30 shrink-0 border border-blue-400/20">
             <span className="text-white font-black text-4xl">A</span>
           </div>
-          <span className="text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-blue-700 whitespace-nowrap">
+          <span className="text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-blue-700 whitespace-nowrap leading-normal pb-2">
             AlgoSay
           </span>
         </div>
 
         {/* MAIN CONTENT: Pushed down to accommodate the absolute logo */}
-        <div className="flex flex-col justify-center flex-grow pt-28">
+        <div className="flex flex-col justify-center flex-grow pt-32 relative z-10">
           <h3 className="text-sm font-black text-blue-700 uppercase tracking-[0.2em] mb-3 flex items-center gap-2">
             <Terminal size={16} /> The Next Evolution in Quant Trading
           </h3>
@@ -105,27 +106,39 @@ const Login = ({ onLoginSuccess }) => {
             Unlike traditional platforms where you manually click through dozens of dropdowns, AlgoSay uses an advanced Neural Engine to understand your logic. Just type it, and we test it.
           </p>
 
-          {/* EXISTING FEATURE: 5 STRATEGIES LIVE TYPING ANIMATION */}
-          <div className="mb-8 p-5 bg-slate-50 border border-blue-200 rounded-xl font-mono text-sm shadow-inner min-h-[85px] flex items-center max-w-lg">
-            <span className="text-emerald-600 mr-3 flex-shrink-0 font-bold">algo@ai:~$</span>
-            <TypeAnimation
-              sequence={[
-                'Sell BankNifty ATM Straddle at 9:20 AM with 25% SL...',
-                2500,
-                'Buy Nifty Call at 9:30 AM if India VIX < 15...',
-                2500,
-                'Iron Condor on Finnifty expiry day at 10:00 AM...',
-                2500,
-                'Short Straddle with premium matching exactly 100...',
-                2500,
-                'Buy BankNifty ATM Put if RSI > 70 and MACD crosses down...',
-                2500
-              ]}
-              wrapper="span"
-              speed={50}
-              className="text-blue-700 font-bold"
-              repeat={Infinity}
-            />
+          {/* 🔥 UPDATED: PREMIUM MAC-STYLE TERMINAL TYPING BOX 🔥 */}
+          <div className="mb-8 rounded-xl overflow-hidden shadow-2xl shadow-blue-900/10 border border-slate-800 bg-slate-900 flex flex-col max-w-lg transition-transform hover:scale-[1.01] duration-300">
+            {/* Terminal Header */}
+            <div className="bg-slate-950 px-4 py-2.5 flex items-center border-b border-slate-800">
+              <div className="flex gap-2">
+                <div className="w-3 h-3 rounded-full bg-red-500 shadow-sm"></div>
+                <div className="w-3 h-3 rounded-full bg-yellow-500 shadow-sm"></div>
+                <div className="w-3 h-3 rounded-full bg-green-500 shadow-sm"></div>
+              </div>
+              <span className="text-slate-500 text-xs font-mono ml-4 tracking-wider flex-grow text-center pr-10">strategy_builder.exe</span>
+            </div>
+            {/* Terminal Body */}
+            <div className="p-5 font-mono text-sm flex items-start min-h-[90px]">
+              <span className="text-emerald-400 mr-3 flex-shrink-0 font-bold">algo@ai:~$</span>
+              <TypeAnimation
+                sequence={[
+                  'Sell BankNifty ATM Straddle at 9:20 AM with 25% SL...',
+                  2500,
+                  'Buy Nifty Call at 9:30 AM if India VIX < 15...',
+                  2500,
+                  'Iron Condor on Finnifty expiry day at 10:00 AM...',
+                  2500,
+                  'Short Straddle with premium matching exactly 100...',
+                  2500,
+                  'Buy BankNifty ATM Put if RSI > 70 and MACD crosses down...',
+                  2500
+                ]}
+                wrapper="span"
+                speed={50}
+                className="text-blue-300 font-medium leading-relaxed"
+                repeat={Infinity}
+              />
+            </div>
           </div>
 
           {/* STEP-BY-STEP STAGGERED ENTRY ON SCROLL */}
@@ -213,18 +226,17 @@ const Login = ({ onLoginSuccess }) => {
         </div>
       </div>
 
-      {/* 🔥 UPDATED: RIGHT SIDE (Solid Blue Background & Login Box Moved Way Up) 🔥 */}
-      {/* Changed background to rich blue, align items to start, and added padding top (pt-24 lg:pt-32) to push the card UP */}
-      <div className="w-full md:w-1/2 bg-gradient-to-br from-blue-600 to-indigo-900 flex items-start justify-center p-6 relative z-10 pt-24 lg:pt-32">
+      {/* RIGHT SIDE (Solid Blue Background & Login Box) */}
+      <div className="w-full md:w-1/2 bg-gradient-to-br from-blue-600 to-indigo-900 flex flex-col items-center justify-start p-6 relative z-10 pt-20 lg:pt-24 pb-12 overflow-y-auto">
         
-        {/* Decorative elements adjusted for dark blue background */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-30 pointer-events-none">
+        {/* Decorative elements for dark blue background */}
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-30 pointer-events-none z-0">
            <div className="absolute -top-24 -right-24 w-96 h-96 bg-white rounded-full blur-[120px]"></div>
            <div className="absolute bottom-10 -left-20 w-72 h-72 bg-cyan-300 rounded-full blur-[120px]"></div>
         </div>
 
         {/* Glassmorphism/Floating Login Card */}
-        <div className="w-full max-w-md bg-white/95 backdrop-blur-2xl rounded-3xl shadow-[0_30px_60px_rgba(0,0,0,0.3)] p-8 lg:p-10 z-10 border border-white/20">
+        <div className="w-full max-w-md bg-white/95 backdrop-blur-2xl rounded-3xl shadow-[0_30px_60px_rgba(0,0,0,0.4)] p-8 lg:p-10 z-10 border border-white/20 shrink-0">
           
           <div className="flex flex-col items-center justify-center mb-8">
             <div className="flex items-center gap-3 mb-2">
@@ -285,7 +297,6 @@ const Login = ({ onLoginSuccess }) => {
 
             {/* Google Login Button with Sweep Border & Ripple Effect */}
             <div className="relative p-[2px] rounded-xl group overflow-hidden bg-slate-300">
-              {/* Subtle Gradient Glow (Sweep Effect) on Hover */}
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-indigo-600 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 overflow-hidden">
                 <motion.div 
@@ -295,13 +306,11 @@ const Login = ({ onLoginSuccess }) => {
                 />
               </div>
 
-              {/* Main Button */}
               <button
                 onMouseDown={handleRippleClick}
                 disabled={isLoading}
                 className={`relative w-full flex items-center justify-center gap-3 py-3.5 px-4 bg-white hover:bg-slate-50 text-slate-900 font-black rounded-[10px] transition-colors shadow-sm overflow-hidden z-10 ${isLoading ? 'opacity-70 cursor-wait' : ''}`}
               >
-                {/* Smooth Ripple Effect Span */}
                 <AnimatePresence>
                   {ripple && (
                     <motion.span
@@ -343,6 +352,36 @@ const Login = ({ onLoginSuccess }) => {
             </p>
           </div>
         </div>
+
+        {/* 🔥 NEW FEATURE: SEBI Fact / Trust Building Premium Box (Bottom Right) 🔥 */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.6 }}
+          className="w-full max-w-md mt-10 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-6 shadow-2xl relative overflow-hidden group shrink-0"
+        >
+          {/* Subtle Shine Effect on Hover */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 z-0"></div>
+          
+          <div className="flex items-start gap-4 relative z-10">
+             <div className="p-2.5 bg-emerald-500/20 rounded-xl border border-emerald-500/30 shrink-0 shadow-inner">
+               <TrendingUp className="w-7 h-7 text-emerald-300" />
+             </div>
+             <div>
+               <h4 className="text-white font-extrabold text-lg mb-1 tracking-tight">Most F&O Traders Lose Money.</h4>
+               <p className="text-blue-100 text-sm leading-relaxed font-medium opacity-90 mb-4">
+                 Learn the systematic approach that helped others navigate F&O better. SEBI's FY 24 study found that only about <span className="text-white font-bold border-b border-white/40">9% of individual F&O traders</span> made profits.
+               </p>
+               <div className="flex items-center gap-3 bg-black/25 rounded-xl p-3 border border-white/15 shadow-inner">
+                 <ShieldCheck className="w-6 h-6 text-emerald-400 shrink-0" />
+                 <span className="text-white text-xs font-semibold leading-snug">
+                   In contrast, <span className="text-emerald-400 font-black text-sm">45% of AlgoSay users</span> ended FY 2023-24 in profit using our systematic backtesting engine.
+                 </span>
+               </div>
+             </div>
+          </div>
+        </motion.div>
+
       </div>
     </div>
   );
