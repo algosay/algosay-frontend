@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { TypeAnimation } from 'react-type-animation';
 import AlgoSayLogo from './AlgoSayLogo'; 
 import { Cpu, Wand2, Activity, Filter, BarChart3 } from 'lucide-react'; // 💎 Added new Premium Icons
+import StrategyCapabilities from './StrategyCapabilities'; // 💎 Imported StrategyCapabilities component
 
 const HomeView = ({ onNavigate, custom, viewVariants }) => {
   // 💎 Premium Spring Animations (High-end feel)
@@ -279,7 +280,14 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
         </div>
 
       </div>
+
+      {/* 💎 STRATEGY CAPABILITIES SECTION APPENDED AT THE BOTTOM OF HOME VIEW */}
+      <div className="w-full mt-24">
+        <StrategyCapabilities />
+      </div>
+
     </motion.div>
   );
 };
-export default HomeView; 
+
+export default HomeView;
