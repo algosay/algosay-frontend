@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { TypeAnimation } from 'react-type-animation';
-import AlgoSayLogo from './AlgoSayLogo';
+import AlgoSayLogo from '../AlgoSayLogo';
 import { Terminal, Cpu } from 'lucide-react';
 
 const HomeView = ({ onNavigate, custom, viewVariants }) => {
