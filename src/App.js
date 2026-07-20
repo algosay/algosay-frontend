@@ -3,8 +3,10 @@ import Header from './components/Header';
 import AIParseSection from './components/AIParseSection';
 import StrategyConfig from './components/StrategyConfig';
 import ResultsDashboard from './components/ResultsDashboard';
+// 🚨 NEW: Import the extracted Modal Component 🚨
+import MyStrategiesModal from './MyStrategiesModal';
 
-// 🚨 NEW: Added saveUserStrategy, getUserStrategies imports 🚨
+// 🚨 Added saveUserStrategy, getUserStrategies imports 🚨
 import { auth, getUserCredits, deductUserCredit, saveUserStrategy, getUserStrategies } from './firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import Login from './Login';
@@ -15,7 +17,7 @@ function App() {
   const [loadingAuth, setLoadingAuth] = useState(true);
   const [userCredits, setUserCredits] = useState(0); 
 
-  // 🚨 NEW: Save & Load Strategy States 🚨
+  // 🚨 Save & Load Strategy States 🚨
   const [showStrategiesModal, setShowStrategiesModal] = useState(false);
   const [savedStrategies, setSavedStrategies] = useState([]);
   const [isLoadingStrategies, setIsLoadingStrategies] = useState(false);
@@ -82,7 +84,6 @@ function App() {
   }, []);
 
   const handleParsedDataSuccess = (data) => {
-    // ... (Your existing AI parsing logic remains exactly same) ...
     if (data.buy_configuration) setBuyConfiguration(data.buy_configuration);
     if (data.sell_configuration) setSellConfiguration(data.sell_configuration);
 
@@ -182,7 +183,7 @@ function App() {
   const updateIndicator = (id, field, value) => { setIndicators(indicators.map(ind => ind.id === id ? { ...ind, [field]: value } : ind)); setIsConfirmed(false); };
   const removeIndicator = (id) => { setIndicators(indicators.filter(ind => ind.id !== id)); setIsConfirmed(false); };
 
-  // 🟢 NEW: Save Strategy Logic 🟢
+  // 🟢 Save Strategy Logic 🟢
   const handleSaveStrategy = async () => {
     if (!user) return alert("Please login to save strategies.");
     const name = window.prompt("Enter a name for this strategy (e.g., Nifty Iron Condor):");
@@ -207,7 +208,7 @@ function App() {
     }
   };
 
-  // 🟢 NEW: Open Modal & Fetch Strategies Logic 🟢
+  // 🟢 Open Modal & Fetch Strategies Logic 🟢
   const openStrategiesModal = async () => {
     if (!user) return;
     setIsLoadingStrategies(true);
@@ -217,11 +218,10 @@ function App() {
     setIsLoadingStrategies(false);
   };
 
-  // 🟢 NEW: Load Strategy to UI Logic 🟢
+  // 🟢 Load Strategy to UI Logic 🟢
   const loadStrategy = (strat) => {
     const data = strat.data;
     
-    // Unpack data and set to UI
     setAiPrompt(data.aiPrompt || '');
     setAiExplanation(data.aiExplanation || 'Loaded from saved strategies.');
     setTicker(data.ticker || 'BANKNIFTY');
@@ -256,8 +256,8 @@ function App() {
     setIndicators(data.indicators || []);
     setLegs(data.legs || []);
 
-    setIsConfirmed(true); // Unlock backtest button
-    setShowStrategiesModal(false); // Close modal
+    setIsConfirmed(true); 
+    setShowStrategiesModal(false); 
     alert(`🚀 Strategy "${strat.name}" loaded successfully!`);
   };
 
@@ -333,55 +333,20 @@ function App() {
   return (
     <div className="min-h-screen bg-[#121212] text-gray-300 font-sans selection:bg-blue-500/30 relative">
       
-      {/* 🟢 NEW: Saved Strategies Modal UI 🟢 */}
-      {showStrategiesModal && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4 backdrop-blur-sm">
-          <div className="bg-[#181818] border border-[#2d2d2d] rounded-2xl w-full max-w-lg p-6 relative shadow-2xl">
-            <button 
-              onClick={() => setShowStrategiesModal(false)} 
-              className="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors p-2"
-            >
-              ✕
-            </button>
-            <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-              📂 My Saved Strategies
-            </h2>
-            
-            {isLoadingStrategies ? (
-              <div className="text-center p-6 text-gray-400">Loading your strategies...</div>
-            ) : savedStrategies.length === 0 ? (
-              <div className="text-center p-6 text-gray-500 bg-[#121212] rounded-xl border border-[#2d2d2d]">
-                You haven't saved any strategies yet.
-              </div>
-            ) : (
-              <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
-                {savedStrategies.map(strat => (
-                  <div key={strat.id} className="bg-[#1e1e1e] p-4 rounded-xl flex justify-between items-center border border-[#2d2d2d] hover:border-blue-500/50 transition-colors group">
-                    <div>
-                      <h3 className="font-bold text-gray-200 group-hover:text-blue-400 transition-colors">{strat.name}</h3>
-                      <p className="text-xs text-gray-500 mt-1">
-                        Saved on: {strat.createdAt ? new Date(strat.createdAt.seconds * 1000).toLocaleDateString() : 'Just now'}
-                      </p>
-                    </div>
-                    <button 
-                      onClick={() => loadStrategy(strat)} 
-                      className="px-4 py-2 bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white text-xs font-bold rounded-lg transition-all border border-blue-600/30"
-                    >
-                      Load
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      {/* 🟢 NEW: Extracted Saved Strategies Modal 🟢 */}
+      <MyStrategiesModal 
+        isOpen={showStrategiesModal} 
+        onClose={() => setShowStrategiesModal(false)}
+        isLoading={isLoadingStrategies}
+        strategies={savedStrategies}
+        onLoad={loadStrategy}
+      />
 
-      {/* Top Bar */}
-      <div className="flex justify-between md:justify-end items-center p-3 bg-[#181818] border-b border-[#2d2d2d] gap-4">
-        <div className="flex items-center gap-3 w-full justify-end">
-          
-          {/* 🟢 NEW: My Strategies Top Nav Button 🟢 */}
+      {/* Top Bar - 🚨 MODIFIED: Split into Left and Right sections 🚨 */}
+      <div className="flex justify-between items-center p-3 bg-[#181818] border-b border-[#2d2d2d] gap-4 w-full">
+        
+        {/* Left Side: My Strategies & Credits */}
+        <div className="flex items-center gap-3">
           <button 
             onClick={openStrategiesModal}
             className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-[#252525] hover:bg-[#2d2d2d] text-gray-300 text-xs font-bold rounded transition-colors border border-[#3d3d3d]"
@@ -393,7 +358,10 @@ function App() {
             <span className="text-yellow-500 text-sm">⚡</span>
             <span className="text-xs font-bold text-yellow-500 tracking-wide">{userCredits} CREDITS</span>
           </div>
+        </div>
 
+        {/* Right Side: Email & Logout */}
+        <div className="flex items-center gap-3">
           <span className="hidden md:block text-xs text-gray-400 font-medium">
             <span className="text-blue-400 font-bold">{user.email || user.displayName}</span>
           </span>
@@ -405,6 +373,7 @@ function App() {
             Logout
           </button>
         </div>
+
       </div>
 
       <Header />
@@ -454,7 +423,6 @@ function App() {
               setIsConfirmed={setIsConfirmed}
             />
 
-            {/* 🟢 NEW: Action Buttons (Save & Run) Side-by-Side 🟢 */}
             <div className="flex flex-col md:flex-row gap-4 mb-8">
               <button
                 onClick={handleSaveStrategy}
