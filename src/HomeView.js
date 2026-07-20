@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { TypeAnimation } from 'react-type-animation';
-import AlgoSayLogo from '../AlgoSayLogo';
+import AlgoSayLogo from './AlgoSayLogo'; // Updated import path based on your screenshot
 import { Terminal, Cpu } from 'lucide-react';
 
 const HomeView = ({ onNavigate, custom, viewVariants }) => {
@@ -135,7 +135,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
           >
             <div className="flex items-center gap-3.5">
                <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center shadow-md shadow-blue-500/30 text-white text-2xl group-hover:scale-110 transition-transform">
-                 🎁
+                  🎁
                </div>
                <div>
                  <h4 className="text-base font-black text-slate-900">Claim 10 Free Backtests</h4>
