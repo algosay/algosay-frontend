@@ -7,14 +7,14 @@ const Login = ({ onLoginSuccess }) => {
   const [currentView, setCurrentView] = useState('home');
   const [isSignUp, setIsSignUp] = useState(false);
 
-  // 💎 Live Spot Prices State - Default எண்கள் கொடுக்கப்பட்டுள்ளது. (API எரர் அடித்தாலும் Blank ஆகாது!)
+  // 💎 Live Spot Prices State - Initial ஆக null வைக்கப்பட்டுள்ளது. (Loading... என்று முதலில் காட்டும்)
   const [indices, setIndices] = useState([
-    { symbol: '^NSEI', name: 'NIFTY 50', price: 24350.15, change: 85.40, percent: 0.35 },
-    { symbol: '^NSEBANK', name: 'BANK NIFTY', price: 52120.80, change: -120.30, percent: -0.23 },
-    { symbol: '^BSESN', name: 'SENSEX', price: 79890.50, change: 240.10, percent: 0.30 }
+    { symbol: '^NSEI', name: 'NIFTY 50', price: null, change: null, percent: null },
+    { symbol: '^NSEBANK', name: 'BANK NIFTY', price: null, change: null, percent: null },
+    { symbol: '^BSESN', name: 'SENSEX', price: null, change: null, percent: null }
   ]);
 
-  // 💎 Yahoo Finance Live Spot Price Fetcher Function (WITH CORS PROXY)
+  // 💎 Yahoo Finance Live Spot Price Fetcher Function (WITH CACHE BUSTING & PARSING)
   const fetchMarketData = async () => {
     try {
       const symbols = [
@@ -26,22 +26,29 @@ const Login = ({ onLoginSuccess }) => {
       const updatedData = await Promise.all(
         symbols.map(async (item) => {
           try {
-            // Yahoo API URL
-            const targetUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(item.sym)}?interval=1m&range=1d`;
-            // Browser CORS எரரைத் தடுக்க Proxy பயன்படுத்தப்படுகிறது
-            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
+            // Yahoo API URL + Cache Buster (Date.now() சேர்ப்பதால் பழைய டேட்டா வராது, Live டேட்டா மட்டுமே வரும்)
+            const targetUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(item.sym)}?interval=1m&range=1d&_t=${Date.now()}`;
+            
+            // Proxy வழியாக /get என்று அழைப்பதால் எரர் இல்லாமல் JSON ஆக டேட்டா கிடைக்கும்
+            const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
             
             const res = await fetch(proxyUrl);
             
             if (res.ok) {
-              const data = await res.json();
+              const proxyData = await res.json();
+              
+              // Proxy-ல் இருந்து வரும் contents-ஐ JSON ஆக மாற்றுதல்
+              const data = JSON.parse(proxyData.contents); 
+              
               const result = data?.chart?.result?.[0];
               const meta = result?.meta;
+              
               if (meta) {
                 const currentPrice = meta.regularMarketPrice;
                 const prevClose = meta.previousClose || meta.chartPreviousClose || currentPrice;
                 const change = currentPrice - prevClose;
                 const percent = prevClose ? (change / prevClose) * 100 : 0;
+                
                 return {
                   symbol: item.sym,
                   name: item.name,
@@ -52,8 +59,7 @@ const Login = ({ onLoginSuccess }) => {
               }
             }
           } catch (err) {
-            // Proxy பிளாக் ஆனால் பழைய எண்களே தொடர்ந்து திரையில் தெரியும்.
-            console.warn(`Fetch Warning for ${item.name}: CORS or Adblocker issue`, err);
+            console.warn(`Fetch Error for ${item.name}:`, err);
           }
           return null;
         })
@@ -76,7 +82,7 @@ const Login = ({ onLoginSuccess }) => {
     fetchMarketData();
     const interval = setInterval(() => {
       fetchMarketData();
-    }, 15000); // Fetches new data every 15 seconds
+    }, 15000); // Fetches new live data every 15 seconds
 
     return () => clearInterval(interval);
   }, []);
@@ -112,17 +118,24 @@ const Login = ({ onLoginSuccess }) => {
         >
           {/* 💎 LIVE MARKET DATA RENDER */}
           {indices.map((idx, i) => {
-            if (!idx.price) return null;
+            const isLoading = !idx.price;
             const isPositive = idx.change >= 0;
             return (
               <span key={`market-${i}`} className="flex items-center gap-2 bg-slate-800 px-3 py-1 rounded-full border border-slate-700 shadow-sm">
                 <span className="text-slate-300 font-bold tracking-wider">{idx.name}</span>
-                <span className={`font-extrabold ${isPositive ? 'text-emerald-400' : 'text-rose-400'}`}>
-                  {idx.price.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </span>
-                <span className={`flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded ${isPositive ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}`}>
-                  {isPositive ? '▲' : '▼'} {Math.abs(idx.change).toFixed(2)} ({Math.abs(idx.percent).toFixed(2)}%)
-                </span>
+                
+                {isLoading ? (
+                  <span className="text-slate-400 font-medium text-[10px] animate-pulse">Loading Live Data...</span>
+                ) : (
+                  <>
+                    <span className={`font-extrabold ${isPositive ? 'text-emerald-400' : 'text-rose-400'}`}>
+                      {idx.price.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
+                    <span className={`flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded ${isPositive ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}`}>
+                      {isPositive ? '▲' : '▼'} {Math.abs(idx.change).toFixed(2)} ({Math.abs(idx.percent).toFixed(2)}%)
+                    </span>
+                  </>
+                )}
               </span>
             );
           })}
