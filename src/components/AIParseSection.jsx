@@ -59,7 +59,7 @@ const AIParseSection = ({
           </div>
           {/* ✨ VISUAL INDICATOR */}
           <div className="bg-blue-500/10 border border-blue-500/30 text-blue-400 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
-            Split Directional Mapping Enabled
+            Algosay
           </div>
         </div>
         

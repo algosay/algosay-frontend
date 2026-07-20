@@ -1,10 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import AIParseSection from './components/AIParseSection';
 import StrategyConfig from './components/StrategyConfig';
 import ResultsDashboard from './components/ResultsDashboard';
 
+// 🚨 NEW: Firebase Auth Imports 🚨
+import { auth } from './firebase';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+import Login from './Login';
+
 function App() {
+  // --- Auth State ---
+  const [user, setUser] = useState(null);
+  const [loadingAuth, setLoadingAuth] = useState(true);
+
   // --- AI Input & Workflow State ---
   const [aiPrompt, setAiPrompt] = useState('');
   const [isParsing, setIsParsing] = useState(false);
@@ -63,6 +72,15 @@ function App() {
 
   // --- Premium Toggle Feature State ---
   const [withTax, setWithTax] = useState(false);
+
+  // 🚨 NEW: Auth Effect Listener 🚨
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoadingAuth(false);
+    });
+    return () => unsubscribe();
+  }, []);
 
   // 🟢 NEW FUNCTION: AIParseSection-la irunthu varum 'data'-vai vaangi UI-ai update pannum function 🟢
   const handleParsedDataSuccess = (data) => {
@@ -187,7 +205,7 @@ function App() {
     setLoading(true); setError(''); setResult(null);
 
     const payload = {
-      user_id: "user_123",
+      user_id: user?.uid || "guest_123", // 🚨 UPDATED: Now sends actual logged-in user ID 🚨
       strategy_text: aiPrompt, 
       instrument_settings: { ticker, timeframe, underlyingFrom, qty, transactionType }, 
       
@@ -254,9 +272,35 @@ function App() {
     }
   };
 
+  // 🚨 Auth Guard Rendering Logic 🚨
+  if (loadingAuth) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[#121212] text-white">
+        <p className="text-lg animate-pulse font-semibold">Loading AlgoSay Environment...</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Login onLoginSuccess={(loggedInUser) => setUser(loggedInUser)} />;
+  }
+
   return (
     <div className="min-h-screen bg-[#121212] text-gray-300 font-sans selection:bg-blue-500/30">
       
+      {/* 🚨 NEW: Top Bar with User Info and Logout Button 🚨 */}
+      <div className="flex justify-end items-center p-3 bg-[#181818] border-b border-[#2d2d2d] gap-4">
+        <span className="text-xs text-gray-400 font-medium">
+          Logged in as: <span className="text-blue-400 font-bold">{user.email || user.displayName}</span>
+        </span>
+        <button 
+          onClick={() => signOut(auth)}
+          className="px-3 py-1 bg-red-900/30 hover:bg-red-600/50 text-red-400 text-xs font-bold rounded transition-colors border border-red-800/50"
+        >
+          Logout
+        </button>
+      </div>
+
       <Header />
 
       <div className="w-full max-w-[96%] xl:max-w-[98%] mx-auto p-4 md:p-6 lg:p-8">
