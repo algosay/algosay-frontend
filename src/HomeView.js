@@ -29,7 +29,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
     {
       num: "01",
       title: "Describe Naturally & AI Auto-Mapping",
-      desc: "Explain your logic in plain English or Tanglish. Our AI instantly translates your text into precision options legs, strikes, and execution rules.",
+      desc: "Explain your strategy in simple English or Tanglish. Our AI instantly translates your text into precision options legs, strikes, and execution rules.",
       icon: <Wand2 strokeWidth={2.5} size={22} />,
       theme: {
         borderHover: "hover:border-blue-400 hover:shadow-blue-500/10",
