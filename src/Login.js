@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { signInWithGoogle } from './firebase';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TypeAnimation } from 'react-type-animation';
+import AlgoSayLogo from './AlgoSayLogo'; // NEW: Imported the custom Logo
 import { 
   Terminal, 
   BarChart2, 
@@ -65,10 +66,10 @@ const Login = ({ onLoginSuccess }) => {
   const [ripple, setRipple] = useState(null);
   const [activeReview, setActiveReview] = useState(0);
   
-  // NEW STATE: To toggle between Landing ('home') and Login ('login') views
+  // STATE: To toggle between Landing ('home') and Login ('login') views
   const [currentView, setCurrentView] = useState('home');
 
-  // NEW STATES: Form inputs, Auth mode, and Error handling
+  // STATES: Form inputs, Auth mode, and Error handling
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
@@ -96,7 +97,7 @@ const Login = ({ onLoginSuccess }) => {
     }
   };
 
-  // NEW FUNCTION: Handle Email/Password Login & Signup
+  // FUNCTION: Handle Email/Password Login & Signup
   const handleEmailAuth = (e) => {
     e.preventDefault();
     setAuthError('');
@@ -222,11 +223,11 @@ const Login = ({ onLoginSuccess }) => {
 
             {/* HEADER: Logo & Login/Signup Buttons */}
             <div className="flex items-center justify-between z-50 mt-4 mb-12">
+              
+              {/* UPDATED LOGO SECTION HERE */}
               <div className="flex items-center gap-3 whitespace-nowrap">
-                <div className="w-11 h-11 bg-gradient-to-br from-blue-600 via-indigo-600 to-blue-800 rounded-xl flex items-center justify-center shadow-md shadow-blue-500/20 shrink-0 border border-blue-400/30">
-                  <span className="text-white font-black text-2xl">A</span>
-                </div>
-                <span className="text-3xl lg:text-4xl font-black tracking-tight text-slate-900 whitespace-nowrap">
+                <AlgoSayLogo className="w-12 h-12 shadow-lg shadow-blue-500/30 rounded-2xl" />
+                <span className="text-3xl lg:text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-700 whitespace-nowrap">
                   AlgoSay
                 </span>
               </div>
@@ -522,15 +523,16 @@ const Login = ({ onLoginSuccess }) => {
               <div className="w-full max-w-lg bg-white/95 backdrop-blur-2xl rounded-3xl shadow-[0_20px_50px_rgba(30,58,138,0.12)] p-8 lg:p-10 z-10 border border-white my-auto">
                 
                 <div className="flex flex-col items-center justify-center mb-6">
-                  <div className="flex items-center gap-2.5 mb-2">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-md shadow-blue-500/20 shrink-0 border border-blue-400/20">
-                      <span className="text-white font-black text-2xl">A</span>
-                    </div>
-                    <span className="text-4xl font-black tracking-tight text-slate-900">
+                  
+                  {/* UPDATED LOGO SECTION HERE */}
+                  <div className="flex items-center gap-3 mb-2">
+                    <AlgoSayLogo className="w-12 h-12 shadow-lg shadow-blue-500/30 rounded-2xl" />
+                    <span className="text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-700">
                       AlgoSay
                     </span>
                   </div>
-                  <p className="text-sm font-bold text-slate-500">
+                  
+                  <p className="text-sm font-bold text-slate-500 mt-2">
                     {isSignUp ? 'Create your AlgoSay account' : 'Sign in to your AlgoSay terminal'}
                   </p>
                 </div>
