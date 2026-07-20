@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { TypeAnimation } from 'react-type-animation';
 import AlgoSayLogo from './AlgoSayLogo'; 
-import { Cpu } from 'lucide-react'; // Removed Terminal icon as requested
+import { Cpu, Wand2, Activity, Filter, BarChart3 } from 'lucide-react'; // 💎 Added new Premium Icons
 
 const HomeView = ({ onNavigate, custom, viewVariants }) => {
   // 💎 Premium Spring Animations (High-end feel)
@@ -23,6 +23,74 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
       transition: { type: "spring", stiffness: 100, damping: 15 } 
     }
   };
+
+  // 💎 Premium High-End Step Cards Data
+  const stepsData = [
+    {
+      num: "01",
+      title: "Describe Naturally & AI Auto-Mapping",
+      desc: "Explain your logic in plain English or Tanglish. Our AI instantly translates your text into precision options legs, strikes, and execution rules.",
+      icon: <Wand2 strokeWidth={2.5} size={22} />,
+      theme: {
+        borderHover: "hover:border-blue-400 hover:shadow-blue-500/10",
+        iconBg: "bg-blue-50",
+        iconText: "text-blue-600",
+        iconBorder: "border-blue-100",
+        hoverIconBg: "group-hover:bg-blue-500",
+        badgeBg: "bg-blue-50",
+        badgeText: "text-blue-700",
+        gradientStart: "from-blue-50/80"
+      }
+    },
+    {
+      num: "02",
+      title: "AI Strategy Diagnostics & Improvement",
+      desc: "The moment your backtest completes, our AI analyzes your MFE/MAE and trade sequence to generate a personalized report on exactly how to improve your strategy.",
+      icon: <Activity strokeWidth={2.5} size={22} />,
+      theme: {
+        borderHover: "hover:border-purple-400 hover:shadow-purple-500/10",
+        iconBg: "bg-purple-50",
+        iconText: "text-purple-600",
+        iconBorder: "border-purple-100",
+        hoverIconBg: "group-hover:bg-purple-500",
+        badgeBg: "bg-purple-50",
+        badgeText: "text-purple-700",
+        gradientStart: "from-purple-50/80"
+      }
+    },
+    {
+      num: "03",
+      title: "Granular Deep Filtering Engine",
+      desc: "Slice your data with precision using 0DTE & Day-wise filters. Includes detailed Ledger with PDF & CSV exports, Heatmaps, Drawdown Curve, PnL Charts, and AI Backtest Report Analyzer.",
+      icon: <Filter strokeWidth={2.5} size={22} />,
+      theme: {
+        borderHover: "hover:border-emerald-400 hover:shadow-emerald-500/10",
+        iconBg: "bg-emerald-50",
+        iconText: "text-emerald-600",
+        iconBorder: "border-emerald-100",
+        hoverIconBg: "group-hover:bg-emerald-500",
+        badgeBg: "bg-emerald-50",
+        badgeText: "text-emerald-700",
+        gradientStart: "from-emerald-50/80"
+      }
+    },
+    {
+      num: "04",
+      title: "Institutional Pro Metrics",
+      desc: "Go beyond basic PnL. We provide Profit Factor, Sortino Ratio, System Survival Probability, Kelly Sizing, Stress Level Index, Tail Ratio & Scalability.",
+      icon: <BarChart3 strokeWidth={2.5} size={22} />,
+      theme: {
+        borderHover: "hover:border-rose-400 hover:shadow-rose-500/10",
+        iconBg: "bg-rose-50",
+        iconText: "text-rose-600",
+        iconBorder: "border-rose-100",
+        hoverIconBg: "group-hover:bg-rose-500",
+        badgeBg: "bg-rose-50",
+        badgeText: "text-rose-700",
+        gradientStart: "from-rose-50/80"
+      }
+    }
+  ];
 
   return (
     <motion.div 
@@ -54,7 +122,6 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
         {/* LOGO SECTION */}
         <div className="flex items-center gap-3 whitespace-nowrap cursor-pointer" onClick={() => onNavigate(false)}>
           <AlgoSayLogo className="w-12 h-12 shadow-lg shadow-blue-500/10 rounded-2xl border border-white" />
-          {/* 🛠️ FIX: Added pb-2 and leading-[1.2] to prevent bottom clipping of 'y' */}
           <span className="text-3xl lg:text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 whitespace-nowrap pb-2 leading-[1.2]">
             AlgoSay
           </span>
@@ -82,7 +149,6 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
         
         {/* Left Column Text & Terminal */}
         <div className="w-full lg:w-1/2 flex flex-col pt-4">
-          {/* 🛠️ FIX: Removed Terminal symbol */}
           <h3 className="text-[11px] font-bold text-[#0052FF] uppercase tracking-[0.25em] mb-4 drop-shadow-sm">
             The Next Evolution in Quant Trading
           </h3>
@@ -96,7 +162,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
             Unlike traditional platforms where you manually click through dozens of dropdowns, AlgoSay uses an advanced Neural Engine to understand your logic. Just type it, and we test it.
           </p>
 
-          {/* 💎 PRO TERMINAL ENGINE BOX - Added Floating Animation */}
+          {/* PRO TERMINAL ENGINE BOX */}
           <motion.div 
             animate={{ y: [0, -8, 0] }}
             transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }}
@@ -142,7 +208,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
             </div>
           </motion.div>
 
-          {/* 💎 10 FREE BACKTESTS CTA BOX - Minimal High-End Card */}
+          {/* 10 FREE BACKTESTS CTA BOX */}
           <div 
             onClick={() => onNavigate(true)}
             className="p-4 rounded-xl cursor-pointer transition-all duration-300 border border-slate-200 bg-white hover:border-[#0052FF]/30 hover:shadow-[0_8px_30px_rgb(0,82,255,0.08)] flex items-center justify-between group max-w-lg"
@@ -164,54 +230,48 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
           </div>
         </div>
 
-        {/* Right Column Steps - 💎 Premium Glass/Minimalist Cards */}
+        {/* Right Column Steps - 💎 ULTIMATE Premium Interactive Cards */}
         <div className="w-full lg:w-1/2 flex justify-end">
           <motion.div 
             variants={containerVariants}
             initial="hidden"
             whileInView="show"
             viewport={{ once: true, amount: 0.1 }}
-            className="space-y-5 max-w-lg"
+            className="space-y-4 max-w-lg w-full"
           >
-            {[
-              {
-                num: 1,
-                title: "Describe Naturally & AI Auto-Mapping",
-                desc: "Explain your logic in plain English or Tanglish. Our AI instantly translates your text into precision options legs, strikes, and execution rules.",
-                color: "blue"
-              },
-              {
-                num: 2,
-                title: "AI Strategy Diagnostics & Improvement",
-                desc: "The moment your backtest completes, our AI analyzes your MFE/MAE and trade sequence to generate a personalized report on exactly how to improve your strategy.",
-                color: "purple"
-              },
-              {
-                num: 3,
-                title: "Granular Deep Filtering Engine",
-                // 🛠️ FIX: Added requested features (Ledger, PDF/CSV, Heatmap, Drawdown, PnL, AI Backtest Analyzer)
-                desc: "Slice your data with precision using 0DTE & Day-wise filters. Includes detailed Ledger with PDF & CSV exports, Heatmaps, Drawdown Curve, PnL Charts, and AI Backtest Report Analyzer.",
-                color: "green"
-              },
-              {
-                num: 4,
-                title: "Institutional Pro Metrics",
-                desc: "Go beyond basic PnL. We provide Profit Factor, Sortino Ratio, System Survival Probability, Kelly Sizing, Stress Level Index, Tail Ratio & Scalability.",
-                color: "rose"
-              }
-            ].map((step, index) => (
+            {stepsData.map((step, index) => (
               <motion.div 
                 key={index}
                 variants={itemVariants} 
-                whileHover={{ y: -4, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02)" }}
-                className="flex items-start gap-5 p-5 rounded-2xl bg-white border border-slate-150 shadow-sm transition-all duration-300"
+                whileHover={{ 
+                  y: -6, 
+                  scale: 1.01,
+                  boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01)" 
+                }}
+                className={`relative overflow-hidden group flex items-start gap-4 p-5 rounded-2xl bg-white border border-slate-200 shadow-sm transition-all duration-300 cursor-default ${step.theme.borderHover}`}
               >
-                <div className={`flex-shrink-0 w-11 h-11 rounded-full bg-${step.color}-50 flex items-center justify-center text-${step.color}-600 font-black text-sm border border-${step.color}-100`}>
-                  {step.num}
+                {/* 💎 Subtle Glow Gradient Background on Hover */}
+                <div className={`absolute inset-0 bg-gradient-to-br to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none ${step.theme.gradientStart}`}></div>
+                
+                {/* 💎 Animated Icon Box */}
+                <div className={`relative z-10 flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-500 shadow-sm border group-hover:scale-110 group-hover:text-white group-hover:rotate-3 ${step.theme.iconBg} ${step.theme.iconText} ${step.theme.iconBorder} ${step.theme.hoverIconBg}`}>
+                  {step.icon}
                 </div>
-                <div>
-                  <h4 className="text-[17px] font-extrabold text-slate-900 tracking-tight leading-tight">{step.title}</h4>
-                  <p className="text-[14px] text-slate-500 font-medium mt-2 leading-relaxed">{step.desc}</p>
+                
+                {/* 💎 Content Container */}
+                <div className="relative z-10 flex flex-col pt-0.5">
+                  <div className="flex items-center gap-3 mb-1.5">
+                    {/* Tiny Premium STEP Badge */}
+                    <span className={`text-[9px] font-black uppercase tracking-[0.15em] px-2 py-0.5 rounded-md border border-white/60 shadow-sm ${step.theme.badgeBg} ${step.theme.badgeText}`}>
+                      STEP {step.num}
+                    </span>
+                    <h4 className="text-[16px] font-extrabold text-slate-900 tracking-tight leading-tight group-hover:text-black transition-colors duration-300">
+                      {step.title}
+                    </h4>
+                  </div>
+                  <p className="text-[13.5px] text-slate-500 font-medium leading-[1.6] group-hover:text-slate-700 transition-colors duration-300">
+                    {step.desc}
+                  </p>
                 </div>
               </motion.div>
             ))}
