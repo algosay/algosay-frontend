@@ -1,3 +1,41 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ==========================================================================
+   🚨 NEW: AlgoTest Range Premium Modal Styles 🚀
+   ========================================================================== */
+
+/* Custom Animation for Modal Smooth Entry */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.4s ease-out forwards;
+}
+
+/* Bespoke Scrollbar for Strategy Cards List */
+.scrollbar-premium::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-premium::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-premium::-webkit-scrollbar-thumb {
+  background: #334155; /* Slate-700 to blend with our premium borders */
+  border-radius: 10px;
+}
+
+.scrollbar-premium::-webkit-scrollbar-thumb:hover {
+  background: #475569; /* Slate-600 on hover for interactive feedback */
+}
