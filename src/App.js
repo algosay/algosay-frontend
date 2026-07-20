@@ -6,8 +6,8 @@ import ResultsDashboard from './components/ResultsDashboard';
 // 🚨 NEW: Import the extracted Modal Component 🚨
 import MyStrategiesModal from './MyStrategiesModal';
 
-// 🚨 Added saveUserStrategy, getUserStrategies imports 🚨
-import { auth, getUserCredits, deductUserCredit, saveUserStrategy, getUserStrategies } from './firebase';
+// 🚨 Added saveUserStrategy, getUserStrategies, and deleteUserStrategy imports 🚨
+import { auth, getUserCredits, deductUserCredit, saveUserStrategy, getUserStrategies, deleteUserStrategy } from './firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import Login from './Login';
 
@@ -261,6 +261,29 @@ function App() {
     alert(`🚀 Strategy "${strat.name}" loaded successfully!`);
   };
 
+  // 🟢 NEW: Delete Strategy Logic 🟢
+  const handleDeleteStrategy = async (strat) => {
+    if (!user) return;
+    const isConfirm = window.confirm(`Are you sure you want to delete "${strat.name}"?`);
+    if (!isConfirm) return;
+
+    try {
+      // 1. Delete from Firebase
+      const res = await deleteUserStrategy(strat.id);
+      
+      if (res && res.success) {
+        // 2. Remove from local React State so it disappears from the modal immediately
+        setSavedStrategies(prevStrats => prevStrats.filter(s => s.id !== strat.id));
+        alert("✅ Strategy deleted successfully!");
+      } else {
+        alert("❌ Error: Could not delete strategy from database.");
+      }
+    } catch (error) {
+      console.error("Delete Error:", error);
+      alert("❌ Error deleting strategy. Please try again.");
+    }
+  };
+
   const runBacktest = async () => {
     if (!isConfirmed) return; 
 
@@ -333,13 +356,14 @@ function App() {
   return (
     <div className="min-h-screen bg-[#121212] text-gray-300 font-sans selection:bg-blue-500/30 relative">
       
-      {/* 🟢 NEW: Extracted Saved Strategies Modal 🟢 */}
+      {/* 🟢 NEW: Extracted Saved Strategies Modal with onDelete Prop 🟢 */}
       <MyStrategiesModal 
         isOpen={showStrategiesModal} 
         onClose={() => setShowStrategiesModal(false)}
         isLoading={isLoadingStrategies}
         strategies={savedStrategies}
         onLoad={loadStrategy}
+        onDelete={handleDeleteStrategy}
       />
 
       {/* Top Bar - 🚨 MODIFIED: Split into Left and Right sections 🚨 */}

@@ -7,8 +7,8 @@ import {
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword 
 } from "firebase/auth";
-// 🚨 NEW: Import Firestore Database functions (Added collection, addDoc, getDocs)
-import { getFirestore, doc, getDoc, setDoc, serverTimestamp, updateDoc, increment, collection, addDoc, getDocs } from "firebase/firestore";
+// 🚨 NEW: Import Firestore Database functions (Added collection, addDoc, getDocs, deleteDoc)
+import { getFirestore, doc, getDoc, setDoc, serverTimestamp, updateDoc, increment, collection, addDoc, getDocs, deleteDoc } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -152,5 +152,22 @@ export const getUserStrategies = async (uid) => {
   } catch (error) {
     console.error("Error fetching strategies:", error);
     return [];
+  }
+};
+
+// 🚨 NEW: Delete Saved Strategy for User
+export const deleteUserStrategy = async (strategyId) => {
+  try {
+    const user = auth.currentUser;
+    if (!user) throw new Error("User not logged in");
+
+    // Correct path: "users" -> "uid" -> "saved_strategies" -> "strategyId"
+    const strategyRef = doc(db, "users", user.uid, "saved_strategies", strategyId);
+    await deleteDoc(strategyRef);
+    
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting strategy:", error);
+    return { success: false, error: error.message };
   }
 };
