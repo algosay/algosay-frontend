@@ -4,8 +4,8 @@ import AIParseSection from './components/AIParseSection';
 import StrategyConfig from './components/StrategyConfig';
 import ResultsDashboard from './components/ResultsDashboard';
 
-// 🚨 NEW: Firebase Auth & Database Imports 🚨
-import { auth, getUserCredits, deductUserCredit } from './firebase';
+// 🚨 NEW: Added saveUserStrategy, getUserStrategies imports 🚨
+import { auth, getUserCredits, deductUserCredit, saveUserStrategy, getUserStrategies } from './firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import Login from './Login';
 
@@ -13,7 +13,12 @@ function App() {
   // --- Auth & Credits State ---
   const [user, setUser] = useState(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
-  const [userCredits, setUserCredits] = useState(0); // 🚨 NEW: State to track credits
+  const [userCredits, setUserCredits] = useState(0); 
+
+  // 🚨 NEW: Save & Load Strategy States 🚨
+  const [showStrategiesModal, setShowStrategiesModal] = useState(false);
+  const [savedStrategies, setSavedStrategies] = useState([]);
+  const [isLoadingStrategies, setIsLoadingStrategies] = useState(false);
 
   // --- AI Input & Workflow State ---
   const [aiPrompt, setAiPrompt] = useState('');
@@ -29,21 +34,17 @@ function App() {
   const [underlyingFrom, setUnderlyingFrom] = useState('Futures');
   const [qty, setQty] = useState(150); 
   
-  // Transaction Type State (Buy/Sell)
   const [transactionType, setTransactionType] = useState('BUY');
 
-  // Dual Directional Configuration States (Added for Options/Multi-Leg Sync)
   const [buyConfiguration, setBuyConfiguration] = useState(null);
   const [sellConfiguration, setSellConfiguration] = useState(null);
 
-  // ✨ INDEPENDENT SPLIT STATES FOR SELLING CONFIGURATION
   const [sellTicker, setSellTicker] = useState('BANKNIFTY');
   const [sellTimeframe, setSellTimeframe] = useState('15m');
   const [sellUnderlyingFrom, setSellUnderlyingFrom] = useState('Futures');
   const [sellEntryTime, setSellEntryTime] = useState('');
   const [sellExitTime, setSellExitTime] = useState('15:15');
 
-  // ✨ INDEPENDENT SPLIT STATES FOR BUYING CONFIGURATION
   const [buyTicker, setBuyTicker] = useState('BANKNIFTY');
   const [buyTimeframe, setBuyTimeframe] = useState('15m');
   const [buyUnderlyingFrom, setBuyUnderlyingFrom] = useState('Futures');
@@ -54,32 +55,24 @@ function App() {
   const [entryTime, setEntryTime] = useState('09:15');
   const [exitTime, setExitTime] = useState('15:15');
   
-  // Date Range State
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   
-  // Trailing States 
   const [trailMoveX, setTrailMoveX] = useState(0);
   const [trailPointY, setTrailPointY] = useState(0);
 
-  // Lists State
   const [indicators, setIndicators] = useState([]);
   const [legs, setLegs] = useState([]);
 
-  // --- Engine State ---
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
-
-  // --- Premium Toggle Feature State ---
   const [withTax, setWithTax] = useState(false);
 
-  // 🚨 UPDATED: Auth Effect Listener with Credits Fetch 🚨
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
-        // Fetch credits from database when user logs in
         const credits = await getUserCredits(currentUser.uid);
         setUserCredits(credits);
       }
@@ -88,8 +81,8 @@ function App() {
     return () => unsubscribe();
   }, []);
 
-  // AIParseSection-la irunthu varum 'data'-vai vaangi UI-ai update pannum function
   const handleParsedDataSuccess = (data) => {
+    // ... (Your existing AI parsing logic remains exactly same) ...
     if (data.buy_configuration) setBuyConfiguration(data.buy_configuration);
     if (data.sell_configuration) setSellConfiguration(data.sell_configuration);
 
@@ -181,16 +174,7 @@ function App() {
     setIsConfirmed(true); 
   };
 
-  const addLeg = () => { 
-    setLegs([...legs, { 
-      id: Date.now(), segment: 'Options', position: 'Buy', lots: 1, optionType: 'CE', expiry: 'Weekly', strikeType: 'ATM', 
-      strikeDistance: 0, entryTime: '', exitTime: '', 
-      stopLoss: '', target: '', slUnit: '%', targetUnit: '%',
-      trailX: 0, trailY: 0, slReentry: 0, targetReexecute: 0, waitAndTrade: false, costToCost: false, moveToStoploss: false
-    }]); 
-    setIsConfirmed(false); 
-  };
-  
+  const addLeg = () => { setLegs([...legs, { id: Date.now(), segment: 'Options', position: 'Buy', lots: 1, optionType: 'CE', expiry: 'Weekly', strikeType: 'ATM', strikeDistance: 0, entryTime: '', exitTime: '', stopLoss: '', target: '', slUnit: '%', targetUnit: '%', trailX: 0, trailY: 0, slReentry: 0, targetReexecute: 0, waitAndTrade: false, costToCost: false, moveToStoploss: false }]); setIsConfirmed(false); };
   const updateLeg = (id, field, value) => { setLegs(legs.map(leg => leg.id === id ? { ...leg, [field]: value } : leg)); setIsConfirmed(false); };
   const removeLeg = (id) => { setLegs(legs.filter(leg => leg.id !== id)); setIsConfirmed(false); };
 
@@ -198,11 +182,88 @@ function App() {
   const updateIndicator = (id, field, value) => { setIndicators(indicators.map(ind => ind.id === id ? { ...ind, [field]: value } : ind)); setIsConfirmed(false); };
   const removeIndicator = (id) => { setIndicators(indicators.filter(ind => ind.id !== id)); setIsConfirmed(false); };
 
-  // 🚨 UPDATED: API Call with Monetization Logic 🚨
+  // 🟢 NEW: Save Strategy Logic 🟢
+  const handleSaveStrategy = async () => {
+    if (!user) return alert("Please login to save strategies.");
+    const name = window.prompt("Enter a name for this strategy (e.g., Nifty Iron Condor):");
+    if (!name) return;
+
+    // Pack all current UI state into one object
+    const strategyData = {
+      aiPrompt, aiExplanation,
+      ticker, timeframe, underlyingFrom, qty, transactionType,
+      buyConfiguration, sellConfiguration,
+      sellTicker, sellTimeframe, sellUnderlyingFrom, sellEntryTime, sellExitTime,
+      buyTicker, buyTimeframe, buyUnderlyingFrom, buyEntryTime, buyExitTime,
+      strategyType, entryTime, exitTime, fromDate, toDate,
+      trailMoveX, trailPointY, indicators, legs
+    };
+
+    const res = await saveUserStrategy(user.uid, name, strategyData);
+    if (res.success) {
+      alert("✅ Strategy saved successfully!");
+    } else {
+      alert("❌ Error saving strategy.");
+    }
+  };
+
+  // 🟢 NEW: Open Modal & Fetch Strategies Logic 🟢
+  const openStrategiesModal = async () => {
+    if (!user) return;
+    setIsLoadingStrategies(true);
+    setShowStrategiesModal(true);
+    const strats = await getUserStrategies(user.uid);
+    setSavedStrategies(strats);
+    setIsLoadingStrategies(false);
+  };
+
+  // 🟢 NEW: Load Strategy to UI Logic 🟢
+  const loadStrategy = (strat) => {
+    const data = strat.data;
+    
+    // Unpack data and set to UI
+    setAiPrompt(data.aiPrompt || '');
+    setAiExplanation(data.aiExplanation || 'Loaded from saved strategies.');
+    setTicker(data.ticker || 'BANKNIFTY');
+    setTimeframe(data.timeframe || '15m');
+    setUnderlyingFrom(data.underlyingFrom || 'Futures');
+    setQty(data.qty || 150);
+    setTransactionType(data.transactionType || 'BUY');
+    
+    setBuyConfiguration(data.buyConfiguration || null);
+    setSellConfiguration(data.sellConfiguration || null);
+    
+    setSellTicker(data.sellTicker || 'BANKNIFTY');
+    setSellTimeframe(data.sellTimeframe || '15m');
+    setSellUnderlyingFrom(data.sellUnderlyingFrom || 'Futures');
+    setSellEntryTime(data.sellEntryTime || '');
+    setSellExitTime(data.sellExitTime || '15:15');
+    
+    setBuyTicker(data.buyTicker || 'BANKNIFTY');
+    setBuyTimeframe(data.buyTimeframe || '15m');
+    setBuyUnderlyingFrom(data.buyUnderlyingFrom || 'Futures');
+    setBuyEntryTime(data.buyEntryTime || '');
+    setBuyExitTime(data.buyExitTime || '15:15');
+    
+    setStrategyType(data.strategyType || 'Intraday');
+    setEntryTime(data.entryTime || '09:15');
+    setExitTime(data.exitTime || '15:15');
+    setFromDate(data.fromDate || '');
+    setToDate(data.toDate || '');
+    
+    setTrailMoveX(data.trailMoveX || 0);
+    setTrailPointY(data.trailPointY || 0);
+    setIndicators(data.indicators || []);
+    setLegs(data.legs || []);
+
+    setIsConfirmed(true); // Unlock backtest button
+    setShowStrategiesModal(false); // Close modal
+    alert(`🚀 Strategy "${strat.name}" loaded successfully!`);
+  };
+
   const runBacktest = async () => {
     if (!isConfirmed) return; 
 
-    // 1️⃣ Check if user has enough credits
     if (userCredits <= 0) {
       alert("⚠️ Insufficient Credits! Please recharge your credits to run more backtests.");
       setError('Insufficient Credits. Please recharge your account.');
@@ -211,36 +272,22 @@ function App() {
 
     setLoading(true); setError(''); setResult(null);
 
-    // 2️⃣ Deduct 1 Credit from Database
     const deductionSuccess = await deductUserCredit(user?.uid);
     if (deductionSuccess) {
-      setUserCredits(prev => prev - 1); // Update UI instantly
+      setUserCredits(prev => prev - 1); 
     } else {
       setError('Failed to process credits. Please check your connection and try again.');
       setLoading(false);
       return;
     }
 
-    // 3️⃣ Payload Construction
     const payload = {
       user_id: user?.uid || "guest_123", 
       strategy_text: aiPrompt, 
       instrument_settings: { ticker, timeframe, underlyingFrom, qty, transactionType }, 
       
-      buy_configuration: {
-        ticker: buyTicker,
-        timeframe: buyTimeframe,
-        underlyingFrom: buyUnderlyingFrom,
-        entryTime: buyEntryTime,
-        exitTime: buyExitTime
-      },
-      sell_configuration: {
-        ticker: sellTicker,
-        timeframe: sellTimeframe,
-        underlyingFrom: sellUnderlyingFrom,
-        entryTime: sellEntryTime,
-        exitTime: sellExitTime
-      },
+      buy_configuration: { ticker: buyTicker, timeframe: buyTimeframe, underlyingFrom: buyUnderlyingFrom, entryTime: buyEntryTime, exitTime: buyExitTime },
+      sell_configuration: { ticker: sellTicker, timeframe: sellTimeframe, underlyingFrom: sellUnderlyingFrom, entryTime: sellEntryTime, exitTime: sellExitTime },
       
       date_settings: { fromDate, toDate },
       entry_settings: { strategyType, entryTime, exitTime },
@@ -248,26 +295,9 @@ function App() {
       indicators: indicators.map(i => ({ name: i.name, settings: i.settings })), 
       
       legs: legs.map(leg => ({
-        id: leg.id,
-        segment: leg.segment,
-        position: leg.position, 
-        lots: leg.lots,
-        option_type: leg.optionType,
-        expiry: leg.expiry,
-        strike_type: leg.strikeType,
-        strike_distance: parseInt(leg.strikeDistance) || 0,
-        entry_time: leg.entryTime, 
-        exit_time: leg.exitTime,  
-        target: leg.target || 0,
-        target_unit: leg.targetUnit || '%',
-        stop_loss: leg.stopLoss || 0,
-        sl_unit: leg.slUnit || '%',
-        trail_sl: { x: leg.trailX || 0, y: leg.trailY || 0 },
-        sl_reentry: leg.slReentry || 0,
-        target_reexecute: leg.targetReexecute || 0,
-        wait_and_trade: leg.waitAndTrade || false,
-        cost_to_cost: leg.costToCost || false,
-        move_to_stoploss: leg.moveToStoploss || false
+        id: leg.id, segment: leg.segment, position: leg.position, lots: leg.lots, option_type: leg.optionType, expiry: leg.expiry, strike_type: leg.strikeType, strike_distance: parseInt(leg.strikeDistance) || 0,
+        entry_time: leg.entryTime, exit_time: leg.exitTime, target: leg.target || 0, target_unit: leg.targetUnit || '%', stop_loss: leg.stopLoss || 0, sl_unit: leg.slUnit || '%',
+        trail_sl: { x: leg.trailX || 0, y: leg.trailY || 0 }, sl_reentry: leg.slReentry || 0, target_reexecute: leg.targetReexecute || 0, wait_and_trade: leg.waitAndTrade || false, cost_to_cost: leg.costToCost || false, move_to_stoploss: leg.moveToStoploss || false
       }))
     };
 
@@ -283,7 +313,6 @@ function App() {
       setResult(data.results || data); 
     } catch (err) {
       setError('Execution Error: Failed to retrieve backtest results from the engine.');
-      // Optional: If you want to refund the credit on backend failure, you could add an increment(1) call here.
     } finally {
       setLoading(false);
     }
@@ -302,26 +331,80 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#121212] text-gray-300 font-sans selection:bg-blue-500/30">
+    <div className="min-h-screen bg-[#121212] text-gray-300 font-sans selection:bg-blue-500/30 relative">
       
-      {/* 🚨 UPDATED: Top Bar with Dynamic Credits Display 🚨 */}
-      <div className="flex justify-end items-center p-3 bg-[#181818] border-b border-[#2d2d2d] gap-4">
-        
-        {/* Credits Pill Display */}
-        <div className="flex items-center gap-1.5 px-3 py-1 bg-yellow-500/10 border border-yellow-500/30 rounded-full shadow-inner">
-          <span className="text-yellow-500 text-sm">⚡</span>
-          <span className="text-xs font-bold text-yellow-500 tracking-wide">{userCredits} CREDITS</span>
+      {/* 🟢 NEW: Saved Strategies Modal UI 🟢 */}
+      {showStrategiesModal && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4 backdrop-blur-sm">
+          <div className="bg-[#181818] border border-[#2d2d2d] rounded-2xl w-full max-w-lg p-6 relative shadow-2xl">
+            <button 
+              onClick={() => setShowStrategiesModal(false)} 
+              className="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors p-2"
+            >
+              ✕
+            </button>
+            <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+              📂 My Saved Strategies
+            </h2>
+            
+            {isLoadingStrategies ? (
+              <div className="text-center p-6 text-gray-400">Loading your strategies...</div>
+            ) : savedStrategies.length === 0 ? (
+              <div className="text-center p-6 text-gray-500 bg-[#121212] rounded-xl border border-[#2d2d2d]">
+                You haven't saved any strategies yet.
+              </div>
+            ) : (
+              <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+                {savedStrategies.map(strat => (
+                  <div key={strat.id} className="bg-[#1e1e1e] p-4 rounded-xl flex justify-between items-center border border-[#2d2d2d] hover:border-blue-500/50 transition-colors group">
+                    <div>
+                      <h3 className="font-bold text-gray-200 group-hover:text-blue-400 transition-colors">{strat.name}</h3>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Saved on: {strat.createdAt ? new Date(strat.createdAt.seconds * 1000).toLocaleDateString() : 'Just now'}
+                      </p>
+                    </div>
+                    <button 
+                      onClick={() => loadStrategy(strat)} 
+                      className="px-4 py-2 bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white text-xs font-bold rounded-lg transition-all border border-blue-600/30"
+                    >
+                      Load
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
+      )}
 
-        <span className="text-xs text-gray-400 font-medium">
-          Logged in as: <span className="text-blue-400 font-bold">{user.email || user.displayName}</span>
-        </span>
-        <button 
-          onClick={() => signOut(auth)}
-          className="px-3 py-1 bg-red-900/30 hover:bg-red-600/50 text-red-400 text-xs font-bold rounded transition-colors border border-red-800/50"
-        >
-          Logout
-        </button>
+      {/* Top Bar */}
+      <div className="flex justify-between md:justify-end items-center p-3 bg-[#181818] border-b border-[#2d2d2d] gap-4">
+        <div className="flex items-center gap-3 w-full justify-end">
+          
+          {/* 🟢 NEW: My Strategies Top Nav Button 🟢 */}
+          <button 
+            onClick={openStrategiesModal}
+            className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-[#252525] hover:bg-[#2d2d2d] text-gray-300 text-xs font-bold rounded transition-colors border border-[#3d3d3d]"
+          >
+            📂 My Strategies
+          </button>
+
+          <div className="flex items-center gap-1.5 px-3 py-1 bg-yellow-500/10 border border-yellow-500/30 rounded-full shadow-inner">
+            <span className="text-yellow-500 text-sm">⚡</span>
+            <span className="text-xs font-bold text-yellow-500 tracking-wide">{userCredits} CREDITS</span>
+          </div>
+
+          <span className="hidden md:block text-xs text-gray-400 font-medium">
+            <span className="text-blue-400 font-bold">{user.email || user.displayName}</span>
+          </span>
+          
+          <button 
+            onClick={() => signOut(auth)}
+            className="px-3 py-1 bg-red-900/30 hover:bg-red-600/50 text-red-400 text-xs font-bold rounded transition-colors border border-red-800/50"
+          >
+            Logout
+          </button>
+        </div>
       </div>
 
       <Header />
@@ -348,28 +431,22 @@ function App() {
               sellUnderlyingFrom={sellUnderlyingFrom} setSellUnderlyingFrom={setSellUnderlyingFrom}
               sellEntryTime={sellEntryTime} setSellEntryTime={setSellEntryTime}
               sellExitTime={sellExitTime} setSellExitTime={setSellExitTime}
-              
               buyTicker={buyTicker} setBuyTicker={setBuyTicker}
               buyTimeframe={buyTimeframe} setBuyTimeframe={setBuyTimeframe}
               buyUnderlyingFrom={buyUnderlyingFrom} setBuyUnderlyingFrom={setBuyUnderlyingFrom}
               buyEntryTime={buyEntryTime} setBuyEntryTime={setBuyEntryTime}
               buyExitTime={buyExitTime} setBuyExitTime={setBuyExitTime}
-
               ticker={ticker} setTicker={setTicker}
               timeframe={timeframe} setTimeframe={setTimeframe}
               underlyingFrom={underlyingFrom} setUnderlyingFrom={setUnderlyingFrom}
               qty={qty} setQty={setQty}
               transactionType={transactionType} setTransactionType={setTransactionType}
-              
               buyConfiguration={buyConfiguration} setBuyConfiguration={setBuyConfiguration}
               sellConfiguration={sellConfiguration} setSellConfiguration={setSellConfiguration}
-              
               fromDate={fromDate} setFromDate={setFromDate}
               toDate={toDate} setToDate={setToDate}
-              
               entryTime={entryTime} setEntryTime={setEntryTime}
               exitTime={exitTime} setExitTime={setExitTime}
-              
               trailMoveX={trailMoveX} setTrailMoveX={setTrailMoveX}
               trailPointY={trailPointY} setTrailPointY={setTrailPointY}
               indicators={indicators} addIndicator={addIndicator} updateIndicator={updateIndicator} removeIndicator={removeIndicator}
@@ -377,19 +454,34 @@ function App() {
               setIsConfirmed={setIsConfirmed}
             />
 
-            <button
-              onClick={runBacktest}
-              disabled={loading || !isConfirmed}
-              className={`w-full py-4 rounded-lg font-bold text-sm tracking-widest uppercase transition-all mb-8 flex justify-center items-center gap-3 ${
-                loading || !isConfirmed 
-                ? 'bg-[#1e1e1e] text-gray-600 border border-[#2d2d2d] cursor-not-allowed' 
-                : 'bg-green-600 hover:bg-green-500 text-white shadow-lg'
-              }`}
-            >
-              {loading ? (
-                <><svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Running Backtest...</>
-              ) : !isConfirmed ? 'Lock Parameters to Execute' : 'Run Backtest (Cost: 1 Credit)'}
-            </button>
+            {/* 🟢 NEW: Action Buttons (Save & Run) Side-by-Side 🟢 */}
+            <div className="flex flex-col md:flex-row gap-4 mb-8">
+              <button
+                onClick={handleSaveStrategy}
+                disabled={!isConfirmed}
+                className={`w-full md:w-1/3 py-4 rounded-lg font-bold text-sm tracking-widest uppercase transition-all flex justify-center items-center gap-3 ${
+                  !isConfirmed 
+                  ? 'bg-[#1a1a1a] text-gray-700 border border-[#2d2d2d] cursor-not-allowed' 
+                  : 'bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-300 hover:text-white border border-[#3d3d3d] shadow-lg'
+                }`}
+              >
+                💾 Save Strategy
+              </button>
+
+              <button
+                onClick={runBacktest}
+                disabled={loading || !isConfirmed}
+                className={`w-full md:w-2/3 py-4 rounded-lg font-bold text-sm tracking-widest uppercase transition-all flex justify-center items-center gap-3 ${
+                  loading || !isConfirmed 
+                  ? 'bg-[#1e1e1e] text-gray-600 border border-[#2d2d2d] cursor-not-allowed' 
+                  : 'bg-green-600 hover:bg-green-500 text-white shadow-lg'
+                }`}
+              >
+                {loading ? (
+                  <><svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Running Backtest...</>
+                ) : !isConfirmed ? 'Lock Parameters to Execute' : 'Run Backtest (Cost: 1 Credit)'}
+              </button>
+            </div>
 
             {error && <div className="bg-red-500/10 text-red-500 p-4 rounded-lg border border-red-500/20 mb-8 text-sm font-semibold">{error}</div>}
 

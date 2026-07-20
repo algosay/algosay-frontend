@@ -7,8 +7,8 @@ import {
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword 
 } from "firebase/auth";
-// 🚨 NEW: Import Firestore Database functions (Added updateDoc and increment)
-import { getFirestore, doc, getDoc, setDoc, serverTimestamp, updateDoc, increment } from "firebase/firestore";
+// 🚨 NEW: Import Firestore Database functions (Added collection, addDoc, getDocs)
+import { getFirestore, doc, getDoc, setDoc, serverTimestamp, updateDoc, increment, collection, addDoc, getDocs } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -120,5 +120,37 @@ export const deductUserCredit = async (uid) => {
   } catch (error) {
     console.error("Error deducting credit:", error);
     return false;
+  }
+};
+
+// 🚨 NEW: Save User Strategy to Firestore
+export const saveUserStrategy = async (uid, strategyName, strategyData) => {
+  try {
+    const strategiesRef = collection(db, "users", uid, "saved_strategies");
+    const docRef = await addDoc(strategiesRef, {
+      name: strategyName,
+      data: strategyData,
+      createdAt: serverTimestamp()
+    });
+    return { success: true, id: docRef.id };
+  } catch (error) {
+    console.error("Error saving strategy:", error);
+    return { success: false, error: error.message };
+  }
+};
+
+// 🚨 NEW: Get All Saved Strategies for User
+export const getUserStrategies = async (uid) => {
+  try {
+    const strategiesRef = collection(db, "users", uid, "saved_strategies");
+    const snapshot = await getDocs(strategiesRef);
+    const strategies = [];
+    snapshot.forEach((doc) => {
+      strategies.push({ id: doc.id, ...doc.data() });
+    });
+    return strategies;
+  } catch (error) {
+    console.error("Error fetching strategies:", error);
+    return [];
   }
 };
