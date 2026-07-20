@@ -216,11 +216,10 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
           >
             <div className="flex items-center gap-4">
                <div className="w-12 h-12 bg-slate-50 border border-slate-100 rounded-full flex items-center justify-center text-2xl group-hover:scale-110 group-hover:bg-blue-50 transition-all duration-300">
-                 🎁
-               </div>
+                         📊     </div>
                <div>
-                 <h4 className="text-base font-extrabold text-slate-900 tracking-tight">Claim 10 Free Backtests</h4>
-                 <p className="text-sm text-slate-500 font-medium mt-0.5">Click here to Sign Up and start building.</p>
+                 <h4 className="text-base font-extrabold text-slate-900 tracking-tight">Get 10 Free Backtests➜</h4>
+                 <p className="text-sm text-slate-500 font-medium mt-0.5">Click here to Sign Up and start backtesting.</p>
                </div>
             </div>
             <div className="text-slate-400 p-2 group-hover:text-[#0052FF] transition-colors">

@@ -4,15 +4,16 @@ import AIParseSection from './components/AIParseSection';
 import StrategyConfig from './components/StrategyConfig';
 import ResultsDashboard from './components/ResultsDashboard';
 
-// 🚨 NEW: Firebase Auth Imports 🚨
-import { auth } from './firebase';
+// 🚨 NEW: Firebase Auth & Database Imports 🚨
+import { auth, getUserCredits, deductUserCredit } from './firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import Login from './Login';
 
 function App() {
-  // --- Auth State ---
+  // --- Auth & Credits State ---
   const [user, setUser] = useState(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
+  const [userCredits, setUserCredits] = useState(0); // 🚨 NEW: State to track credits
 
   // --- AI Input & Workflow State ---
   const [aiPrompt, setAiPrompt] = useState('');
@@ -28,10 +29,10 @@ function App() {
   const [underlyingFrom, setUnderlyingFrom] = useState('Futures');
   const [qty, setQty] = useState(150); 
   
-  // 🚨 NEW: Transaction Type State (Buy/Sell) 🚨
+  // Transaction Type State (Buy/Sell)
   const [transactionType, setTransactionType] = useState('BUY');
 
-  // 🚨 NEW: Dual Directional Configuration States (Added for Options/Multi-Leg Sync) 🚨
+  // Dual Directional Configuration States (Added for Options/Multi-Leg Sync)
   const [buyConfiguration, setBuyConfiguration] = useState(null);
   const [sellConfiguration, setSellConfiguration] = useState(null);
 
@@ -53,11 +54,11 @@ function App() {
   const [entryTime, setEntryTime] = useState('09:15');
   const [exitTime, setExitTime] = useState('15:15');
   
-  // 🚨 NEW: Date Range State 🚨
+  // Date Range State
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   
-  // Trailing States (Maintained as requested, if needed globally)
+  // Trailing States 
   const [trailMoveX, setTrailMoveX] = useState(0);
   const [trailPointY, setTrailPointY] = useState(0);
 
@@ -73,18 +74,22 @@ function App() {
   // --- Premium Toggle Feature State ---
   const [withTax, setWithTax] = useState(false);
 
-  // 🚨 NEW: Auth Effect Listener 🚨
+  // 🚨 UPDATED: Auth Effect Listener with Credits Fetch 🚨
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
+      if (currentUser) {
+        // Fetch credits from database when user logs in
+        const credits = await getUserCredits(currentUser.uid);
+        setUserCredits(credits);
+      }
       setLoadingAuth(false);
     });
     return () => unsubscribe();
   }, []);
 
-  // 🟢 NEW FUNCTION: AIParseSection-la irunthu varum 'data'-vai vaangi UI-ai update pannum function 🟢
+  // AIParseSection-la irunthu varum 'data'-vai vaangi UI-ai update pannum function
   const handleParsedDataSuccess = (data) => {
-    // 🚨 Extracting specific directional configurations 🚨
     if (data.buy_configuration) setBuyConfiguration(data.buy_configuration);
     if (data.sell_configuration) setSellConfiguration(data.sell_configuration);
 
@@ -96,11 +101,9 @@ function App() {
     const primaryConfig = data.buy_configuration || data.sell_configuration || inst || {};
     const primaryEntry = data.buy_configuration || data.sell_configuration || entry || {};
 
-    // Extract Specific Buy/Sell Config details returned from backend
     const rawBuy = data.buy_configuration || {};
     const rawSell = data.sell_configuration || {};
 
-    // 🛠️ Dynamic mapping to independent Split States to fix UI defaults bug
     setSellTicker(rawSell.ticker || rawSell.asset || primaryConfig.ticker || 'NIFTY');
     setSellTimeframe(rawSell.timeframe || primaryConfig.timeframe || '5m');
     setSellUnderlyingFrom(rawSell.underlyingFrom || rawSell.segment || 'Options');
@@ -113,7 +116,6 @@ function App() {
     setBuyEntryTime(rawBuy.entryTime || rawBuy.entry_time || '09:45');
     setBuyExitTime(rawBuy.exitTime || rawBuy.exit_time || primaryEntry.exitTime || '15:15');
 
-    // Global parameters alignment (Retaining legacy states safely)
     setTicker(primaryConfig.ticker || 'BANKNIFTY');
     setTimeframe(primaryConfig.timeframe || '15m'); 
     setUnderlyingFrom(primaryConfig.underlyingFrom || primaryConfig.segment || 'Futures');
@@ -131,7 +133,6 @@ function App() {
     setTrailMoveX(risk.trailMoveX || 0);
     setTrailPointY(risk.trailPointY || 0);
 
-    // Indicators Mapping
     if (data.indicators && Array.isArray(data.indicators)) {
       const mappedIndicators = data.indicators.map((ind, idx) => {
         let parsedSettings = '';
@@ -148,7 +149,6 @@ function App() {
       setIndicators([]);
     }
     
-    // 🚨 FIX: Explicitly mapping entryTime, exitTime, and strikeDistance for EVERY individual leg!
     if (data.legs && Array.isArray(data.legs)) {
       const mappedLegs = data.legs.map((leg, idx) => ({
         id: leg.id || Date.now() + idx,
@@ -158,9 +158,9 @@ function App() {
         optionType: leg.optionType || 'CE', 
         expiry: leg.expiry || 'Weekly',
         strikeType: leg.strikeType || 'ATM',
-        strikeDistance: leg.strikeDistance || leg.strike_distance || 0, // <-- ADDED OTM/ITM Distance Support
-        entryTime: leg.entryTime || leg.entry_time || '', // <-- ADDED Leg-level Entry Time
-        exitTime: leg.exitTime || leg.exit_time || '',    // <-- ADDED Leg-level Exit Time
+        strikeDistance: leg.strikeDistance || leg.strike_distance || 0,
+        entryTime: leg.entryTime || leg.entry_time || '', 
+        exitTime: leg.exitTime || leg.exit_time || '',  
         stopLoss: leg.stop_loss || leg.stopLoss || '', 
         target: leg.target || '',
         slUnit: leg.sl_unit || leg.slUnit || '%',
@@ -178,14 +178,13 @@ function App() {
       setLegs([]);
     }
 
-    setIsConfirmed(true); // Sets to true so the Backtest button is enabled
+    setIsConfirmed(true); 
   };
 
-  // List Handlers
   const addLeg = () => { 
     setLegs([...legs, { 
       id: Date.now(), segment: 'Options', position: 'Buy', lots: 1, optionType: 'CE', expiry: 'Weekly', strikeType: 'ATM', 
-      strikeDistance: 0, entryTime: '', exitTime: '', // <-- Added defaults for manual leg addition
+      strikeDistance: 0, entryTime: '', exitTime: '', 
       stopLoss: '', target: '', slUnit: '%', targetUnit: '%',
       trailX: 0, trailY: 0, slReentry: 0, targetReexecute: 0, waitAndTrade: false, costToCost: false, moveToStoploss: false
     }]); 
@@ -199,17 +198,35 @@ function App() {
   const updateIndicator = (id, field, value) => { setIndicators(indicators.map(ind => ind.id === id ? { ...ind, [field]: value } : ind)); setIsConfirmed(false); };
   const removeIndicator = (id) => { setIndicators(indicators.filter(ind => ind.id !== id)); setIsConfirmed(false); };
 
-  // API Call: Backtest
+  // 🚨 UPDATED: API Call with Monetization Logic 🚨
   const runBacktest = async () => {
     if (!isConfirmed) return; 
+
+    // 1️⃣ Check if user has enough credits
+    if (userCredits <= 0) {
+      alert("⚠️ Insufficient Credits! Please recharge your credits to run more backtests.");
+      setError('Insufficient Credits. Please recharge your account.');
+      return;
+    }
+
     setLoading(true); setError(''); setResult(null);
 
+    // 2️⃣ Deduct 1 Credit from Database
+    const deductionSuccess = await deductUserCredit(user?.uid);
+    if (deductionSuccess) {
+      setUserCredits(prev => prev - 1); // Update UI instantly
+    } else {
+      setError('Failed to process credits. Please check your connection and try again.');
+      setLoading(false);
+      return;
+    }
+
+    // 3️⃣ Payload Construction
     const payload = {
-      user_id: user?.uid || "guest_123", // 🚨 UPDATED: Now sends actual logged-in user ID 🚨
+      user_id: user?.uid || "guest_123", 
       strategy_text: aiPrompt, 
       instrument_settings: { ticker, timeframe, underlyingFrom, qty, transactionType }, 
       
-      // Dynamic packaging of split UI parameters for engine backtest execution
       buy_configuration: {
         ticker: buyTicker,
         timeframe: buyTimeframe,
@@ -230,18 +247,17 @@ function App() {
       risk_management: { trailMoveX, trailPointY }, 
       indicators: indicators.map(i => ({ name: i.name, settings: i.settings })), 
       
-      // 🚨 FIX: Payload is now passing entry_time, exit_time and strike_distance INSIDE each leg!
       legs: legs.map(leg => ({
         id: leg.id,
         segment: leg.segment,
-        position: leg.position, // BUY/SELL flag per leg
+        position: leg.position, 
         lots: leg.lots,
         option_type: leg.optionType,
         expiry: leg.expiry,
         strike_type: leg.strikeType,
-        strike_distance: parseInt(leg.strikeDistance) || 0, // Passed to OTM/ITM function
-        entry_time: leg.entryTime, // Unique time per leg
-        exit_time: leg.exitTime,   // Unique time per leg
+        strike_distance: parseInt(leg.strikeDistance) || 0,
+        entry_time: leg.entryTime, 
+        exit_time: leg.exitTime,  
         target: leg.target || 0,
         target_unit: leg.targetUnit || '%',
         stop_loss: leg.stopLoss || 0,
@@ -267,12 +283,12 @@ function App() {
       setResult(data.results || data); 
     } catch (err) {
       setError('Execution Error: Failed to retrieve backtest results from the engine.');
+      // Optional: If you want to refund the credit on backend failure, you could add an increment(1) call here.
     } finally {
       setLoading(false);
     }
   };
 
-  // 🚨 Auth Guard Rendering Logic 🚨
   if (loadingAuth) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-[#121212] text-white">
@@ -288,8 +304,15 @@ function App() {
   return (
     <div className="min-h-screen bg-[#121212] text-gray-300 font-sans selection:bg-blue-500/30">
       
-      {/* 🚨 NEW: Top Bar with User Info and Logout Button 🚨 */}
+      {/* 🚨 UPDATED: Top Bar with Dynamic Credits Display 🚨 */}
       <div className="flex justify-end items-center p-3 bg-[#181818] border-b border-[#2d2d2d] gap-4">
+        
+        {/* Credits Pill Display */}
+        <div className="flex items-center gap-1.5 px-3 py-1 bg-yellow-500/10 border border-yellow-500/30 rounded-full shadow-inner">
+          <span className="text-yellow-500 text-sm">⚡</span>
+          <span className="text-xs font-bold text-yellow-500 tracking-wide">{userCredits} CREDITS</span>
+        </div>
+
         <span className="text-xs text-gray-400 font-medium">
           Logged in as: <span className="text-blue-400 font-bold">{user.email || user.displayName}</span>
         </span>
@@ -305,7 +328,6 @@ function App() {
 
       <div className="w-full max-w-[96%] xl:max-w-[98%] mx-auto p-4 md:p-6 lg:p-8">
         
-        {/* 🟢 PROPS FIX: Added onParsedDataSuccess to trigger correct state updates! 🟢 */}
         <AIParseSection 
           aiPrompt={aiPrompt} setAiPrompt={setAiPrompt} 
           isParsing={isParsing} setIsParsing={setIsParsing} 
@@ -366,7 +388,7 @@ function App() {
             >
               {loading ? (
                 <><svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Running Backtest...</>
-              ) : !isConfirmed ? 'Lock Parameters to Execute' : 'Run Backtest'}
+              ) : !isConfirmed ? 'Lock Parameters to Execute' : 'Run Backtest (Cost: 1 Credit)'}
             </button>
 
             {error && <div className="bg-red-500/10 text-red-500 p-4 rounded-lg border border-red-500/20 mb-8 text-sm font-semibold">{error}</div>}

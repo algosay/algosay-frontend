@@ -7,8 +7,8 @@ import {
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword 
 } from "firebase/auth";
-// 🚨 NEW: Import Firestore Database functions
-import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
+// 🚨 NEW: Import Firestore Database functions (Added updateDoc and increment)
+import { getFirestore, doc, getDoc, setDoc, serverTimestamp, updateDoc, increment } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -62,14 +62,14 @@ export const signInWithEmail = async (email, password) => {
   }
 };
 
-// 🚨 NEW: Create User Profile in Database with 50 Free Credits
+// 🚨 NEW: Create User Profile in Database with 10 Free Credits
 export const createUserProfile = async (user) => {
   if (!user) return;
   
   const userRef = doc(db, "users", user.uid);
   const userSnap = await getDoc(userRef);
 
-  // If user doesn't exist in database, create them with 50 credits!
+  // If user doesn't exist in database, create them with 10 credits!
   if (!userSnap.exists()) {
     try {
       await setDoc(userRef, {
@@ -90,5 +90,35 @@ export const createUserProfile = async (user) => {
     } catch (error) {
       console.error("Error updating login time:", error);
     }
+  }
+};
+
+// 🚨 NEW: Get Real-time User Credits
+export const getUserCredits = async (uid) => {
+  try {
+    const userRef = doc(db, "users", uid);
+    const userSnap = await getDoc(userRef);
+    if (userSnap.exists()) {
+      return userSnap.data().credits;
+    }
+    return 0;
+  } catch (error) {
+    console.error("Error fetching credits:", error);
+    return 0;
+  }
+};
+
+// 🚨 NEW: Deduct 1 Credit when Backtest Runs
+export const deductUserCredit = async (uid) => {
+  try {
+    const userRef = doc(db, "users", uid);
+    // increment(-1) will safely subtract exactly 1 credit in the database
+    await updateDoc(userRef, {
+      credits: increment(-1)
+    });
+    return true;
+  } catch (error) {
+    console.error("Error deducting credit:", error);
+    return false;
   }
 };
