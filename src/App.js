@@ -31,8 +31,8 @@ function App() {
   const [isConfirmed, setIsConfirmed] = useState(false);   
   const [needsInfoQuestion, setNeedsInfoQuestion] = useState(''); 
 
-  // --- Global Fallback Strategy State ---
-  const [ticker, setTicker] = useState('BANKNIFTY');
+  // --- Global Strategy State (No Forced Ticker Defaults) ---
+  const [ticker, setTicker] = useState(''); // 🚨 Changed default from 'BANKNIFTY' to '' to prevent hardcoded overrides
   const [timeframe, setTimeframe] = useState('15m'); 
   const [underlyingFrom, setUnderlyingFrom] = useState('Options');
   const [qty, setQty] = useState(150); 
@@ -74,7 +74,8 @@ function App() {
     const risk = data.risk_management || {};
     const dates = data.date_settings || {}; 
 
-    setTicker(inst.ticker || 'BANKNIFTY');
+    // 🚨 UPDATED: Directly assign what AI returns, avoiding forced 'BANKNIFTY' fallback
+    setTicker(inst.ticker || '');
     setTimeframe(inst.timeframe || '15m'); 
     setUnderlyingFrom(inst.underlyingFrom || inst.segment || 'Options');
     setQty(inst.qty || 150); 
@@ -103,11 +104,11 @@ function App() {
       setIndicators([]);
     }
     
-    // 🚨 UPDATED: Map legs with new Ticker, Timeframe, Entry, Exit fields
+    // 🚨 UPDATED: Map legs with exact Ticker/Asset requested by user via AI prompt (No forced 'BANKNIFTY' override)
     if (data.legs && Array.isArray(data.legs)) {
       const mappedLegs = data.legs.map((leg, idx) => ({
         id: leg.id || Date.now() + idx,
-        ticker: leg.ticker || leg.asset || inst.ticker || 'BANKNIFTY',
+        ticker: leg.ticker || leg.asset || inst.ticker || '', // 👈 Passes exact user request
         timeframe: leg.timeframe || inst.timeframe || '5m',
         entryTime: leg.entryTime || leg.entry_time || entry.entryTime || '', 
         exitTime: leg.exitTime || leg.exit_time || entry.exitTime || '',
@@ -138,7 +139,7 @@ function App() {
     setIsConfirmed(true); 
   };
 
-  // 🚨 UPDATED: Add Leg with new fields included
+  // 🚨 UPDATED: Add Leg uses current ticker state (or empty string)
   const addLeg = () => { 
     setLegs([...legs, { 
       id: Date.now(), 
@@ -162,7 +163,6 @@ function App() {
     const name = window.prompt("Enter a name for this strategy (e.g., Nifty Iron Condor):");
     if (!name) return;
 
-    // 🚨 Removed old states from save payload
     const strategyData = {
       aiPrompt, aiExplanation,
       ticker, timeframe, underlyingFrom, qty, transactionType,
@@ -203,7 +203,7 @@ function App() {
     const data = strat.data;
     setAiPrompt(data.aiPrompt || '');
     setAiExplanation(data.aiExplanation || 'Loaded from saved strategies.');
-    setTicker(data.ticker || 'BANKNIFTY');
+    setTicker(data.ticker || '');
     setTimeframe(data.timeframe || '15m');
     setUnderlyingFrom(data.underlyingFrom || 'Options');
     setQty(data.qty || 150);
@@ -245,7 +245,7 @@ function App() {
     }
   };
 
-  // 🚨 UPDATED: API Request Payload (Removed old config wrappers)
+  // 🚨 API Request Payload
   const runBacktest = async () => {
     if (!isConfirmed) return; 
 
@@ -269,7 +269,7 @@ function App() {
     const payload = {
       user_id: user?.uid || "guest_123", 
       strategy_text: aiPrompt, 
-      instrument_settings: { ticker, timeframe, underlyingFrom, qty, transactionType }, // Fallbacks
+      instrument_settings: { ticker, timeframe, underlyingFrom, qty, transactionType },
       date_settings: { fromDate, toDate },
       entry_settings: { strategyType, entryTime, exitTime },
       risk_management: { trailMoveX, trailPointY }, 
@@ -277,7 +277,7 @@ function App() {
       
       legs: legs.map(leg => ({
         id: leg.id, 
-        ticker: leg.ticker, timeframe: leg.timeframe, entry_time: leg.entryTime, exit_time: leg.exitTime, // 🚨 NEW
+        ticker: leg.ticker, timeframe: leg.timeframe, entry_time: leg.entryTime, exit_time: leg.exitTime,
         segment: leg.segment, position: leg.position, lots: leg.lots, option_type: leg.optionType, expiry: leg.expiry, 
         strike_type: leg.strikeType, strike_distance: parseInt(leg.strikeDistance) || 0,
         target: leg.target || 0, target_unit: leg.targetUnit || '%', stop_loss: leg.stopLoss || 0, sl_unit: leg.slUnit || '%',
@@ -381,7 +381,6 @@ function App() {
           <div className="animate-fade-in w-full">
             <h2 className="text-lg font-bold text-white mb-4 mt-8">Strategy Configuration</h2>
             
-            {/* 🚨 Removed all obsolete buy/sell configuration props from StrategyConfig */}
             <StrategyConfig 
               ticker={ticker} setTicker={setTicker}
               timeframe={timeframe} setTimeframe={setTimeframe}

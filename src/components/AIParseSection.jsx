@@ -30,7 +30,7 @@ const AIParseSection = ({
         if(setAiExplanation) setAiExplanation(data.explanation);
         if(setAiMessage) setAiMessage("Strategy Auto-Mapped Successfully! ✨");
         
-        // Parent component-ku full config (legs, risk) anupa intha callback use aagum
+        // Parent component-ku AI extract panna exact data-va apdiye anuppuroom (No forced default overrides)
         if(onParsedDataSuccess) onParsedDataSuccess(data);
       } else {
         // AI-ku innum details thevai patta
