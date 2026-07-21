@@ -129,13 +129,20 @@ const DEFAULT_STRATEGIES = [
     'default_10',
     'Iron Butterfly',
     'Range-bound - Market to stay exactly where it is (Pin Risk).',
-    "I have mapped your 0DTE NIFTY 50 Iron Butterfly strategy. The strategy involves four legs executed at 09:45 using a 5-minute timeframe: Sell ATM CE, Sell ATM PE, Buy OTM CE (+100 pts), and Buy OTM PE (-100 pts). Leg 1 (Sell ATM CE) has a 25% Stop Loss and 90% Target. Leg 2 (Sell ATM PE) has an 18% Stop Loss and 80% Target. The 'Buy' legs act as hedges with no individual SL/Target. Exit is set for 15:15, lot 10, Nov 2025 to Dec 2025 on a candle close basis."
-  )
+      "I have mapped your 0DTE NIFTY 50 Iron Butterfly strategy. The strategy involves four legs executed at 09:45 using a 5-minute timeframe: Sell ATM CE, Sell ATM PE, Buy OTM CE (+100 pts), and Buy OTM PE (-100 pts). Leg 1 (Sell ATM CE) has a 25% Stop Loss and 90% Target. Leg 2 (Sell ATM PE) has an 18% Stop Loss and 80% Target. The 'Buy' legs act as hedges with no individual SL/Target. Exit is set for 15:15, lot 10, Nov 2025 to Dec 2025 on a candle close basis."
+    )
 ];
 
-const MyStrategiesModal = ({ isOpen, onClose, isLoading, strategies = [], onLoad, onEdit, onDelete }) => {
-  // New State for Tabs
-  const [activeTab, setActiveTab] = useState('my_strategies');
+const MyStrategiesModal = ({ isOpen, onClose, isLoading, strategies = [], onLoad, onEdit, onDelete, initialTab = 'my_strategies' }) => {
+  // Use initialTab prop to set the active tab
+  const [activeTab, setActiveTab] = useState(initialTab);
+
+  // Modal open aagumbothu correct tab-ai select panna
+  React.useEffect(() => {
+    if (isOpen) {
+      setActiveTab(initialTab);
+    }
+  }, [isOpen, initialTab]);
 
   if (!isOpen) return null;
 

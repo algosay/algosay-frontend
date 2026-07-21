@@ -171,3 +171,19 @@ export const deleteUserStrategy = async (strategyId) => {
     return { success: false, error: error.message };
   }
 };
+
+// 🚨 NEW: Get Common Default Strategies for all users
+export const getDefaultStrategies = async () => {
+  try {
+    const defaultRef = collection(db, "default_strategies");
+    const snapshot = await getDocs(defaultRef);
+    const defaults = [];
+    snapshot.forEach((doc) => {
+      defaults.push({ id: doc.id, ...doc.data() });
+    });
+    return defaults;
+  } catch (error) {
+    console.error("Error fetching default strategies:", error);
+    return [];
+  }
+};

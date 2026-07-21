@@ -21,6 +21,7 @@ function App() {
   const [showStrategiesModal, setShowStrategiesModal] = useState(false);
   const [savedStrategies, setSavedStrategies] = useState([]);
   const [isLoadingStrategies, setIsLoadingStrategies] = useState(false);
+  const [modalTab, setModalTab] = useState('my_strategies'); // 🚨 NEW STATE FOR TAB
 
   // --- AI Input & Workflow State ---
   const [aiPrompt, setAiPrompt] = useState('');
@@ -208,9 +209,10 @@ function App() {
     }
   };
 
-  // 🟢 Open Modal & Fetch Strategies Logic 🟢
-  const openStrategiesModal = async () => {
+  // 🟢 UPDATED: Open Modal & Fetch Strategies Logic (Tab Support) 🟢
+  const openStrategiesModal = async (tabName = 'my_strategies') => {
     if (!user) return;
+    setModalTab(tabName); // Set which tab to open
     setIsLoadingStrategies(true);
     setShowStrategiesModal(true);
     const strats = await getUserStrategies(user.uid);
@@ -218,10 +220,20 @@ function App() {
     setIsLoadingStrategies(false);
   };
 
-  // 🟢 Load Strategy to UI Logic 🟢
+  // 🟢 UPDATED: Load Strategy Logic 🟢
   const loadStrategy = (strat) => {
+    // If it's a default template, load the text into the AI Prompt
+    if (strat.isDefault) {
+      setAiPrompt(strat.prompt);
+      setAiExplanation(''); // Clear previous explanation
+      setIsConfirmed(false);
+      setShowStrategiesModal(false);
+      alert(`🚀 Template "${strat.name}" loaded!\n\nClick the "Generate with AI" button to build the strategy legs.`);
+      return;
+    }
+
+    // If it's a saved user strategy, load the full JSON data
     const data = strat.data;
-    
     setAiPrompt(data.aiPrompt || '');
     setAiExplanation(data.aiExplanation || 'Loaded from saved strategies.');
     setTicker(data.ticker || 'BANKNIFTY');
@@ -261,7 +273,7 @@ function App() {
     alert(`🚀 Strategy "${strat.name}" loaded successfully!`);
   };
 
-  // 🟢 NEW: Delete Strategy Logic 🟢
+  // 🟢 Delete Strategy Logic 🟢
   const handleDeleteStrategy = async (strat) => {
     if (!user) return;
     const isConfirm = window.confirm(`Are you sure you want to delete "${strat.name}"?`);
@@ -356,7 +368,7 @@ function App() {
   return (
     <div className="min-h-screen bg-[#121212] text-gray-300 font-sans selection:bg-blue-500/30 relative">
       
-      {/* 🟢 NEW: Extracted Saved Strategies Modal with onDelete Prop 🟢 */}
+      {/* 🟢 UPDATED: Modal Component call (Pass the initialTab prop & preserved onDelete) */}
       <MyStrategiesModal 
         isOpen={showStrategiesModal} 
         onClose={() => setShowStrategiesModal(false)}
@@ -364,28 +376,32 @@ function App() {
         strategies={savedStrategies}
         onLoad={loadStrategy}
         onDelete={handleDeleteStrategy}
+        initialTab={modalTab} 
       />
 
-      {/* Top Bar - 🚨 MODIFIED: Split into Left and Right sections 🚨 */}
-      <div className="flex justify-between items-center p-3 bg-[#181818] border-b border-[#2d2d2d] gap-4 w-full">
-        
-        {/* Left Side: My Strategies & Credits */}
-        <div className="flex items-center gap-3">
+      {/* 🟢 UPDATED: Top Bar with TWO Buttons */}
+      <div className="flex justify-between md:justify-end items-center p-3 bg-[#181818] border-b border-[#2d2d2d] gap-4">
+        <div className="flex items-center gap-3 w-full justify-end">
+          
           <button 
-            onClick={openStrategiesModal}
+            onClick={() => openStrategiesModal('my_strategies')}
             className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-[#252525] hover:bg-[#2d2d2d] text-gray-300 text-xs font-bold rounded transition-colors border border-[#3d3d3d]"
           >
             📂 My Strategies
+          </button>
+
+          <button 
+            onClick={() => openStrategiesModal('default_strategies')}
+            className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-[#252525] hover:bg-[#2d2d2d] text-gray-300 text-xs font-bold rounded transition-colors border border-[#3d3d3d]"
+          >
+            📜 Default Templates
           </button>
 
           <div className="flex items-center gap-1.5 px-3 py-1 bg-yellow-500/10 border border-yellow-500/30 rounded-full shadow-inner">
             <span className="text-yellow-500 text-sm">⚡</span>
             <span className="text-xs font-bold text-yellow-500 tracking-wide">{userCredits} CREDITS</span>
           </div>
-        </div>
 
-        {/* Right Side: Email & Logout */}
-        <div className="flex items-center gap-3">
           <span className="hidden md:block text-xs text-gray-400 font-medium">
             <span className="text-blue-400 font-bold">{user.email || user.displayName}</span>
           </span>
@@ -397,7 +413,6 @@ function App() {
             Logout
           </button>
         </div>
-
       </div>
 
       <Header />
