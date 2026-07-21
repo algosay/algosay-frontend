@@ -1,17 +1,17 @@
 import React from 'react';
 
 const StrategyConfig = ({
-  // ✨ SELLING CONFIGURATIONS (New Split State Props)
+  // ✨ SELLING CONFIGURATIONS (New Split State Props - Retained for compatibility)
   sellTicker, setSellTicker, sellTimeframe, setSellTimeframe, sellUnderlyingFrom, setSellUnderlyingFrom,
   sellEntryTime, setSellEntryTime, sellExitTime, setSellExitTime,
-  sellStopLoss, setSellStopLoss, sellSlUnit, setSellSlUnit, // Retained for compatibility
-  sellTarget, setSellTarget, sellTargetUnit, setSellTargetUnit, // Retained for compatibility
+  sellStopLoss, setSellStopLoss, sellSlUnit, setSellSlUnit, 
+  sellTarget, setSellTarget, sellTargetUnit, setSellTargetUnit, 
   
-  // ✨ BUYING CONFIGURATIONS (New Split State Props)
+  // ✨ BUYING CONFIGURATIONS (New Split State Props - Retained for compatibility)
   buyTicker, setBuyTicker, buyTimeframe, setBuyTimeframe, buyUnderlyingFrom, setBuyUnderlyingFrom,
   buyEntryTime, setBuyEntryTime, buyExitTime, setBuyExitTime,
-  buyStopLoss, setBuyStopLoss, buySlUnit, setBuySlUnit, // Retained for compatibility
-  buyTarget, setBuyTarget, buyTargetUnit, setBuyTargetUnit, // Retained for compatibility
+  buyStopLoss, setBuyStopLoss, buySlUnit, setBuySlUnit, 
+  buyTarget, setBuyTarget, buyTargetUnit, setBuyTargetUnit, 
 
   // GLOBAL / SHARED CONFIGURATIONS
   fromDate, setFromDate, toDate, setToDate,
@@ -97,136 +97,32 @@ const StrategyConfig = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-        
-        {/* 🟥 SELLING CONFIGURATION PANEL */}
-        <div className="bg-[#1e1e1e] p-5 rounded-xl border border-red-900/20 shadow-lg shadow-red-950/5 flex flex-col justify-between">
-          <div>
-            <h3 className="text-sm font-bold text-red-400 mb-4 border-b border-[#2d2d2d] pb-2 flex items-center gap-2">
-              <span>📉</span> Selling Configuration (9:20 AM)
+      {/* 📊 INDICATORS PANEL (ISOLATED - Handles Indicator Selections only) */}
+      <div className="bg-[#1e1e1e] p-5 rounded-xl border border-[#2d2d2d] mb-6 flex flex-col justify-between">
+        <div>
+          <div className="flex justify-between items-center mb-4 border-b border-[#2d2d2d] pb-2">
+            <h3 className="text-sm font-bold text-gray-200 flex items-center gap-1.5">
+              <span>📊</span> Indicators Matrix
             </h3>
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[10px] text-gray-500 uppercase tracking-wide mb-1">Asset</label>
-                  <select value={sellTicker} onChange={(e) => handleConfigChange(setSellTicker, e.target.value)} className="w-full bg-[#121212] border border-[#333] focus:border-red-500 rounded p-2 text-sm text-gray-200 outline-none">
-                    <option value="NIFTY">NIFTY 50</option>
-                    <option value="BANKNIFTY">BANKNIFTY</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-[10px] text-gray-500 uppercase tracking-wide mb-1">Timeframe</label>
-                  <select value={sellTimeframe} onChange={(e) => handleConfigChange(setSellTimeframe, e.target.value)} className="w-full bg-[#121212] border border-[#333] focus:border-red-500 rounded p-2 text-sm text-gray-200 outline-none">
-                    <option value="1m">1 Min</option>
-                    <option value="5m">5 Min</option>
-                    <option value="15m">15 Min</option>
-                  </select>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[10px] text-gray-500 uppercase tracking-wide mb-1">Segment</label>
-                  <select value={sellUnderlyingFrom} onChange={(e) => handleConfigChange(setSellUnderlyingFrom, e.target.value)} className="w-full bg-[#121212] border border-[#333] focus:border-red-500 rounded p-2 text-sm text-gray-200 outline-none">
-                    <option value="Cash">Cash</option>
-                    <option value="Futures">Futures</option>
-                    <option value="Options">Options</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-[10px] text-gray-500 uppercase tracking-wide mb-1">Entry Time</label>
-                  <input type="time" value={sellEntryTime} onChange={(e) => handleConfigChange(setSellEntryTime, e.target.value)} className="w-full bg-[#121212] border border-[#333] focus:border-red-500 rounded p-2 text-sm text-gray-200 outline-none" />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[10px] text-gray-500 uppercase tracking-wide mb-1">Exit Time</label>
-                  <input type="text" value={sellExitTime} onChange={(e) => handleConfigChange(setSellExitTime, e.target.value)} className="w-full bg-[#121212] border border-[#333] focus:border-red-500 rounded p-2 text-sm text-gray-200 outline-none" />
-                </div>
-              </div>
-            </div>
+            <button onClick={addIndicator} className="text-[10px] bg-[#2a2a2a] hover:bg-[#333] text-gray-300 px-2 py-1 rounded transition-colors">+ Add</button>
           </div>
-        </div>
-
-        {/* 🟩 BUYING CONFIGURATION PANEL */}
-        <div className="bg-[#1e1e1e] p-5 rounded-xl border border-green-900/20 shadow-lg shadow-green-950/5 flex flex-col justify-between">
-          <div>
-            <h3 className="text-sm font-bold text-green-400 mb-4 border-b border-[#2d2d2d] pb-2 flex items-center gap-2">
-              <span>📈</span> Buying Configuration (9:45 AM)
-            </h3>
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[10px] text-gray-500 uppercase tracking-wide mb-1">Asset</label>
-                  <select value={buyTicker} onChange={(e) => handleConfigChange(setBuyTicker, e.target.value)} className="w-full bg-[#121212] border border-[#333] focus:border-green-500 rounded p-2 text-sm text-gray-200 outline-none">
-                    <option value="NIFTY">NIFTY 50</option>
-                    <option value="BANKNIFTY">BANKNIFTY</option>
-                  </select>
+          {indicators.length === 0 ? (
+            <div className="text-center py-6 text-xs text-gray-500">No indicators added.</div>
+          ) : (
+            <div className="space-y-3 overflow-y-auto max-h-[160px] custom-scrollbar pr-1 mb-3">
+              {indicators.map((ind) => (
+                <div key={ind.id} className="bg-[#121212] p-2 rounded border border-[#333] relative group">
+                  <button onClick={() => removeIndicator(ind.id)} className="absolute top-1.5 right-1.5 text-gray-500 hover:text-red-400 text-xs">✕</button>
+                  <input type="text" value={ind.name} onChange={(e) => updateIndicator(ind.id, 'name', e.target.value)} className="w-[80%] bg-transparent border-b border-[#333] text-xs text-blue-400 font-semibold focus:outline-none focus:border-blue-500 mb-1" placeholder="Name" />
+                  <input type="text" value={ind.settings} onChange={(e) => updateIndicator(ind.id, 'settings', e.target.value)} className="w-full bg-transparent border-b border-[#333] text-[11px] text-gray-400 focus:outline-none focus:border-gray-500" placeholder="Settings" />
                 </div>
-                <div>
-                  <label className="block text-[10px] text-gray-500 uppercase tracking-wide mb-1">Timeframe</label>
-                  <select value={buyTimeframe} onChange={(e) => handleConfigChange(setBuyTimeframe, e.target.value)} className="w-full bg-[#121212] border border-[#333] focus:border-green-500 rounded p-2 text-sm text-gray-200 outline-none">
-                    <option value="1m">1 Min</option>
-                    <option value="5m">5 Min</option>
-                    <option value="15m">15 Min</option>
-                  </select>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[10px] text-gray-500 uppercase tracking-wide mb-1">Segment</label>
-                  <select value={buyUnderlyingFrom} onChange={(e) => handleConfigChange(setBuyUnderlyingFrom, e.target.value)} className="w-full bg-[#121212] border border-[#333] focus:border-green-500 rounded p-2 text-sm text-gray-200 outline-none">
-                    <option value="Cash">Cash</option>
-                    <option value="Futures">Futures</option>
-                    <option value="Options">Options</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-[10px] text-gray-500 uppercase tracking-wide mb-1">Entry Time</label>
-                  <input type="time" value={buyEntryTime} onChange={(e) => handleConfigChange(setBuyEntryTime, e.target.value)} className="w-full bg-[#121212] border border-[#333] focus:border-green-500 rounded p-2 text-sm text-gray-200 outline-none" />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[10px] text-gray-500 uppercase tracking-wide mb-1">Exit Time</label>
-                  <input type="text" value={buyExitTime} onChange={(e) => handleConfigChange(setBuyExitTime, e.target.value)} className="w-full bg-[#121212] border border-[#333] focus:border-green-500 rounded p-2 text-sm text-gray-200 outline-none" />
-                </div>
-              </div>
+              ))}
             </div>
-          </div>
+          )}
         </div>
-
-        {/* 📊 INDICATORS PANEL (ISOLATED - Handles Indicator Selections only) */}
-        <div className="bg-[#1e1e1e] p-5 rounded-xl border border-[#2d2d2d] flex flex-col justify-between">
-          <div>
-            <div className="flex justify-between items-center mb-4 border-b border-[#2d2d2d] pb-2">
-              <h3 className="text-sm font-bold text-gray-200 flex items-center gap-1.5">
-                <span>📊</span> Indicators Matrix
-              </h3>
-              <button onClick={addIndicator} className="text-[10px] bg-[#2a2a2a] hover:bg-[#333] text-gray-300 px-2 py-1 rounded transition-colors">+ Add</button>
-            </div>
-            {indicators.length === 0 ? (
-              <div className="text-center py-12 text-xs text-gray-500">No indicators added.</div>
-            ) : (
-              <div className="space-y-3 overflow-y-auto max-h-[160px] custom-scrollbar pr-1 mb-3">
-                {indicators.map((ind) => (
-                  <div key={ind.id} className="bg-[#121212] p-2 rounded border border-[#333] relative group">
-                    <button onClick={() => removeIndicator(ind.id)} className="absolute top-1.5 right-1.5 text-gray-500 hover:text-red-400 text-xs">✕</button>
-                    <input type="text" value={ind.name} onChange={(e) => updateIndicator(ind.id, 'name', e.target.value)} className="w-[80%] bg-transparent border-b border-[#333] text-xs text-blue-400 font-semibold focus:outline-none focus:border-blue-500 mb-1" placeholder="Name" />
-                    <input type="text" value={ind.settings} onChange={(e) => updateIndicator(ind.id, 'settings', e.target.value)} className="w-full bg-transparent border-b border-[#333] text-[11px] text-gray-400 focus:outline-none focus:border-gray-500" placeholder="Settings" />
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
       </div>
 
-      {/* 📋 LEGS PANEL: Restructured to wide horizontal grid block above margin indicator */}
+      {/* 📋 LEGS PANEL: Restructured to include Asset, Timeframe, Segment, Entry & Exit Times */}
       <div className="bg-[#1e1e1e] p-5 rounded-xl border border-[#2d2d2d] mb-6 w-full flex flex-col">
         <div className="flex justify-between items-center mb-4 border-b border-[#2d2d2d] pb-2">
           <h3 className="text-sm font-bold text-gray-200 flex items-center gap-2">
@@ -249,23 +145,53 @@ const StrategyConfig = ({
                   </div>
                   
                   <div className="grid grid-cols-2 gap-2">
+                    
+                    {/* ✨ NEW INTEGRATED LEG FIELDS (Asset, Timeframe, Entry, Exit) */}
+                    <div className="col-span-2 grid grid-cols-2 gap-2 mb-2 pb-2 border-b border-[#222]">
+                      <div>
+                        <label className="block text-[9px] text-gray-500 uppercase tracking-wide mb-1">Asset</label>
+                        <select value={leg.ticker || 'NIFTY'} onChange={(e) => updateLeg(leg.id, 'ticker', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500">
+                          <option value="NIFTY">NIFTY 50</option>
+                          <option value="BANKNIFTY">BANKNIFTY</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-[9px] text-gray-500 uppercase tracking-wide mb-1">Timeframe</label>
+                        <select value={leg.timeframe || '5m'} onChange={(e) => updateLeg(leg.id, 'timeframe', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500">
+                          <option value="1m">1 Min</option>
+                          <option value="5m">5 Min</option>
+                          <option value="15m">15 Min</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-[9px] text-gray-500 uppercase tracking-wide mb-1">Entry Time</label>
+                        <input type="time" value={leg.entryTime || ''} onChange={(e) => updateLeg(leg.id, 'entryTime', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500" />
+                      </div>
+                      <div>
+                        <label className="block text-[9px] text-gray-500 uppercase tracking-wide mb-1">Exit Time</label>
+                        <input type="text" value={leg.exitTime || ''} onChange={(e) => updateLeg(leg.id, 'exitTime', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500" placeholder="e.g. 15:15" />
+                      </div>
+                    </div>
+
+                    {/* EXISTING LEG FIELDS */}
                     <div>
                       <label className="block text-[9px] text-gray-500 uppercase tracking-wide mb-1">Segment</label>
-                      <select value={leg.segment} onChange={(e) => updateLeg(leg.id, 'segment', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500">
-                        <option value="Options">Options</option>
+                      <select value={leg.segment || 'Options'} onChange={(e) => updateLeg(leg.id, 'segment', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500">
+                        <option value="Cash">Cash</option>
                         <option value="Futures">Futures</option>
+                        <option value="Options">Options</option>
                       </select>
                     </div>
                     
                     <div>
                       <label className="block text-[9px] text-gray-500 uppercase tracking-wide mb-1">Position</label>
-                      <select value={leg.position} onChange={(e) => updateLeg(leg.id, 'position', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500">
+                      <select value={leg.position || 'Sell'} onChange={(e) => updateLeg(leg.id, 'position', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500">
                         <option value="Buy">Buy</option>
                         <option value="Sell">Sell</option>
                       </select>
                     </div>
 
-                    {leg.segment === 'Options' && (
+                    {(leg.segment === 'Options' || !leg.segment) && (
                       <>
                         <div>
                           <label className="block text-[9px] text-gray-500 uppercase tracking-wide mb-1">Option Type</label>

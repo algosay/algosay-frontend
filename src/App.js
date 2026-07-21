@@ -31,29 +31,12 @@ function App() {
   const [isConfirmed, setIsConfirmed] = useState(false);   
   const [needsInfoQuestion, setNeedsInfoQuestion] = useState(''); 
 
-  // --- Strategy State ---
+  // --- Global Fallback Strategy State ---
   const [ticker, setTicker] = useState('BANKNIFTY');
   const [timeframe, setTimeframe] = useState('15m'); 
-  const [underlyingFrom, setUnderlyingFrom] = useState('Futures');
+  const [underlyingFrom, setUnderlyingFrom] = useState('Options');
   const [qty, setQty] = useState(150); 
-  
   const [transactionType, setTransactionType] = useState('BUY');
-
-  const [buyConfiguration, setBuyConfiguration] = useState(null);
-  const [sellConfiguration, setSellConfiguration] = useState(null);
-
-  const [sellTicker, setSellTicker] = useState('BANKNIFTY');
-  const [sellTimeframe, setSellTimeframe] = useState('15m');
-  const [sellUnderlyingFrom, setSellUnderlyingFrom] = useState('Futures');
-  const [sellEntryTime, setSellEntryTime] = useState('');
-  const [sellExitTime, setSellExitTime] = useState('15:15');
-
-  const [buyTicker, setBuyTicker] = useState('BANKNIFTY');
-  const [buyTimeframe, setBuyTimeframe] = useState('15m');
-  const [buyUnderlyingFrom, setBuyUnderlyingFrom] = useState('Futures');
-  const [buyEntryTime, setBuyEntryTime] = useState('');
-  const [buyExitTime, setBuyExitTime] = useState('15:15');
-
   const [strategyType, setStrategyType] = useState('Intraday');
   const [entryTime, setEntryTime] = useState('09:15');
   const [exitTime, setExitTime] = useState('15:15');
@@ -65,7 +48,7 @@ function App() {
   const [trailPointY, setTrailPointY] = useState(0);
 
   const [indicators, setIndicators] = useState([]);
-  const [legs, setLegs] = useState([]);
+  const [legs, setLegs] = useState([]); // 🚨 ALL LEG DATA LIVES HERE NOW
 
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
@@ -85,46 +68,22 @@ function App() {
   }, []);
 
   const handleParsedDataSuccess = (data) => {
-    if (data.buy_configuration) setBuyConfiguration(data.buy_configuration);
-    if (data.sell_configuration) setSellConfiguration(data.sell_configuration);
-
+    // Extract Global Settings for fallbacks
     const inst = data.instrument_settings || {};
     const entry = data.entry_settings || {};
     const risk = data.risk_management || {};
     const dates = data.date_settings || {}; 
 
-    const primaryConfig = data.buy_configuration || data.sell_configuration || inst || {};
-    const primaryEntry = data.buy_configuration || data.sell_configuration || entry || {};
-
-    const rawBuy = data.buy_configuration || {};
-    const rawSell = data.sell_configuration || {};
-
-    setSellTicker(rawSell.ticker || rawSell.asset || primaryConfig.ticker || 'NIFTY');
-    setSellTimeframe(rawSell.timeframe || primaryConfig.timeframe || '5m');
-    setSellUnderlyingFrom(rawSell.underlyingFrom || rawSell.segment || 'Options');
-    setSellEntryTime(rawSell.entryTime || rawSell.entry_time || '09:20');
-    setSellExitTime(rawSell.exitTime || rawSell.exit_time || primaryEntry.exitTime || '15:15');
-
-    setBuyTicker(rawBuy.ticker || rawBuy.asset || primaryConfig.ticker || 'NIFTY');
-    setBuyTimeframe(rawBuy.timeframe || primaryConfig.timeframe || '5m');
-    setBuyUnderlyingFrom(rawBuy.underlyingFrom || rawBuy.segment || 'Options');
-    setBuyEntryTime(rawBuy.entryTime || rawBuy.entry_time || '09:45');
-    setBuyExitTime(rawBuy.exitTime || rawBuy.exit_time || primaryEntry.exitTime || '15:15');
-
-    setTicker(primaryConfig.ticker || 'BANKNIFTY');
-    setTimeframe(primaryConfig.timeframe || '15m'); 
-    setUnderlyingFrom(primaryConfig.underlyingFrom || primaryConfig.segment || 'Futures');
+    setTicker(inst.ticker || 'BANKNIFTY');
+    setTimeframe(inst.timeframe || '15m'); 
+    setUnderlyingFrom(inst.underlyingFrom || inst.segment || 'Options');
     setQty(inst.qty || 150); 
-    
-    setTransactionType(primaryConfig.transactionType || inst.transactionType || 'BUY');
-    
-    setStrategyType(primaryEntry.strategyType || 'Intraday');
-    setEntryTime(primaryEntry.entryTime || '09:15');
-    setExitTime(primaryEntry.exitTime || '15:15');
-
+    setTransactionType(inst.transactionType || 'BUY');
+    setStrategyType(entry.strategyType || 'Intraday');
+    setEntryTime(entry.entryTime || '09:15');
+    setExitTime(entry.exitTime || '15:15');
     setFromDate(dates.fromDate || '');
     setToDate(dates.toDate || '');
-    
     setTrailMoveX(risk.trailMoveX || 0);
     setTrailPointY(risk.trailPointY || 0);
 
@@ -144,24 +103,27 @@ function App() {
       setIndicators([]);
     }
     
+    // 🚨 UPDATED: Map legs with new Ticker, Timeframe, Entry, Exit fields
     if (data.legs && Array.isArray(data.legs)) {
       const mappedLegs = data.legs.map((leg, idx) => ({
         id: leg.id || Date.now() + idx,
+        ticker: leg.ticker || leg.asset || inst.ticker || 'BANKNIFTY',
+        timeframe: leg.timeframe || inst.timeframe || '5m',
+        entryTime: leg.entryTime || leg.entry_time || entry.entryTime || '', 
+        exitTime: leg.exitTime || leg.exit_time || entry.exitTime || '',
         segment: leg.segment || 'Options',
         position: leg.position || 'Buy',
         lots: leg.lots || 1,
-        optionType: leg.optionType || 'CE', 
+        optionType: leg.optionType || leg.option_type || 'CE', 
         expiry: leg.expiry || 'Weekly',
-        strikeType: leg.strikeType || 'ATM',
+        strikeType: leg.strikeType || leg.strike_type || 'ATM',
         strikeDistance: leg.strikeDistance || leg.strike_distance || 0,
-        entryTime: leg.entryTime || leg.entry_time || '', 
-        exitTime: leg.exitTime || leg.exit_time || '',  
         stopLoss: leg.stop_loss || leg.stopLoss || '', 
         target: leg.target || '',
         slUnit: leg.sl_unit || leg.slUnit || '%',
         targetUnit: leg.target_unit || leg.targetUnit || '%',
-        trailX: leg.trail_sl?.x || leg.trailX || '',
-        trailY: leg.trail_sl?.y || leg.trailY || '',
+        trailX: leg.trail_sl?.x || leg.trailX || 0,
+        trailY: leg.trail_sl?.y || leg.trailY || 0,
         slReentry: leg.sl_reentry || leg.slReentry || 0,
         targetReexecute: leg.target_reexecute || leg.targetReexecute || 0,
         waitAndTrade: leg.wait_and_trade || leg.waitAndTrade || false,
@@ -176,7 +138,17 @@ function App() {
     setIsConfirmed(true); 
   };
 
-  const addLeg = () => { setLegs([...legs, { id: Date.now(), segment: 'Options', position: 'Buy', lots: 1, optionType: 'CE', expiry: 'Weekly', strikeType: 'ATM', strikeDistance: 0, entryTime: '', exitTime: '', stopLoss: '', target: '', slUnit: '%', targetUnit: '%', trailX: 0, trailY: 0, slReentry: 0, targetReexecute: 0, waitAndTrade: false, costToCost: false, moveToStoploss: false }]); setIsConfirmed(false); };
+  // 🚨 UPDATED: Add Leg with new fields included
+  const addLeg = () => { 
+    setLegs([...legs, { 
+      id: Date.now(), 
+      ticker: ticker, timeframe: timeframe, entryTime: '', exitTime: '', 
+      segment: 'Options', position: 'Buy', lots: 1, optionType: 'CE', expiry: 'Weekly', strikeType: 'ATM', 
+      strikeDistance: 0, stopLoss: '', target: '', slUnit: '%', targetUnit: '%', trailX: 0, trailY: 0, 
+      slReentry: 0, targetReexecute: 0, waitAndTrade: false, costToCost: false, moveToStoploss: false 
+    }]); 
+    setIsConfirmed(false); 
+  };
   const updateLeg = (id, field, value) => { setLegs(legs.map(leg => leg.id === id ? { ...leg, [field]: value } : leg)); setIsConfirmed(false); };
   const removeLeg = (id) => { setLegs(legs.filter(leg => leg.id !== id)); setIsConfirmed(false); };
 
@@ -190,13 +162,10 @@ function App() {
     const name = window.prompt("Enter a name for this strategy (e.g., Nifty Iron Condor):");
     if (!name) return;
 
-    // Pack all current UI state into one object
+    // 🚨 Removed old states from save payload
     const strategyData = {
       aiPrompt, aiExplanation,
       ticker, timeframe, underlyingFrom, qty, transactionType,
-      buyConfiguration, sellConfiguration,
-      sellTicker, sellTimeframe, sellUnderlyingFrom, sellEntryTime, sellExitTime,
-      buyTicker, buyTimeframe, buyUnderlyingFrom, buyEntryTime, buyExitTime,
       strategyType, entryTime, exitTime, fromDate, toDate,
       trailMoveX, trailPointY, indicators, legs
     };
@@ -222,40 +191,23 @@ function App() {
 
   // 🟢 UPDATED: Load Strategy Logic 🟢
   const loadStrategy = (strat) => {
-    // If it's a default template, load the text into the AI Prompt
     if (strat.isDefault) {
       setAiPrompt(strat.prompt);
-      setAiExplanation(''); // Clear previous explanation
+      setAiExplanation(''); 
       setIsConfirmed(false);
       setShowStrategiesModal(false);
       alert(`🚀 Template "${strat.name}" loaded!\n\nClick the "Generate with AI" button to build the strategy legs.`);
       return;
     }
 
-    // If it's a saved user strategy, load the full JSON data
     const data = strat.data;
     setAiPrompt(data.aiPrompt || '');
     setAiExplanation(data.aiExplanation || 'Loaded from saved strategies.');
     setTicker(data.ticker || 'BANKNIFTY');
     setTimeframe(data.timeframe || '15m');
-    setUnderlyingFrom(data.underlyingFrom || 'Futures');
+    setUnderlyingFrom(data.underlyingFrom || 'Options');
     setQty(data.qty || 150);
     setTransactionType(data.transactionType || 'BUY');
-    
-    setBuyConfiguration(data.buyConfiguration || null);
-    setSellConfiguration(data.sellConfiguration || null);
-    
-    setSellTicker(data.sellTicker || 'BANKNIFTY');
-    setSellTimeframe(data.sellTimeframe || '15m');
-    setSellUnderlyingFrom(data.sellUnderlyingFrom || 'Futures');
-    setSellEntryTime(data.sellEntryTime || '');
-    setSellExitTime(data.sellExitTime || '15:15');
-    
-    setBuyTicker(data.buyTicker || 'BANKNIFTY');
-    setBuyTimeframe(data.buyTimeframe || '15m');
-    setBuyUnderlyingFrom(data.buyUnderlyingFrom || 'Futures');
-    setBuyEntryTime(data.buyEntryTime || '');
-    setBuyExitTime(data.buyExitTime || '15:15');
     
     setStrategyType(data.strategyType || 'Intraday');
     setEntryTime(data.entryTime || '09:15');
@@ -266,7 +218,7 @@ function App() {
     setTrailMoveX(data.trailMoveX || 0);
     setTrailPointY(data.trailPointY || 0);
     setIndicators(data.indicators || []);
-    setLegs(data.legs || []);
+    setLegs(data.legs || []); // Loads the unified legs configuration
 
     setIsConfirmed(true); 
     setShowStrategiesModal(false); 
@@ -280,11 +232,8 @@ function App() {
     if (!isConfirm) return;
 
     try {
-      // 1. Delete from Firebase
       const res = await deleteUserStrategy(strat.id);
-      
       if (res && res.success) {
-        // 2. Remove from local React State so it disappears from the modal immediately
         setSavedStrategies(prevStrats => prevStrats.filter(s => s.id !== strat.id));
         alert("✅ Strategy deleted successfully!");
       } else {
@@ -296,6 +245,7 @@ function App() {
     }
   };
 
+  // 🚨 UPDATED: API Request Payload (Removed old config wrappers)
   const runBacktest = async () => {
     if (!isConfirmed) return; 
 
@@ -319,20 +269,20 @@ function App() {
     const payload = {
       user_id: user?.uid || "guest_123", 
       strategy_text: aiPrompt, 
-      instrument_settings: { ticker, timeframe, underlyingFrom, qty, transactionType }, 
-      
-      buy_configuration: { ticker: buyTicker, timeframe: buyTimeframe, underlyingFrom: buyUnderlyingFrom, entryTime: buyEntryTime, exitTime: buyExitTime },
-      sell_configuration: { ticker: sellTicker, timeframe: sellTimeframe, underlyingFrom: sellUnderlyingFrom, entryTime: sellEntryTime, exitTime: sellExitTime },
-      
+      instrument_settings: { ticker, timeframe, underlyingFrom, qty, transactionType }, // Fallbacks
       date_settings: { fromDate, toDate },
       entry_settings: { strategyType, entryTime, exitTime },
       risk_management: { trailMoveX, trailPointY }, 
       indicators: indicators.map(i => ({ name: i.name, settings: i.settings })), 
       
       legs: legs.map(leg => ({
-        id: leg.id, segment: leg.segment, position: leg.position, lots: leg.lots, option_type: leg.optionType, expiry: leg.expiry, strike_type: leg.strikeType, strike_distance: parseInt(leg.strikeDistance) || 0,
-        entry_time: leg.entryTime, exit_time: leg.exitTime, target: leg.target || 0, target_unit: leg.targetUnit || '%', stop_loss: leg.stopLoss || 0, sl_unit: leg.slUnit || '%',
-        trail_sl: { x: leg.trailX || 0, y: leg.trailY || 0 }, sl_reentry: leg.slReentry || 0, target_reexecute: leg.targetReexecute || 0, wait_and_trade: leg.waitAndTrade || false, cost_to_cost: leg.costToCost || false, move_to_stoploss: leg.moveToStoploss || false
+        id: leg.id, 
+        ticker: leg.ticker, timeframe: leg.timeframe, entry_time: leg.entryTime, exit_time: leg.exitTime, // 🚨 NEW
+        segment: leg.segment, position: leg.position, lots: leg.lots, option_type: leg.optionType, expiry: leg.expiry, 
+        strike_type: leg.strikeType, strike_distance: parseInt(leg.strikeDistance) || 0,
+        target: leg.target || 0, target_unit: leg.targetUnit || '%', stop_loss: leg.stopLoss || 0, sl_unit: leg.slUnit || '%',
+        trail_sl: { x: leg.trailX || 0, y: leg.trailY || 0 }, sl_reentry: leg.slReentry || 0, target_reexecute: leg.targetReexecute || 0, 
+        wait_and_trade: leg.waitAndTrade || false, cost_to_cost: leg.costToCost || false, move_to_stoploss: leg.moveToStoploss || false
       }))
     };
 
@@ -368,7 +318,6 @@ function App() {
   return (
     <div className="min-h-screen bg-[#121212] text-gray-300 font-sans selection:bg-blue-500/30 relative">
       
-      {/* 🟢 UPDATED: Modal Component call (Pass the initialTab prop & preserved onDelete) */}
       <MyStrategiesModal 
         isOpen={showStrategiesModal} 
         onClose={() => setShowStrategiesModal(false)}
@@ -379,7 +328,6 @@ function App() {
         initialTab={modalTab} 
       />
 
-      {/* 🟢 UPDATED: Top Bar with TWO Buttons */}
       <div className="flex justify-between md:justify-end items-center p-3 bg-[#181818] border-b border-[#2d2d2d] gap-4">
         <div className="flex items-center gap-3 w-full justify-end">
           
@@ -433,24 +381,13 @@ function App() {
           <div className="animate-fade-in w-full">
             <h2 className="text-lg font-bold text-white mb-4 mt-8">Strategy Configuration</h2>
             
+            {/* 🚨 Removed all obsolete buy/sell configuration props from StrategyConfig */}
             <StrategyConfig 
-              sellTicker={sellTicker} setSellTicker={setSellTicker}
-              sellTimeframe={sellTimeframe} setSellTimeframe={setSellTimeframe}
-              sellUnderlyingFrom={sellUnderlyingFrom} setSellUnderlyingFrom={setSellUnderlyingFrom}
-              sellEntryTime={sellEntryTime} setSellEntryTime={setSellEntryTime}
-              sellExitTime={sellExitTime} setSellExitTime={setSellExitTime}
-              buyTicker={buyTicker} setBuyTicker={setBuyTicker}
-              buyTimeframe={buyTimeframe} setBuyTimeframe={setBuyTimeframe}
-              buyUnderlyingFrom={buyUnderlyingFrom} setBuyUnderlyingFrom={setBuyUnderlyingFrom}
-              buyEntryTime={buyEntryTime} setBuyEntryTime={setBuyEntryTime}
-              buyExitTime={buyExitTime} setBuyExitTime={setBuyExitTime}
               ticker={ticker} setTicker={setTicker}
               timeframe={timeframe} setTimeframe={setTimeframe}
               underlyingFrom={underlyingFrom} setUnderlyingFrom={setUnderlyingFrom}
               qty={qty} setQty={setQty}
               transactionType={transactionType} setTransactionType={setTransactionType}
-              buyConfiguration={buyConfiguration} setBuyConfiguration={setBuyConfiguration}
-              sellConfiguration={sellConfiguration} setSellConfiguration={setSellConfiguration}
               fromDate={fromDate} setFromDate={setFromDate}
               toDate={toDate} setToDate={setToDate}
               entryTime={entryTime} setEntryTime={setEntryTime}
