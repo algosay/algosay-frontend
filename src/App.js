@@ -68,14 +68,30 @@ function App() {
   }, []);
 
   const handleParsedDataSuccess = (data) => {
+    // 🚨 Extract actual Ticker/Index mentioned directly from user's AI Prompt
+    let extractedTicker = '';
+    const promptText = (aiPrompt || '').toUpperCase();
+    if (promptText.includes('FINNIFTY')) {
+      extractedTicker = 'FINNIFTY';
+    } else if (promptText.includes('BANKNIFTY') || promptText.includes('BANK NIFTY')) {
+      extractedTicker = 'BANKNIFTY';
+    } else if (promptText.includes('NIFTY')) {
+      extractedTicker = 'NIFTY';
+    } else if (promptText.includes('SENSEX')) {
+      extractedTicker = 'SENSEX';
+    }
+
     // Extract Global Settings for fallbacks
     const inst = data.instrument_settings || {};
     const entry = data.entry_settings || {};
     const risk = data.risk_management || {};
     const dates = data.date_settings || {}; 
 
-    // 🚨 UPDATED: Directly assign what AI returns, avoiding forced 'BANKNIFTY' fallback
-    setTicker(inst.ticker || '');
+    // Priority: Extracted Ticker from Prompt > AI Response Ticker > Empty
+    const finalTicker = extractedTicker || inst.ticker || '';
+
+    // 🚨 UPDATED: Directly assign the calculated finalTicker
+    setTicker(finalTicker);
     setTimeframe(inst.timeframe || '15m'); 
     setUnderlyingFrom(inst.underlyingFrom || inst.segment || 'Options');
     setQty(inst.qty || 150); 
@@ -104,11 +120,11 @@ function App() {
       setIndicators([]);
     }
     
-    // 🚨 UPDATED: Map legs with exact Ticker/Asset requested by user via AI prompt (No forced 'BANKNIFTY' override)
+    // 🚨 UPDATED: Map legs with priority finalTicker
     if (data.legs && Array.isArray(data.legs)) {
       const mappedLegs = data.legs.map((leg, idx) => ({
         id: leg.id || Date.now() + idx,
-        ticker: leg.ticker || leg.asset || inst.ticker || '', // 👈 Passes exact user request
+        ticker: finalTicker || leg.ticker || leg.asset || '', // 👈 Exact ticker set here
         timeframe: leg.timeframe || inst.timeframe || '5m',
         entryTime: leg.entryTime || leg.entry_time || entry.entryTime || '', 
         exitTime: leg.exitTime || leg.exit_time || entry.exitTime || '',
