@@ -146,21 +146,33 @@ const StrategyConfig = ({
                   
                   <div className="grid grid-cols-2 gap-2">
                     
-                    {/* ✨ NEW INTEGRATED LEG FIELDS (Asset, Timeframe, Entry, Exit) */}
+                    {/* ✨ UPDATED INTEGRATED LEG FIELDS (Asset, Timeframe, Entry, Exit) */}
                     <div className="col-span-2 grid grid-cols-2 gap-2 mb-2 pb-2 border-b border-[#222]">
                       <div>
                         <label className="block text-[9px] text-gray-500 uppercase tracking-wide mb-1">Asset</label>
                         <select value={leg.ticker || 'NIFTY'} onChange={(e) => updateLeg(leg.id, 'ticker', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500">
                           <option value="NIFTY">NIFTY 50</option>
                           <option value="BANKNIFTY">BANKNIFTY</option>
+                          {/* 🚨 NEW ASSETS ADDED HERE 🚨 */}
+                          <option value="FINNIFTY">FINNIFTY</option>
+                          <option value="MIDCPNIFTY">MIDCPNIFTY</option>
+                          <option value="SENSEX">SENSEX</option>
                         </select>
                       </div>
                       <div>
                         <label className="block text-[9px] text-gray-500 uppercase tracking-wide mb-1">Timeframe</label>
                         <select value={leg.timeframe || '5m'} onChange={(e) => updateLeg(leg.id, 'timeframe', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500">
+                          {/* 🚨 NEW TIMEFRAMES ADDED HERE 🚨 */}
                           <option value="1m">1 Min</option>
                           <option value="5m">5 Min</option>
                           <option value="15m">15 Min</option>
+                          <option value="30m">30 Min</option>
+                          <option value="45m">45 Min</option>
+                          <option value="1h">1 Hour</option>
+                          <option value="3h">3 Hours</option>
+                          <option value="6h">6 Hours</option>
+                          <option value="12h">12 Hours</option>
+                          <option value="1D">1 Day</option>
                         </select>
                       </div>
                       <div>
@@ -200,13 +212,35 @@ const StrategyConfig = ({
                             <option value="PE">PE (Put)</option>
                           </select>
                         </div>
+                        {/* 🚨 NEW OTM/ITM DROPDOWN LOGIC ADDED HERE 🚨 */}
                         <div>
-                          <label className="block text-[9px] text-gray-500 uppercase tracking-wide mb-1">Strike Type</label>
-                          <select value={leg.strikeType || 'ATM'} onChange={(e) => updateLeg(leg.id, 'strikeType', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500">
-                            <option value="ATM">ATM</option>
-                            <option value="ITM">ITM</option>
-                            <option value="OTM">OTM</option>
-                          </select>
+                          <label className="block text-[9px] text-gray-500 uppercase tracking-wide mb-1">
+                            Strike Type {(leg.strikeType === 'OTM' || leg.strikeType === 'ITM') && '& Distance'}
+                          </label>
+                          <div className="flex gap-1">
+                            <select 
+                              value={leg.strikeType || 'ATM'} 
+                              onChange={(e) => updateLeg(leg.id, 'strikeType', e.target.value)} 
+                              className={`${(leg.strikeType === 'OTM' || leg.strikeType === 'ITM') ? 'w-1/2' : 'w-full'} bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500`}
+                            >
+                              <option value="ATM">ATM</option>
+                              <option value="ITM">ITM</option>
+                              <option value="OTM">OTM</option>
+                            </select>
+                            
+                            {/* Conditional Distance Dropdown (Shows only if OTM or ITM is selected) */}
+                            {(leg.strikeType === 'OTM' || leg.strikeType === 'ITM') && (
+                              <select 
+                                value={leg.strikeDistance || 1} 
+                                onChange={(e) => updateLeg(leg.id, 'strikeDistance', Number(e.target.value))} 
+                                className="w-1/2 bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500"
+                              >
+                                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
+                                  <option key={num} value={num}>{num}</option>
+                                ))}
+                              </select>
+                            )}
+                          </div>
                         </div>
                       </>
                     )}

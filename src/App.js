@@ -6,7 +6,7 @@ import ResultsDashboard from './components/ResultsDashboard';
 // 🚨 NEW: Import the extracted Modal Component 🚨
 import MyStrategiesModal from './MyStrategiesModal';
 
-// 🚨 Added saveUserStrategy, getUserStrategies, and deleteUserStrategy imports 🚨
+// 🚨 Saved Strategy & Auth Firebase Imports 🚨
 import { auth, getUserCredits, deductUserCredit, saveUserStrategy, getUserStrategies, deleteUserStrategy } from './firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import Login from './Login';
@@ -32,7 +32,7 @@ function App() {
   const [needsInfoQuestion, setNeedsInfoQuestion] = useState(''); 
 
   // --- Global Strategy State (No Forced Ticker Defaults) ---
-  const [ticker, setTicker] = useState(''); // 🚨 Changed default from 'BANKNIFTY' to '' to prevent hardcoded overrides
+  const [ticker, setTicker] = useState(''); // Default empty to prevent hardcoded overrides
   const [timeframe, setTimeframe] = useState('15m'); 
   const [underlyingFrom, setUnderlyingFrom] = useState('Options');
   const [qty, setQty] = useState(150); 
@@ -48,7 +48,7 @@ function App() {
   const [trailPointY, setTrailPointY] = useState(0);
 
   const [indicators, setIndicators] = useState([]);
-  const [legs, setLegs] = useState([]); // 🚨 ALL LEG DATA LIVES HERE NOW
+  const [legs, setLegs] = useState([]); // ALL LEG DATA LIVES HERE
 
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
@@ -71,14 +71,19 @@ function App() {
     // 🚨 Extract actual Ticker/Index mentioned directly from user's AI Prompt
     let extractedTicker = '';
     const promptText = (aiPrompt || '').toUpperCase();
-    if (promptText.includes('FINNIFTY')) {
+    
+    if (promptText.includes('MIDCPNIFTY') || promptText.includes('MIDCAP')) {
+      extractedTicker = 'MIDCPNIFTY';
+    } else if (promptText.includes('FINNIFTY') || promptText.includes('FIN NIFTY')) {
       extractedTicker = 'FINNIFTY';
     } else if (promptText.includes('BANKNIFTY') || promptText.includes('BANK NIFTY')) {
       extractedTicker = 'BANKNIFTY';
-    } else if (promptText.includes('NIFTY')) {
-      extractedTicker = 'NIFTY';
+    } else if (promptText.includes('BANKEX')) {
+      extractedTicker = 'BANKEX';
     } else if (promptText.includes('SENSEX')) {
       extractedTicker = 'SENSEX';
+    } else if (promptText.includes('NIFTY')) {
+      extractedTicker = 'NIFTY';
     }
 
     // Extract Global Settings for fallbacks
@@ -90,7 +95,7 @@ function App() {
     // Priority: Extracted Ticker from Prompt > AI Response Ticker > Empty
     const finalTicker = extractedTicker || inst.ticker || '';
 
-    // 🚨 UPDATED: Directly assign the calculated finalTicker
+    // Directly assign the calculated finalTicker
     setTicker(finalTicker);
     setTimeframe(inst.timeframe || '15m'); 
     setUnderlyingFrom(inst.underlyingFrom || inst.segment || 'Options');
@@ -120,11 +125,11 @@ function App() {
       setIndicators([]);
     }
     
-    // 🚨 UPDATED: Map legs with priority finalTicker
+    // 🚨 UPDATED: Map legs with priority finalTicker and handle all strike fields seamlessly
     if (data.legs && Array.isArray(data.legs)) {
       const mappedLegs = data.legs.map((leg, idx) => ({
         id: leg.id || Date.now() + idx,
-        ticker: finalTicker || leg.ticker || leg.asset || '', // 👈 Exact ticker set here
+        ticker: finalTicker || leg.ticker || leg.asset || '', // Exact ticker set here
         timeframe: leg.timeframe || inst.timeframe || '5m',
         entryTime: leg.entryTime || leg.entry_time || entry.entryTime || '', 
         exitTime: leg.exitTime || leg.exit_time || entry.exitTime || '',
@@ -194,7 +199,7 @@ function App() {
     }
   };
 
-  // 🟢 UPDATED: Open Modal & Fetch Strategies Logic (Tab Support) 🟢
+  // 🟢 Open Modal & Fetch Strategies Logic (Tab Support) 🟢
   const openStrategiesModal = async (tabName = 'my_strategies') => {
     if (!user) return;
     setModalTab(tabName); // Set which tab to open
@@ -205,7 +210,7 @@ function App() {
     setIsLoadingStrategies(false);
   };
 
-  // 🟢 UPDATED: Load Strategy Logic 🟢
+  // 🟢 Load Strategy Logic 🟢
   const loadStrategy = (strat) => {
     if (strat.isDefault) {
       setAiPrompt(strat.prompt);
@@ -293,7 +298,7 @@ function App() {
       
       legs: legs.map(leg => ({
         id: leg.id, 
-        ticker: leg.ticker, timeframe: leg.timeframe, entry_time: leg.entryTime, exit_time: leg.exitTime,
+        ticker: leg.ticker || ticker, timeframe: leg.timeframe, entry_time: leg.entryTime, exit_time: leg.exitTime,
         segment: leg.segment, position: leg.position, lots: leg.lots, option_type: leg.optionType, expiry: leg.expiry, 
         strike_type: leg.strikeType, strike_distance: parseInt(leg.strikeDistance) || 0,
         target: leg.target || 0, target_unit: leg.targetUnit || '%', stop_loss: leg.stopLoss || 0, sl_unit: leg.slUnit || '%',
