@@ -129,8 +129,69 @@ const DEFAULT_STRATEGIES = [
     'default_10',
     'Iron Butterfly',
     'Range-bound - Market to stay exactly where it is (Pin Risk).',
-      "I have mapped your NIFTY 50 Iron Butterfly strategy. The strategy involves four legs executed at 09:45 using a 5-minute timeframe: Sell ATM CE, Sell ATM PE, Buy OTM CE (+100 pts), and Buy OTM PE (-100 pts). Leg 1 (Sell ATM CE) has a 25% Stop Loss and 90% Target. Leg 2 (Sell ATM PE) has an 18% Stop Loss and 80% Target. The 'Buy' legs act as hedges with no individual SL/Target. Exit is set for 15:15, lot 10, Nov 2025 to Dec 2025 on a candle close basis."
-    )
+    "I have mapped your NIFTY 50 Iron Butterfly strategy. The strategy involves four legs executed at 09:45 using a 5-minute timeframe: Sell ATM CE, Sell ATM PE, Buy OTM CE (+100 pts), and Buy OTM PE (-100 pts). Leg 1 (Sell ATM CE) has a 25% Stop Loss and 90% Target. Leg 2 (Sell ATM PE) has an 18% Stop Loss and 80% Target. The 'Buy' legs act as hedges with no individual SL/Target. Exit is set for 15:15, lot 10, Nov 2025 to Dec 2025 on a candle close basis."
+  ),
+  // 🚀 NEW: Advanced Institutional Premium Strategies Start Here
+  createDefaultObj(
+    'default_11',
+    'Short Straddle',
+    'Neutral / Theta Decay - Selling ATM CE & PE.',
+    "I have mapped your NIFTY 50 Short Straddle strategy. The strategy involves two 'Sell' legs (ATM CE and ATM PE) executed at 09:45 using a 5-minute timeframe. Leg 1 (Sell CE) has a 30% Stop Loss and 80% Target. Leg 2 (Sell PE) has a 30% Stop Loss and 80% Target. Exit is set for 15:15, lot 10, Nov 2025 to Dec 2025 on a candle close basis."
+  ),
+  createDefaultObj(
+    'default_12',
+    'Short Strangle',
+    'Neutral / Wide Range - Selling OTM CE & PE.',
+    "I have mapped your NIFTY 50 Short Strangle strategy. The strategy involves two 'Sell' legs (OTM CE +100 points, and OTM PE -100 points) executed at 09:45 using a 5-minute timeframe. Both legs have a 30% Stop Loss and 80% Target. Exit is set for 15:15, lot 10, Nov 2025 to Dec 2025 on a candle close basis."
+  ),
+  createDefaultObj(
+    'default_13',
+    'Jade Lizard',
+    'Neutral to Bullish - Selling an OTM Put + Bear Call Spread.',
+    "I have mapped your NIFTY 50 Jade Lizard strategy. The strategy involves three legs executed at 09:45 using a 5-minute timeframe: Sell OTM PE (-100 pts), Sell OTM CE (+100 pts), and Buy Far OTM CE (+200 pts). The naked put and credit spread collect premium with zero upside risk. SL is set at 30% for sell legs. Exit is set for 15:15, lot 10, Nov 2025 to Dec 2025."
+  ),
+  createDefaultObj(
+    'default_14',
+    'Calendar Spread',
+    'Volatility Play - Selling short-term expiry & buying long-term expiry.',
+    "I have mapped your NIFTY 50 Calendar Spread strategy. The strategy involves two legs executed at 09:45 using a 5-minute timeframe: Sell ATM CE (Current Week Expiry) and Buy ATM CE (Next Week Expiry). This plays on theta decay differences. SL is set at 20% on overall premium. Exit is set for 15:15, lot 10, Nov 2025 to Dec 2025."
+  ),
+  createDefaultObj(
+    'default_15',
+    'Diagonal Spread (PMCC)',
+    'Capital Efficient Bullish - Deep ITM long expiry & OTM short expiry.',
+    "I have mapped your NIFTY 50 Diagonal Spread (PMCC) strategy. The strategy involves two legs executed at 09:45 using a 5-minute timeframe: Buy Deep ITM CE (Monthly Expiry) and Sell OTM CE (Current Week Expiry). SL is set at 25% of net debit. Exit is set for 15:15, lot 10, Nov 2025 to Dec 2025."
+  ),
+  createDefaultObj(
+    'default_16',
+    'Call Ratio Backspread',
+    'Explosive Directional - Selling 1 ITM CE and buying 2 OTM CE.',
+    "I have mapped your NIFTY 50 Call Ratio Backspread strategy. The strategy involves two legs executed at 09:45 using a 5-minute timeframe: Sell 1 Lot ITM CE (-100 pts) and Buy 2 Lots OTM CE (+100 pts). This provides unlimited upside with capped downside. SL is set at 30% of overall premium. Exit is set for 15:15, Nov 2025 to Dec 2025."
+  ),
+  createDefaultObj(
+    'default_17',
+    'Put Ratio Backspread',
+    'Explosive Directional - Selling 1 ITM PE and buying 2 OTM PE.',
+    "I have mapped your NIFTY 50 Put Ratio Backspread strategy. The strategy involves two legs executed at 09:45 using a 5-minute timeframe: Sell 1 Lot ITM PE (+100 pts) and Buy 2 Lots OTM PE (-100 pts). Unlimited downside profit with capped upside risk. Exit is set for 15:15, Nov 2025 to Dec 2025."
+  ),
+  createDefaultObj(
+    'default_18',
+    'Front Ratio Spread',
+    'Mildly Directional - Buying 1 ATM option and selling 2 OTM options.',
+    "I have mapped your NIFTY 50 Front Ratio Spread strategy. The strategy involves two legs executed at 09:45 using a 5-minute timeframe: Buy 1 Lot ATM CE and Sell 2 Lots OTM CE (+100 pts) for a net credit. Target is 50% max profit. Exit is set for 15:15, lot 10, Nov 2025 to Dec 2025."
+  ),
+  createDefaultObj(
+    'default_19',
+    'Long Call Butterfly',
+    'Targeted Directional - Low risk, high reward setup.',
+    "I have mapped your NIFTY 50 Long Call Butterfly strategy. The strategy involves three legs executed at 09:45 using a 5-minute timeframe: Buy 1 Lot ITM CE (-100 pts), Sell 2 Lots ATM CE, and Buy 1 Lot OTM CE (+100 pts). Max profit at ATM strike. SL is 20% of net debit. Exit is set for 15:15, lot 10, Nov 2025 to Dec 2025."
+  ),
+  createDefaultObj(
+    'default_20',
+    'Synthetic Long Future',
+    'Delta 1 Play - Buying ATM CE and Selling ATM PE.',
+    "I have mapped your NIFTY 50 Synthetic Long Future strategy. The strategy involves two legs executed at 09:45 using a 5-minute timeframe: Buy ATM CE and Sell ATM PE. This mimics long futures delta with lower margin. SL is set at 25% overall. Exit is set for 15:15, lot 10, Nov 2025 to Dec 2025."
+  )
 ];
 
 const MyStrategiesModal = ({ isOpen, onClose, isLoading, strategies = [], onLoad, onEdit, onDelete, initialTab = 'my_strategies' }) => {
