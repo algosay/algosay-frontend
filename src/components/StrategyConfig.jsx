@@ -213,11 +213,11 @@ const StrategyConfig = ({
 
                     {(leg.segment === 'Options' || !leg.segment) && (
                       <>
-                        {/* 🚨 FIX: NEW EXPIRY TYPE DROPDOWN FOR 0DTE LOGIC */}
+                        {/* ✨ FIX: EXPIRY TYPE DROPDOWN (Removed 0DTE to check all days of the current week) */}
                         <div className="col-span-2 mt-1">
-                          <label className="block text-[9px] text-gray-500 uppercase tracking-wide mb-1">Expiry Type (0DTE/Weekly)</label>
+                          <label className="block text-[9px] text-gray-500 uppercase tracking-wide mb-1">Expiry Type</label>
                           <select value={leg.expiryType || 'Current Week'} onChange={(e) => updateLeg(leg.id, 'expiryType', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500">
-                            <option value="Current Week">Current Week (0DTE)</option>
+                            <option value="Current Week">Current Week</option>
                             <option value="Next Week">Next Week</option>
                             <option value="Monthly">Monthly</option>
                           </select>
