@@ -160,7 +160,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
             </span>
           </h1>
           <p className="text-lg text-slate-500 font-medium mb-10 leading-relaxed max-w-lg">
-            Unlike traditional platforms where you manually click through dozens of dropdowns, AlgoSay uses an advanced Neural Engine to understand your logic. Just type it, and we test it.
+            Unlike traditional platforms where you manually click through dozens of dropdowns, AlgoSay uses an advanced Neural Engine to understand your trading strategies. Just type it, and we test it.
           </p>
 
           {/* PRO TERMINAL ENGINE BOX */}
