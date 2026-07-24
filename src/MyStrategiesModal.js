@@ -69,13 +69,13 @@ const DEFAULT_STRATEGIES = [
     'default_1',
     'Long Call',
     'Bullish - Expecting a strong upside move.',
-    "I have mapped your NIFTY 50 Long Call strategy. The strategy involves one 'Buy' leg (ATM CE) executed at 09:45 using a 5-minute timeframe. Leg 1 (Buy ATM CE) has a 40% Stop Loss and 100% Target. Exit is set for 15:15, lot 10, Nov 2025 to Dec 2025 on a candle close basis."
+    "I have mapped your 0DTE NIFTY 50 Long Call strategy. The strategy involves one 'Buy' leg (ATM CE) executed at 09:45 using a 5-minute timeframe. Leg 1 (Buy ATM CE) has a 40% Stop Loss and 100% Target. Exit is set for 15:15, lot 10, Nov 2025 to Dec 2025 on a candle close basis."
   ),
   createDefaultObj(
     'default_2',
     'Long Put',
     'Bearish - Expecting a strong downside move.',
-    "I have mapped your NIFTY 50 Long Put strategy. The strategy involves one 'Buy' leg (ATM PE) executed at 09:45 using a 5-minute timeframe. Leg 1 (Buy ATM PE) has a 40% Stop Loss and 100% Target. Exit is set for 15:15, lot 10, Nov 2025 to Dec 2025 on a candle close basis."
+    "I have mapped your 0DTE NIFTY 50 Long Put strategy. The strategy involves one 'Buy' leg (ATM PE) executed at 09:45 using a 5-minute timeframe. Leg 1 (Buy ATM PE) has a 40% Stop Loss and 100% Target. Exit is set for 15:15, lot 10, Nov 2025 to Dec 2025 on a candle close basis."
   ),
   createDefaultObj(
     'default_3',
@@ -87,49 +87,49 @@ const DEFAULT_STRATEGIES = [
     'default_4',
     'Bull Call Spread',
     'Bullish - Debit Spread with capped risk and reward.',
-    "I have mapped your NIFTY 50 Bull Call Spread strategy. The strategy involves two legs executed at 09:45 using a 5-minute timeframe: Leg 1 is 'Buy' (ATM CE) and Leg 2 is 'Sell' (OTM CE, +100 points). Overall strategy Stop Loss is set at 20% of the net premium paid, and Target is 50% of the net premium. Exit is set for 15:15, lot 10, Nov 2025 to Dec 2025 on a candle close basis."
+    "I have mapped your 0DTE NIFTY 50 Bull Call Spread strategy. The strategy involves two legs executed at 09:45 using a 5-minute timeframe: Leg 1 is 'Buy' (ATM CE) and Leg 2 is 'Sell' (OTM CE, +100 points). Overall strategy Stop Loss is set at 20% of the net premium paid, and Target is 50% of the net premium. Exit is set for 15:15, lot 10, Nov 2025 to Dec 2025 on a candle close basis."
   ),
   createDefaultObj(
     'default_5',
     'Bear Put Spread',
     'Bearish - Debit Spread with capped risk and reward.',
-    "I have mapped your NIFTY 50 Bear Put Spread strategy. The strategy involves two legs executed at 09:45 using a 5-minute timeframe: Leg 1 is 'Buy' (ATM PE) and Leg 2 is 'Sell' (OTM PE, -100 points). Overall strategy Stop Loss is set at 20% of the net premium paid, and Target is 50% of the net premium. Exit is set for 15:15, lot 10, Nov 2025 to Dec 2025 on a candle close basis."
+    "I have mapped your 0DTE NIFTY 50 Bear Put Spread strategy. The strategy involves two legs executed at 09:45 using a 5-minute timeframe: Leg 1 is 'Buy' (ATM PE) and Leg 2 is 'Sell' (OTM PE, -100 points). Overall strategy Stop Loss is set at 20% of the net premium paid, and Target is 50% of the net premium. Exit is set for 15:15, lot 10, Nov 2025 to Dec 2025 on a candle close basis."
   ),
   createDefaultObj(
     'default_6a',
     'Bull Put Spread (Credit Spread)',
     'Bullish/Neutral - Directional income strategy.',
-    "I have mapped your NIFTY 50 Bull Put Spread strategy. The strategy involves two legs executed at 09:45 using a 5-minute timeframe: Leg 1 'Sell' (OTM PE, -50 points) and Leg 2 'Buy' (Far OTM PE, -150 points for hedging). Leg 1 has a 25% Stop Loss and 80% Target. Leg 2 is left open for margin benefit. Exit is set for 15:15, lot 10, Nov 2025 to Dec 2025 on a candle close basis."
+    "I have mapped your 0DTE NIFTY 50 Bull Put Spread strategy. The strategy involves two legs executed at 09:45 using a 5-minute timeframe: Leg 1 'Sell' (OTM PE, -50 points) and Leg 2 'Buy' (Far OTM PE, -150 points for hedging). Leg 1 has a 25% Stop Loss and 80% Target. Leg 2 is left open for margin benefit. Exit is set for 15:15, lot 10, Nov 2025 to Dec 2025 on a candle close basis."
   ),
   createDefaultObj(
     'default_6b',
     'Bear Call Spread (Credit Spread)',
     'Bearish/Neutral - Directional income strategy.',
-    "I have mapped your NIFTY 50 Bear Call Spread strategy. The strategy involves two legs executed at 09:45 using a 5-minute timeframe: Leg 1 'Sell' (OTM CE, +50 points) and Leg 2 'Buy' (Far OTM CE, +150 points for hedging). Leg 1 has a 25% Stop Loss and 80% Target. Leg 2 is left open for margin benefit. Exit is set for 15:15, lot 10, Nov 2025 to Dec 2025 on a candle close basis."
+    "I have mapped your 0DTE NIFTY 50 Bear Call Spread strategy. The strategy involves two legs executed at 09:45 using a 5-minute timeframe: Leg 1 'Sell' (OTM CE, +50 points) and Leg 2 'Buy' (Far OTM CE, +150 points for hedging). Leg 1 has a 25% Stop Loss and 80% Target. Leg 2 is left open for margin benefit. Exit is set for 15:15, lot 10, Nov 2025 to Dec 2025 on a candle close basis."
   ),
   createDefaultObj(
     'default_7',
     'Long Straddle',
     'High Volatility - Expecting a massive move in either direction.',
-    "I have mapped your NIFTY 50 Long Straddle strategy. The strategy involves two 'Buy' legs (ATM CE and ATM PE) executed at 09:45 using a 5-minute timeframe. Leg 1 (Buy CE) has a 30% Stop Loss and 150% Target. Leg 2 (Buy PE) has a 30% Stop Loss and 150% Target. Exit is set for 15:15, lot 10, Nov 2025 to Dec 2025 on a candle close basis."
+    "I have mapped your 0DTE NIFTY 50 Long Straddle strategy. The strategy involves two 'Buy' legs (ATM CE and ATM PE) executed at 09:45 using a 5-minute timeframe. Leg 1 (Buy CE) has a 30% Stop Loss and 150% Target. Leg 2 (Buy PE) has a 30% Stop Loss and 150% Target. Exit is set for 15:15, lot 10, Nov 2025 to Dec 2025 on a candle close basis."
   ),
   createDefaultObj(
     'default_8',
     'Long Strangle',
     'High Volatility - Cheaper setup, expecting an even bigger move.',
-    "I have mapped your NIFTY 50 Long Strangle strategy. The strategy involves two 'Buy' legs (OTM CE +100 points, and OTM PE -100 points) executed at 09:45 using a 5-minute timeframe. Leg 1 (Buy OTM CE) has a 40% Stop Loss and 200% Target. Leg 2 (Buy OTM PE) has a 40% Stop Loss and 200% Target. Exit is set for 15:15, lot 10, Nov 2025 to Dec 2025 on a candle close basis."
+    "I have mapped your 0DTE NIFTY 50 Long Strangle strategy. The strategy involves two 'Buy' legs (OTM CE +100 points, and OTM PE -100 points) executed at 09:45 using a 5-minute timeframe. Leg 1 (Buy OTM CE) has a 40% Stop Loss and 200% Target. Leg 2 (Buy OTM PE) has a 40% Stop Loss and 200% Target. Exit is set for 15:15, lot 10, Nov 2025 to Dec 2025 on a candle close basis."
   ),
   createDefaultObj(
     'default_9',
     'Iron Condor',
     'Range-bound - Market to stay in a wide range (Low Volatility).',
-    "I have mapped your NIFTY 50 Iron Condor strategy. The strategy involves four legs executed at 09:45 using a 5-minute timeframe: Sell OTM CE (+100 pts), Buy Far OTM CE (+200 pts), Sell OTM PE (-100 pts), and Buy Far OTM PE (-200 pts). The 'Sell' legs each have a 25% Stop Loss and an 80% Target. The 'Buy' legs act as hedges with no individual SL/Target. Exit is set for 15:15, lot 10, Nov 2025 to Dec 2025 on a candle close basis."
+    "I have mapped your 0DTE NIFTY 50 Iron Condor strategy. The strategy involves four legs executed at 09:45 using a 5-minute timeframe: Sell OTM CE (+100 pts), Buy Far OTM CE (+200 pts), Sell OTM PE (-100 pts), and Buy Far OTM PE (-200 pts). The 'Sell' legs each have a 25% Stop Loss and an 80% Target. The 'Buy' legs act as hedges with no individual SL/Target. Exit is set for 15:15, lot 10, Nov 2025 to Dec 2025 on a candle close basis."
   ),
   createDefaultObj(
     'default_10',
     'Iron Butterfly',
     'Range-bound - Market to stay exactly where it is (Pin Risk).',
-      "I have mapped your NIFTY 50 Iron Butterfly strategy. The strategy involves four legs executed at 09:45 using a 5-minute timeframe: Sell ATM CE, Sell ATM PE, Buy OTM CE (+100 pts), and Buy OTM PE (-100 pts). Leg 1 (Sell ATM CE) has a 25% Stop Loss and 90% Target. Leg 2 (Sell ATM PE) has an 18% Stop Loss and 80% Target. The 'Buy' legs act as hedges with no individual SL/Target. Exit is set for 15:15, lot 10, Nov 2025 to Dec 2025 on a candle close basis."
+      "I have mapped your 0DTE NIFTY 50 Iron Butterfly strategy. The strategy involves four legs executed at 09:45 using a 5-minute timeframe: Sell ATM CE, Sell ATM PE, Buy OTM CE (+100 pts), and Buy OTM PE (-100 pts). Leg 1 (Sell ATM CE) has a 25% Stop Loss and 90% Target. Leg 2 (Sell ATM PE) has an 18% Stop Loss and 80% Target. The 'Buy' legs act as hedges with no individual SL/Target. Exit is set for 15:15, lot 10, Nov 2025 to Dec 2025 on a candle close basis."
     )
 ];
 

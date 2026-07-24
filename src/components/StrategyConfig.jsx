@@ -38,10 +38,6 @@ const StrategyConfig = ({
 
     let ce_sell = 0;
     let pe_sell = 0;
-    
-    // 🚨 FIX: Puthusa Buy Qty track panna variables add panniyachu
-    let ce_buy = 0;
-    let pe_buy = 0;
     let buy_margin = 0;
 
     currentLegs.forEach(leg => {
@@ -57,20 +53,14 @@ const StrategyConfig = ({
             else if (optType.includes("PE")) { pe_sell += lots; }
             else { ce_sell += lots; } // Fallback
         } else {
-            // 🚨 FIX: "Buy" leg irunthalum UI-kaga CE/PE qty track pandrom
-            if (optType.includes("CE")) { ce_buy += lots; }
-            else if (optType.includes("PE")) { pe_buy += lots; }
-            else { ce_buy += lots; } // Fallback
-            
             buy_margin += (lots * 5000); // Approx 5k for Option Buying
         }
     });
 
-    // 🚨 FIX: UI-la kaata CE/PE rendu position-oda (Sell + Buy) total lots calculate pandrom
-    const ceQty = (ce_sell + ce_buy) * 65;
-    const peQty = (pe_sell + pe_buy) * 65;
+    const ceQty = ce_sell * 65;
+    const peQty = pe_sell * 65;
 
-    // Pair hedged legs for margin benefit (Margin applies mostly to shorts)
+    // Pair hedged legs for margin benefit
     const hedged_pairs = Math.min(ce_sell, pe_sell);
     const naked_ce = ce_sell - hedged_pairs;
     const naked_pe = pe_sell - hedged_pairs;
@@ -163,6 +153,7 @@ const StrategyConfig = ({
                         <select value={leg.ticker || 'NIFTY'} onChange={(e) => updateLeg(leg.id, 'ticker', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500">
                           <option value="NIFTY">NIFTY 50</option>
                           <option value="BANKNIFTY">BANKNIFTY</option>
+                          {/* 🚨 NEW ASSETS ADDED HERE 🚨 */}
                           <option value="FINNIFTY">FINNIFTY</option>
                           <option value="MIDCPNIFTY">MIDCPNIFTY</option>
                           <option value="SENSEX">SENSEX</option>
@@ -171,6 +162,7 @@ const StrategyConfig = ({
                       <div>
                         <label className="block text-[9px] text-gray-500 uppercase tracking-wide mb-1">Timeframe</label>
                         <select value={leg.timeframe || '5m'} onChange={(e) => updateLeg(leg.id, 'timeframe', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500">
+                          {/* 🚨 NEW TIMEFRAMES ADDED HERE 🚨 */}
                           <option value="1m">1 Min</option>
                           <option value="5m">5 Min</option>
                           <option value="15m">15 Min</option>
@@ -213,16 +205,6 @@ const StrategyConfig = ({
 
                     {(leg.segment === 'Options' || !leg.segment) && (
                       <>
-                        {/* ✨ FIX: EXPIRY TYPE DROPDOWN (Removed 0DTE to check all days of the current week) */}
-                        <div className="col-span-2 mt-1">
-                          <label className="block text-[9px] text-gray-500 uppercase tracking-wide mb-1">Expiry Type</label>
-                          <select value={leg.expiryType || 'Current Week'} onChange={(e) => updateLeg(leg.id, 'expiryType', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500">
-                            <option value="Current Week">Current Week</option>
-                            <option value="Next Week">Next Week</option>
-                            <option value="Monthly">Monthly</option>
-                          </select>
-                        </div>
-
                         <div>
                           <label className="block text-[9px] text-gray-500 uppercase tracking-wide mb-1">Option Type</label>
                           <select value={leg.optionType || 'CE'} onChange={(e) => updateLeg(leg.id, 'optionType', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500">
@@ -230,6 +212,7 @@ const StrategyConfig = ({
                             <option value="PE">PE (Put)</option>
                           </select>
                         </div>
+                        {/* 🚨 NEW OTM/ITM DROPDOWN LOGIC ADDED HERE 🚨 */}
                         <div>
                           <label className="block text-[9px] text-gray-500 uppercase tracking-wide mb-1">
                             Strike Type {(leg.strikeType === 'OTM' || leg.strikeType === 'ITM') && '& Distance'}
