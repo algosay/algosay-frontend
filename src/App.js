@@ -5,12 +5,14 @@ import StrategyConfig from './components/StrategyConfig';
 import ResultsDashboard from './components/ResultsDashboard';
 // 🚨 NEW: Import the extracted Modal Component 🚨
 import MyStrategiesModal from './MyStrategiesModal';
-import PricingModal from './components/PricingModal'; // 🚨 NEW: Imported PricingModal
+import PricingModal from './components/PricingModal'; 
+// 🚨 NEW: Imported UserProfile 🚨
+import UserProfile from './components/UserProfile'; 
 
 // 🚨 Saved Strategy, Auth & Firestore Imports 🚨
 import { auth, db, getUserCredits, deductUserCredit, saveUserStrategy, getUserStrategies, deleteUserStrategy } from './firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore'; // 🚨 NEW: For fetching subscription status
+import { doc, getDoc } from 'firebase/firestore'; 
 import Login from './Login';
 
 function App() {
@@ -27,10 +29,13 @@ function App() {
   const [showStrategiesModal, setShowStrategiesModal] = useState(false);
   const [savedStrategies, setSavedStrategies] = useState([]);
   const [isLoadingStrategies, setIsLoadingStrategies] = useState(false);
-  const [modalTab, setModalTab] = useState('my_strategies'); // 🚨 NEW STATE FOR TAB
+  const [modalTab, setModalTab] = useState('my_strategies'); 
 
   // 🚨 Pricing Modal State 🚨
   const [showPricingModal, setShowPricingModal] = useState(false);
+
+  // 🚨 NEW: User Profile Modal State 🚨
+  const [showProfileModal, setShowProfileModal] = useState(false);
 
   // --- AI Input & Workflow State ---
   const [aiPrompt, setAiPrompt] = useState('');
@@ -41,7 +46,7 @@ function App() {
   const [needsInfoQuestion, setNeedsInfoQuestion] = useState(''); 
 
   // --- Global Strategy State (No Forced Ticker Defaults) ---
-  const [ticker, setTicker] = useState(''); // Default empty to prevent hardcoded overrides
+  const [ticker, setTicker] = useState(''); 
   const [timeframe, setTimeframe] = useState('15m'); 
   const [underlyingFrom, setUnderlyingFrom] = useState('Options');
   const [qty, setQty] = useState(150); 
@@ -57,7 +62,7 @@ function App() {
   const [trailPointY, setTrailPointY] = useState(0);
 
   const [indicators, setIndicators] = useState([]);
-  const [legs, setLegs] = useState([]); // ALL LEG DATA LIVES HERE
+  const [legs, setLegs] = useState([]); 
 
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
@@ -83,7 +88,7 @@ function App() {
               setIsSubscribed(true);
               setSubscriptionPlan(userData.subscription.plan_type || 'Unlimited');
             } else {
-              setIsSubscribed(false); // Expired
+              setIsSubscribed(false); 
             }
           }
         } else {
@@ -159,7 +164,7 @@ function App() {
     if (data.legs && Array.isArray(data.legs)) {
       const mappedLegs = data.legs.map((leg, idx) => ({
         id: leg.id || Date.now() + idx,
-        ticker: finalTicker || leg.ticker || leg.asset || '', // Exact ticker set here
+        ticker: finalTicker || leg.ticker || leg.asset || '', 
         timeframe: leg.timeframe || inst.timeframe || '5m',
         entryTime: leg.entryTime || leg.entry_time || entry.entryTime || '', 
         exitTime: leg.exitTime || leg.exit_time || entry.exitTime || '',
@@ -190,7 +195,6 @@ function App() {
     setIsConfirmed(true); 
   };
 
-  // 🚨 UPDATED: Add Leg uses current ticker state (or empty string)
   const addLeg = () => { 
     setLegs([...legs, { 
       id: Date.now(), 
@@ -208,7 +212,6 @@ function App() {
   const updateIndicator = (id, field, value) => { setIndicators(indicators.map(ind => ind.id === id ? { ...ind, [field]: value } : ind)); setIsConfirmed(false); };
   const removeIndicator = (id) => { setIndicators(indicators.filter(ind => ind.id !== id)); setIsConfirmed(false); };
 
-  // 🟢 Save Strategy Logic 🟢
   const handleSaveStrategy = async () => {
     if (!user) return alert("Please login to save strategies.");
     const name = window.prompt("Enter a name for this strategy (e.g., Nifty Iron Condor):");
@@ -229,10 +232,9 @@ function App() {
     }
   };
 
-  // 🟢 Open Modal & Fetch Strategies Logic (Tab Support) 🟢
   const openStrategiesModal = async (tabName = 'my_strategies') => {
     if (!user) return;
-    setModalTab(tabName); // Set which tab to open
+    setModalTab(tabName); 
     setIsLoadingStrategies(true);
     setShowStrategiesModal(true);
     const strats = await getUserStrategies(user.uid);
@@ -240,7 +242,6 @@ function App() {
     setIsLoadingStrategies(false);
   };
 
-  // 🟢 Load Strategy Logic 🟢
   const loadStrategy = (strat) => {
     if (strat.isDefault) {
       setAiPrompt(strat.prompt);
@@ -269,14 +270,13 @@ function App() {
     setTrailMoveX(data.trailMoveX || 0);
     setTrailPointY(data.trailPointY || 0);
     setIndicators(data.indicators || []);
-    setLegs(data.legs || []); // Loads the unified legs configuration
+    setLegs(data.legs || []); 
 
     setIsConfirmed(true); 
     setShowStrategiesModal(false); 
     alert(`🚀 Strategy "${strat.name}" loaded successfully!`);
   };
 
-  // 🟢 Delete Strategy Logic 🟢
   const handleDeleteStrategy = async (strat) => {
     if (!user) return;
     const isConfirm = window.confirm(`Are you sure you want to delete "${strat.name}"?`);
@@ -296,11 +296,9 @@ function App() {
     }
   };
 
-  // 🚨 API Request Payload
   const runBacktest = async () => {
     if (!isConfirmed) return; 
 
-    // 🚨 UPDATED: Check for both Credits and Subscription
     if (!isSubscribed && userCredits <= 0) {
       alert("⚠️ Insufficient Credits & No Active Subscription! Please recharge your account.");
       setError('Insufficient Credits. Please upgrade your account.');
@@ -310,7 +308,6 @@ function App() {
 
     setLoading(true); setError(''); setResult(null);
 
-    // 🚨 UPDATED: Deduct credits ONLY if the user is not on an Unlimited Subscription
     if (!isSubscribed) {
       const deductionSuccess = await deductUserCredit(user?.uid);
       if (deductionSuccess) {
@@ -374,7 +371,7 @@ function App() {
   return (
     <div className="min-h-screen bg-[#121212] text-gray-300 font-sans selection:bg-blue-500/30 relative">
       
-      {/* 🚨 Strategy Modal 🚨 */}
+      {/* 🚨 Modals 🚨 */}
       <MyStrategiesModal 
         isOpen={showStrategiesModal} 
         onClose={() => setShowStrategiesModal(false)}
@@ -385,11 +382,15 @@ function App() {
         initialTab={modalTab} 
       />
 
-      {/* 🚨 NEW: Pricing Modal Component 🚨 */}
       <PricingModal 
         isOpen={showPricingModal}
         onClose={() => setShowPricingModal(false)}
       />
+
+      {/* 🚨 NEW: User Profile Modal Rendered Here 🚨 */}
+      {showProfileModal && (
+        <UserProfile onClose={() => setShowProfileModal(false)} />
+      )}
 
       <div className="flex justify-between md:justify-end items-center p-3 bg-[#181818] border-b border-[#2d2d2d] gap-4">
         <div className="flex items-center gap-3 w-full justify-end">
@@ -408,7 +409,6 @@ function App() {
             📜 Default Templates
           </button>
 
-          {/* 🚨 UPDATED: Dynamic Button Text based on Subscription vs Credits 🚨 */}
           <button 
             onClick={() => setShowPricingModal(true)}
             className="flex items-center gap-1.5 px-3 py-1 bg-yellow-500/10 hover:bg-yellow-500/20 border border-yellow-500/30 hover:border-yellow-500/50 rounded-full shadow-inner transition-all cursor-pointer"
@@ -419,9 +419,13 @@ function App() {
             </span>
           </button>
 
-          <span className="hidden md:block text-xs text-gray-400 font-medium">
-            <span className="text-blue-400 font-bold">{user.email || user.displayName}</span>
-          </span>
+          {/* 🚨 UPDATED: User Email is now a clickable button to open profile 🚨 */}
+          <button 
+            onClick={() => setShowProfileModal(true)}
+            className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-[#252525] hover:bg-[#2d2d2d] text-blue-400 text-xs font-bold rounded transition-colors border border-[#3d3d3d] cursor-pointer"
+          >
+            👤 {user.email || user.displayName}
+          </button>
           
           <button 
             onClick={() => signOut(auth)}
@@ -489,7 +493,6 @@ function App() {
                   : 'bg-green-600 hover:bg-green-500 text-white shadow-lg'
                 }`}
               >
-                {/* 🚨 UPDATED: Dynamic Button text based on Subscription 🚨 */}
                 {loading ? (
                   <><svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Running Backtest...</>
                 ) : !isConfirmed ? 'Lock Parameters to Execute' : (isSubscribed ? `Run Backtest (Free - ${subscriptionPlan})` : 'Run Backtest (Cost: 1 Credit)')}
