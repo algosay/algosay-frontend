@@ -213,7 +213,7 @@ const StrategyConfig = ({
 
                     {(leg.segment === 'Options' || !leg.segment) && (
                       <>
-                        {/* ✨ FIX: EXPIRY TYPE DROPDOWN (Removed 0DTE to check all days of the current week) */}
+                        {/* ✨ FIX: EXPIRY TYPE DROPDOWN */}
                         <div className="col-span-2 mt-1">
                           <label className="block text-[9px] text-gray-500 uppercase tracking-wide mb-1">Expiry Type</label>
                           <select value={leg.expiryType || 'Current Week'} onChange={(e) => updateLeg(leg.id, 'expiryType', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500">
@@ -238,11 +238,22 @@ const StrategyConfig = ({
                           </label>
                           <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
                             
-                            {/* Primary Selection Dropdown */}
+                            {/* Primary Selection Dropdown with the FIX */}
                             <div className="w-full sm:w-1/2">
                               <select
                                 value={leg.strikeCriteria || 'Strike Type'}
-                                onChange={(e) => updateLeg(leg.id, 'strikeCriteria', e.target.value)}
+                                onChange={(e) => {
+                                  const newCriteria = e.target.value;
+                                  // Criteria maarum pothu matra unneeded fields-a clear pandrom
+                                  updateLeg(leg.id, 'strikeCriteria', newCriteria);
+                                  if (newCriteria !== 'Strike Type') {
+                                    updateLeg(leg.id, 'strikeType', '');
+                                    updateLeg(leg.id, 'strikeDistance', 0);
+                                  } else {
+                                    updateLeg(leg.id, 'strikeType', 'ATM');
+                                    updateLeg(leg.id, 'strikeDistance', 1);
+                                  }
+                                }}
                                 className="w-full bg-[#1e1e1e] border border-blue-600 rounded p-1.5 text-xs text-blue-100 font-medium outline-none focus:border-blue-400"
                               >
                                 <option value="Strike Type">Strike Type (ATM/ITM/OTM)</option>
@@ -251,7 +262,7 @@ const StrategyConfig = ({
                               </select>
                             </div>
 
-                            {/* Option 1: Legacy Strike Type & Distance (Fallback Safe) */}
+                            {/* Option 1: Legacy Strike Type & Distance (Strict Render Check Added) */}
                             {(!leg.strikeCriteria || leg.strikeCriteria === 'Strike Type') && (
                               <div className="w-full sm:w-1/2 flex gap-1">
                                 <select 
