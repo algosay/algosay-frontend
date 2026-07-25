@@ -182,6 +182,23 @@ function App() {
             else if (rawTargetVal.includes('%')) extractedTargetUnit = '%';
             rawTargetVal = parseFloat(rawTargetVal) || '';
         }
+        
+        // 🚀 PUDHUSA ADD PANNUNA TRAIL SL SMART DETECTOR 🚀
+        let rawTrailX = leg.trailX ?? leg.trailMoveX ?? leg.trail_sl?.x ?? leg.trail_x ?? '';
+        let extractedTrailUnitX = leg.trailUnitX ?? leg.trail_unit_x ?? leg.trailUnit ?? 'Pts';
+        if (typeof rawTrailX === 'string') {
+            if (rawTrailX.includes('%')) extractedTrailUnitX = '%';
+            else if (rawTrailX.toLowerCase().includes('pt') || rawTrailX.toLowerCase().includes('point')) extractedTrailUnitX = 'Pts';
+            rawTrailX = parseFloat(rawTrailX) || 0;
+        }
+
+        let rawTrailY = leg.trailY ?? leg.trailPointY ?? leg.trail_sl?.y ?? leg.trail_y ?? '';
+        let extractedTrailUnitY = leg.trailUnitY ?? leg.trail_unit_y ?? leg.trailUnit ?? 'Pts';
+        if (typeof rawTrailY === 'string') {
+            if (rawTrailY.includes('%')) extractedTrailUnitY = '%';
+            else if (rawTrailY.toLowerCase().includes('pt') || rawTrailY.toLowerCase().includes('point')) extractedTrailUnitY = 'Pts';
+            rawTrailY = parseFloat(rawTrailY) || 0;
+        }
         // ------------------------------------------------------------------------
 
         return {
@@ -210,8 +227,12 @@ function App() {
           slUnit: extractedSlUnit,
           targetUnit: extractedTargetUnit,
           
-          trailX: leg.trail_sl?.x || leg.trailX || 0,
-          trailY: leg.trail_sl?.y || leg.trailY || 0,
+          // 🚀 UPDATED TRAIL X & Y VALUES
+          trailX: rawTrailX,
+          trailY: rawTrailY,
+          trailUnitX: extractedTrailUnitX,
+          trailUnitY: extractedTrailUnitY,
+          
           slReentry: leg.sl_reentry || leg.slReentry || 0,
           targetReexecute: leg.target_reexecute || leg.targetReexecute || 0,
           waitAndTrade: leg.wait_and_trade || leg.waitAndTrade || false,
@@ -231,7 +252,8 @@ function App() {
       id: Date.now(), 
       ticker: ticker, timeframe: timeframe, entryTime: '', exitTime: '', 
       segment: 'Options', position: 'Buy', lots: 1, optionType: 'CE', expiry: 'Weekly', strikeType: 'ATM', 
-      strikeDistance: 0, stopLoss: '', target: '', slUnit: '%', targetUnit: '%', trailX: 0, trailY: 0, 
+      strikeDistance: 0, stopLoss: '', target: '', slUnit: '%', targetUnit: '%', 
+      trailX: 0, trailY: 0, trailUnitX: 'Pts', trailUnitY: 'Pts', // 🚀 Added missing trailUnits for manual additions
       slReentry: 0, targetReexecute: 0, waitAndTrade: false, costToCost: false, moveToStoploss: false 
     }]); 
     setIsConfirmed(false); 
@@ -365,7 +387,8 @@ function App() {
         segment: leg.segment, position: leg.position, lots: leg.lots, option_type: leg.optionType, expiry: leg.expiry, 
         strike_type: leg.strikeType, strike_distance: parseInt(leg.strikeDistance) || 0,
         target: leg.target || 0, target_unit: leg.targetUnit || '%', stop_loss: leg.stopLoss || 0, sl_unit: leg.slUnit || '%',
-        trail_sl: { x: leg.trailX || 0, y: leg.trailY || 0 }, sl_reentry: leg.slReentry || 0, target_reexecute: leg.targetReexecute || 0, 
+        trail_sl: { x: leg.trailX || 0, y: leg.trailY || 0, unit_x: leg.trailUnitX || 'Pts', unit_y: leg.trailUnitY || 'Pts' }, 
+        sl_reentry: leg.slReentry || 0, target_reexecute: leg.targetReexecute || 0, 
         wait_and_trade: leg.waitAndTrade || false, cost_to_cost: leg.costToCost || false, move_to_stoploss: leg.moveToStoploss || false
       }))
     };

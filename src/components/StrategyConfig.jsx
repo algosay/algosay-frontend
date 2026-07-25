@@ -398,12 +398,32 @@ const StrategyConfig = ({
                       {/* Trailing SL Inputs */}
                       <div className="col-span-2 grid grid-cols-2 gap-2 mt-1.5">
                         <div>
-                          <label className="block text-[9px] text-yellow-500 uppercase tracking-wide mb-1">Trail SL (X Pts)</label>
-                          <input type="number" value={leg.trailX || leg.trailMoveX || ''} onChange={(e) => updateLeg(leg.id, 'trailX', Number(e.target.value))} className="w-full bg-[#1e1e1e] border border-[#222] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-yellow-600" placeholder="0" />
+                          <label className="block text-[9px] text-yellow-500 uppercase tracking-wide mb-1">Trail SL (Move X)</label>
+                          <div className="flex gap-1">
+                            <input type="number" value={leg.trailX ?? ''} onChange={(e) => updateLeg(leg.id, 'trailX', Number(e.target.value))} className="w-2/3 bg-[#1e1e1e] border border-[#222] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-yellow-600" placeholder="0" />
+                            <select 
+                              value={leg.trailUnitX || 'Pts'} 
+                              onChange={(e) => updateLeg(leg.id, 'trailUnitX', e.target.value)} 
+                              className="w-1/3 bg-[#1e1e1e] border border-[#222] focus:border-yellow-600 rounded p-1 text-[10px] text-gray-300 outline-none"
+                            >
+                              <option value="Pts">Pts</option>
+                              <option value="%">%</option>
+                            </select>
+                          </div>
                         </div>
                         <div>
-                          <label className="block text-[9px] text-yellow-500 uppercase tracking-wide mb-1">Trail SL (Y Pts)</label>
-                          <input type="number" value={leg.trailY || leg.trailPointY || ''} onChange={(e) => updateLeg(leg.id, 'trailY', Number(e.target.value))} className="w-full bg-[#1e1e1e] border border-[#222] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-yellow-600" placeholder="0" />
+                          <label className="block text-[9px] text-yellow-500 uppercase tracking-wide mb-1">Trail SL (Move Y)</label>
+                          <div className="flex gap-1">
+                            <input type="number" value={leg.trailY ?? ''} onChange={(e) => updateLeg(leg.id, 'trailY', Number(e.target.value))} className="w-2/3 bg-[#1e1e1e] border border-[#222] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-yellow-600" placeholder="0" />
+                            <select 
+                              value={leg.trailUnitY || 'Pts'} 
+                              onChange={(e) => updateLeg(leg.id, 'trailUnitY', e.target.value)} 
+                              className="w-1/3 bg-[#1e1e1e] border border-[#222] focus:border-yellow-600 rounded p-1 text-[10px] text-gray-300 outline-none"
+                            >
+                              <option value="Pts">Pts</option>
+                              <option value="%">%</option>
+                            </select>
+                          </div>
                         </div>
                       </div>
 
