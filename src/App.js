@@ -160,40 +160,65 @@ function App() {
       setIndicators([]);
     }
     
-    // 🚨 UPDATED: Map legs with priority finalTicker and handle all strike fields seamlessly
+    // // 🚨 UPDATED: Map legs with priority finalTicker and handle all strike fields seamlessly
     if (data.legs && Array.isArray(data.legs)) {
-      const mappedLegs = data.legs.map((leg, idx) => ({
-        id: leg.id || Date.now() + idx,
-        ticker: finalTicker || leg.ticker || leg.asset || '', 
-        timeframe: leg.timeframe || inst.timeframe || '5m',
-        entryTime: leg.entryTime || leg.entry_time || entry.entryTime || '', 
-        exitTime: leg.exitTime || leg.exit_time || entry.exitTime || '',
-        segment: leg.segment || 'Options',
-        position: leg.position || 'Buy',
-        lots: leg.lots || 1,
-        optionType: leg.optionType || leg.option_type || 'CE', 
-        expiry: leg.expiry || 'Weekly',
+      const mappedLegs = data.legs.map((leg, idx) => {
+        
+        // 🧠 SMART UNIT DETECTOR: Extracts % or Pts even if AI sends "40 points" or "100%" as string
+        let rawSlVal = leg.stopLoss ?? leg.stop_loss ?? '';
+        let extractedSlUnit = leg.slUnit || leg.sl_unit || leg.stopLossUnit || leg.stop_loss_unit || '%';
+        
+        if (typeof rawSlVal === 'string') {
+            if (rawSlVal.toLowerCase().includes('pt') || rawSlVal.toLowerCase().includes('point')) extractedSlUnit = 'Pts';
+            else if (rawSlVal.includes('%')) extractedSlUnit = '%';
+            rawSlVal = parseFloat(rawSlVal) || '';
+        }
 
-        // 🎯 MISSING AANA PUDHU FIELDS INGA THAAN ADD PANROM 🎯
-        strikeCriteria: leg.strikeCriteria || leg.strike_criteria || 'Strike Type',
-        targetPremium: leg.targetPremium || leg.target_premium || leg.premium || '',
-        lowerPremium: leg.lowerPremium || leg.lower_premium || '',
-        upperPremium: leg.upperPremium || leg.upper_premium || '',
+        let rawTargetVal = leg.target ?? '';
+        let extractedTargetUnit = leg.targetUnit || leg.target_unit || '%';
+        
+        if (typeof rawTargetVal === 'string') {
+            if (rawTargetVal.toLowerCase().includes('pt') || rawTargetVal.toLowerCase().includes('point')) extractedTargetUnit = 'Pts';
+            else if (rawTargetVal.includes('%')) extractedTargetUnit = '%';
+            rawTargetVal = parseFloat(rawTargetVal) || '';
+        }
+        // ------------------------------------------------------------------------
 
-        strikeType: leg.strikeType || leg.strike_type || 'ATM',
-        strikeDistance: leg.strikeDistance || leg.strike_distance || 0,
-        stopLoss: leg.stop_loss || leg.stopLoss || '', 
-        target: leg.target || '',
-        slUnit: leg.sl_unit || leg.slUnit || '%',
-        targetUnit: leg.target_unit || leg.targetUnit || '%',
-        trailX: leg.trail_sl?.x || leg.trailX || 0,
-        trailY: leg.trail_sl?.y || leg.trailY || 0,
-        slReentry: leg.sl_reentry || leg.slReentry || 0,
-        targetReexecute: leg.target_reexecute || leg.targetReexecute || 0,
-        waitAndTrade: leg.wait_and_trade || leg.waitAndTrade || false,
-        costToCost: leg.cost_to_cost || leg.costToCost || false,
-        moveToStoploss: leg.move_to_stoploss || leg.moveToStoploss || false
-      }));
+        return {
+          id: leg.id || Date.now() + idx,
+          ticker: finalTicker || leg.ticker || leg.asset || '', 
+          timeframe: leg.timeframe || inst.timeframe || '5m',
+          entryTime: leg.entryTime || leg.entry_time || entry.entryTime || '', 
+          exitTime: leg.exitTime || leg.exit_time || entry.exitTime || '',
+          segment: leg.segment || 'Options',
+          position: leg.position || 'Buy',
+          lots: leg.lots || 1,
+          optionType: leg.optionType || leg.option_type || 'CE', 
+          expiry: leg.expiry || 'Weekly',
+
+          strikeCriteria: leg.strikeCriteria || leg.strike_criteria || 'Strike Type',
+          targetPremium: leg.targetPremium || leg.target_premium || leg.premium || '',
+          lowerPremium: leg.lowerPremium || leg.lower_premium || '',
+          upperPremium: leg.upperPremium || leg.upper_premium || '',
+
+          strikeType: leg.strikeType || leg.strike_type || 'ATM',
+          strikeDistance: leg.strikeDistance || leg.strike_distance || 0,
+          
+          // 🎯 UPDATED STOP LOSS & TARGET WITH SMART DETECTOR
+          stopLoss: rawSlVal, 
+          target: rawTargetVal,
+          slUnit: extractedSlUnit,
+          targetUnit: extractedTargetUnit,
+          
+          trailX: leg.trail_sl?.x || leg.trailX || 0,
+          trailY: leg.trail_sl?.y || leg.trailY || 0,
+          slReentry: leg.sl_reentry || leg.slReentry || 0,
+          targetReexecute: leg.target_reexecute || leg.targetReexecute || 0,
+          waitAndTrade: leg.wait_and_trade || leg.waitAndTrade || false,
+          costToCost: leg.cost_to_cost || leg.costToCost || false,
+          moveToStoploss: leg.move_to_stoploss || leg.moveToStoploss || false
+        };
+      });
       setLegs(mappedLegs);
     } else {
       setLegs([]);
