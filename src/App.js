@@ -5,6 +5,7 @@ import StrategyConfig from './components/StrategyConfig';
 import ResultsDashboard from './components/ResultsDashboard';
 // 🚨 NEW: Import the extracted Modal Component 🚨
 import MyStrategiesModal from './MyStrategiesModal';
+import PricingModal from './components/PricingModal'; // 🚨 NEW: Imported PricingModal
 
 // 🚨 Saved Strategy & Auth Firebase Imports 🚨
 import { auth, getUserCredits, deductUserCredit, saveUserStrategy, getUserStrategies, deleteUserStrategy } from './firebase';
@@ -22,6 +23,9 @@ function App() {
   const [savedStrategies, setSavedStrategies] = useState([]);
   const [isLoadingStrategies, setIsLoadingStrategies] = useState(false);
   const [modalTab, setModalTab] = useState('my_strategies'); // 🚨 NEW STATE FOR TAB
+
+  // 🚨 Pricing Modal State 🚨
+  const [showPricingModal, setShowPricingModal] = useState(false);
 
   // --- AI Input & Workflow State ---
   const [aiPrompt, setAiPrompt] = useState('');
@@ -273,6 +277,8 @@ function App() {
     if (userCredits <= 0) {
       alert("⚠️ Insufficient Credits! Please recharge your credits to run more backtests.");
       setError('Insufficient Credits. Please recharge your account.');
+      // 🚨 Optional: Automatically open pricing modal here if credits are 0
+      setShowPricingModal(true);
       return;
     }
 
@@ -339,6 +345,7 @@ function App() {
   return (
     <div className="min-h-screen bg-[#121212] text-gray-300 font-sans selection:bg-blue-500/30 relative">
       
+      {/* 🚨 Strategy Modal 🚨 */}
       <MyStrategiesModal 
         isOpen={showStrategiesModal} 
         onClose={() => setShowStrategiesModal(false)}
@@ -347,6 +354,12 @@ function App() {
         onLoad={loadStrategy}
         onDelete={handleDeleteStrategy}
         initialTab={modalTab} 
+      />
+
+      {/* 🚨 NEW: Pricing Modal Component 🚨 */}
+      <PricingModal 
+        isOpen={showPricingModal}
+        onClose={() => setShowPricingModal(false)}
       />
 
       <div className="flex justify-between md:justify-end items-center p-3 bg-[#181818] border-b border-[#2d2d2d] gap-4">
@@ -366,10 +379,14 @@ function App() {
             📜 Default Templates
           </button>
 
-          <div className="flex items-center gap-1.5 px-3 py-1 bg-yellow-500/10 border border-yellow-500/30 rounded-full shadow-inner">
+          {/* 🚨 UPDATED: Changed from div to button to trigger PricingModal 🚨 */}
+          <button 
+            onClick={() => setShowPricingModal(true)}
+            className="flex items-center gap-1.5 px-3 py-1 bg-yellow-500/10 hover:bg-yellow-500/20 border border-yellow-500/30 hover:border-yellow-500/50 rounded-full shadow-inner transition-all cursor-pointer"
+          >
             <span className="text-yellow-500 text-sm">⚡</span>
             <span className="text-xs font-bold text-yellow-500 tracking-wide">{userCredits} CREDITS</span>
-          </div>
+          </button>
 
           <span className="hidden md:block text-xs text-gray-400 font-medium">
             <span className="text-blue-400 font-bold">{user.email || user.displayName}</span>
