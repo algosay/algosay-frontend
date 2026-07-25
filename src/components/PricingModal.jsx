@@ -126,41 +126,55 @@ const PricingModal = ({ isOpen, onClose }) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
       <div className="bg-[#0a0a0a] w-full max-w-2xl rounded-2xl border border-gray-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         
-        {/* Header & Close Button */}
-        <div className="p-6 border-b border-gray-800 flex justify-between items-center bg-[#151515]">
-          <div>
-            <h2 className="text-2xl font-bold text-white">Upgrade Your Account</h2>
-            <p className="text-gray-400 text-sm mt-1">Choose the plan that fits your trading style.</p>
+        {/* Header & Close/Back Button */}
+        <div className="p-6 border-b border-gray-800 flex justify-between items-start sm:items-center bg-[#151515] flex-col sm:flex-row gap-4">
+          <div className="flex items-center gap-4">
+            {/* 🚨 PUTHUSA ADD PANNA BACK BUTTON */}
+            <button 
+              onClick={onClose} 
+              className="flex items-center gap-2 px-3 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition-colors cursor-pointer text-sm font-semibold border border-gray-700"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              Back
+            </button>
+            <div>
+              <h2 className="text-2xl font-bold text-white">Upgrade Your Account</h2>
+              <p className="text-gray-400 text-sm mt-1">Choose the plan that fits your trading style.</p>
+            </div>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors cursor-pointer">
+          
+          {/* Default Close 'X' Button */}
+          <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors cursor-pointer hidden sm:block">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex p-4 bg-[#0a0a0a]">
+        {/* 🚨 THANIYA THERIYURA TAB NAVIGATION (Updated UI) */}
+        <div className="flex p-4 bg-[#0a0a0a] gap-4">
           <button
             onClick={() => { setActiveTab('payg'); setSelectedPlan(null); }}
-            className={`flex-1 py-3 px-4 text-sm font-semibold rounded-lg transition-all cursor-pointer ${
+            className={`flex-1 py-4 px-4 text-base font-bold rounded-xl transition-all cursor-pointer border-2 ${
               activeTab === 'payg' 
-                ? 'bg-blue-600/10 text-blue-400 border border-blue-500/30' 
-                : 'text-gray-500 hover:text-gray-300'
+                ? 'bg-blue-600/10 text-blue-400 border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.3)]' 
+                : 'bg-[#151515] text-gray-500 border-gray-800 hover:border-gray-600 hover:text-gray-300'
             }`}
           >
-            Pay-As-You-Go Credits
+            Pay-As-You-Go Credits Tab
           </button>
-          <div className="w-4"></div>
+          
           <button
             onClick={() => { setActiveTab('unlimited'); setSelectedPlan(null); }}
-            className={`flex-1 py-3 px-4 text-sm font-semibold rounded-lg transition-all cursor-pointer ${
+            className={`flex-1 py-4 px-4 text-base font-bold rounded-xl transition-all cursor-pointer border-2 ${
               activeTab === 'unlimited' 
-                ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/30' 
-                : 'text-gray-500 hover:text-gray-300'
+                ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.3)]' 
+                : 'bg-[#151515] text-gray-500 border-gray-800 hover:border-gray-600 hover:text-gray-300'
             }`}
           >
-            Unlimited Plans
+            Unlimited Plans Tab
           </button>
         </div>
 
@@ -278,7 +292,7 @@ const PricingModal = ({ isOpen, onClose }) => {
         {/* Footer Checkout Button */}
         <div className="p-6 border-t border-gray-800 bg-[#151515]">
           <button 
-            onClick={handlePayment} /* 🚨 INTHA LINE ADD PANNIYACHU */
+            onClick={handlePayment}
             disabled={!selectedPlan}
             className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
               !selectedPlan 
