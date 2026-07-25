@@ -230,32 +230,92 @@ const StrategyConfig = ({
                             <option value="PE">PE (Put)</option>
                           </select>
                         </div>
-                        <div>
-                          <label className="block text-[9px] text-gray-500 uppercase tracking-wide mb-1">
-                            Strike Type {(leg.strikeType === 'OTM' || leg.strikeType === 'ITM') && '& Distance'}
+                        
+                        {/* ✨ FIX: NEW DYNAMIC STRIKE CRITERIA DROPDOWN */}
+                        <div className="col-span-2 mt-1 p-2 bg-[#181818] border border-[#222] rounded shadow-sm">
+                         <label className="flex text-[9px] text-gray-500 uppercase tracking-wide mb-2 items-center gap-1">
+                            Select Strike Criteria <span className="text-gray-400 cursor-help" title="Select how to choose the strike price">ⓘ</span>
                           </label>
-                          <div className="flex gap-1">
-                            <select 
-                              value={leg.strikeType || 'ATM'} 
-                              onChange={(e) => updateLeg(leg.id, 'strikeType', e.target.value)} 
-                              className={`${(leg.strikeType === 'OTM' || leg.strikeType === 'ITM') ? 'w-1/2' : 'w-full'} bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500`}
-                            >
-                              <option value="ATM">ATM</option>
-                              <option value="ITM">ITM</option>
-                              <option value="OTM">OTM</option>
-                            </select>
+                          <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
                             
-                            {/* Conditional Distance Dropdown (Shows only if OTM or ITM is selected) */}
-                            {(leg.strikeType === 'OTM' || leg.strikeType === 'ITM') && (
-                              <select 
-                                value={leg.strikeDistance || 1} 
-                                onChange={(e) => updateLeg(leg.id, 'strikeDistance', Number(e.target.value))} 
-                                className="w-1/2 bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500"
+                            {/* Primary Selection Dropdown */}
+                            <div className="w-full sm:w-1/2">
+                              <select
+                                value={leg.strikeCriteria || 'Strike Type'}
+                                onChange={(e) => updateLeg(leg.id, 'strikeCriteria', e.target.value)}
+                                className="w-full bg-[#1e1e1e] border border-blue-600 rounded p-1.5 text-xs text-blue-100 font-medium outline-none focus:border-blue-400"
                               >
-                                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
-                                  <option key={num} value={num}>{num}</option>
-                                ))}
+                                <option value="Strike Type">Strike Type (ATM/ITM/OTM)</option>
+                                <option value="Closest Premium">Closest Premium</option>
+                                <option value="Premium Range">Premium Range</option>
                               </select>
+                            </div>
+
+                            {/* Option 1: Legacy Strike Type & Distance (Fallback Safe) */}
+                            {(!leg.strikeCriteria || leg.strikeCriteria === 'Strike Type') && (
+                              <div className="w-full sm:w-1/2 flex gap-1">
+                                <select 
+                                  value={leg.strikeType || 'ATM'} 
+                                  onChange={(e) => updateLeg(leg.id, 'strikeType', e.target.value)} 
+                                  className={`${(leg.strikeType === 'OTM' || leg.strikeType === 'ITM') ? 'w-1/2' : 'w-full'} bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500`}
+                                >
+                                  <option value="ATM">ATM</option>
+                                  <option value="ITM">ITM</option>
+                                  <option value="OTM">OTM</option>
+                                </select>
+                                
+                                {(leg.strikeType === 'OTM' || leg.strikeType === 'ITM') && (
+                                  <select 
+                                    value={leg.strikeDistance || 1} 
+                                    onChange={(e) => updateLeg(leg.id, 'strikeDistance', Number(e.target.value))} 
+                                    className="w-1/2 bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500"
+                                  >
+                                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
+                                      <option key={num} value={num}>{num}</option>
+                                    ))}
+                                  </select>
+                                )}
+                              </div>
+                            )}
+
+                            {/* Option 2: Closest Premium Target */}
+                            {leg.strikeCriteria === 'Closest Premium' && (
+                              <div className="w-full sm:w-1/2 flex items-center gap-2">
+                                <label className="text-[10px] text-gray-400 font-medium">Premium</label>
+                                <input
+                                  type="number"
+                                  value={leg.targetPremium || ''}
+                                  onChange={(e) => updateLeg(leg.id, 'targetPremium', Number(e.target.value))}
+                                  className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500"
+                                  placeholder="e.g. 50"
+                                />
+                              </div>
+                            )}
+
+                            {/* Option 3: Premium Range Match */}
+                            {leg.strikeCriteria === 'Premium Range' && (
+                              <div className="w-full sm:w-1/2 flex items-center gap-2">
+                                <div className="flex items-center gap-1 w-1/2">
+                                  <label className="text-[10px] text-gray-400 font-medium">Lower</label>
+                                  <input
+                                    type="number"
+                                    value={leg.lowerPremium || ''}
+                                    onChange={(e) => updateLeg(leg.id, 'lowerPremium', Number(e.target.value))}
+                                    className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500"
+                                    placeholder="50"
+                                  />
+                                </div>
+                                <div className="flex items-center gap-1 w-1/2">
+                                  <label className="text-[10px] text-gray-400 font-medium">Upper</label>
+                                  <input
+                                    type="number"
+                                    value={leg.upperPremium || ''}
+                                    onChange={(e) => updateLeg(leg.id, 'upperPremium', Number(e.target.value))}
+                                    className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500"
+                                    placeholder="200"
+                                  />
+                                </div>
+                              </div>
                             )}
                           </div>
                         </div>
