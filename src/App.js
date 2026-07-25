@@ -130,7 +130,12 @@ function App() {
     // Priority: Extracted Ticker from Prompt > AI Response Ticker > Empty
     const finalTicker = extractedTicker || inst.ticker || '';
 
-    // Directly assign the calculated finalTicker
+    // 🎯 ROBUST GLOBAL TRAIL EXTRACTION 🎯
+    // Extracts X & Y even if AI drops them outside 'risk_management' at the root level of JSON
+    const globalTrailX = risk.trailMoveX ?? risk.trail_x ?? risk.trailX ?? data.trailMoveX ?? data.trailX ?? data.trail_x ?? 0;
+    const globalTrailY = risk.trailPointY ?? risk.trailMoveY ?? risk.trail_y ?? risk.trailY ?? data.trailMoveY ?? data.trailPointY ?? data.trailY ?? data.trail_y ?? 0;
+
+    // Directly assign the calculated finalTicker & variables
     setTicker(finalTicker);
     setTimeframe(inst.timeframe || '15m'); 
     setUnderlyingFrom(inst.underlyingFrom || inst.segment || 'Options');
@@ -141,8 +146,10 @@ function App() {
     setExitTime(entry.exitTime || '15:15');
     setFromDate(dates.fromDate || '');
     setToDate(dates.toDate || '');
-    setTrailMoveX(risk.trailMoveX || 0);
-    setTrailPointY(risk.trailPointY || 0);
+    
+    // Set robust global trail values
+    setTrailMoveX(globalTrailX);
+    setTrailPointY(globalTrailY);
 
     if (data.indicators && Array.isArray(data.indicators)) {
       const mappedIndicators = data.indicators.map((ind, idx) => {
@@ -160,7 +167,7 @@ function App() {
       setIndicators([]);
     }
     
-    // // 🚨 UPDATED: Map legs with priority finalTicker and handle all strike fields seamlessly
+    // 🚨 UPDATED: Map legs with priority finalTicker and handle all strike fields seamlessly
     if (data.legs && Array.isArray(data.legs)) {
       const mappedLegs = data.legs.map((leg, idx) => {
         
@@ -184,8 +191,11 @@ function App() {
         }
         
         // 🚀 SUPERCHARGED TRAIL SL SMART DETECTOR 🚀
-        // Catch every possible AI key variation for X (Trail Move)
-        let rawTrailX = leg.trailX ?? leg.trailMoveX ?? leg.trail_sl?.x ?? leg.trail_x ?? leg.trailMove ?? leg.trail_move ?? leg.move ?? leg.trail_points ?? '';
+        // Safely fallback if trail_sl is null in AI JSON (e.g., trail_sl: null)
+        const trailSlObj = leg.trail_sl || {};
+        
+        // Catch every possible AI key variation for X (Trail Move) including global fallbacks
+        let rawTrailX = leg.trailX ?? leg.trailMoveX ?? trailSlObj.x ?? trailSlObj.trailMoveX ?? leg.trail_x ?? leg.trailMove ?? leg.trail_move ?? leg.move ?? leg.trail_points ?? globalTrailX ?? '';
         
         let extractedTrailUnitX = leg.trailUnitX ?? leg.trail_unit_x ?? leg.trailUnit ?? 'Pts';
         if (typeof rawTrailX === 'string') {
@@ -194,8 +204,8 @@ function App() {
             rawTrailX = parseFloat(rawTrailX) || 0;
         }
 
-        // Catch every possible AI key variation for Y (SL Move)
-        let rawTrailY = leg.trailY ?? leg.trailPointY ?? leg.trail_sl?.y ?? leg.trail_y ?? leg.stopLossMove ?? leg.stop_loss_move ?? leg.slMove ?? leg.sl_move ?? '';
+        // Catch every possible AI key variation for Y (SL Move) including global fallbacks
+        let rawTrailY = leg.trailY ?? leg.trailMoveY ?? leg.trailPointY ?? trailSlObj.y ?? trailSlObj.trailMoveY ?? trailSlObj.trailPointY ?? leg.trail_y ?? leg.stopLossMove ?? leg.stop_loss_move ?? leg.slMove ?? leg.sl_move ?? globalTrailY ?? '';
         
         let extractedTrailUnitY = leg.trailUnitY ?? leg.trail_unit_y ?? leg.trailUnit ?? 'Pts';
         if (typeof rawTrailY === 'string') {

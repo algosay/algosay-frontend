@@ -161,6 +161,10 @@ const StrategyConfig = ({
               const currentTargetUnit = normalizeUnit(leg.targetUnit || leg.target_unit);
               const targetPremiumVal = leg.targetPremium ?? leg.target_premium ?? leg.premium ?? '';
 
+              // 🚀 Smart fallback for Trail X & Y inside legs card UI
+              const currentTrailX = leg.trailX ?? leg.trailMoveX ?? leg.trail_x ?? '';
+              const currentTrailY = leg.trailY ?? leg.trailPointY ?? leg.trailMoveY ?? leg.trail_y ?? '';
+
               return (
                 <div key={leg.id || index} className="bg-[#121212] p-4 rounded-xl border border-[#333] relative hover:border-gray-800 transition-all flex flex-col justify-between shadow-inner">
                   <div>
@@ -400,7 +404,7 @@ const StrategyConfig = ({
                         <div>
                           <label className="block text-[9px] text-yellow-500 uppercase tracking-wide mb-1">Trail SL (Move X)</label>
                           <div className="flex gap-1">
-                            <input type="number" value={leg.trailX ?? ''} onChange={(e) => updateLeg(leg.id, 'trailX', Number(e.target.value))} className="w-2/3 bg-[#1e1e1e] border border-[#222] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-yellow-600" placeholder="0" />
+                            <input type="number" value={currentTrailX} onChange={(e) => updateLeg(leg.id, 'trailX', Number(e.target.value))} className="w-2/3 bg-[#1e1e1e] border border-[#222] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-yellow-600" placeholder="0" />
                             <select 
                               value={leg.trailUnitX || 'Pts'} 
                               onChange={(e) => updateLeg(leg.id, 'trailUnitX', e.target.value)} 
@@ -414,7 +418,7 @@ const StrategyConfig = ({
                         <div>
                           <label className="block text-[9px] text-yellow-500 uppercase tracking-wide mb-1">Trail SL (Move Y)</label>
                           <div className="flex gap-1">
-                            <input type="number" value={leg.trailY ?? ''} onChange={(e) => updateLeg(leg.id, 'trailY', Number(e.target.value))} className="w-2/3 bg-[#1e1e1e] border border-[#222] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-yellow-600" placeholder="0" />
+                            <input type="number" value={currentTrailY} onChange={(e) => updateLeg(leg.id, 'trailY', Number(e.target.value))} className="w-2/3 bg-[#1e1e1e] border border-[#222] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-yellow-600" placeholder="0" />
                             <select 
                               value={leg.trailUnitY || 'Pts'} 
                               onChange={(e) => updateLeg(leg.id, 'trailUnitY', e.target.value)} 
