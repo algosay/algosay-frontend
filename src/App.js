@@ -173,6 +173,13 @@ function App() {
         lots: leg.lots || 1,
         optionType: leg.optionType || leg.option_type || 'CE', 
         expiry: leg.expiry || 'Weekly',
+
+        // 🎯 MISSING AANA PUDHU FIELDS INGA THAAN ADD PANROM 🎯
+        strikeCriteria: leg.strikeCriteria || leg.strike_criteria || 'Strike Type',
+        targetPremium: leg.targetPremium || leg.target_premium || leg.premium || '',
+        lowerPremium: leg.lowerPremium || leg.lower_premium || '',
+        upperPremium: leg.upperPremium || leg.upper_premium || '',
+
         strikeType: leg.strikeType || leg.strike_type || 'ATM',
         strikeDistance: leg.strikeDistance || leg.strike_distance || 0,
         stopLoss: leg.stop_loss || leg.stopLoss || '', 
@@ -191,8 +198,7 @@ function App() {
     } else {
       setLegs([]);
     }
-
-    setIsConfirmed(true); 
+        setIsConfirmed(true); 
   };
 
   const addLeg = () => { 
