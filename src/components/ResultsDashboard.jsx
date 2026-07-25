@@ -20,6 +20,10 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
   // ⚡ PUDHU UPDATE: ExecutionLedger-oda local filtered data-va store panna puthu state
   const [filteredLedgerData, setFilteredLedgerData] = useState(null);
 
+  // ✨ AI MULTI-LANGUAGE & CUSTOM PROMPT STATES
+  const [aiLanguage, setAiLanguage] = useState('English');
+  const [customPrompt, setCustomPrompt] = useState('');
+
   const dashboardRef = useRef(null);
 
   // Extract available DTEs from the Trade Ledger safely
@@ -136,12 +140,15 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
     );
   };
 
+  // ✨ UPDATED: Fetch AI Insights with Language and Custom Prompt Data
   const fetchAIInsights = async () => {
     setIsLoadingAI(true);
     try {
       const payload = {
         metrics: activeResult.Strategy_Stats || activeResult.metrics, 
-        ledger: activeResult.Trade_Ledger || activeResult.ledger
+        ledger: activeResult.Trade_Ledger || activeResult.ledger,
+        target_language: aiLanguage,
+        custom_user_query: customPrompt
       };
 
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/get_strategy_insights`, {
@@ -377,34 +384,64 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
         <PerformanceStats result={activeResult} withTax={withTax} />
         <TaxBreakdown result={activeResult} />
 
+        {/* ✨ UPDATED AI DIAGNOSTICS SECTION */}
         <div className="mt-6 mb-6 p-5 bg-[#121212] border border-[#2d2d2d] rounded-lg shadow-lg">
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
             <h3 className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500 flex items-center gap-2">
               <span className="text-xl">✨</span> AI Strategy Diagnostics
             </h3>
-            {!aiAdvice && (
+            
+            {/* Language Selector Tabs */}
+            <div className="flex items-center gap-2 bg-[#1e1e1e] p-1 rounded-lg border border-[#3d3d3d]" data-html2canvas-ignore="true">
+              {['English', 'Tamil', 'Hindi'].map(lang => (
+                <button
+                  key={lang}
+                  onClick={() => setAiLanguage(lang)}
+                  className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${
+                    aiLanguage === lang 
+                      ? 'bg-purple-600/20 text-purple-400 border border-purple-500/50' 
+                      : 'text-gray-400 hover:text-gray-200 border border-transparent'
+                  }`}
+                >
+                  {lang}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Custom Prompt Input Area */}
+          <div className="mb-4 bg-[#1e1e1e] p-3 rounded-lg border border-[#3d3d3d]" data-html2canvas-ignore="true">
+            <textarea
+              value={customPrompt}
+              onChange={(e) => setCustomPrompt(e.target.value)}
+              placeholder="E.g., How can I reduce drawdown? / Filter out consecutive losses / Focus on win rate..."
+              className="w-full bg-transparent text-gray-300 text-sm focus:outline-none resize-none placeholder-gray-600 mb-2"
+              rows="2"
+            />
+            <div className="flex justify-end border-t border-[#2d2d2d] pt-2 mt-1">
               <button 
                 onClick={fetchAIInsights}
                 disabled={isLoadingAI}
-                data-html2canvas-ignore="true"
-                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-semibold rounded-md transition-colors disabled:opacity-50"
+                className="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-md transition-colors shadow-lg disabled:opacity-50"
               >
-                {isLoadingAI ? 'Analyzing Strategy...' : 'Analyze Strategy with AI'}
+                {isLoadingAI ? '⏳ Analyzing Strategy...' : (aiAdvice ? '🔄 Regenerate Analysis' : '🧠 Ask AI')}
               </button>
-            )}
+            </div>
           </div>
 
           {aiAdvice && (
-            <div className="p-4 bg-[#1e1e1e] border border-[#3d3d3d] rounded-md text-gray-300 text-sm whitespace-pre-wrap leading-relaxed">
+            <div className="p-5 bg-gradient-to-br from-[#1e1e1e] to-[#1a1a1a] border border-[#3d3d3d] rounded-lg text-gray-300 text-sm whitespace-pre-wrap leading-relaxed shadow-inner">
               {aiAdvice}
             </div>
           )}
+          
           {!aiAdvice && !isLoadingAI && (
-            <p className="text-gray-500 text-sm">
-              Click the button to let our AI analyze your MFE, MAE, Duration, and Win/Loss sequence to suggest improvements.
+            <p className="text-gray-500 text-sm mt-2">
+              Type your specific queries above or simply click "Ask AI" to let our engine analyze your MFE, MAE, and historical sequences to suggest actionable improvements.
             </p>
           )}
         </div>
+        {/* ✨ END OF AI DIAGNOSTICS SECTION */}
 
         <div className="space-y-6">
           <EquityCurveChart result={activeResult} withTax={withTax} />
