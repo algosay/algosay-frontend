@@ -122,8 +122,8 @@ const PricingModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    /* MAIN WRAPPER */
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+    /* 🚨 MAIN WRAPPER FIX: Maathuna edam - z-50 ah thookitu z-[9999] potachu! 🚨 */
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
       <div className="bg-[#0a0a0a] w-full max-w-2xl rounded-2xl border border-gray-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         
         {/* 🚨 HEADER (shrink-0 add panniyachu) */}
@@ -162,7 +162,7 @@ const PricingModal = ({ isOpen, onClose }) => {
                 : 'bg-[#151515] text-gray-500 border-gray-800 hover:border-gray-600 hover:text-gray-300'
             }`}
           >
-            Pay-As-You-Go Credits Tab
+            Pay-As-You-Go Credits
           </button>
           
           <button
@@ -173,7 +173,7 @@ const PricingModal = ({ isOpen, onClose }) => {
                 : 'bg-[#151515] text-gray-500 border-gray-800 hover:border-gray-600 hover:text-gray-300'
             }`}
           >
-            Unlimited Plans Tab
+            Unlimited Plans
           </button>
         </div>
 
