@@ -183,8 +183,10 @@ function App() {
             rawTargetVal = parseFloat(rawTargetVal) || '';
         }
         
-        // 🚀 PUDHUSA ADD PANNUNA TRAIL SL SMART DETECTOR 🚀
-        let rawTrailX = leg.trailX ?? leg.trailMoveX ?? leg.trail_sl?.x ?? leg.trail_x ?? '';
+        // 🚀 SUPERCHARGED TRAIL SL SMART DETECTOR 🚀
+        // Catch every possible AI key variation for X (Trail Move)
+        let rawTrailX = leg.trailX ?? leg.trailMoveX ?? leg.trail_sl?.x ?? leg.trail_x ?? leg.trailMove ?? leg.trail_move ?? leg.move ?? leg.trail_points ?? '';
+        
         let extractedTrailUnitX = leg.trailUnitX ?? leg.trail_unit_x ?? leg.trailUnit ?? 'Pts';
         if (typeof rawTrailX === 'string') {
             if (rawTrailX.includes('%')) extractedTrailUnitX = '%';
@@ -192,7 +194,9 @@ function App() {
             rawTrailX = parseFloat(rawTrailX) || 0;
         }
 
-        let rawTrailY = leg.trailY ?? leg.trailPointY ?? leg.trail_sl?.y ?? leg.trail_y ?? '';
+        // Catch every possible AI key variation for Y (SL Move)
+        let rawTrailY = leg.trailY ?? leg.trailPointY ?? leg.trail_sl?.y ?? leg.trail_y ?? leg.stopLossMove ?? leg.stop_loss_move ?? leg.slMove ?? leg.sl_move ?? '';
+        
         let extractedTrailUnitY = leg.trailUnitY ?? leg.trail_unit_y ?? leg.trailUnit ?? 'Pts';
         if (typeof rawTrailY === 'string') {
             if (rawTrailY.includes('%')) extractedTrailUnitY = '%';
@@ -200,6 +204,8 @@ function App() {
             rawTrailY = parseFloat(rawTrailY) || 0;
         }
         // ------------------------------------------------------------------------
+
+        console.log("🤖 AI JSON LEG DATA:", leg); // 👀 Useful for debugging if AI invents new keys
 
         return {
           id: leg.id || Date.now() + idx,
