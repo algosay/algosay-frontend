@@ -7,9 +7,10 @@ import ResultsDashboard from './components/ResultsDashboard';
 import MyStrategiesModal from './MyStrategiesModal';
 import PricingModal from './components/PricingModal'; // 🚨 NEW: Imported PricingModal
 
-// 🚨 Saved Strategy & Auth Firebase Imports 🚨
-import { auth, getUserCredits, deductUserCredit, saveUserStrategy, getUserStrategies, deleteUserStrategy } from './firebase';
+// 🚨 Saved Strategy, Auth & Firestore Imports 🚨
+import { auth, db, getUserCredits, deductUserCredit, saveUserStrategy, getUserStrategies, deleteUserStrategy } from './firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore'; // 🚨 NEW: For fetching subscription status
 import Login from './Login';
 
 function App() {
@@ -17,6 +18,10 @@ function App() {
   const [user, setUser] = useState(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
   const [userCredits, setUserCredits] = useState(0); 
+
+  // 🚨 NEW: Subscription States 🚨
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [subscriptionPlan, setSubscriptionPlan] = useState('');
 
   // 🚨 Save & Load Strategy States 🚨
   const [showStrategiesModal, setShowStrategiesModal] = useState(false);
@@ -63,8 +68,29 @@ function App() {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
-        const credits = await getUserCredits(currentUser.uid);
-        setUserCredits(credits);
+        // 🚨 UPDATED: Fetching both credits and subscription status directly from Firestore
+        const userRef = doc(db, 'users', currentUser.uid);
+        const userSnap = await getDoc(userRef);
+        
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          setUserCredits(userData.credits || 0);
+          
+          // Check if subscription is valid and not expired
+          if (userData.subscription && userData.subscription.is_active) {
+            const endDate = new Date(userData.subscription.end_date);
+            if (endDate > new Date()) {
+              setIsSubscribed(true);
+              setSubscriptionPlan(userData.subscription.plan_type || 'Unlimited');
+            } else {
+              setIsSubscribed(false); // Expired
+            }
+          }
+        } else {
+          // Fallback just in case
+          const credits = await getUserCredits(currentUser.uid);
+          setUserCredits(credits);
+        }
       }
       setLoadingAuth(false);
     });
@@ -274,23 +300,26 @@ function App() {
   const runBacktest = async () => {
     if (!isConfirmed) return; 
 
-    if (userCredits <= 0) {
-      alert("⚠️ Insufficient Credits! Please recharge your credits to run more backtests.");
-      setError('Insufficient Credits. Please recharge your account.');
-      // 🚨 Optional: Automatically open pricing modal here if credits are 0
+    // 🚨 UPDATED: Check for both Credits and Subscription
+    if (!isSubscribed && userCredits <= 0) {
+      alert("⚠️ Insufficient Credits & No Active Subscription! Please recharge your account.");
+      setError('Insufficient Credits. Please upgrade your account.');
       setShowPricingModal(true);
       return;
     }
 
     setLoading(true); setError(''); setResult(null);
 
-    const deductionSuccess = await deductUserCredit(user?.uid);
-    if (deductionSuccess) {
-      setUserCredits(prev => prev - 1); 
-    } else {
-      setError('Failed to process credits. Please check your connection and try again.');
-      setLoading(false);
-      return;
+    // 🚨 UPDATED: Deduct credits ONLY if the user is not on an Unlimited Subscription
+    if (!isSubscribed) {
+      const deductionSuccess = await deductUserCredit(user?.uid);
+      if (deductionSuccess) {
+        setUserCredits(prev => prev - 1); 
+      } else {
+        setError('Failed to process credits. Please check your connection and try again.');
+        setLoading(false);
+        return;
+      }
     }
 
     const payload = {
@@ -379,13 +408,15 @@ function App() {
             📜 Default Templates
           </button>
 
-          {/* 🚨 UPDATED: Changed from div to button to trigger PricingModal 🚨 */}
+          {/* 🚨 UPDATED: Dynamic Button Text based on Subscription vs Credits 🚨 */}
           <button 
             onClick={() => setShowPricingModal(true)}
             className="flex items-center gap-1.5 px-3 py-1 bg-yellow-500/10 hover:bg-yellow-500/20 border border-yellow-500/30 hover:border-yellow-500/50 rounded-full shadow-inner transition-all cursor-pointer"
           >
             <span className="text-yellow-500 text-sm">⚡</span>
-            <span className="text-xs font-bold text-yellow-500 tracking-wide">{userCredits} CREDITS</span>
+            <span className="text-xs font-bold text-yellow-500 tracking-wide">
+              {isSubscribed ? `PRO: ${subscriptionPlan.toUpperCase()}` : `${userCredits} CREDITS`}
+            </span>
           </button>
 
           <span className="hidden md:block text-xs text-gray-400 font-medium">
@@ -458,9 +489,10 @@ function App() {
                   : 'bg-green-600 hover:bg-green-500 text-white shadow-lg'
                 }`}
               >
+                {/* 🚨 UPDATED: Dynamic Button text based on Subscription 🚨 */}
                 {loading ? (
                   <><svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Running Backtest...</>
-                ) : !isConfirmed ? 'Lock Parameters to Execute' : 'Run Backtest (Cost: 1 Credit)'}
+                ) : !isConfirmed ? 'Lock Parameters to Execute' : (isSubscribed ? `Run Backtest (Free - ${subscriptionPlan})` : 'Run Backtest (Cost: 1 Credit)')}
               </button>
             </div>
 

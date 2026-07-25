@@ -42,6 +42,8 @@ const PricingModal = ({ isOpen, onClose }) => {
       const user = auth.currentUser;
       let finalAmount = 0;
       let creditsToAdd = 0;
+      let planName = "";
+      let daysToAdd = 0;
 
       // Calculate Price based on user selection
       if (activeTab === 'payg') {
@@ -56,7 +58,9 @@ const PricingModal = ({ isOpen, onClose }) => {
       } else {
           const plan = unlimitedPlans.find(p => p.id === selectedPlan);
           finalAmount = plan.price;
-          creditsToAdd = 999999; // Unlimited logic (or however you handle it in DB)
+          planName = plan.name;
+          // Days calculate pandrom for unlimited plans
+          daysToAdd = selectedPlan === 'u1' ? 7 : (selectedPlan === 'u2' ? 30 : (selectedPlan === 'u3' ? 90 : 180));
       }
 
       try {
@@ -68,7 +72,7 @@ const PricingModal = ({ isOpen, onClose }) => {
                   amount: finalAmount,
                   user_id: user.uid,
                   plan_id: selectedPlan,
-                  credits: creditsToAdd
+                  credits: creditsToAdd // Will be 0 for unlimited, which is fine
               })
           });
 
@@ -80,21 +84,39 @@ const PricingModal = ({ isOpen, onClose }) => {
               amount: orderData.amount,
               currency: orderData.currency,
               name: "AlgoSay Pro",
-              description: `Purchase of ${creditsToAdd} Credits`,
+              description: activeTab === 'payg' ? `Purchase of ${creditsToAdd} Credits` : `${planName} Unlimited Plan`,
               order_id: orderData.order_id, 
               handler: async function (response) {
-                  // 3. Payment Success aana odane Firebase-la credits add pandrom! 🟢
+                  // 3. Payment Success aana odane Firebase-la Update pandrom! 🟢
                   try {
                       const userRef = doc(db, 'users', user.uid);
-                      await updateDoc(userRef, {
-                          credits: increment(creditsToAdd)
-                      });
-                      alert(`✅ Payment Successful! ${creditsToAdd} Credits added to your account.`);
+                      
+                      if (activeTab === 'payg') {
+                          // 🚨 PAY-AS-YOU-GO SELECT PANNA CREDITS ADD AAGUM 🚨
+                          await updateDoc(userRef, {
+                              credits: increment(creditsToAdd)
+                          });
+                          alert(`✅ Payment Successful! ${creditsToAdd} Credits added to your account.`);
+                      } else {
+                          // 🚨 UNLIMITED SELECT PANNA SUBSCRIPTION DATE UPDATE AAGUM 🚨
+                          const expiryDate = new Date();
+                          expiryDate.setDate(expiryDate.getDate() + daysToAdd);
+                          
+                          await updateDoc(userRef, {
+                              subscription: {
+                                  is_active: true,
+                                  plan_type: planName,
+                                  end_date: expiryDate.toISOString()
+                              }
+                          });
+                          alert(`✅ Payment Successful! ${planName} Unlimited Plan activated until ${expiryDate.toLocaleDateString()}.`);
+                      }
+
                       onClose(); // Close Modal
                       window.location.reload(); // Refresh to update UI
                   } catch (err) {
                       console.error("Firebase update failed", err);
-                      alert("Payment successful, but failed to update credits. Contact support.");
+                      alert("Payment successful, but failed to update account. Contact support.");
                   }
               },
               prefill: {
