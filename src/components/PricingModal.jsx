@@ -122,22 +122,22 @@ const PricingModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    /* MAIN WRAPPER ADDED HERE - This fixes all the errors! */
+    /* MAIN WRAPPER */
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
       <div className="bg-[#0a0a0a] w-full max-w-2xl rounded-2xl border border-gray-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         
-        {/* Header & Close/Back Button */}
-        <div className="p-6 border-b border-gray-800 flex justify-between items-start sm:items-center bg-[#151515] flex-col sm:flex-row gap-4">
+        {/* 🚨 HEADER (shrink-0 add panniyachu) */}
+        <div className="shrink-0 p-6 border-b border-gray-800 flex justify-between items-start sm:items-center bg-[#151515] flex-col sm:flex-row gap-4 relative z-10">
           <div className="flex items-center gap-4">
-            {/* 🚨 PUTHUSA ADD PANNA BACK BUTTON */}
+            {/* 🚨 PUTHUSA STYLE PANNA BACK BUTTON */}
             <button 
               onClick={onClose} 
-              className="flex items-center gap-2 px-3 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition-colors cursor-pointer text-sm font-semibold border border-gray-700"
+              className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-white hover:text-black text-white rounded-lg transition-all cursor-pointer text-sm font-bold border border-gray-500 shadow-md shrink-0"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
               </svg>
-              Back
+              BACK
             </button>
             <div>
               <h2 className="text-2xl font-bold text-white">Upgrade Your Account</h2>
@@ -145,16 +145,15 @@ const PricingModal = ({ isOpen, onClose }) => {
             </div>
           </div>
           
-          {/* Default Close 'X' Button */}
-          <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors cursor-pointer hidden sm:block">
+          <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors cursor-pointer hidden sm:block shrink-0">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
-        {/* 🚨 THANIYA THERIYURA TAB NAVIGATION (Updated UI) */}
-        <div className="flex p-4 bg-[#0a0a0a] gap-4">
+        {/* 🚨 TABS (shrink-0 add panniyachu - Inime marayathu) */}
+        <div className="shrink-0 flex p-4 bg-[#0a0a0a] gap-4 border-b border-gray-800/50 z-10 relative">
           <button
             onClick={() => { setActiveTab('payg'); setSelectedPlan(null); }}
             className={`flex-1 py-4 px-4 text-base font-bold rounded-xl transition-all cursor-pointer border-2 ${
@@ -179,7 +178,7 @@ const PricingModal = ({ isOpen, onClose }) => {
         </div>
 
         {/* Scrollable Content Area */}
-        <div className="p-6 overflow-y-auto custom-scrollbar flex-1">
+        <div className="p-6 overflow-y-auto custom-scrollbar flex-1 relative">
           
           {/* TAB 1: PAY AS YOU GO */}
           {activeTab === 'payg' && (
@@ -289,8 +288,8 @@ const PricingModal = ({ isOpen, onClose }) => {
           )}
         </div>
 
-        {/* Footer Checkout Button */}
-        <div className="p-6 border-t border-gray-800 bg-[#151515]">
+        {/* 🚨 FOOTER (shrink-0 add panniyachu) */}
+        <div className="shrink-0 p-6 border-t border-gray-800 bg-[#151515]">
           <button 
             onClick={handlePayment}
             disabled={!selectedPlan}
