@@ -50,7 +50,10 @@ const UserProfile = ({ onClose }) => {
     );
   }
 
-  const daysLeft = userData?.unlimitedExpiry ? calculateDaysLeft(userData.unlimitedExpiry) : 0;
+  // UPDATED LINE: Checking subscription.is_active and using subscription.end_date
+  const daysLeft = (userData?.subscription?.is_active && userData?.subscription?.end_date) 
+    ? calculateDaysLeft(userData.subscription.end_date) 
+    : 0;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
@@ -93,8 +96,7 @@ const UserProfile = ({ onClose }) => {
                 <span className="text-4xl font-black text-white">
                   {userData?.credits || 0}
                 </span>
-                <span className="text-sm text-gray-400 mb-1">Tokens</span>
-              </div>
+                       </div>
             </div>
 
             {/* Unlimited Plan Card */}
