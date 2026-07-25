@@ -42,6 +42,13 @@ const UserProfile = ({ onClose }) => {
     return diffDays > 0 ? diffDays : 0;
   };
 
+  // Format date to show readable format (e.g., Aug 1, 2026)
+  const formatExpiryDate = (expiryDate) => {
+    if (!expiryDate) return '';
+    const date = expiryDate.toDate ? expiryDate.toDate() : new Date(expiryDate);
+    return date.toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' });
+  };
+
   if (loading) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
@@ -50,10 +57,15 @@ const UserProfile = ({ onClose }) => {
     );
   }
 
-  // UPDATED LINE: Checking subscription.is_active and using subscription.end_date
+  // Check if active and get days left
   const daysLeft = (userData?.subscription?.is_active && userData?.subscription?.end_date) 
     ? calculateDaysLeft(userData.subscription.end_date) 
     : 0;
+
+  // Get readable expiry date
+  const exactExpiryDate = (userData?.subscription?.is_active && userData?.subscription?.end_date) 
+    ? formatExpiryDate(userData.subscription.end_date) 
+    : null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
@@ -96,7 +108,8 @@ const UserProfile = ({ onClose }) => {
                 <span className="text-4xl font-black text-white">
                   {userData?.credits || 0}
                 </span>
-                       </div>
+                <span className="text-sm text-gray-400 mb-1">Tokens</span>
+              </div>
             </div>
 
             {/* Unlimited Plan Card */}
@@ -108,7 +121,10 @@ const UserProfile = ({ onClose }) => {
                     <span className="text-4xl font-black text-white">{daysLeft}</span>
                     <span className="text-sm text-gray-400 mb-1">Days Left</span>
                   </div>
-                  <p className="text-xs text-green-400 mt-2 font-semibold">✅ Active</p>
+                  {/* Shows Expiry Date Here */}
+                  <p className="text-xs text-green-400 mt-2 font-semibold">
+                    ✅ Active until {exactExpiryDate}
+                  </p>
                 </div>
               ) : (
                 <div>
@@ -122,13 +138,21 @@ const UserProfile = ({ onClose }) => {
         </div>
 
         {/* Footer Action */}
-        <div className="p-6 border-t border-gray-800 bg-[#151515]">
+        <div className="p-6 border-t border-gray-800 bg-[#151515] flex gap-4">
+          {/* New Back Button */}
+          <button 
+            onClick={onClose} 
+            className="flex-1 py-3 bg-gray-800 hover:bg-gray-700 text-white font-bold rounded-xl border border-gray-700 transition-all"
+          >
+            Back
+          </button>
+          
           <button 
             onClick={() => {
               auth.signOut();
               window.location.reload();
             }} 
-            className="w-full py-3 bg-red-600/10 hover:bg-red-600/20 text-red-500 font-bold rounded-xl border border-red-500/30 transition-all"
+            className="flex-1 py-3 bg-red-600/10 hover:bg-red-600/20 text-red-500 font-bold rounded-xl border border-red-500/30 transition-all"
           >
             Log Out
           </button>
