@@ -8,6 +8,7 @@ const ExecutionLedger = ({ result, onFilterChange }) => {
   const [filterDay, setFilterDay] = useState('All');
   const [filterDTE, setFilterDTE] = useState('All');
   const [filterResult, setFilterResult] = useState('All');
+  const [filterSegment, setFilterSegment] = useState('All'); // ⚡ NEW: Segment Filter State
 
   // Hook 1: orderedKeys (Unconditional - Always runs first)
   const orderedKeys = useMemo(() => {
@@ -33,10 +34,11 @@ const ExecutionLedger = ({ result, onFilterChange }) => {
       const matchDay = filterDay === 'All' || trade.Day === filterDay;
       const matchDTE = filterDTE === 'All' || String(trade.DTE) === String(filterDTE);
       const matchResult = filterResult === 'All' || trade.Result === filterResult;
+      const matchSegment = filterSegment === 'All' || trade.Segment === filterSegment; // ⚡ NEW: Segment Matching Logic
       
-      return matchDirection && matchDay && matchDTE && matchResult;
+      return matchDirection && matchDay && matchDTE && matchResult && matchSegment;
     });
-  }, [result?.Trade_Ledger, filterDirection, filterDay, filterDTE, filterResult]);
+  }, [result?.Trade_Ledger, filterDirection, filterDay, filterDTE, filterResult, filterSegment]);
 
   // Hook 3: Pass filtered data back to parent component (Moved ABOVE the early return)
   useEffect(() => {
@@ -50,7 +52,14 @@ const ExecutionLedger = ({ result, onFilterChange }) => {
 
   // Extract unique values for dynamic dropdowns (Safe to run now because result.Trade_Ledger exists)
   const uniqueDays = [...new Set(result.Trade_Ledger.map(t => t.Day).filter(Boolean))];
-  const uniqueDTEs = [...new Set(result.Trade_Ledger.map(t => t.DTE).filter(val => val !== undefined && val !== null && val !== ''))].sort((a, b) => a - b);
+  const uniqueSegments = [...new Set(result.Trade_Ledger.map(t => t.Segment).filter(Boolean))]; // ⚡ NEW: Extract unique Segments
+
+  // ⚡ FIX: Adjusted Sorting logic to safely handle 'N/A' strings coming from Futures/Spot trades
+  const uniqueDTEs = [...new Set(result.Trade_Ledger.map(t => t.DTE).filter(val => val !== undefined && val !== null && val !== ''))].sort((a, b) => {
+    if (a === 'N/A') return 1;
+    if (b === 'N/A') return -1;
+    return a - b;
+  });
 
   return (
     <div className="bg-[#1e1e1e] border border-[#2d2d2d] rounded-xl overflow-hidden flex flex-col mt-4">
@@ -70,6 +79,18 @@ const ExecutionLedger = ({ result, onFilterChange }) => {
           <div className="p-3 bg-[#252525] border-b border-[#333] flex flex-wrap gap-4 items-center">
             <span className="text-xs text-gray-400 font-semibold uppercase tracking-wider">Filters:</span>
             
+            {/* ⚡ NEW: Segment Dropdown added for filtering Options vs Futures */}
+            {uniqueSegments.length > 0 && (
+              <select 
+                className="bg-[#1a1a1a] text-xs text-gray-300 border border-[#444] rounded px-2 py-1 outline-none focus:border-blue-500"
+                value={filterSegment}
+                onChange={(e) => setFilterSegment(e.target.value)}
+              >
+                <option value="All">All Segments</option>
+                {uniqueSegments.map(seg => <option key={seg} value={seg}>{seg}</option>)}
+              </select>
+            )}
+
             <select 
               className="bg-[#1a1a1a] text-xs text-gray-300 border border-[#444] rounded px-2 py-1 outline-none focus:border-blue-500"
               value={filterDirection}
@@ -112,6 +133,7 @@ const ExecutionLedger = ({ result, onFilterChange }) => {
 
             <button 
               onClick={() => {
+                setFilterSegment('All'); // ⚡ NEW: Reset Segment filter on clear
                 setFilterDirection('All');
                 setFilterDay('All');
                 setFilterDTE('All');
