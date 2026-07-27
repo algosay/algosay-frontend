@@ -47,54 +47,94 @@ const AIParseSection = ({
 
   return (
     <>
-      {/* 🧠 MAIN AI INPUT SECTION */}
-      <div className="bg-[#1e1e1e] border border-[#2d2d2d] rounded-xl p-5 md:p-6 mb-6 shadow-sm">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">🧠</span>
+      {/* 🧠 MAIN AI INPUT SECTION - REDESIGNED */}
+      <div className="w-full bg-[#05050A] border border-[#2a2b40] rounded-xl p-6 mb-6 shadow-[0_0_30px_rgba(139,92,246,0.08)] relative z-10 transition-all duration-300">
+        
+        {/* HEADER AREA */}
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
+          
+          {/* TITLE & GLOWING BRAIN */}
+          <div className="flex items-center gap-4">
+            {/* Colorful Glowing Brain Icon Container */}
+            <div className="relative flex items-center justify-center w-14 h-14 rounded-full p-[2px] bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 shadow-[0_0_20px_rgba(168,85,247,0.4)]">
+              <div className="flex items-center justify-center w-full h-full bg-[#05050A] rounded-full">
+                {/* Custom Tech Brain SVG */}
+                <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8">
+                  <defs>
+                    <linearGradient id="brain-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop stopColor="#3b82f6" offset="0%" />
+                      <stop stopColor="#ec4899" offset="100%" />
+                    </linearGradient>
+                  </defs>
+                  <path stroke="url(#brain-gradient)" d="M9.5 3a4.5 4.5 0 0 0-4.492 4.02A4.5 4.5 0 0 0 3 11.5c0 1.556.786 2.926 2 3.734a4.5 4.5 0 0 0 2.474 6.75M14.5 3a4.5 4.5 0 0 1 4.492 4.02 4.5 4.5 0 0 1 2.008 4.48c0 1.556-.786 2.926-2 3.734a4.5 4.5 0 0 1-2.474 6.75" />
+                  <path stroke="url(#brain-gradient)" d="M12 3v16" />
+                  <circle stroke="url(#brain-gradient)" cx="8" cy="9" r="1" />
+                  <circle stroke="url(#brain-gradient)" cx="16" cy="9" r="1" />
+                  <circle stroke="url(#brain-gradient)" cx="7" cy="14" r="1" />
+                  <circle stroke="url(#brain-gradient)" cx="17" cy="14" r="1" />
+                  <path stroke="url(#brain-gradient)" d="M12 9H9" />
+                  <path stroke="url(#brain-gradient)" d="M12 14H8" />
+                  <path stroke="url(#brain-gradient)" d="M12 9h3" />
+                  <path stroke="url(#brain-gradient)" d="M12 14h4" />
+                </svg>
+              </div>
+            </div>
+            
             <div>
-              <h2 className="text-lg font-bold text-white">AI Neural Engine</h2>
-              <p className="text-xs text-gray-400">Describe your strategy logic to auto-configure settings.</p>
+              <h2 className="text-xl font-bold text-white tracking-wide">AI Neural Engine</h2>
+              <p className="text-sm text-gray-400 mt-0.5">Describe your trading logic in natural language or mix.</p>
             </div>
           </div>
-          {/* ✨ VISUAL INDICATOR */}
-          <div className="bg-blue-500/10 border border-blue-500/30 text-blue-400 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
-            Algosay
+
+          {/* RIGHT SIDE BADGES (Matching Image) */}
+          <div className="flex items-center gap-3 w-full lg:w-auto">
+            <div className="px-4 py-1.5 rounded-full border border-purple-800/60 bg-purple-900/10 text-purple-400 text-xs font-bold tracking-wider">
+              ALGOSAY AI
+            </div>
+            <div className="border border-[#2a2b40] rounded-lg px-3 py-1.5 flex flex-col bg-[#0a0a0f]">
+              <div className="flex items-center gap-1.5 mb-0.5">
+                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                <span className="text-[10px] font-bold text-white tracking-wider uppercase">System Online</span>
+              </div>
+              <span className="text-[10px] text-gray-400 leading-none">All Systems Operational</span>
+            </div>
           </div>
         </div>
         
-        <div className="flex flex-col md:flex-row gap-3">
+        {/* TEXTAREA & BUTTON ROW */}
+        <div className="flex flex-col lg:flex-row gap-4">
           <textarea
-            className="flex-grow bg-[#121212] border border-[#333] rounded-lg p-4 text-white focus:outline-none focus:border-blue-500 text-sm placeholder:text-gray-600 transition-colors resize-none"
-            rows="2"
-            placeholder="e.g., Sell Nifty ATM 10 lots at 9:20 AM with 25% SL and 50% Target, then Buy OTM CE/PE 10 lots at 9:45 AM with 80% SL..."
+            className="flex-grow w-full bg-[#0a0a0f] border border-purple-900/40 rounded-xl p-4 text-white focus:outline-none focus:border-purple-500/80 focus:ring-1 focus:ring-purple-500/50 text-sm placeholder:text-gray-600 transition-all resize-none shadow-inner custom-scrollbar"
+            rows="3"
+            placeholder="e.g., Sell Nifty 15min CE when RSI(14) > 70, stop 2% SL, target 1.5%. Exit at 15:10..."
             value={aiPrompt}
             onChange={(e) => setAiPrompt(e.target.value)}
           ></textarea>
+          
           <button
             onClick={handleAIParse}
             disabled={isParsing || !aiPrompt}
-            className={`md:w-56 px-4 py-3 rounded-lg font-bold text-sm transition-colors flex items-center justify-center gap-2 ${
+            className={`lg:w-48 px-6 py-4 rounded-xl font-bold text-base transition-all duration-300 flex items-center justify-center gap-2 ${
               isParsing || !aiPrompt 
-              ? 'bg-[#2a2a2a] text-gray-500 cursor-not-allowed' 
-              : 'bg-blue-600 hover:bg-blue-700 text-white shadow-md'
+              ? 'bg-[#1a1b26] text-gray-500 border border-[#2a2b40] cursor-not-allowed' 
+              : 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white shadow-[0_0_20px_rgba(124,58,237,0.3)]'
             }`}
           >
             {isParsing ? (
               <>
-                <svg className="animate-spin h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg className="animate-spin h-5 w-5 text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg> 
                 Analyzing...
               </>
-            ) : 'Analyze Logic ⚡'}
+            ) : 'Analyze Logic ✨'}
           </button>
         </div>
         
         {/* AI STATUS / RESPONSE MESSAGE */}
         {aiMessage && (
-          <div className={`mt-4 p-3 rounded-md text-xs font-semibold flex items-center gap-2 ${
+          <div className={`mt-5 p-3 rounded-lg text-xs font-semibold flex items-center gap-2 ${
             needsInfoQuestion ? 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20' : 'bg-green-500/10 text-green-400 border border-green-500/20'
           }`}>
             {aiMessage}
@@ -102,7 +142,7 @@ const AIParseSection = ({
         )}
       </div>
 
-      {/* 💬 CLARIFICATION QUESTION PROMPT */}
+      {/* 💬 CLARIFICATION QUESTION PROMPT (Retained exactly as requested) */}
       {needsInfoQuestion && (
         <div className="bg-yellow-500/10 border border-yellow-500/20 p-5 rounded-xl mb-6 flex flex-col gap-2">
           <h3 className="text-sm font-bold text-yellow-500 flex items-center gap-2">💬 Clarification Needed</h3>
@@ -110,11 +150,11 @@ const AIParseSection = ({
         </div>
       )}
 
-      {/* ⚙️ AI INTERPRETATION PARAMETERS LIST */}
+      {/* ⚙️ AI INTERPRETATION PARAMETERS LIST (Retained exactly as requested) */}
       {aiExplanation && (
-        <div className="bg-[#1e1e1e] border border-[#2d2d2d] p-5 rounded-xl mb-6 shadow-md animate-fade-in">
+        <div className="bg-[#05050A] border border-[#2a2b40] p-5 rounded-xl mb-6 shadow-md animate-fade-in">
           <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">⚙️ Interpretation Parameters</h3>
-          <div className="space-y-2 mb-4 bg-[#141414] p-4 rounded-lg border border-[#262626]">
+          <div className="space-y-2 mb-4 bg-[#0a0a0f] p-4 rounded-lg border border-[#1f2030]">
             {aiExplanation.split('\n').filter(line => line.trim().length > 0).map((line, index) => {
               const cleanLine = line.replace(/^[\s*\-•\d.]+\s*/, '');
               return (
@@ -127,14 +167,14 @@ const AIParseSection = ({
           </div>
           
           {/* VALIDATION FOOTER WITH CONFIRM BUTTON */}
-          <div className="flex items-center justify-between bg-[#121212] border border-[#2d2d2d] p-3 rounded-lg">
+          <div className="flex items-center justify-between bg-[#0a0a0f] border border-[#1f2030] p-3 rounded-lg">
             <span className="text-xs text-gray-400">
               {isConfirmed ? <span className="text-green-400">✓ Logic validated. Ready for execution.</span> : 'Review separate Buying & Selling parameters below and confirm.'}
             </span>
             <button
               onClick={() => setIsConfirmed(!isConfirmed)}
               className={`px-4 py-1.5 rounded text-xs font-bold transition-colors ${
-                isConfirmed ? 'bg-green-600/20 text-green-400 hover:bg-green-600/30' : 'bg-blue-600 text-white hover:bg-blue-700'
+                isConfirmed ? 'bg-green-600/20 text-green-400 hover:bg-green-600/30' : 'bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-500 hover:to-blue-500'
               }`}
             >
               {isConfirmed ? 'Edit Parameters' : 'Confirm Settings'}
