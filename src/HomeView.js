@@ -161,10 +161,11 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
             Next-Gen AI Backtesting for Indian Traders
           </h3>
           {/* 💎 Title formatting adjusted */}
-          <h1 className="font-black text-slate-900 leading-[1.1] mb-6 tracking-tight flex flex-col">
-            {/* Reduced font size for India's #1 AI-Powered (text-3xl lg:text-4xl) */}
-            <span className="whitespace-nowrap text-3xl lg:text-4xl text-slate-700 mb-2">India’s #1 AI-Powered</span>
-            <span className="text-5xl lg:text-6xl text-transparent bg-clip-text bg-gradient-to-r from-[#0052FF] to-indigo-600 drop-shadow-sm">
+          <h1 className="font-black text-slate-900 leading-[1.2] mb-6 tracking-tight flex flex-col">
+            {/* Increased font size for India's #1 AI-Powered slightly (text-4xl lg:text-5xl) */}
+            <span className="whitespace-nowrap text-4xl lg:text-5xl text-slate-700 mb-1">India’s #1 AI-Powered</span>
+            {/* Added pb-2 to prevent 'g' getting cut off */}
+            <span className="text-5xl lg:text-6xl text-transparent bg-clip-text bg-gradient-to-r from-[#0052FF] to-indigo-600 drop-shadow-sm pb-2 leading-tight">
               Backtesting Engine
             </span>
           </h1>
