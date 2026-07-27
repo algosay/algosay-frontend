@@ -151,12 +151,15 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
         {/* Left Column Text & Terminal */}
         <div className="w-full lg:w-1/2 flex flex-col pt-4">
           <h3 className="text-[11px] font-bold text-[#0052FF] uppercase tracking-[0.25em] mb-4 drop-shadow-sm">
-            The Next Evolution in Quant Trading
+            The Next Evolution in strategy backtesting
           </h3>
           <h1 className="text-5xl lg:text-6xl font-black text-slate-900 leading-[1.1] mb-6 tracking-tight">
-            Turn Everyday Words into <br className="hidden lg:block" />
+            India’s #1 AI-Powered <br className="hidden lg:block" />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0052FF] to-indigo-600 drop-shadow-sm">
-              Backtests.
+              Backtesting Engine
+            </span>
+            <span className="block text-3xl lg:text-4xl text-slate-800 mt-2 font-extrabold tracking-tight">
+              FOR TRADERS
             </span>
           </h1>
           <p className="text-lg text-slate-500 font-medium mb-10 leading-relaxed max-w-lg">
@@ -216,7 +219,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
           >
             <div className="flex items-center gap-4">
                <div className="w-12 h-12 bg-slate-50 border border-slate-100 rounded-full flex items-center justify-center text-2xl group-hover:scale-110 group-hover:bg-blue-50 transition-all duration-300">
-                         📊     </div>
+                          📊     </div>
                <div>
                  <h4 className="text-base font-extrabold text-slate-900 tracking-tight">Get 10 Free Backtests➜</h4>
                  <p className="text-sm text-slate-500 font-medium mt-0.5">Click here to Sign Up and start backtesting.</p>
