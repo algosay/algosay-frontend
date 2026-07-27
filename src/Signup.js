@@ -10,6 +10,7 @@ const Signup = ({ onSignupSuccess, switchToLogin }) => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState(''); // Update: Added success message state
 
   // 🚨 Function to initialize user data in Firestore with 10 FREE CREDITS 🚨
   const initializeUserInDB = async (user, userName, userMobile) => {
@@ -43,6 +44,7 @@ const Signup = ({ onSignupSuccess, switchToLogin }) => {
     
     setLoading(true);
     setError('');
+    setSuccessMsg('');
 
     try {
       // 1. Create User in Firebase Auth
@@ -52,8 +54,12 @@ const Signup = ({ onSignupSuccess, switchToLogin }) => {
       // 2. Save additional details (Name, Mobile, 10 Credits) in Firestore
       await initializeUserInDB(user, name, mobile);
 
-      // 3. Trigger success
-      onSignupSuccess(user);
+      // 3. Trigger success message & Redirect to Login
+      setSuccessMsg('Account created successfully! 🎁 10 Free Credits added. Redirecting to Login...');
+      setTimeout(() => {
+        switchToLogin(); // Automatically switches to Login view after 2 seconds
+      }, 2000);
+
     } catch (err) {
       console.error(err);
       if (err.code === 'auth/email-already-in-use') {
@@ -78,6 +84,7 @@ const Signup = ({ onSignupSuccess, switchToLogin }) => {
       // Check & Initialize in DB (Gives 10 credits only if they are entirely new)
       await initializeUserInDB(user, user.displayName, '');
 
+      // Google signup directly logs them in, so we pass it to main app
       onSignupSuccess(user);
     } catch (err) {
       console.error(err);
@@ -106,6 +113,13 @@ const Signup = ({ onSignupSuccess, switchToLogin }) => {
         {error && (
           <div className="bg-red-500/10 border border-red-500/50 text-red-500 text-sm p-3 rounded-lg mb-6 text-center">
             {error}
+          </div>
+        )}
+
+        {/* Update: Success Message UI added */}
+        {successMsg && (
+          <div className="bg-green-500/10 border border-green-500/50 text-green-500 text-sm p-3 rounded-lg mb-6 text-center font-semibold">
+            {successMsg}
           </div>
         )}
 

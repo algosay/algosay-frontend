@@ -26,7 +26,7 @@ const testimonials = [
   }
 ];
 
-const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewVariants }) => {
+const AuthView = ({ onBack, isSignUp = true, setIsSignUp, onLoginSuccess, custom, viewVariants }) => {
   const [activeReview, setActiveReview] = useState(0);
   
   // Form States
@@ -39,6 +39,13 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
   const [authError, setAuthError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [ripple, setRipple] = useState(null);
+
+  // Default-ஆக Sign Up page load ஆகுறதற்கான Rule (New Update)
+  useEffect(() => {
+    if (setIsSignUp) {
+      setIsSignUp(true);
+    }
+  }, []); // Component load ஆகுறப்போ ஒரு தடவை மட்டும் run ஆகும்
 
   useEffect(() => {
     const interval = setInterval(() => {

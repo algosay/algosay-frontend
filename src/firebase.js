@@ -8,8 +8,8 @@ import {
   signInWithEmailAndPassword,
   updateProfile // 🚨 UPDATED: Added updateProfile to save Name in Auth
 } from "firebase/auth";
-// 🚨 NEW: Import Firestore Database functions (Added collection, addDoc, getDocs, deleteDoc)
-import { getFirestore, doc, getDoc, setDoc, serverTimestamp, updateDoc, increment, collection, addDoc, getDocs, deleteDoc } from "firebase/firestore";
+// 🚨 NEW: Import Firestore Database functions (Added query, where for Mobile Login)
+import { getFirestore, doc, getDoc, setDoc, serverTimestamp, updateDoc, increment, collection, addDoc, getDocs, deleteDoc, query, where } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -76,6 +76,33 @@ export const signInWithEmail = async (email, password) => {
     return userCredential.user;
   } catch (error) {
     console.error("Login Error:", error.code, error.message);
+    throw error;
+  }
+};
+
+// 🚨 LATEST UPDATE: Mobile/Password Login Function
+export const signInWithMobile = async (phone, password) => {
+  try {
+    // 1. Find user email by phone number in Firestore
+    const usersRef = collection(db, "users");
+    const q = query(usersRef, where("phone", "==", phone));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      throw new Error("Mobile number not found. Please sign up.");
+    }
+
+    // 2. Get the email associated with this mobile number
+    let userEmail = "";
+    querySnapshot.forEach((doc) => {
+      userEmail = doc.data().email;
+    });
+
+    // 3. Login using the found email and the provided password
+    const userCredential = await signInWithEmailAndPassword(auth, userEmail, password);
+    return userCredential.user;
+  } catch (error) {
+    console.error("Mobile Login Error:", error.message);
     throw error;
   }
 };
