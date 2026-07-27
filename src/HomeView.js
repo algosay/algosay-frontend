@@ -159,10 +159,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0052FF] to-indigo-600 drop-shadow-sm">
               Backtesting Engine
             </span>
-            <span className="block text-3xl lg:text-4xl text-slate-800 mt-2 font-extrabold tracking-tight">
-              FOR TRADERS
-            </span>
-          </h1>
+                    </h1>
           <p className="text-lg text-slate-500 font-medium mb-10 leading-relaxed max-w-lg">
             Unlike traditional platforms where you manually click through dozens of dropdowns, AlgoSay uses an advanced Neural Engine to understand your trading strategies. Just type it, and we test it.
           </p>
