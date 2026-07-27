@@ -12,7 +12,7 @@ const Header = () => {
           <img 
             src="/image/header left.png" 
             alt="AI Brain" 
-            className="w-28 h-28 sm:w-36 sm:h-36 lg:w-52 lg:h-52 object-contain opacity-95 drop-shadow-[0_0_15px_rgba(0,229,255,0.4)] transition-transform duration-500 hover:scale-105"
+            className="w-38 h-38 sm:w-46 sm:h-46 lg:w-62 lg:h-62 object-contain opacity-95 drop-shadow-[0_0_15px_rgba(0,229,255,0.4)] transition-transform duration-500 hover:scale-105"
           />
         </div>
 
@@ -42,7 +42,7 @@ const Header = () => {
           <img 
             src="/image/header right.png" 
             alt="Bull Market" 
-            className="w-28 h-28 sm:w-36 sm:h-36 lg:w-52 lg:h-52 object-contain opacity-95 drop-shadow-[0_0_15px_rgba(0,255,136,0.3)] transition-transform duration-500 hover:scale-105"
+            className="w-38 h-38 sm:w-46 sm:h-46 lg:w-62 lg:h-62 object-contain opacity-95 drop-shadow-[0_0_15px_rgba(0,255,136,0.3)] transition-transform duration-500 hover:scale-105"
           />
         </div>
 
