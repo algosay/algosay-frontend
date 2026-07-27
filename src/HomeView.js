@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { TypeAnimation } from 'react-type-animation';
 import AlgoSayLogo from './AlgoSayLogo'; 
-import { Cpu, Wand2, Activity, Filter, BarChart3, Rocket, Users, Zap, Shield, ShieldCheck, Box, Tag, FileText, Code, PenTool } from 'lucide-react'; // 💎 Added new Premium Icons for stats and nav
+import { Cpu, Wand2, Activity, Filter, BarChart3, Rocket, Users, Zap, Shield, ShieldCheck, Box, Tag, FileText, Code, PenTool } from 'lucide-react'; 
 import StrategyCapabilities from './components/StrategyCapabilities';
 
 const HomeView = ({ onNavigate, custom, viewVariants }) => {
@@ -97,6 +97,15 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
     }
   ];
 
+  // 💎 Data array for the new results section
+  const resultImages = [
+    { id: 1, src: '/image/result1.png', title: 'PnL Ledger', color: 'from-[#00E5FF] to-[#0088FF]' },
+    { id: 2, src: '/image/result2.png', title: 'Drawdown Curve', color: 'from-[#9D4EDD] to-[#6025F5]' },
+    { id: 3, src: '/image/result3.png', title: 'Heatmap Matrix', color: 'from-[#00E676] to-[#00B259]' },
+    { id: 4, src: '/image/result4.png', title: 'AI Diagnostics', color: 'from-[#FF007A] to-[#C5005E]' },
+    { id: 5, src: '/image/result5.png', title: 'Advanced Metrics', color: 'from-[#FFBD2E] to-[#E6A01A]' }
+  ];
+
   return (
     <motion.div 
       custom={custom}
@@ -104,11 +113,17 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
       initial="initial"
       animate="animate"
       exit="exit"
-      // 💎 Ultra Premium Dark Background matching the image
       className="flex flex-col w-full min-h-screen relative px-6 md:px-12 lg:px-20 py-6 z-10 bg-[#04060F] overflow-hidden font-sans"
     >
-      {/* 💎 Background Image Integrations (Placed perfectly using your paths) */}
-      <img src="/image/header left.png" alt="Bull Graphic" className="absolute top-[10%] left-[-5%] w-[120%] lg:w-[65%] object-contain mix-blend-screen opacity-90 z-0 pointer-events-none" />
+      {/* 💎 Background Image Integrations */}
+      {/* 💎 header left.png is now properly placed under the text area like a pure background overlay */}
+      <div className="absolute inset-0 z-0 pointer-events-none flex justify-start items-center overflow-hidden">
+        <img 
+          src="/image/header left.png" 
+          alt="Bull Graphic" 
+          className="w-[120%] lg:w-[85%] max-w-none lg:-ml-[10%] object-cover mix-blend-screen opacity-[0.85]" 
+        />
+      </div>
       <img src="/image/header right.png" alt="Right Glow" className="absolute top-0 right-0 w-full lg:w-[45%] h-full object-cover mix-blend-screen opacity-20 z-0 pointer-events-none" />
 
       {/* 💎 Added subtle grid layer for depth */}
@@ -123,7 +138,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
         }}
       ></div>
 
-      {/* HEADER: Logo, Navbar & Login/Signup Buttons */}
+      {/* HEADER: Logo & Login/Signup Buttons */}
       <div className="flex items-center justify-between z-50 mb-10 w-full max-w-[1400px] mx-auto border-b border-white/5 pb-4">
         
         {/* LOGO SECTION */}
@@ -142,14 +157,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
           </div>
         </div>
 
-        {/* 💎 Added Middle Navigation (Features, Pricing, etc.) from Image */}
-        <div className="hidden lg:flex items-center gap-8 text-sm font-medium text-slate-300">
-          <a href="#features" className="flex items-center gap-2 hover:text-white transition-colors"><Box size={16}/> Features</a>
-          <a href="#pricing" className="flex items-center gap-2 hover:text-white transition-colors"><Tag size={16}/> Pricing</a>
-          <a href="#docs" className="flex items-center gap-2 hover:text-white transition-colors"><FileText size={16}/> Docs</a>
-          <a href="#api" className="flex items-center gap-2 hover:text-white transition-colors"><Code size={16}/> API</a>
-          <a href="#blog" className="flex items-center gap-2 hover:text-white transition-colors"><PenTool size={16}/> Blog</a>
-        </div>
+        {/* 💎 REMOVED MIDDLE NAV ITEMS AS REQUESTED */}
         
         {/* TOP RIGHT NAVIGATION BUTTONS */}
         <div className="flex items-center gap-3 sm:gap-4">
@@ -173,16 +181,16 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
         </div>
       </div>
 
-      {/* MAIN CONTENT AREA - Grid Layout matching the image */}
+      {/* MAIN CONTENT AREA */}
       <div className="flex flex-col lg:flex-row justify-between items-start gap-12 flex-grow relative z-10 w-full max-w-[1400px] mx-auto">
         
         {/* Left Column Text, Terminal & Stats */}
-        <div className="w-full lg:w-[55%] flex flex-col pt-2">
+        <div className="w-full lg:w-[55%] flex flex-col pt-2 relative z-20">
           <h3 className="text-[12px] font-black text-transparent bg-clip-text bg-gradient-to-r from-[#4D7CFF] to-[#9D4EDD] uppercase tracking-[0.15em] mb-4 drop-shadow-sm">
             NEXT-GEN AI BACKTESTING FOR INDIAN TRADERS
           </h3>
           
-          <h1 className="font-black leading-[1.1] mb-6 tracking-tight flex flex-col">
+          <h1 className="font-black leading-[1.1] mb-6 tracking-tight flex flex-col drop-shadow-lg">
             <span className="whitespace-nowrap text-5xl lg:text-[64px] text-white mb-2">
               India’s #1 
             </span>
@@ -194,15 +202,15 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
             </span>
           </h1>
           
-          <p className="text-lg text-slate-300 font-medium mb-8 leading-relaxed max-w-xl">
+          <p className="text-lg text-slate-300 font-medium mb-8 leading-relaxed max-w-xl backdrop-blur-sm bg-black/10 p-2 rounded-lg">
             Unlike traditional platforms where you manually click through dozens of dropdowns, AlgoSay uses an advanced Neural Engine to understand your trading strategies.
             <br/><span className="text-[#00E5FF] font-bold mt-2 inline-block">Just type it, and we test it.</span>
           </p>
 
           {/* PRO TERMINAL ENGINE BOX - NEON GLOW STYLE */}
-          <div className="mb-10 p-[1.5px] rounded-2xl bg-gradient-to-r from-[#FF007A] via-[#7928CA] to-[#00E5FF] shadow-[0_0_40px_rgba(121,40,202,0.3)] relative max-w-xl">
+          <div className="mb-10 p-[1.5px] rounded-2xl bg-gradient-to-r from-[#FF007A] via-[#7928CA] to-[#00E5FF] shadow-[0_0_40px_rgba(121,40,202,0.3)] relative max-w-xl backdrop-blur-md">
             <motion.div 
-              className="rounded-2xl overflow-hidden bg-[#0A0C14] flex flex-col w-full h-full relative"
+              className="rounded-2xl overflow-hidden bg-[#0A0C14]/95 flex flex-col w-full h-full relative"
             >
               <div className="bg-[#0A0C14] px-5 py-4 flex items-center justify-between border-b border-white/5 relative z-10">
                 <div className="flex items-center gap-2">
@@ -218,7 +226,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
                   </span>
                 </div>
               </div>
-              <div className="p-6 font-mono text-[16px] flex items-start min-h-[120px] bg-[#0A0C14] relative z-10">
+              <div className="p-6 font-mono text-[16px] flex items-start min-h-[120px] bg-transparent relative z-10">
                 <div className="text-slate-600 mr-4 select-none text-right font-medium text-sm pt-0.5">01</div>
                 <span className="text-[#00E676] mr-3 font-semibold shrink-0">Strategy &gt;</span>
                 <TypeAnimation
@@ -237,8 +245,8 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
             </motion.div>
           </div>
 
-          {/* 💎 NEW STATS SECTION (Replacing but keeping feature essence) */}
-          <div className="flex flex-wrap items-center gap-8 mb-8">
+          {/* STATS SECTION */}
+          <div className="flex flex-wrap items-center gap-8 mb-8 backdrop-blur-sm bg-black/10 p-3 rounded-2xl w-max border border-white/5">
              <div className="flex items-center gap-3">
                 <div className="p-2 rounded-lg bg-[#9D4EDD]/10 border border-[#9D4EDD]/30 text-[#9D4EDD] shadow-[0_0_15px_rgba(157,78,221,0.2)]">
                   <Rocket size={24} />
@@ -277,10 +285,9 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
              </div>
           </div>
 
-          {/* 💎 BUILT FOR PRECISION BANNER & 10 FREE BACKTEST CTA (Combined to ensure no line/feature is missed) */}
+          {/* BUILT FOR PRECISION BANNER & 10 FREE BACKTEST CTA */}
           <div className="flex flex-col gap-4 max-w-xl relative">
-            {/* Precision Banner matching image */}
-            <div className="p-5 rounded-2xl bg-gradient-to-r from-[#00E5FF]/10 to-transparent border border-[#00E5FF]/20 flex items-center gap-5">
+            <div className="p-5 rounded-2xl bg-gradient-to-r from-[#00E5FF]/10 to-transparent border border-[#00E5FF]/20 flex items-center gap-5 backdrop-blur-md">
               <div className="p-3 rounded-full bg-[#00E5FF]/10 border border-[#00E5FF]/30 text-[#00E5FF] shadow-[0_0_20px_rgba(0,229,255,0.3)]">
                  <Shield size={28} />
               </div>
@@ -290,10 +297,9 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
               </div>
             </div>
 
-            {/* Original CTA kept intact but styled for dark mode */}
             <div 
               onClick={() => onNavigate(true)}
-              className="p-4 rounded-xl cursor-pointer transition-all duration-300 border border-white/10 bg-white/5 hover:bg-white/10 hover:border-[#4D7CFF]/50 hover:shadow-[0_0_20px_rgba(77,124,255,0.2)] flex items-center justify-between group"
+              className="p-4 rounded-xl cursor-pointer transition-all duration-300 border border-white/10 bg-white/5 hover:bg-white/10 hover:border-[#4D7CFF]/50 hover:shadow-[0_0_20px_rgba(77,124,255,0.2)] flex items-center justify-between group backdrop-blur-md"
             >
               <div className="flex items-center gap-4">
                  <div className="w-10 h-10 bg-[#4D7CFF]/10 border border-[#4D7CFF]/30 text-[#4D7CFF] rounded-full flex items-center justify-center text-xl group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(77,124,255,0.4)] transition-all duration-300">
@@ -314,8 +320,8 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
 
         </div>
 
-        {/* Right Column Steps - 💎 ULTIMATE Premium Interactive Cards (DARK NEON THEME) */}
-        <div className="w-full lg:w-[45%] flex justify-end relative z-10 pt-4">
+        {/* Right Column Steps */}
+        <div className="w-full lg:w-[45%] flex justify-end relative z-20 pt-4">
           <motion.div 
             variants={containerVariants}
             initial="hidden"
@@ -333,27 +339,21 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
                 }}
                 className={`relative overflow-hidden group flex items-start gap-5 p-6 rounded-2xl border transition-all duration-300 cursor-default ${step.theme.cardBg} ${step.theme.borderHover}`}
               >
-                {/* 💎 Subtle Glow Gradient Background on Hover */}
                 <div className={`absolute inset-0 bg-gradient-to-br to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none ${step.theme.gradientStart}`}></div>
                 
-                {/* 💎 Animated Icon Box */}
                 <div className={`relative z-10 flex-shrink-0 w-14 h-14 rounded-full flex items-center justify-center transition-all duration-500 border group-hover:scale-110 ${step.theme.iconBg} ${step.theme.iconText} ${step.theme.iconBorder} ${step.theme.hoverIconBg}`}>
                   {step.icon}
                 </div>
                 
-                {/* 💎 Content Container */}
                 <div className="relative z-10 flex flex-col pt-1">
                   <div className="flex flex-col mb-1.5">
-                    {/* Tiny Premium STEP Badge */}
                     <span className={`text-[11px] font-black tracking-[0.1em] mb-1 ${step.theme.badgeText}`}>
                       STEP {step.num}
                     </span>
-                    {/* 💎 Bright Title Text */}
                     <h4 className="text-[17px] font-bold text-white tracking-tight leading-tight group-hover:text-white transition-colors duration-300">
                       {step.title}
                     </h4>
                   </div>
-                  {/* 💎 Light Gray Description Text */}
                   <p className="text-[14px] text-slate-400 font-medium leading-[1.6] group-hover:text-slate-300 transition-colors duration-300">
                     {step.desc}
                   </p>
@@ -362,11 +362,51 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
             ))}
           </motion.div>
         </div>
+      </div>
 
+      {/* 💎 NEW PREMIUM RESULTS SHOWCASE SECTION */}
+      <div className="w-full max-w-[1400px] mx-auto mt-32 mb-16 relative z-20">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[50%] bg-[#4D7CFF]/20 blur-[150px] rounded-full pointer-events-none z-0"></div>
+        
+        <div className="text-center mb-16 relative z-10">
+          <h3 className="text-[#00E5FF] text-[13px] font-black uppercase tracking-[0.2em] mb-4">Unmatched Analytical Power</h3>
+          <h2 className="text-4xl md:text-5xl font-black text-white mb-6">
+            Institutional <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#9D4EDD] to-[#00E5FF]">Result Metrics</span>
+          </h2>
+          <p className="text-slate-400 text-lg max-w-2xl mx-auto font-medium">
+            Explore absolute precision. Our advanced backtesting engine generates in-depth analytical reports seamlessly, providing institutional-grade clarity.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 relative z-10">
+          {resultImages.map((img) => (
+            <motion.div 
+              key={img.id}
+              whileHover={{ y: -10, scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 100 }}
+              className="relative group rounded-2xl overflow-hidden p-[1.5px] bg-gradient-to-b from-white/10 to-transparent hover:from-white/30 transition-all duration-500 cursor-pointer shadow-xl shadow-black/50"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-20 transition-opacity duration-500 ease-out z-10 pointer-events-none ${img.color}"></div>
+              <div className="bg-[#0A0C14] rounded-2xl h-full flex flex-col items-center justify-center overflow-hidden">
+                <img 
+                  src={img.src} 
+                  alt={img.title} 
+                  className="w-full h-auto object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700 ease-in-out" 
+                />
+                <div className="w-full p-4 border-t border-white/5 bg-[#080910] z-20 relative">
+                  <h4 className="text-center font-bold text-slate-200 text-sm tracking-wide group-hover:text-white transition-colors">
+                    {img.title}
+                  </h4>
+                  <div className={`h-[2px] w-8 mx-auto mt-2 bg-gradient-to-r ${img.color} rounded-full group-hover:w-16 transition-all duration-300`}></div>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
       </div>
 
       {/* 💎 STRATEGY CAPABILITIES SECTION ADDED AT THE BOTTOM */}
-      <div className="w-full relative z-10 mt-24">
+      <div className="w-full relative z-20 mt-12 border-t border-white/5 pt-12">
         <StrategyCapabilities />
       </div>
 
