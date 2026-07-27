@@ -25,7 +25,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
     }
   };
 
-  // 💎 Premium High-End Step Cards Data
+  // 💎 Premium High-End Step Cards Data (UPDATED WITH COLORFUL GRADIENT THEMES)
   const stepsData = [
     {
       num: "01",
@@ -33,14 +33,15 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
       desc: "Explain your strategy in simple English or Tanglish. Our AI instantly translates your text into precision options legs, strikes, and execution rules.",
       icon: <Wand2 strokeWidth={2.5} size={22} />,
       theme: {
-        borderHover: "hover:border-blue-400 hover:shadow-blue-500/10",
-        iconBg: "bg-blue-50",
-        iconText: "text-blue-600",
-        iconBorder: "border-blue-100",
-        hoverIconBg: "group-hover:bg-blue-500",
-        badgeBg: "bg-blue-50",
-        badgeText: "text-blue-700",
-        gradientStart: "from-blue-50/80"
+        cardBg: "bg-gradient-to-br from-blue-600 to-[#0052FF]",
+        borderHover: "hover:border-blue-300 hover:shadow-[0_12px_30px_rgba(0,82,255,0.4)]",
+        iconBg: "bg-white/20",
+        iconText: "text-white",
+        iconBorder: "border-white/30",
+        hoverIconBg: "group-hover:bg-white group-hover:text-blue-600",
+        badgeBg: "bg-white/20 backdrop-blur-sm",
+        badgeText: "text-white",
+        gradientStart: "from-white/10"
       }
     },
     {
@@ -49,14 +50,15 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
       desc: "The moment your backtest completes, our AI analyzes Uncover Hidden Drawdown Leaks & Optimize Your Trade Sequence Instantly to generate a personalized report on exactly how to improve your strategy.",
       icon: <Activity strokeWidth={2.5} size={22} />,
       theme: {
-        borderHover: "hover:border-purple-400 hover:shadow-purple-500/10",
-        iconBg: "bg-purple-50",
-        iconText: "text-purple-600",
-        iconBorder: "border-purple-100",
-        hoverIconBg: "group-hover:bg-purple-500",
-        badgeBg: "bg-purple-50",
-        badgeText: "text-purple-700",
-        gradientStart: "from-purple-50/80"
+        cardBg: "bg-gradient-to-br from-purple-600 to-fuchsia-600",
+        borderHover: "hover:border-purple-300 hover:shadow-[0_12px_30px_rgba(147,51,234,0.4)]",
+        iconBg: "bg-white/20",
+        iconText: "text-white",
+        iconBorder: "border-white/30",
+        hoverIconBg: "group-hover:bg-white group-hover:text-purple-600",
+        badgeBg: "bg-white/20 backdrop-blur-sm",
+        badgeText: "text-white",
+        gradientStart: "from-white/10"
       }
     },
     {
@@ -65,14 +67,15 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
       desc: "Slice your data with precision using 0DTE & Day-wise filters. Includes detailed Ledger with PDF & CSV exports, Heatmaps, Drawdown Curve, PnL Charts, and AI Backtest Report Analyzer.",
       icon: <Filter strokeWidth={2.5} size={22} />,
       theme: {
-        borderHover: "hover:border-emerald-400 hover:shadow-emerald-500/10",
-        iconBg: "bg-emerald-50",
-        iconText: "text-emerald-600",
-        iconBorder: "border-emerald-100",
-        hoverIconBg: "group-hover:bg-emerald-500",
-        badgeBg: "bg-emerald-50",
-        badgeText: "text-emerald-700",
-        gradientStart: "from-emerald-50/80"
+        cardBg: "bg-gradient-to-br from-emerald-500 to-teal-600",
+        borderHover: "hover:border-emerald-300 hover:shadow-[0_12px_30px_rgba(16,185,129,0.4)]",
+        iconBg: "bg-white/20",
+        iconText: "text-white",
+        iconBorder: "border-white/30",
+        hoverIconBg: "group-hover:bg-white group-hover:text-emerald-600",
+        badgeBg: "bg-white/20 backdrop-blur-sm",
+        badgeText: "text-white",
+        gradientStart: "from-white/10"
       }
     },
     {
@@ -81,14 +84,15 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
       desc: "Go beyond basic PnL. We provide Profit Factor, Sortino Ratio, System Survival Probability, Kelly Sizing, Stress Level Index, Tail Ratio & Scalability.",
       icon: <BarChart3 strokeWidth={2.5} size={22} />,
       theme: {
-        borderHover: "hover:border-rose-400 hover:shadow-rose-500/10",
-        iconBg: "bg-rose-50",
-        iconText: "text-rose-600",
-        iconBorder: "border-rose-100",
-        hoverIconBg: "group-hover:bg-rose-500",
-        badgeBg: "bg-rose-50",
-        badgeText: "text-rose-700",
-        gradientStart: "from-rose-50/80"
+        cardBg: "bg-gradient-to-br from-rose-500 to-pink-600",
+        borderHover: "hover:border-rose-300 hover:shadow-[0_12px_30px_rgba(244,63,94,0.4)]",
+        iconBg: "bg-white/20",
+        iconText: "text-white",
+        iconBorder: "border-white/30",
+        hoverIconBg: "group-hover:bg-white group-hover:text-rose-600",
+        badgeBg: "bg-white/20 backdrop-blur-sm",
+        badgeText: "text-white",
+        gradientStart: "from-white/10"
       }
     }
   ];
@@ -240,7 +244,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
           </div>
         </div>
 
-        {/* Right Column Steps - 💎 ULTIMATE Premium Interactive Cards */}
+        {/* Right Column Steps - 💎 ULTIMATE Premium Interactive Cards (UPDATED) */}
         <div className="w-full lg:w-1/2 flex justify-end">
           <motion.div 
             variants={containerVariants}
@@ -255,16 +259,15 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
                 variants={itemVariants} 
                 whileHover={{ 
                   y: -6, 
-                  scale: 1.01,
-                  boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01)" 
+                  scale: 1.02 // 💎 Slightly increased scale for better pop effect
                 }}
-                className={`relative overflow-hidden group flex items-start gap-4 p-5 rounded-2xl bg-white border border-slate-200 shadow-sm transition-all duration-300 cursor-default ${step.theme.borderHover}`}
+                className={`relative overflow-hidden group flex items-start gap-4 p-5 rounded-2xl border border-white/20 shadow-lg transition-all duration-300 cursor-default ${step.theme.cardBg} ${step.theme.borderHover}`}
               >
                 {/* 💎 Subtle Glow Gradient Background on Hover */}
                 <div className={`absolute inset-0 bg-gradient-to-br to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none ${step.theme.gradientStart}`}></div>
                 
                 {/* 💎 Animated Icon Box */}
-                <div className={`relative z-10 flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-500 shadow-sm border group-hover:scale-110 group-hover:text-white group-hover:rotate-3 ${step.theme.iconBg} ${step.theme.iconText} ${step.theme.iconBorder} ${step.theme.hoverIconBg}`}>
+                <div className={`relative z-10 flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-500 shadow-sm border group-hover:scale-110 group-hover:rotate-3 ${step.theme.iconBg} ${step.theme.iconText} ${step.theme.iconBorder} ${step.theme.hoverIconBg}`}>
                   {step.icon}
                 </div>
                 
@@ -272,14 +275,14 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
                 <div className="relative z-10 flex flex-col pt-0.5">
                   <div className="flex items-center gap-3 mb-1.5">
                     {/* Tiny Premium STEP Badge */}
-                    <span className={`text-[9px] font-black uppercase tracking-[0.15em] px-2 py-0.5 rounded-md border border-white/60 shadow-sm ${step.theme.badgeBg} ${step.theme.badgeText}`}>
+                    <span className={`text-[9px] font-black uppercase tracking-[0.15em] px-2 py-0.5 rounded-md border shadow-sm ${step.theme.badgeBg} ${step.theme.badgeText} border-white/30`}>
                       STEP {step.num}
                     </span>
-                    <h4 className="text-[16px] font-extrabold text-slate-900 tracking-tight leading-tight group-hover:text-black transition-colors duration-300">
+                    <h4 className="text-[16px] font-extrabold text-white tracking-tight leading-tight transition-colors duration-300">
                       {step.title}
                     </h4>
                   </div>
-                  <p className="text-[13.5px] text-slate-500 font-medium leading-[1.6] group-hover:text-slate-700 transition-colors duration-300">
+                  <p className="text-[13.5px] text-white/80 font-medium leading-[1.6] group-hover:text-white transition-colors duration-300">
                     {step.desc}
                   </p>
                 </div>
