@@ -128,19 +128,26 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
           </span>
         </div>
         
-        {/* TOP RIGHT NAVIGATION BUTTONS */}
-        <div className="flex items-center gap-4 sm:gap-5">
+        {/* TOP RIGHT NAVIGATION BUTTONS - 💎 Redesigned & Unique */}
+        <div className="flex items-center gap-3 sm:gap-4">
           <button 
             onClick={() => onNavigate(false)}
-            className="px-4 py-2 text-sm font-bold text-slate-500 hover:text-slate-900 transition-colors"
+            className="px-5 py-2.5 text-sm font-bold text-slate-600 bg-white/70 backdrop-blur-md border border-slate-200/80 hover:border-slate-300 hover:bg-white hover:text-slate-900 rounded-xl shadow-sm hover:shadow transition-all duration-300"
           >
             Log In
           </button>
           <button 
             onClick={() => onNavigate(true)}
-            className="px-6 py-2.5 bg-[#0052FF] hover:bg-[#0043D0] text-white text-sm font-bold rounded-lg shadow-[0_8px_20px_rgb(0,82,255,0.24)] transition-all hover:-translate-y-0.5 active:translate-y-0"
+            className="relative overflow-hidden group px-6 py-2.5 bg-gradient-to-r from-[#0052FF] to-indigo-600 text-white text-sm font-bold rounded-xl shadow-[0_8px_20px_rgba(0,82,255,0.25)] hover:shadow-[0_12px_25px_rgba(0,82,255,0.4)] transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0"
           >
-            Sign Up
+            {/* 💎 Shiny sweep animation effect on hover */}
+            <span className="absolute inset-0 w-full h-full bg-white/20 group-hover:translate-x-full transition-transform duration-500 ease-out -skew-x-12 -ml-6 -z-10"></span>
+            <span className="relative z-10 flex items-center gap-1.5">
+              Sign Up 
+              <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </span>
           </button>
         </div>
       </div>
@@ -153,13 +160,14 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
           <h3 className="text-[11px] font-bold text-[#0052FF] uppercase tracking-[0.25em] mb-4 drop-shadow-sm">
             Next-Gen AI Backtesting for Indian Traders
           </h3>
-          <h1 className="text-5xl lg:text-6xl font-black text-slate-900 leading-[1.1] mb-6 tracking-tight">
-            {/* Added whitespace-nowrap to keep it strictly on one line */}
-            <span className="whitespace-nowrap">India’s #1 AI-Powered</span> <br className="hidden lg:block" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0052FF] to-indigo-600 drop-shadow-sm">
+          {/* 💎 Title formatting adjusted */}
+          <h1 className="font-black text-slate-900 leading-[1.1] mb-6 tracking-tight flex flex-col">
+            {/* Reduced font size for India's #1 AI-Powered (text-3xl lg:text-4xl) */}
+            <span className="whitespace-nowrap text-3xl lg:text-4xl text-slate-700 mb-2">India’s #1 AI-Powered</span>
+            <span className="text-5xl lg:text-6xl text-transparent bg-clip-text bg-gradient-to-r from-[#0052FF] to-indigo-600 drop-shadow-sm">
               Backtesting Engine
             </span>
-                    </h1>
+          </h1>
           <p className="text-lg text-slate-500 font-medium mb-10 leading-relaxed max-w-lg">
             Unlike traditional platforms where you manually click through dozens of dropdowns, AlgoSay uses an advanced Neural Engine to understand your trading strategies. Just type it, and we test it.
           </p>
