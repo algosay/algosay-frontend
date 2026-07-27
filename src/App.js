@@ -25,6 +25,7 @@ function App() {
   
   // 🚨 NEW: Auth Toggle State to manage Login/Signup view in AuthView 🚨
   const [isSignUp, setIsSignUp] = useState(true);
+  const [showAuthView, setShowAuthView] = useState(false); // 👈 Puthusa add panni irukom (Home page default-a vara)
   
   // 🚨 NEW: Subscription States 🚨
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -136,7 +137,6 @@ function App() {
     const finalTicker = extractedTicker || inst.ticker || '';
 
     // 🎯 ROBUST GLOBAL TRAIL EXTRACTION 🎯
-    // Extracts X & Y even if AI drops them outside 'risk_management' at the root level of JSON
     const globalTrailX = risk.trailMoveX ?? risk.trail_x ?? risk.trailX ?? data.trailMoveX ?? data.trailX ?? data.trail_x ?? 0;
     const globalTrailY = risk.trailPointY ?? risk.trailMoveY ?? risk.trail_y ?? risk.trailY ?? data.trailMoveY ?? data.trailPointY ?? data.trailY ?? data.trail_y ?? 0;
 
@@ -176,7 +176,6 @@ function App() {
     if (data.legs && Array.isArray(data.legs)) {
       const mappedLegs = data.legs.map((leg, idx) => {
         
-        // 🧠 SMART UNIT DETECTOR: Extracts % or Pts even if AI sends "40 points" or "100%" as string
         let rawSlVal = leg.stopLoss ?? leg.stop_loss ?? '';
         let extractedSlUnit = leg.slUnit || leg.sl_unit || leg.stopLossUnit || leg.stop_loss_unit || '%';
         
@@ -195,11 +194,8 @@ function App() {
             rawTargetVal = parseFloat(rawTargetVal) || '';
         }
         
-        // 🚀 SUPERCHARGED TRAIL SL SMART DETECTOR 🚀
-        // Safely fallback if trail_sl is null in AI JSON (e.g., trail_sl: null)
         const trailSlObj = leg.trail_sl || {};
         
-        // Catch every possible AI key variation for X (Trail Move) including global fallbacks
         let rawTrailX = leg.trailX ?? leg.trailMoveX ?? trailSlObj.x ?? trailSlObj.trailMoveX ?? leg.trail_x ?? leg.trailMove ?? leg.trail_move ?? leg.move ?? leg.trail_points ?? globalTrailX ?? '';
         
         let extractedTrailUnitX = leg.trailUnitX ?? leg.trail_unit_x ?? leg.trailUnit ?? 'Pts';
@@ -209,7 +205,6 @@ function App() {
             rawTrailX = parseFloat(rawTrailX) || 0;
         }
 
-        // Catch every possible AI key variation for Y (SL Move) including global fallbacks
         let rawTrailY = leg.trailY ?? leg.trailMoveY ?? leg.trailPointY ?? trailSlObj.y ?? trailSlObj.trailMoveY ?? trailSlObj.trailPointY ?? leg.trail_y ?? leg.stopLossMove ?? leg.stop_loss_move ?? leg.slMove ?? leg.sl_move ?? globalTrailY ?? '';
         
         let extractedTrailUnitY = leg.trailUnitY ?? leg.trail_unit_y ?? leg.trailUnit ?? 'Pts';
@@ -218,9 +213,8 @@ function App() {
             else if (rawTrailY.toLowerCase().includes('pt') || rawTrailY.toLowerCase().includes('point')) extractedTrailUnitY = 'Pts';
             rawTrailY = parseFloat(rawTrailY) || 0;
         }
-        // ------------------------------------------------------------------------
 
-        console.log("🤖 AI JSON LEG DATA:", leg); // 👀 Useful for debugging if AI invents new keys
+        console.log("🤖 AI JSON LEG DATA:", leg);
 
         return {
           id: leg.id || Date.now() + idx,
@@ -242,13 +236,11 @@ function App() {
           strikeType: leg.strikeType || leg.strike_type || 'ATM',
           strikeDistance: leg.strikeDistance || leg.strike_distance || 0,
           
-          // 🎯 UPDATED STOP LOSS & TARGET WITH SMART DETECTOR
           stopLoss: rawSlVal, 
           target: rawTargetVal,
           slUnit: extractedSlUnit,
           targetUnit: extractedTargetUnit,
           
-          // 🚀 UPDATED TRAIL X & Y VALUES
           trailX: rawTrailX,
           trailY: rawTrailY,
           trailUnitX: extractedTrailUnitX,
@@ -274,7 +266,7 @@ function App() {
       ticker: ticker, timeframe: timeframe, entryTime: '', exitTime: '', 
       segment: 'Options', position: 'Buy', lots: 1, optionType: 'CE', expiry: 'Weekly', strikeType: 'ATM', 
       strikeDistance: 0, stopLoss: '', target: '', slUnit: '%', targetUnit: '%', 
-      trailX: 0, trailY: 0, trailUnitX: 'Pts', trailUnitY: 'Pts', // 🚀 Added missing trailUnits for manual additions
+      trailX: 0, trailY: 0, trailUnitX: 'Pts', trailUnitY: 'Pts', 
       slReentry: 0, targetReexecute: 0, waitAndTrade: false, costToCost: false, moveToStoploss: false 
     }]); 
     setIsConfirmed(false); 
@@ -287,7 +279,11 @@ function App() {
   const removeIndicator = (id) => { setIndicators(indicators.filter(ind => ind.id !== id)); setIsConfirmed(false); };
 
   const handleSaveStrategy = async () => {
-    if (!user) return alert("Please login to save strategies.");
+    if (!user) {
+      alert("Please login to save strategies.");
+      setShowAuthView(true); // Login panna ketkum
+      return;
+    }
     const name = window.prompt("Enter a name for this strategy (e.g., Nifty Iron Condor):");
     if (!name) return;
 
@@ -307,7 +303,10 @@ function App() {
   };
 
   const openStrategiesModal = async (tabName = 'my_strategies') => {
-    if (!user) return;
+    if (!user) {
+      setShowAuthView(true); // Login panna ketkum
+      return;
+    }
     setModalTab(tabName); 
     setIsLoadingStrategies(true);
     setShowStrategiesModal(true);
@@ -372,6 +371,12 @@ function App() {
 
   const runBacktest = async () => {
     if (!isConfirmed) return; 
+
+    // Login aagalana munnadi login panna solrom
+    if (!user) {
+      setShowAuthView(true);
+      return;
+    }
 
     if (!isSubscribed && userCredits <= 0) {
       alert("⚠️ Insufficient Credits & No Active Subscription! Please recharge your account.");
@@ -439,14 +444,25 @@ function App() {
     );
   }
 
-  // 🚨 LATEST UPDATE: Render AuthView when user is not logged in 🚨
-  if (!user) {
+  // 🚨 Puthiya Update: Login pannatha user "Sign Up" button click panna mattum intha page varum 🚨
+  if (!user && showAuthView) {
     return (
-      <AuthView 
-        isSignUp={isSignUp} 
-        setIsSignUp={setIsSignUp} 
-        onLoginSuccess={(userData) => setUser(userData)} 
-      />
+      <div className="relative">
+        <button 
+          onClick={() => setShowAuthView(false)} 
+          className="absolute top-4 right-4 md:top-6 md:right-6 z-[100] px-4 py-2 bg-[#e11d48] hover:bg-red-500 text-white text-sm font-bold rounded-lg shadow-lg transition-all flex items-center gap-2"
+        >
+          <span>⬅</span> Back to Home
+        </button>
+        <AuthView 
+          isSignUp={isSignUp} 
+          setIsSignUp={setIsSignUp} 
+          onLoginSuccess={(userData) => { 
+            setUser(userData); 
+            setShowAuthView(false); // Login aana odaney home ku poga
+          }} 
+        />
+      </div>
     );
   }
 
@@ -488,51 +504,63 @@ function App() {
           </div>
         </div>
 
-        {/* RIGHT: Action Buttons (Original text maintained from codebase) */}
+        {/* RIGHT: Action Buttons */}
         <div className="flex items-center gap-3 md:gap-5">
           
-          {/* Pill-shaped container for secondary actions (Desktop) */}
-          <div className="hidden lg:flex items-center bg-[#070710] border border-[#1e1e30] rounded-full px-2 py-1 shadow-inner">
-            <button 
-              onClick={() => openStrategiesModal('my_strategies')}
-              className="px-4 py-1.5 text-gray-300 hover:text-white text-sm font-medium transition-colors flex items-center gap-2 border-r border-[#1e1e30]"
-            >
-              <span className="text-yellow-500">📂</span> My Strategies
-            </button>
-            
-            <button 
-              onClick={() => openStrategiesModal('default_strategies')}
-              className="px-4 py-1.5 text-gray-300 hover:text-white text-sm font-medium transition-colors flex items-center gap-2 border-r border-[#1e1e30]"
-            >
-              <span className="text-orange-400">📜</span> Default Templates
-            </button>
+          {user ? (
+            <>
+              {/* Pill-shaped container for secondary actions (Desktop) */}
+              <div className="hidden lg:flex items-center bg-[#070710] border border-[#1e1e30] rounded-full px-2 py-1 shadow-inner">
+                <button 
+                  onClick={() => openStrategiesModal('my_strategies')}
+                  className="px-4 py-1.5 text-gray-300 hover:text-white text-sm font-medium transition-colors flex items-center gap-2 border-r border-[#1e1e30]"
+                >
+                  <span className="text-yellow-500">📂</span> My Strategies
+                </button>
+                
+                <button 
+                  onClick={() => openStrategiesModal('default_strategies')}
+                  className="px-4 py-1.5 text-gray-300 hover:text-white text-sm font-medium transition-colors flex items-center gap-2 border-r border-[#1e1e30]"
+                >
+                  <span className="text-orange-400">📜</span> Default Templates
+                </button>
 
+                <button 
+                  onClick={() => setShowProfileModal(true)}
+                  className="px-4 py-1.5 text-gray-300 hover:text-white text-sm font-medium transition-colors flex items-center gap-2"
+                >
+                  <span className="text-purple-500">👤</span> {user.email || user.displayName}
+                </button>
+              </div>
+
+              {/* Credits / Pro Badge Button */}
+              <button 
+                onClick={() => setShowPricingModal(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-[#141000] hover:bg-[#201a00] border border-yellow-600/40 rounded-full shadow-inner transition-all cursor-pointer"
+              >
+                <span className="text-yellow-500 text-sm">✨</span>
+                <span className="text-xs font-bold text-yellow-500 tracking-wide">
+                  {isSubscribed ? `PRO: ${subscriptionPlan.toUpperCase()}` : `${userCredits} CREDITS`}
+                </span>
+              </button>
+
+              {/* Logout Button (Neon Red Theme) */}
+              <button 
+                onClick={() => signOut(auth)}
+                className="px-4 py-1.5 bg-transparent border border-[#e11d48] text-[#f43f5e] hover:bg-[#e11d48]/10 hover:shadow-[0_0_15px_rgba(225,29,72,0.4)] text-xs md:text-sm font-bold rounded-lg transition-all"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            // 🚨 User Login Aagalana Kaata Vendiya Puthu Button 🚨
             <button 
-              onClick={() => setShowProfileModal(true)}
-              className="px-4 py-1.5 text-gray-300 hover:text-white text-sm font-medium transition-colors flex items-center gap-2"
+              onClick={() => { setIsSignUp(true); setShowAuthView(true); }}
+              className="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold rounded-lg shadow-[0_0_15px_rgba(37,99,235,0.4)] transition-all"
             >
-              <span className="text-purple-500">👤</span> {user.email || user.displayName}
+              Sign Up / Login
             </button>
-          </div>
-
-          {/* Credits / Pro Badge Button */}
-          <button 
-            onClick={() => setShowPricingModal(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#141000] hover:bg-[#201a00] border border-yellow-600/40 rounded-full shadow-inner transition-all cursor-pointer"
-          >
-            <span className="text-yellow-500 text-sm">✨</span>
-            <span className="text-xs font-bold text-yellow-500 tracking-wide">
-              {isSubscribed ? `PRO: ${subscriptionPlan.toUpperCase()}` : `${userCredits} CREDITS`}
-            </span>
-          </button>
-
-          {/* Logout Button (Neon Red Theme) */}
-          <button 
-            onClick={() => signOut(auth)}
-            className="px-4 py-1.5 bg-transparent border border-[#e11d48] text-[#f43f5e] hover:bg-[#e11d48]/10 hover:shadow-[0_0_15px_rgba(225,29,72,0.4)] text-xs md:text-sm font-bold rounded-lg transition-all"
-          >
-            Logout
-          </button>
+          )}
         </div>
       </div>
 
