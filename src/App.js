@@ -14,12 +14,17 @@ import { auth, db, getUserCredits, deductUserCredit, saveUserStrategy, getUserSt
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore'; 
 import Login from './Login';
+// 🚨 NEW: Imported Signup Component 🚨
+import Signup from './Signup'; 
 
 function App() {
   // --- Auth & Credits State ---
   const [user, setUser] = useState(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
   const [userCredits, setUserCredits] = useState(0); 
+  
+  // 🚨 NEW: State to toggle between Signup and Login (Defaulting to Signup as requested) 🚨
+  const [isLoginView, setIsLoginView] = useState(false); 
 
   // 🚨 NEW: Subscription States 🚨
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -434,8 +439,19 @@ function App() {
     );
   }
 
+  // 🚨 NEW: App() Authentication Render Block with Signup/Login Switch 🚨
   if (!user) {
-    return <Login onLoginSuccess={(loggedInUser) => setUser(loggedInUser)} />;
+    return isLoginView ? (
+      <Login 
+        onLoginSuccess={(loggedInUser) => setUser(loggedInUser)} 
+        switchToSignup={() => setIsLoginView(false)} 
+      />
+    ) : (
+      <Signup 
+        onSignupSuccess={(loggedInUser) => setUser(loggedInUser)} 
+        switchToLogin={() => setIsLoginView(true)} 
+      />
+    );
   }
 
   return (

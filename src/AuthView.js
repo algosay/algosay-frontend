@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { signInWithGoogle, signUpWithEmail, loginWithEmail } from './firebase';
+// Updated imports to match the new firebase.js functions
+import { signInWithGoogle, registerUser, loginUser } from './firebase';
 import AlgoSayLogo from './AlgoSayLogo';
 import { AlertTriangle, Sparkles, ChevronLeft, ChevronRight, CheckCircle2, Star, ArrowLeft, User, Phone, Mail, Lock } from 'lucide-react';
 
@@ -31,7 +32,8 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
   // Form States
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(''); // Used for signup
+  const [identifier, setIdentifier] = useState(''); // Used for login (Email or Mobile)
   const [password, setPassword] = useState('');
   
   const [authError, setAuthError] = useState('');
@@ -79,26 +81,28 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
           return;
         }
 
-        const user = await signUpWithEmail(email, password, name, phone);
+        // Updated function call: Includes Name & Phone for 10 Free Credits logic
+        const user = await registerUser(name, phone, email, password);
         if (user) {
           onLoginSuccess(user);
         }
       } else {
-        // Login Logic
-        if (!email || !password) {
-          setAuthError('Please enter your Email and Password.');
+        // Login Logic (Email OR Mobile)
+        if (!identifier || !password) {
+          setAuthError('Please enter your Email/Mobile and Password.');
           setIsLoading(false);
           return;
         }
 
-        const user = await loginWithEmail(email, password);
+        // Updated function call for hybrid login
+        const user = await loginUser(identifier, password);
         if (user) {
           onLoginSuccess(user);
         }
       }
     } catch (error) {
       if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-        setAuthError('Invalid email or password. Please try again.');
+        setAuthError('Invalid credentials. Please try again.');
       } else if (error.code === 'auth/email-already-in-use') {
         setAuthError('An account with this email already exists. Try Logging in.');
       } else {
@@ -231,8 +235,8 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
               <AlgoSayLogo className="w-12 h-12 min-w-[48px] min-h-[48px] shrink-0 shadow-lg shadow-blue-500/30 rounded-2xl overflow-visible p-0.5" />
               <span className="text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-700">AlgoSay</span>
             </div>
-            <p className="text-sm font-bold text-slate-500 mt-1">
-              {isSignUp ? 'Create your new trader account' : 'Sign in to access your backtest terminal'}
+            <p className="text-sm font-bold text-slate-500 mt-1 text-center">
+              {isSignUp ? 'Create account & Get 10 Free Backtests 🎁' : 'Sign in to access your backtest terminal'}
             </p>
           </div>
 
@@ -278,18 +282,22 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
               </>
             )}
 
-            {/* COMMON FIELDS: EMAIL & PASSWORD */}
+            {/* COMMON FIELDS: EMAIL/MOBILE & PASSWORD */}
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
                 {isSignUp ? 'Email Address' : 'Email or Mobile Number'}
               </label>
               <div className="relative">
-                <Mail className="absolute left-3.5 top-3 text-slate-400" size={18} />
+                {isSignUp ? (
+                   <Mail className="absolute left-3.5 top-3 text-slate-400" size={18} />
+                ) : (
+                   <User className="absolute left-3.5 top-3 text-slate-400" size={18} />
+                )}
                 <input 
-                  type="email" 
-                  placeholder="you@example.com" 
-                  value={email} 
-                  onChange={(e) => setEmail(e.target.value)} 
+                  type={isSignUp ? "email" : "text"} 
+                  placeholder={isSignUp ? "you@example.com" : "Email or Phone number"} 
+                  value={isSignUp ? email : identifier} 
+                  onChange={(e) => isSignUp ? setEmail(e.target.value) : setIdentifier(e.target.value)} 
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none transition-all text-xs bg-slate-50 text-slate-900 placeholder-slate-400 font-medium" 
                   required 
                 />
@@ -328,7 +336,7 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
               disabled={isLoading}
               className={`w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md shadow-blue-500/30 transition-all text-xs mt-2 ${isLoading ? 'opacity-70 cursor-not-allowed' : 'hover:-translate-y-0.5'}`}
             >
-              {isLoading ? 'Processing...' : (isSignUp ? 'Create Free Account' : 'Sign In')}
+              {isLoading ? 'Processing...' : (isSignUp ? 'Claim 10 Free Credits & Sign Up' : 'Sign In')}
             </button>
 
             <div className="relative flex items-center justify-center my-4">
@@ -358,7 +366,7 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
                   <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
                 </svg>
 
-                <span className="relative z-20">{isLoading ? 'Connecting...' : 'Sign in with Google'}</span>
+                <span className="relative z-20">{isLoading ? 'Connecting...' : 'Continue with Google'}</span>
               </button>
             </div>
             
