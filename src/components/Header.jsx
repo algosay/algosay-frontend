@@ -39,22 +39,22 @@ const Header = () => {
       <header 
         className={`w-full sticky top-0 z-50 transition-all duration-300 ease-in-out ${
           isScrolled 
-            ? 'bg-[#05050A]/90 backdrop-blur-xl border-b border-[#2d2d30]/60 shadow-[0_10px_30px_rgba(0,0,0,0.8)] py-3' 
-            : 'bg-[#05050A]/60 backdrop-blur-md border-b border-[#2d2d30]/30 py-5'
+            ? 'bg-[#05050A]/90 backdrop-blur-xl border-b border-[#2d2d30]/60 shadow-[0_10px_30px_rgba(0,0,0,0.8)] py-2' 
+            : 'bg-[#05050A]/60 backdrop-blur-md border-b border-[#2d2d30]/30 py-4'
         }`}
       >
         {/* MAIN CONTAINER */}
         <div className="relative z-10 w-full max-w-[1500px] flex flex-row items-center justify-between gap-3 sm:gap-6 px-4 md:px-8 mx-auto">
           
-          {/* 💎 Left Image (Brain) - Larger Size */}
+          {/* 💎 Left Image (Brain) - Optimized Size for Visibility */}
           <div className="flex justify-center shrink-0">
             <img 
               src="/image/header left.png" 
               alt="AI Brain" 
               className={`object-contain opacity-95 drop-shadow-[0_0_20px_rgba(0,229,255,0.5)] animate-float-left transition-all duration-300 ${
                 isScrolled 
-                  ? 'w-20 h-20 sm:w-28 sm:h-28 lg:w-32 lg:h-32' 
-                  : 'w-28 h-28 sm:w-44 sm:h-44 lg:w-56 lg:h-56'
+                  ? 'w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24' 
+                  : 'w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40'
               }`}
             />
           </div>
@@ -91,15 +91,15 @@ const Header = () => {
             </div>
           </div>
 
-          {/* 💎 Right Image (Bull) - Larger Size */}
+          {/* 💎 Right Image (Bull) - Optimized Size for Visibility */}
           <div className="flex justify-center shrink-0">
             <img 
               src="/image/header right.png" 
               alt="Bull Market" 
               className={`object-contain opacity-95 drop-shadow-[0_0_20px_rgba(0,255,136,0.4)] animate-float-right transition-all duration-300 ${
                 isScrolled 
-                  ? 'w-20 h-20 sm:w-28 sm:h-28 lg:w-32 lg:h-32' 
-                  : 'w-28 h-28 sm:w-44 sm:h-44 lg:w-56 lg:h-56'
+                  ? 'w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24' 
+                  : 'w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40'
               }`}
             />
           </div>
