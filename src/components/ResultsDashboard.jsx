@@ -206,7 +206,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
     try {
       const canvas = await html2canvas(element, { 
         scale: 2, 
-        backgroundColor: '#121212', 
+        backgroundColor: '#070a13', // Match ultra dark theme
         useCORS: true,
         windowHeight: element.scrollHeight,
         windowWidth: element.scrollWidth,
@@ -246,10 +246,11 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
   // Safe fallback if the backtest is null or zero trades executed
   if (!result || originalLedger.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 text-center bg-[#121212] border border-[#2d2d2d] rounded-lg mt-6 shadow-lg animate-fade-in w-full">
-        <div className="text-5xl mb-4">⚠️</div>
-        <h3 className="text-2xl font-bold text-gray-200 mb-2">No Trades Executed</h3>
-        <p className="text-gray-400 max-w-lg mx-auto leading-relaxed">
+      <div className="flex flex-col items-center justify-center p-12 text-center bg-[#0d121c] border border-[#1e293b] rounded-2xl mt-6 shadow-[0_0_40px_rgba(0,0,0,0.5)] animate-fade-in w-full relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 via-orange-500 to-red-500"></div>
+        <div className="text-6xl mb-4 drop-shadow-[0_0_15px_rgba(239,68,68,0.5)]">⚠️</div>
+        <h3 className="text-2xl font-bold text-white mb-2 tracking-wide">No Trades Executed</h3>
+        <p className="text-slate-400 max-w-lg mx-auto leading-relaxed font-medium">
           The backtest finished successfully, but zero trades were logged. This happens if market data files for the selected dates are missing, or if your specific entry conditions were never met. Check the AI logs for more details.
         </p>
       </div>
@@ -257,7 +258,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
   }
 
   return (
-    <div className={`w-full animate-fade-in pb-16 ${isExporting ? 'pdf-export-mode' : ''}`} ref={dashboardRef}>
+    <div className={`w-full animate-fade-in pb-16 font-sans ${isExporting ? 'pdf-export-mode' : ''}`} ref={dashboardRef}>
       
       {isExporting && (
         <style>
@@ -266,7 +267,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
               width: max-content !important;
               min-width: 100%;
               padding: 20px !important;
-              background: #121212 !important;
+              background: #070a13 !important;
             }
             .pdf-export-mode table, 
             .pdf-export-mode tbody, 
@@ -286,53 +287,63 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
       )}
 
       {isExporting && (
-        <div className="mb-8 pb-4 border-b border-[#2d2d2d] text-center">
-          <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
+        <div className="mb-8 pb-4 border-b border-[#1e293b] text-center">
+          <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#00f0ff] to-[#7000ff] drop-shadow-lg">
             ALGOSAY - Strategy Pro Report
           </h1>
-          <p className="text-gray-400 mt-2 font-medium">
+          <p className="text-slate-400 mt-2 font-medium tracking-wide">
             Generated on: {new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}
           </p>
         </div>
       )}
 
-      <div className="flex flex-wrap justify-end gap-3 mb-4" data-html2canvas-ignore="true">
+      {/* Buttons */}
+      <div className="flex flex-wrap justify-end gap-4 mb-6" data-html2canvas-ignore="true">
         <button 
           onClick={downloadCSV}
           disabled={isExporting}
-          className="flex items-center gap-2 px-4 py-2 bg-[#1e1e1e] hover:bg-[#2d2d2d] border border-gray-600 text-gray-200 text-sm font-semibold rounded-md transition-colors disabled:opacity-50"
+          className="flex items-center gap-2 px-5 py-2.5 bg-[#0f172a] hover:bg-[#1e293b] border border-[#1e293b] hover:border-slate-600 text-slate-200 text-sm font-semibold rounded-xl transition-all disabled:opacity-50 shadow-lg"
         >
-          📥 Download Trade Book (CSV)
+          <span className="text-lg">📥</span> Download Trade Book
         </button>
         <button 
           onClick={downloadPDF}
           disabled={isExporting}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-md transition-colors shadow-lg disabled:opacity-50"
+          className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-600 hover:to-indigo-600 text-white text-sm font-semibold rounded-xl transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:shadow-[0_0_25px_rgba(59,130,246,0.5)] border border-blue-500/30 disabled:opacity-50"
         >
-          {isExporting ? '⏳ Generating PDF...' : '📄 Download AI Report (PDF)'}
+          {isExporting ? (
+            <><span className="animate-spin">⏳</span> Generating PDF...</>
+          ) : (
+            <><span className="text-lg">📄</span> Download AI Report</>
+          )}
         </button>
       </div>
 
-      {/* STOCKMOCK STYLE FILTERS SECTION */}
-      <div className="bg-[#121212] border border-[#2d2d2d] rounded-lg p-5 mb-6" data-html2canvas-ignore="true">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-gray-200 font-bold text-sm uppercase tracking-wide flex items-center gap-2">
-            <span className="text-blue-500">⚙️</span> Strategy Filters
+      {/* STOCKMOCK STYLE FILTERS SECTION - PREMIUM DESIGN */}
+      <div className="bg-gradient-to-br from-[#0d121c] to-[#070a13] border border-[#1e293b] rounded-2xl p-6 mb-8 shadow-[0_8px_30px_rgb(0,0,0,0.5)] relative overflow-hidden" data-html2canvas-ignore="true">
+        {/* Subtle background glow element */}
+        <div className="absolute -top-24 -right-24 w-64 h-64 bg-blue-900/10 rounded-full blur-3xl pointer-events-none"></div>
+        
+        <div className="flex justify-between items-center mb-6 relative z-10">
+          <h3 className="text-slate-200 font-extrabold text-sm uppercase tracking-widest flex items-center gap-3">
+            <span className="text-[#00f0ff] drop-shadow-[0_0_8px_rgba(0,240,255,0.8)]">⚙️</span> Strategy Filters
           </h3>
           {isRecalculating && (
-            <span className="text-xs text-blue-400 animate-pulse font-semibold">🔄 Recalculating metrics...</span>
+            <span className="text-xs text-[#00f0ff] animate-pulse font-bold bg-[#00f0ff]/10 px-3 py-1 rounded-full border border-[#00f0ff]/20">
+              🔄 Recalculating metrics...
+            </span>
           )}
         </div>
         
-        <div className="flex flex-col md:flex-row gap-8">
+        <div className="flex flex-col md:flex-row gap-10 relative z-10">
           {/* Day of the Week Filter */}
           <div className="flex-1">
-            <span className="text-xs text-gray-500 uppercase font-semibold tracking-wider mb-3 block">Filter by Day</span>
-            <div className="flex flex-wrap gap-2">
+            <span className="text-[11px] text-slate-500 uppercase font-bold tracking-widest mb-4 block">Filter by Day</span>
+            <div className="flex flex-wrap gap-3">
               {allDays.map(day => {
                 const isActive = selectedDays.includes(day);
                 return (
-                  <label key={day} className={`flex items-center gap-2 text-xs font-semibold cursor-pointer px-3 py-1.5 rounded-full transition-all border ${isActive ? 'bg-blue-900/30 text-blue-400 border-blue-700/50' : 'bg-[#1e1e1e] text-gray-400 border-gray-700 hover:border-gray-500'}`}>
+                  <label key={day} className={`flex items-center gap-2 text-xs font-bold cursor-pointer px-4 py-2 rounded-lg transition-all duration-300 border ${isActive ? 'bg-[#00f0ff]/10 text-[#00f0ff] border-[#00f0ff]/40 shadow-[0_0_15px_rgba(0,240,255,0.15)]' : 'bg-[#0f172a] text-slate-400 border-[#1e293b] hover:border-slate-600 hover:text-slate-200 shadow-sm'}`}>
                     <input type="checkbox" checked={isActive} onChange={() => handleDayToggle(day)} className="hidden" />
                     {day.substring(0, 3)}
                   </label>
@@ -343,64 +354,68 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
 
           {/* DTE Filter */}
           <div className="flex-1">
-            <span className="text-xs text-gray-500 uppercase font-semibold tracking-wider mb-3 block">Filter by DTE (Days to Expiry)</span>
-            <div className="flex flex-wrap gap-2">
+            <span className="text-[11px] text-slate-500 uppercase font-bold tracking-widest mb-4 block">Filter by DTE (Days to Expiry)</span>
+            <div className="flex flex-wrap gap-3">
               {availableDTEs.length > 0 ? availableDTEs.map(dte => {
                 const isActive = selectedDTEs.includes(dte);
                 return (
-                  <label key={dte} className={`flex items-center gap-2 text-xs font-semibold cursor-pointer px-3 py-1.5 rounded-full transition-all border ${isActive ? 'bg-purple-900/30 text-purple-400 border-purple-700/50' : 'bg-[#1e1e1e] text-gray-400 border-gray-700 hover:border-gray-500'}`}>
+                  <label key={dte} className={`flex items-center gap-2 text-xs font-bold cursor-pointer px-4 py-2 rounded-lg transition-all duration-300 border ${isActive ? 'bg-[#7000ff]/15 text-[#b580ff] border-[#7000ff]/50 shadow-[0_0_15px_rgba(112,0,255,0.2)]' : 'bg-[#0f172a] text-slate-400 border-[#1e293b] hover:border-slate-600 hover:text-slate-200 shadow-sm'}`}>
                     <input type="checkbox" checked={isActive} onChange={() => handleDTEToggle(dte)} className="hidden" />
                     {dte} DTE
                   </label>
                 );
               }) : (
-                <span className="text-xs text-gray-600 italic">No DTE data available.</span>
+                <span className="text-xs text-slate-600 italic font-medium px-2 py-1">No DTE data available.</span>
               )}
             </div>
           </div>
         </div>
       </div>
 
+      {/* Metrics Header */}
       <div className="flex flex-col sm:flex-row justify-between items-end sm:items-center mb-6">
-        <h2 className="text-xl font-bold text-white flex items-center gap-2">
-          Performance Metrics
+        <h2 className="text-2xl font-extrabold text-white flex items-center gap-3 tracking-wide">
+          <span className="text-blue-500">📊</span> Performance Metrics
         </h2>
-        <div className="flex items-center gap-3 bg-[#1e1e1e] border border-[#2d2d2d] px-3 py-2 rounded-lg" data-html2canvas-ignore="true">
-          <span className="text-[10px] text-gray-400 font-bold uppercase">Brokerage & Tax</span>
+        <div className="flex items-center gap-4 bg-[#0d121c] border border-[#1e293b] px-4 py-2.5 rounded-xl shadow-lg" data-html2canvas-ignore="true">
+          <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Brokerage & Tax</span>
           <div 
             onClick={() => setWithTax(!withTax)}
-            className={`w-10 h-5 flex items-center rounded-full p-1 cursor-pointer transition-colors ${withTax ? 'bg-blue-500' : 'bg-gray-700'}`}
+            className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300 ${withTax ? 'bg-gradient-to-r from-blue-600 to-cyan-500 shadow-[0_0_10px_rgba(0,240,255,0.3)]' : 'bg-slate-700'}`}
           >
-            <div className={`bg-white w-3 h-3 rounded-full shadow-md transform transition-transform ${withTax ? 'translate-x-5' : 'translate-x-0'}`}></div>
+            <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${withTax ? 'translate-x-6' : 'translate-x-0'}`}></div>
           </div>
-          <span className={`text-[10px] font-bold ${withTax ? 'text-blue-400' : 'text-gray-500'}`}>
+          <span className={`text-[11px] font-extrabold tracking-wider w-10 text-center ${withTax ? 'text-[#00f0ff]' : 'text-slate-500'}`}>
             {withTax ? 'NET' : 'GROSS'}
           </span>
         </div>
       </div>
 
       {/* Recalculating Dim Overlay and Safe Data Binding */}
-      <div className={`transition-opacity duration-300 ${isRecalculating ? 'opacity-40 pointer-events-none' : 'opacity-100'}`}>
+      <div className={`transition-all duration-300 ${isRecalculating ? 'opacity-40 blur-[2px] pointer-events-none' : 'opacity-100 blur-0'}`}>
         <PerformanceStats result={activeResult} withTax={withTax} />
         <TaxBreakdown result={activeResult} />
 
-        {/* ✨ UPDATED AI DIAGNOSTICS SECTION */}
-        <div className="mt-6 mb-6 p-5 bg-[#121212] border border-[#2d2d2d] rounded-lg shadow-lg">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
-            <h3 className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500 flex items-center gap-2">
-              <span className="text-xl">✨</span> AI Strategy Diagnostics
+        {/* ✨ UPDATED AI DIAGNOSTICS SECTION - PREMIUM DESIGN */}
+        <div className="mt-8 mb-8 p-6 bg-gradient-to-br from-[#0d121c] to-[#070a13] border border-[#1e293b] rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.5)] relative overflow-hidden">
+          {/* Subtle Glow */}
+          <div className="absolute top-0 right-0 w-96 h-96 bg-purple-900/10 rounded-full blur-[80px] pointer-events-none"></div>
+
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 relative z-10">
+            <h3 className="text-xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#b580ff] to-[#00f0ff] flex items-center gap-3 drop-shadow-sm">
+              <span className="text-2xl drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]">✨</span> AI Strategy Diagnostics
             </h3>
             
             {/* Language Selector Tabs */}
-            <div className="flex items-center gap-2 bg-[#1e1e1e] p-1 rounded-lg border border-[#3d3d3d]" data-html2canvas-ignore="true">
+            <div className="flex items-center gap-2 bg-[#0a0f18] p-1.5 rounded-xl border border-[#1e293b] shadow-inner" data-html2canvas-ignore="true">
               {['English', 'Tamil', 'Hindi'].map(lang => (
                 <button
                   key={lang}
                   onClick={() => setAiLanguage(lang)}
-                  className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${
+                  className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all duration-300 ${
                     aiLanguage === lang 
-                      ? 'bg-purple-600/20 text-purple-400 border border-purple-500/50' 
-                      : 'text-gray-400 hover:text-gray-200 border border-transparent'
+                      ? 'bg-gradient-to-r from-purple-600/30 to-blue-600/30 text-[#b580ff] border border-[#b580ff]/40 shadow-[0_0_10px_rgba(112,0,255,0.15)]' 
+                      : 'text-slate-500 hover:text-slate-300 border border-transparent'
                   }`}
                 >
                   {lang}
@@ -410,19 +425,19 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
           </div>
 
           {/* Custom Prompt Input Area */}
-          <div className="mb-4 bg-[#1e1e1e] p-3 rounded-lg border border-[#3d3d3d]" data-html2canvas-ignore="true">
+          <div className="mb-6 bg-[#0a0f18] p-4 rounded-xl border border-[#1e293b] shadow-inner relative z-10 focus-within:border-[#00f0ff]/40 focus-within:shadow-[0_0_15px_rgba(0,240,255,0.05)] transition-all duration-300" data-html2canvas-ignore="true">
             <textarea
               value={customPrompt}
               onChange={(e) => setCustomPrompt(e.target.value)}
               placeholder="E.g., How can I reduce drawdown? / Filter out consecutive losses / Focus on win rate..."
-              className="w-full bg-transparent text-gray-300 text-sm focus:outline-none resize-none placeholder-gray-600 mb-2"
+              className="w-full bg-transparent text-slate-200 text-sm focus:outline-none resize-none placeholder-slate-600 mb-3 font-medium leading-relaxed"
               rows="2"
             />
-            <div className="flex justify-end border-t border-[#2d2d2d] pt-2 mt-1">
+            <div className="flex justify-end border-t border-[#1e293b] pt-3 mt-1">
               <button 
                 onClick={fetchAIInsights}
                 disabled={isLoadingAI}
-                className="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-md transition-colors shadow-lg disabled:opacity-50"
+                className="px-6 py-2.5 bg-gradient-to-r from-purple-700 to-indigo-600 hover:from-purple-600 hover:to-indigo-500 text-white text-xs font-extrabold rounded-lg transition-all shadow-[0_0_15px_rgba(112,0,255,0.3)] hover:shadow-[0_0_20px_rgba(112,0,255,0.5)] border border-purple-500/30 disabled:opacity-50 uppercase tracking-widest"
               >
                 {isLoadingAI ? '⏳ Analyzing Strategy...' : (aiAdvice ? '🔄 Regenerate Analysis' : '🧠 Ask AI')}
               </button>
@@ -430,20 +445,20 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
           </div>
 
           {aiAdvice && (
-            <div className="p-5 bg-gradient-to-br from-[#1e1e1e] to-[#1a1a1a] border border-[#3d3d3d] rounded-lg text-gray-300 text-sm whitespace-pre-wrap leading-relaxed shadow-inner">
+            <div className="p-6 bg-[#0a0f18]/80 backdrop-blur-sm border border-[#1e293b] border-l-4 border-l-[#00f0ff] rounded-xl text-slate-300 text-sm whitespace-pre-wrap leading-relaxed shadow-lg relative z-10 font-medium">
               {aiAdvice}
             </div>
           )}
           
           {!aiAdvice && !isLoadingAI && (
-            <p className="text-gray-500 text-sm mt-2">
-              Type your specific queries above or simply click "Ask AI" to let our engine analyze your MFE, MAE, and historical sequences to suggest actionable improvements.
+            <p className="text-slate-500 text-sm mt-3 relative z-10 font-medium">
+              Type your specific queries above or simply click <span className="text-slate-300 font-bold">"Ask AI"</span> to let our engine analyze your MFE, MAE, and historical sequences to suggest actionable improvements.
             </p>
           )}
         </div>
         {/* ✨ END OF AI DIAGNOSTICS SECTION */}
 
-        <div className="space-y-6">
+        <div className="space-y-8">
           <EquityCurveChart result={activeResult} withTax={withTax} />
           
           {/* ✨ PUDHU UPDATE: DrawdownChart Added Here */}
