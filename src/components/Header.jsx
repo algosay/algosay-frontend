@@ -46,12 +46,12 @@ const Header = () => {
         {/* MAIN CONTAINER */}
         <div className="relative z-10 w-full max-w-[1500px] flex flex-row items-center justify-between gap-3 sm:gap-6 px-4 md:px-8 mx-auto">
           
-          {/* 💎 Left Image (Brain) - Optimized Size for Visibility */}
-          <div className="flex justify-center shrink-0">
+          {/* 💎 Left Image (Brain) - Floating applied to wrapper, Scale applied to Image */}
+          <div className="flex justify-center shrink-0 animate-float-left">
             <img 
               src="/image/header left.png" 
               alt="AI Brain" 
-              className={`object-contain opacity-95 drop-shadow-[0_0_20px_rgba(0,229,255,0.5)] animate-float-left transition-all duration-300 ${
+              className={`object-contain opacity-95 drop-shadow-[0_0_20px_rgba(0,229,255,0.5)] scale-125 lg:scale-[1.4] transition-all duration-300 ${
                 isScrolled 
                   ? 'w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24' 
                   : 'w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40'
@@ -91,12 +91,12 @@ const Header = () => {
             </div>
           </div>
 
-          {/* 💎 Right Image (Bull) - Optimized Size for Visibility */}
-          <div className="flex justify-center shrink-0">
+          {/* 💎 Right Image (Bull) - Floating applied to wrapper, Scale applied to Image */}
+          <div className="flex justify-center shrink-0 animate-float-right">
             <img 
               src="/image/header right.png" 
               alt="Bull Market" 
-              className={`object-contain opacity-95 drop-shadow-[0_0_20px_rgba(0,255,136,0.4)] animate-float-right transition-all duration-300 ${
+              className={`object-contain opacity-95 drop-shadow-[0_0_20px_rgba(0,255,136,0.4)] scale-125 lg:scale-[1.4] transition-all duration-300 ${
                 isScrolled 
                   ? 'w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24' 
                   : 'w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40'
