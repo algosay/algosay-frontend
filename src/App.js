@@ -23,6 +23,9 @@ function App() {
   const [loadingAuth, setLoadingAuth] = useState(true);
   const [userCredits, setUserCredits] = useState(0); 
   
+  // 🚨 NEW: Auth Toggle State to manage Login/Signup view in AuthView 🚨
+  const [isSignUp, setIsSignUp] = useState(true);
+  
   // 🚨 NEW: Subscription States 🚨
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [subscriptionPlan, setSubscriptionPlan] = useState('');
@@ -438,7 +441,13 @@ function App() {
 
   // 🚨 LATEST UPDATE: Render AuthView when user is not logged in 🚨
   if (!user) {
-    return <AuthView onLoginSuccess={(userData) => setUser(userData)} />;
+    return (
+      <AuthView 
+        isSignUp={isSignUp} 
+        setIsSignUp={setIsSignUp} 
+        onLoginSuccess={(userData) => setUser(userData)} 
+      />
+    );
   }
 
   return (

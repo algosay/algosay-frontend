@@ -44,13 +44,6 @@ const AuthView = ({ onBack, isSignUp = true, setIsSignUp, onLoginSuccess, custom
   const [isLoading, setIsLoading] = useState(false);
   const [ripple, setRipple] = useState(null);
 
-  // Default-ஆக Sign Up page load ஆகுறதற்கான Rule (New Update)
-  useEffect(() => {
-    if (setIsSignUp) {
-      setIsSignUp(true);
-    }
-  }, []); // Component load ஆகுறப்போ ஒரு தடவை மட்டும் run ஆகும்
-
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveReview((prev) => (prev + 1) % testimonials.length);
