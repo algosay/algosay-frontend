@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import EquityCurveChart from './EquityCurveChart'; 
-import DrawdownChart from './DrawdownChart'; // ✨ PUDHU UPDATE: DrawdownChart Import
+import DrawdownChart from './DrawdownChart'; 
 import PerformanceStats from './PerformanceStats';
 import TaxBreakdown from './TaxBreakdown';
 import DailyHeatmap from './DailyHeatmap';
@@ -12,15 +12,23 @@ import DayWiseBreakup from './DayWiseBreakup';
 
 const allDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
+// Quick Prompt Suggestions for AI Strategy Diagnostics
+const PROMPT_SUGGESTIONS = [
+  "How can I reduce max drawdown?",
+  "Analyze my win rate vs risk-reward ratio",
+  "How to handle consecutive losing streaks?",
+  "Suggest optimal trailing stop loss strategies"
+];
+
 const ResultsDashboard = ({ result, withTax, setWithTax }) => {
   const [aiAdvice, setAiAdvice] = useState(result?.ai_advice || null);
   const [isLoadingAI, setIsLoadingAI] = useState(false);
   const [isExporting, setIsExporting] = useState(false); 
   
-  // ⚡ PUDHU UPDATE: ExecutionLedger-oda local filtered data-va store panna puthu state
+  // ExecutionLedger-oda local filtered data-va store panna state
   const [filteredLedgerData, setFilteredLedgerData] = useState(null);
 
-  // ✨ AI MULTI-LANGUAGE & CUSTOM PROMPT STATES
+  // AI MULTI-LANGUAGE & CUSTOM PROMPT STATES
   const [aiLanguage, setAiLanguage] = useState('English');
   const [customPrompt, setCustomPrompt] = useState('');
 
@@ -38,7 +46,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
   // Filter States
   const [selectedDays, setSelectedDays] = useState(allDays);
   
-  // ✨ FIX 1: Initialize selectedDTEs with actual result values to prevent [] empty-state lag on mount
+  // Initialize selectedDTEs with actual result values
   const [selectedDTEs, setSelectedDTEs] = useState(() => {
     const ledger = result?.Trade_Ledger || result?.ledger || [];
     return [...new Set(ledger.map(row => row.DTE))].sort((a, b) => a - b);
@@ -65,7 +73,6 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
     const filterAndRecalculate = async () => {
       if (!result) return;
 
-      // ✨ FIX 2: Guard check to prevent calculations during transition reset frames
       if (availableDTEs.length > 0 && selectedDTEs.length === 0) {
         return;
       }
@@ -90,7 +97,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
           Strategy_Stats: {},
           Trade_Ledger: [],
           Equity_Curve: [],
-          Heatmap_Data: [] // ✨ FIX 3: Changed from {} to [] to make sure it is always iterable!
+          Heatmap_Data: []
         });
         setIsRecalculating(false);
         return;
@@ -100,7 +107,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
       try {
         const startingCapital = result.Estimated_Margin || result.Starting_Capital || result.estimated_margin || 100000;
         
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/recalculate_metrics`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/recalculate_metrics`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ trade_ledger: filteredLedger, starting_capital: startingCapital })
@@ -113,7 +120,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
             ...result, 
             Strategy_Stats: data.Strategy_Stats,
             Equity_Curve: data.Equity_Curve,
-            Heatmap_Data: data.Heatmap_Data || [], // Ensure it falls back to an array
+            Heatmap_Data: data.Heatmap_Data || [],
             Trade_Ledger: filteredLedger
           });
         }
@@ -140,7 +147,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
     );
   };
 
-  // ✨ UPDATED: Fetch AI Insights with Language and Custom Prompt Data
+  // Fetch AI Insights
   const fetchAIInsights = async () => {
     setIsLoadingAI(true);
     try {
@@ -160,13 +167,12 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
       setAiAdvice(data.advice);
     } catch (error) {
       console.error("Error fetching AI insights:", error);
-      setAiAdvice("Failed to fetch AI insights. Backend connect aagalaya nu check pannunga thala.");
+      setAiAdvice("Failed to fetch AI insights. Please verify backend connection.");
     }
     setIsLoadingAI(false);
   };
 
   const downloadCSV = () => {
-    // ⚡ PUDHU UPDATE: ExecutionLedger-la filter aana data iruntha atha edu, illana default ah activeResult ah use pannu
     const ledgerData = filteredLedgerData || activeResult.Trade_Ledger || activeResult.ledger;
     
     if (!ledgerData || ledgerData.length === 0) {
@@ -206,7 +212,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
     try {
       const canvas = await html2canvas(element, { 
         scale: 2, 
-        backgroundColor: '#070a13', // Match ultra dark theme
+        backgroundColor: '#070a13',
         useCORS: true,
         windowHeight: element.scrollHeight,
         windowWidth: element.scrollWidth,
@@ -243,15 +249,15 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
     }
   };
 
-  // Safe fallback if the backtest is null or zero trades executed
+  // Safe fallback if zero trades executed
   if (!result || originalLedger.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center p-12 text-center bg-[#0d121c] border border-[#1e293b] rounded-2xl mt-6 shadow-[0_0_40px_rgba(0,0,0,0.5)] animate-fade-in w-full relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 via-orange-500 to-red-500"></div>
         <div className="text-6xl mb-4 drop-shadow-[0_0_15px_rgba(239,68,68,0.5)]">⚠️</div>
-        <h3 className="text-2xl font-bold text-white mb-2 tracking-wide">No Trades Executed</h3>
-        <p className="text-slate-400 max-w-lg mx-auto leading-relaxed font-medium">
-          The backtest finished successfully, but zero trades were logged. This happens if market data files for the selected dates are missing, or if your specific entry conditions were never met. Check the AI logs for more details.
+        <h3 className="text-2xl font-extrabold text-white mb-2 tracking-wide">No Trades Executed</h3>
+        <p className="text-slate-400 max-w-lg mx-auto leading-relaxed font-medium text-sm">
+          The backtest finished successfully, but zero trades were logged. This happens if market data files for the selected dates are missing, or if entry conditions were never met.
         </p>
       </div>
     );
@@ -288,62 +294,68 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
 
       {isExporting && (
         <div className="mb-8 pb-4 border-b border-[#1e293b] text-center">
-          <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#00f0ff] to-[#7000ff] drop-shadow-lg">
+          <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#00f0ff] to-[#7000ff] drop-shadow-lg tracking-tight">
             ALGOSAY - Strategy Pro Report
           </h1>
-          <p className="text-slate-400 mt-2 font-medium tracking-wide">
+          <p className="text-slate-400 mt-2 font-medium tracking-wide text-xs">
             Generated on: {new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}
           </p>
         </div>
       )}
 
-      {/* Buttons */}
-      <div className="flex flex-wrap justify-end gap-4 mb-6" data-html2canvas-ignore="true">
+      {/* Action Buttons */}
+      <div className="flex flex-wrap justify-end gap-3.5 mb-6" data-html2canvas-ignore="true">
         <button 
           onClick={downloadCSV}
           disabled={isExporting}
-          className="flex items-center gap-2 px-5 py-2.5 bg-[#0f172a] hover:bg-[#1e293b] border border-[#1e293b] hover:border-slate-600 text-slate-200 text-sm font-semibold rounded-xl transition-all disabled:opacity-50 shadow-lg"
+          className="flex items-center gap-2 px-4 py-2.5 bg-[#0d1322] hover:bg-[#161f36] border border-[#1e293b] hover:border-slate-500 text-slate-200 text-xs font-bold rounded-xl transition-all disabled:opacity-50 shadow-md hover:shadow-lg"
         >
-          <span className="text-lg">📥</span> Download Trade Book
+          <svg className="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+          Download Trade Book
         </button>
         <button 
           onClick={downloadPDF}
           disabled={isExporting}
-          className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-600 hover:to-indigo-600 text-white text-sm font-semibold rounded-xl transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:shadow-[0_0_25px_rgba(59,130,246,0.5)] border border-blue-500/30 disabled:opacity-50"
+          className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-cyan-600 via-indigo-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white text-xs font-black rounded-xl transition-all shadow-[0_0_20px_rgba(0,240,255,0.25)] hover:shadow-[0_0_25px_rgba(0,240,255,0.4)] border border-cyan-400/30 disabled:opacity-50 tracking-wide uppercase"
         >
           {isExporting ? (
-            <><span className="animate-spin">⏳</span> Generating PDF...</>
+            <><span className="animate-spin text-sm">⏳</span> Generating PDF...</>
           ) : (
-            <><span className="text-lg">📄</span> Download AI Report</>
+            <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg> Download AI Report</>
           )}
         </button>
       </div>
 
-      {/* STOCKMOCK STYLE FILTERS SECTION - PREMIUM DESIGN */}
-      <div className="bg-gradient-to-br from-[#0d121c] to-[#070a13] border border-[#1e293b] rounded-2xl p-6 mb-8 shadow-[0_8px_30px_rgb(0,0,0,0.5)] relative overflow-hidden" data-html2canvas-ignore="true">
-        {/* Subtle background glow element */}
-        <div className="absolute -top-24 -right-24 w-64 h-64 bg-blue-900/10 rounded-full blur-3xl pointer-events-none"></div>
+      {/* STRATEGY FILTERS SECTION */}
+      <div className="bg-gradient-to-br from-[#0c101d] via-[#090d18] to-[#060810] border border-[#1e293b] rounded-2xl p-5 sm:p-6 mb-8 shadow-[0_10px_35px_rgba(0,0,0,0.6)] relative overflow-hidden" data-html2canvas-ignore="true">
+        <div className="absolute -top-24 -right-24 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none"></div>
         
-        <div className="flex justify-between items-center mb-6 relative z-10">
-          <h3 className="text-slate-200 font-extrabold text-sm uppercase tracking-widest flex items-center gap-3">
-            <span className="text-[#00f0ff] drop-shadow-[0_0_8px_rgba(0,240,255,0.8)]">⚙️</span> Strategy Filters
-          </h3>
+        <div className="flex justify-between items-center mb-5 relative z-10">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-[#00f0ff]/10 border border-[#00f0ff]/30 flex items-center justify-center text-[#00f0ff] shadow-[0_0_10px_rgba(0,240,255,0.2)]">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+            </div>
+            <h3 className="text-slate-100 font-extrabold text-xs tracking-widest uppercase">
+              Strategy Filters
+            </h3>
+          </div>
           {isRecalculating && (
-            <span className="text-xs text-[#00f0ff] animate-pulse font-bold bg-[#00f0ff]/10 px-3 py-1 rounded-full border border-[#00f0ff]/20">
-              🔄 Recalculating metrics...
+            <span className="text-[11px] text-[#00f0ff] animate-pulse font-bold bg-[#00f0ff]/10 px-3 py-1 rounded-full border border-[#00f0ff]/30 flex items-center gap-1.5 shadow-[0_0_10px_rgba(0,240,255,0.15)]">
+              <svg className="w-3.5 h-3.5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+              Recalculating metrics...
             </span>
           )}
         </div>
         
-        <div className="flex flex-col md:flex-row gap-10 relative z-10">
-          {/* Day of the Week Filter */}
+        <div className="flex flex-col md:flex-row gap-8 relative z-10">
+          {/* Day Filter */}
           <div className="flex-1">
-            <span className="text-[11px] text-slate-500 uppercase font-bold tracking-widest mb-4 block">Filter by Day</span>
-            <div className="flex flex-wrap gap-3">
+            <span className="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-3 block">Filter by Day</span>
+            <div className="flex flex-wrap gap-2.5">
               {allDays.map(day => {
                 const isActive = selectedDays.includes(day);
                 return (
-                  <label key={day} className={`flex items-center gap-2 text-xs font-bold cursor-pointer px-4 py-2 rounded-lg transition-all duration-300 border ${isActive ? 'bg-[#00f0ff]/10 text-[#00f0ff] border-[#00f0ff]/40 shadow-[0_0_15px_rgba(0,240,255,0.15)]' : 'bg-[#0f172a] text-slate-400 border-[#1e293b] hover:border-slate-600 hover:text-slate-200 shadow-sm'}`}>
+                  <label key={day} className={`flex items-center gap-2 text-xs font-bold cursor-pointer px-3.5 py-1.5 rounded-lg transition-all duration-200 border ${isActive ? 'bg-[#00f0ff]/10 text-[#00f0ff] border-[#00f0ff]/40 shadow-[0_0_12px_rgba(0,240,255,0.15)]' : 'bg-[#0a0f1d] text-slate-400 border-[#1a2336] hover:border-slate-600 hover:text-slate-200'}`}>
                     <input type="checkbox" checked={isActive} onChange={() => handleDayToggle(day)} className="hidden" />
                     {day.substring(0, 3)}
                   </label>
@@ -354,68 +366,93 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
 
           {/* DTE Filter */}
           <div className="flex-1">
-            <span className="text-[11px] text-slate-500 uppercase font-bold tracking-widest mb-4 block">Filter by DTE (Days to Expiry)</span>
-            <div className="flex flex-wrap gap-3">
+            <span className="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-3 block">Filter by DTE (Days to Expiry)</span>
+            <div className="flex flex-wrap gap-2.5">
               {availableDTEs.length > 0 ? availableDTEs.map(dte => {
                 const isActive = selectedDTEs.includes(dte);
                 return (
-                  <label key={dte} className={`flex items-center gap-2 text-xs font-bold cursor-pointer px-4 py-2 rounded-lg transition-all duration-300 border ${isActive ? 'bg-[#7000ff]/15 text-[#b580ff] border-[#7000ff]/50 shadow-[0_0_15px_rgba(112,0,255,0.2)]' : 'bg-[#0f172a] text-slate-400 border-[#1e293b] hover:border-slate-600 hover:text-slate-200 shadow-sm'}`}>
+                  <label key={dte} className={`flex items-center gap-2 text-xs font-bold cursor-pointer px-3.5 py-1.5 rounded-lg transition-all duration-200 border ${isActive ? 'bg-[#7000ff]/15 text-[#b580ff] border-[#7000ff]/50 shadow-[0_0_12px_rgba(112,0,255,0.2)]' : 'bg-[#0a0f1d] text-slate-400 border-[#1a2336] hover:border-slate-600 hover:text-slate-200'}`}>
                     <input type="checkbox" checked={isActive} onChange={() => handleDTEToggle(dte)} className="hidden" />
                     {dte} DTE
                   </label>
                 );
               }) : (
-                <span className="text-xs text-slate-600 italic font-medium px-2 py-1">No DTE data available.</span>
+                <span className="text-xs text-slate-500 italic font-medium">No DTE data available</span>
               )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Metrics Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-end sm:items-center mb-6">
-        <h2 className="text-2xl font-extrabold text-white flex items-center gap-3 tracking-wide">
-          <span className="text-blue-500">📊</span> Performance Metrics
-        </h2>
-        <div className="flex items-center gap-4 bg-[#0d121c] border border-[#1e293b] px-4 py-2.5 rounded-xl shadow-lg" data-html2canvas-ignore="true">
-          <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Brokerage & Tax</span>
+      {/* METRICS HEADER - ULTRA PREMIUM REDESIGN */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-2 border-b border-slate-800/60">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#00f0ff]/20 via-[#7000ff]/20 to-[#0d1322] border border-[#00f0ff]/30 flex items-center justify-center text-[#00f0ff] shadow-[0_0_20px_rgba(0,240,255,0.2)]">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+          </div>
+          <div>
+            <h2 className="text-xl sm:text-2xl font-black text-white tracking-wide uppercase">
+              Performance Metrics
+            </h2>
+            <p className="text-[11px] text-slate-400 font-semibold tracking-wider">Quant summary across trade statistics</p>
+          </div>
+        </div>
+
+        {/* GROSS / NET TOGGLE */}
+        <div className="flex items-center gap-3 bg-[#0a0f1d] border border-[#1e293b] px-3.5 py-2 rounded-xl shadow-lg" data-html2canvas-ignore="true">
+          <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest">Charges:</span>
           <div 
             onClick={() => setWithTax(!withTax)}
-            className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300 ${withTax ? 'bg-gradient-to-r from-blue-600 to-cyan-500 shadow-[0_0_10px_rgba(0,240,255,0.3)]' : 'bg-slate-700'}`}
+            className={`w-11 h-6 flex items-center rounded-full p-0.5 cursor-pointer transition-all duration-300 ${withTax ? 'bg-gradient-to-r from-cyan-500 to-blue-600 shadow-[0_0_12px_rgba(0,240,255,0.35)]' : 'bg-slate-700'}`}
           >
-            <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${withTax ? 'translate-x-6' : 'translate-x-0'}`}></div>
+            <div className={`bg-white w-5 h-5 rounded-full shadow-md transform transition-transform duration-300 ${withTax ? 'translate-x-5' : 'translate-x-0'}`}></div>
           </div>
-          <span className={`text-[11px] font-extrabold tracking-wider w-10 text-center ${withTax ? 'text-[#00f0ff]' : 'text-slate-500'}`}>
+          <span className={`text-[11px] font-black tracking-widest w-12 text-center ${withTax ? 'text-[#00f0ff] drop-shadow-[0_0_8px_rgba(0,240,255,0.5)]' : 'text-slate-400'}`}>
             {withTax ? 'NET' : 'GROSS'}
           </span>
         </div>
       </div>
 
-      {/* Recalculating Dim Overlay and Safe Data Binding */}
+      {/* Recalculating Overlay Container */}
       <div className={`transition-all duration-300 ${isRecalculating ? 'opacity-40 blur-[2px] pointer-events-none' : 'opacity-100 blur-0'}`}>
         <PerformanceStats result={activeResult} withTax={withTax} />
         <TaxBreakdown result={activeResult} />
 
-        {/* ✨ UPDATED AI DIAGNOSTICS SECTION - PREMIUM DESIGN */}
-        <div className="mt-8 mb-8 p-6 bg-gradient-to-br from-[#0d121c] to-[#070a13] border border-[#1e293b] rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.5)] relative overflow-hidden">
-          {/* Subtle Glow */}
-          <div className="absolute top-0 right-0 w-96 h-96 bg-purple-900/10 rounded-full blur-[80px] pointer-events-none"></div>
+        {/* ✨ AI STRATEGY DIAGNOSTICS - ULTRA-PREMIUM HIGH-TECH REDESIGN */}
+        <div className="mt-8 mb-8 p-6 sm:p-7 bg-gradient-to-br from-[#0e0a1a] via-[#090a14] to-[#05070d] border border-purple-900/40 rounded-2xl shadow-[0_12px_40px_rgba(112,0,255,0.15)] relative overflow-hidden">
+          {/* Neon Glow Accents */}
+          <div className="absolute top-0 right-0 w-80 h-80 bg-purple-600/10 rounded-full blur-[100px] pointer-events-none"></div>
+          <div className="absolute bottom-0 left-0 w-80 h-80 bg-cyan-500/10 rounded-full blur-[100px] pointer-events-none"></div>
 
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 relative z-10">
-            <h3 className="text-xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#b580ff] to-[#00f0ff] flex items-center gap-3 drop-shadow-sm">
-              <span className="text-2xl drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]">✨</span> AI Strategy Diagnostics
-            </h3>
+          {/* AI Panel Header */}
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-5 mb-5 border-b border-purple-900/30 relative z-10">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-purple-600/20 via-indigo-600/20 to-cyan-500/20 border border-purple-500/40 flex items-center justify-center text-purple-300 shadow-[0_0_20px_rgba(112,0,255,0.25)]">
+                <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-lg sm:text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-300 via-indigo-200 to-cyan-300 tracking-wide uppercase">
+                    AI Strategy Diagnostics
+                  </h3>
+                  <span className="px-2 py-0.5 text-[9px] font-extrabold tracking-widest uppercase bg-purple-500/10 text-purple-300 border border-purple-500/30 rounded-full shadow-[0_0_10px_rgba(168,85,247,0.2)]">
+                    PRO ENGINE
+                  </span>
+                </div>
+                <p className="text-xs text-slate-400 font-semibold tracking-wide">Algorithmic risk evaluation, MFE/MAE sequence diagnostic & edge analysis</p>
+              </div>
+            </div>
             
-            {/* Language Selector Tabs */}
-            <div className="flex items-center gap-2 bg-[#0a0f18] p-1.5 rounded-xl border border-[#1e293b] shadow-inner" data-html2canvas-ignore="true">
+            {/* Language Selector */}
+            <div className="flex items-center gap-1.5 bg-[#060810]/80 p-1 rounded-xl border border-purple-900/40 shadow-inner" data-html2canvas-ignore="true">
               {['English', 'Tamil', 'Hindi'].map(lang => (
                 <button
                   key={lang}
                   onClick={() => setAiLanguage(lang)}
-                  className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all duration-300 ${
+                  className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 ${
                     aiLanguage === lang 
-                      ? 'bg-gradient-to-r from-purple-600/30 to-blue-600/30 text-[#b580ff] border border-[#b580ff]/40 shadow-[0_0_10px_rgba(112,0,255,0.15)]' 
-                      : 'text-slate-500 hover:text-slate-300 border border-transparent'
+                      ? 'bg-gradient-to-r from-purple-600/40 to-indigo-600/40 text-purple-200 border border-purple-400/40 shadow-[0_0_12px_rgba(112,0,255,0.25)]' 
+                      : 'text-slate-400 hover:text-slate-200 border border-transparent'
                   }`}
                 >
                   {lang}
@@ -424,46 +461,74 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
             </div>
           </div>
 
-          {/* Custom Prompt Input Area */}
-          <div className="mb-6 bg-[#0a0f18] p-4 rounded-xl border border-[#1e293b] shadow-inner relative z-10 focus-within:border-[#00f0ff]/40 focus-within:shadow-[0_0_15px_rgba(0,240,255,0.05)] transition-all duration-300" data-html2canvas-ignore="true">
+          {/* Quick Prompt Suggestions */}
+          <div className="mb-4 relative z-10" data-html2canvas-ignore="true">
+            <span className="text-[10px] text-purple-300/80 font-black tracking-widest uppercase mb-2 flex items-center gap-1.5">
+              <svg className="w-3.5 h-3.5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+              Quick Diagnostic Prompts:
+            </span>
+            <div className="flex flex-wrap gap-2">
+              {PROMPT_SUGGESTIONS.map((suggestion, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setCustomPrompt(suggestion)}
+                  className="text-xs bg-[#110e24] hover:bg-[#1a1538] text-purple-200/90 hover:text-purple-100 border border-purple-800/40 hover:border-purple-500/60 px-3 py-1.5 rounded-lg transition-all duration-200 font-medium text-left shadow-sm"
+                >
+                  {suggestion}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Custom Prompt Input */}
+          <div className="mb-6 bg-[#060812]/90 p-3.5 rounded-xl border border-purple-900/40 shadow-inner relative z-10 focus-within:border-purple-500/60 focus-within:shadow-[0_0_20px_rgba(112,0,255,0.15)] transition-all duration-300" data-html2canvas-ignore="true">
             <textarea
               value={customPrompt}
               onChange={(e) => setCustomPrompt(e.target.value)}
-              placeholder="E.g., How can I reduce drawdown? / Filter out consecutive losses / Focus on win rate..."
-              className="w-full bg-transparent text-slate-200 text-sm focus:outline-none resize-none placeholder-slate-600 mb-3 font-medium leading-relaxed"
+              placeholder="Ask custom diagnostic queries (e.g. Optimize win rate, reduce drawdown, analyze max loss streak...)"
+              className="w-full bg-transparent text-slate-100 text-xs sm:text-sm focus:outline-none resize-none placeholder-slate-500 mb-2 font-medium leading-relaxed"
               rows="2"
             />
-            <div className="flex justify-end border-t border-[#1e293b] pt-3 mt-1">
+            <div className="flex justify-between items-center border-t border-purple-900/30 pt-2.5 mt-1">
+              <span className="text-[10px] text-slate-500 font-semibold hidden sm:inline">Powered by Algosay Quant AI</span>
               <button 
                 onClick={fetchAIInsights}
                 disabled={isLoadingAI}
-                className="px-6 py-2.5 bg-gradient-to-r from-purple-700 to-indigo-600 hover:from-purple-600 hover:to-indigo-500 text-white text-xs font-extrabold rounded-lg transition-all shadow-[0_0_15px_rgba(112,0,255,0.3)] hover:shadow-[0_0_20px_rgba(112,0,255,0.5)] border border-purple-500/30 disabled:opacity-50 uppercase tracking-widest"
+                className="ml-auto px-5 py-2 bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 text-white text-xs font-black rounded-lg transition-all shadow-[0_0_15px_rgba(112,0,255,0.35)] hover:shadow-[0_0_20px_rgba(112,0,255,0.5)] border border-purple-400/30 disabled:opacity-50 uppercase tracking-widest flex items-center gap-2"
               >
-                {isLoadingAI ? '⏳ Analyzing Strategy...' : (aiAdvice ? '🔄 Regenerate Analysis' : '🧠 Ask AI')}
+                {isLoadingAI ? (
+                  <><svg className="w-3.5 h-3.5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg> Analyzing Strategy...</>
+                ) : (
+                  aiAdvice ? <><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg> Regenerate Analysis</> : <><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> Run AI Diagnostics</>
+                )}
               </button>
             </div>
           </div>
 
+          {/* AI Output Box */}
           {aiAdvice && (
-            <div className="p-6 bg-[#0a0f18]/80 backdrop-blur-sm border border-[#1e293b] border-l-4 border-l-[#00f0ff] rounded-xl text-slate-300 text-sm whitespace-pre-wrap leading-relaxed shadow-lg relative z-10 font-medium">
+            <div className="p-5 sm:p-6 bg-[#070914]/90 backdrop-blur-md border border-purple-500/30 border-l-4 border-l-[#00f0ff] rounded-xl text-slate-200 text-xs sm:text-sm whitespace-pre-wrap leading-relaxed shadow-xl relative z-10 font-medium">
+              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-purple-900/30">
+                <div className="w-2 h-2 rounded-full bg-[#00f0ff] animate-ping"></div>
+                <span className="text-[10px] font-black uppercase tracking-widest text-[#00f0ff]">AI Diagnostic Report</span>
+              </div>
               {aiAdvice}
             </div>
           )}
           
           {!aiAdvice && !isLoadingAI && (
-            <p className="text-slate-500 text-sm mt-3 relative z-10 font-medium">
-              Type your specific queries above or simply click <span className="text-slate-300 font-bold">"Ask AI"</span> to let our engine analyze your MFE, MAE, and historical sequences to suggest actionable improvements.
-            </p>
+            <div className="p-4 bg-[#070914]/60 border border-purple-900/20 rounded-xl relative z-10 text-center">
+              <p className="text-slate-400 text-xs font-medium">
+                Click <span className="text-purple-300 font-bold">"Run AI Diagnostics"</span> or select a prompt above to generate algorithmic insights on trade sequence, drawdown duration, and edge expectations.
+              </p>
+            </div>
           )}
         </div>
-        {/* ✨ END OF AI DIAGNOSTICS SECTION */}
+        {/* END OF AI DIAGNOSTICS */}
 
         <div className="space-y-8">
           <EquityCurveChart result={activeResult} withTax={withTax} />
-          
-          {/* ✨ PUDHU UPDATE: DrawdownChart Added Here */}
           <DrawdownChart result={activeResult} withTax={withTax} /> 
-
           <DailyHeatmap result={activeResult} withTax={withTax} />
           <MonthlyAnalytics result={activeResult} withTax={withTax} />
           
@@ -472,7 +537,6 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
             mode={withTax ? 'NET' : 'GROSS'} 
           />
           
-          {/* ⚡ PUDHU UPDATE: ExecutionLedger onFilterChange-ah catch panni puthu state-la podurathu */}
           <ExecutionLedger 
             result={activeResult} 
             onFilterChange={setFilteredLedgerData} 
