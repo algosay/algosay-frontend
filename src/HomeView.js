@@ -28,7 +28,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
     }
   };
 
-  // 💎 6 PREMIUM NEON BOXES (Added 2 new steps to make it 6 boxes as requested)
+  // 💎 4 PREMIUM NEON BOXES (Step 04 and Step 05 Removed as requested)
   const stepsData = [
     {
       num: "01",
@@ -77,36 +77,6 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
     },
     {
       num: "04",
-      title: "Institutional Pro Metrics",
-      desc: "Go beyond basic PnL. We provide Profit Factor, Sortino Ratio, Expectancy, Max Adverse Excursion, Edge Ratio, and 50+ advanced metrics.",
-      icon: <BarChart3 strokeWidth={2} size={24} />,
-      theme: {
-        cardBg: "bg-[#0A0B14]/80 backdrop-blur-xl",
-        borderHover: "border-[#3A1818] hover:border-[#FF5252] hover:shadow-[0_0_30px_rgba(255,82,82,0.2)]",
-        iconText: "text-[#FF5252]",
-        iconBorder: "border-[#FF5252]/30 shadow-[0_0_15px_rgba(255,82,82,0.4)]",
-        hoverIconBg: "group-hover:bg-[#FF5252]/10 group-hover:shadow-[0_0_25px_rgba(255,82,82,0.6)]",
-        badgeText: "text-[#FF5252]",
-        gradientStart: "from-[#FF5252]/5"
-      }
-    },
-    {
-      num: "05",
-      title: "1-Click Cloud Deployment",
-      desc: "Push your rigorously tested strategies directly to our cloud execution engine. Trade automatically without keeping your PC on.",
-      icon: <Server strokeWidth={2} size={24} />,
-      theme: {
-        cardBg: "bg-[#0A0B14]/80 backdrop-blur-xl",
-        borderHover: "border-[#3A2818] hover:border-[#FF9100] hover:shadow-[0_0_30px_rgba(255,145,0,0.2)]",
-        iconText: "text-[#FF9100]",
-        iconBorder: "border-[#FF9100]/30 shadow-[0_0_15px_rgba(255,145,0,0.4)]",
-        hoverIconBg: "group-hover:bg-[#FF9100]/10 group-hover:shadow-[0_0_25px_rgba(255,145,0,0.6)]",
-        badgeText: "text-[#FF9100]",
-        gradientStart: "from-[#FF9100]/5"
-      }
-    },
-    {
-      num: "06",
       title: "Live Forward Testing (Paper)",
       desc: "Test your AI-generated algorithms in the live market with zero real capital risk before mapping them to your broker account.",
       icon: <Crosshair strokeWidth={2} size={24} />,
@@ -122,7 +92,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
     }
   ];
 
-  // 💎 Result Images Array (Updated names as per your folder structure)
+  // 💎 Result Images Array
   const resultImages = [
     { id: 1, src: '/image/PnL Ledger.png', title: 'PnL Ledger', color: 'from-[#00E5FF] to-[#0088FF]' },
     { id: 2, src: '/image/Drawdown Curve.png', title: 'Drawdown Curve', color: 'from-[#9D4EDD] to-[#6025F5]' },
@@ -194,10 +164,9 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
       exit="exit"
       className="flex flex-col w-full min-h-screen relative px-6 md:px-12 lg:px-20 py-6 z-10 bg-[#04060F] overflow-hidden font-sans"
     >
-      {/* 💎 Removed header left.png as requested */}
       <img src="/image/header right.png" alt="Right Glow" className="absolute top-0 right-0 w-full lg:w-[45%] h-full object-cover mix-blend-screen opacity-20 z-0 pointer-events-none" />
 
-      {/* 💎 Added subtle grid layer for depth */}
+      {/* Grid layer */}
       <div 
         className="absolute inset-0 z-0 opacity-[0.08] pointer-events-none" 
         style={{ 
@@ -327,7 +296,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
              </div>
           </div>
 
-          {/* BUILT FOR PRECISION BANNER & 10 FREE BACKTEST CTA */}
+          {/* BUILT FOR PRECISION BANNER */}
           <div className="flex flex-col gap-4 max-w-xl relative">
             <div className="p-5 rounded-2xl bg-gradient-to-r from-[#00E5FF]/10 to-transparent border border-[#00E5FF]/20 flex items-center gap-5 backdrop-blur-md">
               <div className="p-3 rounded-full bg-[#00E5FF]/10 border border-[#00E5FF]/30 text-[#00E5FF] shadow-[0_0_20px_rgba(0,229,255,0.3)]"><Shield size={28} /></div>
@@ -336,24 +305,12 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
                 <p className="text-sm text-slate-400 font-medium">Advanced AI • Lightning Fast • Institutional Grade</p>
               </div>
             </div>
-
-            <div onClick={() => onNavigate(true)} className="p-4 rounded-xl cursor-pointer transition-all duration-300 border border-white/10 bg-white/5 hover:bg-white/10 hover:border-[#4D7CFF]/50 hover:shadow-[0_0_20px_rgba(77,124,255,0.2)] flex items-center justify-between group backdrop-blur-md">
-              <div className="flex items-center gap-4">
-                 <div className="w-10 h-10 bg-[#4D7CFF]/10 border border-[#4D7CFF]/30 text-[#4D7CFF] rounded-full flex items-center justify-center text-xl group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(77,124,255,0.4)] transition-all duration-300">📊</div>
-                 <div>
-                   <h4 className="text-sm font-bold text-white tracking-tight">Get 10 Free Backtests➜</h4>
-                   <p className="text-xs text-slate-400 font-medium mt-0.5">Click here to Sign Up and start backtesting.</p>
-                 </div>
-              </div>
-              <div className="text-slate-500 p-2 group-hover:text-[#4D7CFF] transition-colors">
-                 <svg className="w-5 h-5 group-hover:translate-x-1.5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
-              </div>
-            </div>
           </div>
         </div>
 
-        {/* 💎 6 PREMIUM BOXES SECTION (Modified Right Column) */}
-        <div className="w-full lg:w-[55%] flex justify-end relative z-20 pt-4">
+        {/* RIGHT COLUMN: 4 NEON BOXES + UNIQUE RIGHT-SIDE CTA BUTTON */}
+        <div className="w-full lg:w-[55%] flex flex-col items-end relative z-20 pt-4 gap-6">
+          {/* Steps Grid (Now 4 Steps) */}
           <motion.div variants={containerVariants} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.1 }} className="grid grid-cols-1 sm:grid-cols-2 gap-5 w-full">
             {stepsData.map((step, index) => (
               <motion.div 
@@ -384,10 +341,60 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
               </motion.div>
             ))}
           </motion.div>
+
+          {/* 💎 ULTRA-UNIQUE "GET 10 FREE BACKTESTS" CTA CARD ON THE RIGHT SIDE */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.5 }}
+            onClick={() => onNavigate(true)}
+            className="w-full relative group cursor-pointer overflow-hidden rounded-2xl p-[2px] bg-gradient-to-r from-[#00E5FF] via-[#7928CA] to-[#FF007A] shadow-[0_0_30px_rgba(0,229,255,0.25)] hover:shadow-[0_0_50px_rgba(121,40,202,0.45)] transition-all duration-500 hover:-translate-y-1"
+          >
+            <div className="bg-[#0A0C14] hover:bg-[#0E111F] rounded-[14px] p-5 sm:p-6 flex items-center justify-between transition-colors duration-300 relative overflow-hidden">
+              {/* Glow effects */}
+              <div className="absolute -top-12 -right-12 w-36 h-36 bg-[#00E5FF]/20 rounded-full blur-2xl group-hover:bg-[#00E5FF]/35 transition-all duration-500"></div>
+              <div className="absolute -bottom-12 -left-12 w-36 h-36 bg-[#FF007A]/20 rounded-full blur-2xl group-hover:bg-[#FF007A]/35 transition-all duration-500"></div>
+              
+              <div className="flex items-center gap-4 sm:gap-5 relative z-10">
+                <div className="relative">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-[#00E5FF]/20 to-[#6025F5]/30 border border-[#00E5FF]/40 flex items-center justify-center text-2xl group-hover:scale-110 shadow-[0_0_20px_rgba(0,229,255,0.3)] transition-transform duration-300">
+                    ⚡
+                  </div>
+                  <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00E5FF] opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-[#00E5FF]"></span>
+                  </span>
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-[#00E5FF] bg-[#00E5FF]/10 px-2.5 py-0.5 rounded-full border border-[#00E5FF]/30">
+                      Free Access
+                    </span>
+                    <span className="text-[10px] font-bold text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded-full border border-amber-400/20">
+                      Instant Activation
+                    </span>
+                  </div>
+                  <h4 className="text-lg sm:text-xl font-black text-white tracking-tight flex items-center gap-2 group-hover:text-[#00E5FF] transition-colors">
+                    Get 10 Free Backtests
+                    <span className="inline-block group-hover:translate-x-1.5 transition-transform duration-300 text-[#00E5FF]">➜</span>
+                  </h4>
+                  <p className="text-xs text-slate-400 font-medium mt-0.5">
+                    Start testing your trading strategies with AI speed instantly.
+                  </p>
+                </div>
+              </div>
+
+              <div className="hidden sm:flex items-center justify-center w-10 h-10 rounded-full bg-white/5 group-hover:bg-[#00E5FF] text-slate-300 group-hover:text-black transition-all duration-300 border border-white/10 group-hover:border-[#00E5FF] shadow-md group-hover:shadow-[0_0_20px_rgba(0,229,255,0.6)] shrink-0">
+                <svg className="w-5 h-5 group-hover:translate-x-0.5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </div>
 
-      {/* 💎 NEW PREMIUM RESULTS SHOWCASE SECTION (Bigger & Zoomable) */}
+      {/* 💎 RESULTS SHOWCASE SECTION */}
       <div className="w-full max-w-[1400px] mx-auto mt-32 mb-16 relative z-20">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[50%] bg-[#4D7CFF]/20 blur-[150px] rounded-full pointer-events-none z-0"></div>
         
@@ -401,7 +408,6 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
           </p>
         </div>
 
-        {/* 💎 Changed to a larger grid so images look BIG */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-10 place-items-center">
           {resultImages.map((img, index) => (
             <motion.div 
@@ -409,7 +415,6 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
               whileHover={{ y: -10, scale: 1.02 }}
               transition={{ type: "spring", stiffness: 100 }}
               onClick={() => setZoomedImage(img.src)}
-              // Centering the last items if in a 3-column grid
               className={`relative group rounded-2xl overflow-hidden p-[2px] bg-gradient-to-b from-white/10 to-transparent hover:from-white/30 transition-all duration-500 cursor-zoom-in shadow-xl shadow-black/50 w-full min-h-[250px] max-w-md ${index > 2 ? 'lg:col-span-1' : ''}`}
             >
               <div className={`absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-20 transition-opacity duration-500 ease-out z-10 pointer-events-none ${img.color}`}></div>
@@ -437,7 +442,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
         </div>
       </div>
 
-      {/* 💎 50+ DEFAULT STRATEGIES SECTION (New Addition) */}
+      {/* 💎 50+ DEFAULT STRATEGIES SECTION */}
       <div className="w-full max-w-[1400px] mx-auto mt-24 mb-12 relative z-20 border-t border-white/5 pt-20">
         <div className="text-center mb-16 relative z-10">
           <h3 className="text-[#9D4EDD] text-[13px] font-black uppercase tracking-[0.2em] mb-4">No Coding. No Blocks. Just Type.</h3>
@@ -449,7 +454,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
           </p>
         </div>
 
-        {/* Scrollable Masonry-like Grid for Strategies */}
+        {/* Scrollable Masonry Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 max-h-[700px] overflow-y-auto pr-2 custom-scrollbar p-2">
           {defaultStrategies.map((strategy, idx) => (
             <div key={idx} className="bg-[#0A0C14]/80 border border-white/10 hover:border-[#00E5FF]/40 rounded-2xl p-6 transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,229,255,0.1)] group flex flex-col justify-between h-full">
@@ -471,11 +476,10 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
           ))}
         </div>
         
-        {/* Subtle fade effect for the scroll container bottom */}
         <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#04060F] to-transparent pointer-events-none z-10"></div>
       </div>
 
-      {/* 💎 STRATEGY CAPABILITIES SECTION ADDED AT THE BOTTOM */}
+      {/* 💎 STRATEGY CAPABILITIES SECTION */}
       <div className="w-full relative z-20 mt-12 border-t border-white/5 pt-12">
         <StrategyCapabilities />
       </div>
@@ -504,13 +508,13 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
               src={zoomedImage} 
               alt="Zoomed Report" 
               className="max-w-full max-h-full object-contain rounded-xl shadow-[0_0_80px_rgba(0,229,255,0.2)] border border-white/10"
-              onClick={(e) => e.stopPropagation()} // Prevent closing when clicking the image itself
+              onClick={(e) => e.stopPropagation()}
             />
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Add some custom CSS for the scrollbar in the strategies section */}
+      {/* Custom CSS for Scrollbar */}
       <style dangerouslySetInnerHTML={{__html: `
         .custom-scrollbar::-webkit-scrollbar {
           width: 6px;
@@ -531,4 +535,5 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
     </motion.div>
   );
 };
+
 export default HomeView;
