@@ -97,6 +97,9 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
 
     console.log(isSignUp ? "Signing up:" : "Logging in:", { email, password });
     alert(`${isSignUp ? 'Sign Up' : 'Login'} successful for ${email}!`);
+    
+    // FIX: Call onLoginSuccess to actually log the user in and redirect them inside
+    onLoginSuccess({ email: email, displayName: email.split('@')[0] });
   };
 
   const handleRippleClick = (e) => {
@@ -216,7 +219,8 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
         <div className="w-full max-w-lg bg-white/95 backdrop-blur-2xl rounded-3xl shadow-[0_20px_50px_rgba(30,58,138,0.12)] p-8 lg:p-10 z-10 border border-white my-auto">
           <div className="flex flex-col items-center justify-center mb-6">
             <div className="flex items-center gap-3 mb-2">
-              <AlgoSayLogo className="w-12 h-12 shadow-lg shadow-blue-500/30 rounded-2xl" />
+              {/* FIX: Added shrink-0, min-w-[48px], min-h-[48px], and overflow-visible to prevent logo bottom cut */}
+              <AlgoSayLogo className="w-12 h-12 min-w-[48px] min-h-[48px] shrink-0 shadow-lg shadow-blue-500/30 rounded-2xl overflow-visible p-0.5" />
               <span className="text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-700">AlgoSay</span>
             </div>
             <p className="text-sm font-bold text-slate-500 mt-2">
