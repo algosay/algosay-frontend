@@ -5,26 +5,9 @@ import AlgoSayLogo from './AlgoSayLogo';
 import { Cpu, Wand2, Activity, Filter, BarChart3, Rocket, Users, Zap, Shield, ShieldCheck, Box, Tag, FileText, Code, PenTool, Play, Server, Crosshair } from 'lucide-react'; 
 import StrategyCapabilities from './components/StrategyCapabilities';
 
-const HomeView = ({ onNavigate, onOpenLogin, onOpenSignUp, custom, viewVariants }) => {
+const HomeView = ({ onNavigate, custom, viewVariants }) => {
   // 💎 Image Zoom State
   const [zoomedImage, setZoomedImage] = useState(null);
-
-  // Helper functions to trigger modal handlers or fall back to onNavigate
-  const handleLogin = () => {
-    if (onOpenLogin) {
-      onOpenLogin();
-    } else if (onNavigate) {
-      onNavigate(false);
-    }
-  };
-
-  const handleSignUp = () => {
-    if (onOpenSignUp) {
-      onOpenSignUp();
-    } else if (onNavigate) {
-      onNavigate(true);
-    }
-  };
 
   // 💎 Premium Spring Animations
   const containerVariants = {
@@ -45,7 +28,7 @@ const HomeView = ({ onNavigate, onOpenLogin, onOpenSignUp, custom, viewVariants 
     }
   };
 
-  // 💎 4 PREMIUM NEON BOXES
+  // 💎 4 PREMIUM NEON BOXES (Step 04 Updated as requested)
   const stepsData = [
     {
       num: "01",
@@ -109,7 +92,7 @@ const HomeView = ({ onNavigate, onOpenLogin, onOpenSignUp, custom, viewVariants 
     }
   ];
 
-  // 💎 Result Images Array
+  // 💎 Result Images Array (Added AI Neural Engine next to Advanced Metrics)
   const resultImages = [
     { id: 1, src: '/image/PnL Ledger.png', title: 'PnL Ledger', color: 'from-[#00E5FF] to-[#0088FF]' },
     { id: 2, src: '/image/Drawdown Curve.png', title: 'Drawdown Curve', color: 'from-[#9D4EDD] to-[#6025F5]' },
@@ -198,7 +181,7 @@ const HomeView = ({ onNavigate, onOpenLogin, onOpenSignUp, custom, viewVariants 
 
       {/* HEADER: Logo & Login/Signup Buttons */}
       <div className="flex items-center justify-between z-50 mb-10 w-full max-w-[1400px] mx-auto border-b border-white/5 pb-4">
-        <div className="flex items-center gap-3 whitespace-nowrap cursor-pointer group" onClick={handleLogin}>
+        <div className="flex items-center gap-3 whitespace-nowrap cursor-pointer group" onClick={() => onNavigate(false)}>
           <div className="relative">
             <AlgoSayLogo className="w-10 h-10 shadow-lg shadow-blue-500/20 rounded-xl border border-white/10 relative z-10" />
             <div className="absolute inset-0 bg-blue-500 blur-xl opacity-30 group-hover:opacity-60 transition-opacity"></div>
@@ -215,13 +198,13 @@ const HomeView = ({ onNavigate, onOpenLogin, onOpenSignUp, custom, viewVariants 
 
         <div className="flex items-center gap-3 sm:gap-4">
           <button 
-            onClick={handleLogin}
+            onClick={() => onNavigate(false)}
             className="px-5 py-2.5 text-sm font-medium text-slate-300 bg-transparent border border-white/10 hover:border-white/30 hover:text-white rounded-lg transition-all duration-300"
           >
             Log In
           </button>
           <button 
-            onClick={handleSignUp}
+            onClick={() => onNavigate(true)}
             className="relative overflow-hidden group px-6 py-2.5 bg-gradient-to-r from-[#2B4CFF] to-[#6025F5] text-white text-sm font-semibold rounded-lg shadow-[0_0_20px_rgba(43,76,255,0.4)] hover:shadow-[0_0_30px_rgba(96,37,245,0.6)] transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0"
           >
             <span className="relative z-10 flex items-center gap-2">
@@ -308,7 +291,7 @@ const HomeView = ({ onNavigate, onOpenLogin, onOpenSignUp, custom, viewVariants 
 
         {/* RIGHT COLUMN: 4 NEON BOXES + UNIQUE RIGHT-SIDE CTA BUTTON + STATS */}
         <div className="w-full lg:w-[55%] flex flex-col items-end relative z-20 pt-4 gap-6">
-          {/* Steps Grid */}
+          {/* Steps Grid (Now 4 Steps) */}
           <motion.div variants={containerVariants} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.1 }} className="grid grid-cols-1 sm:grid-cols-2 gap-5 w-full">
             {stepsData.map((step, index) => (
               <motion.div 
@@ -345,7 +328,7 @@ const HomeView = ({ onNavigate, onOpenLogin, onOpenSignUp, custom, viewVariants 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.5 }}
-            onClick={handleSignUp}
+            onClick={() => onNavigate(true)}
             className="w-full relative group cursor-pointer overflow-hidden rounded-2xl p-[2px] bg-gradient-to-r from-[#00E5FF] via-[#7928CA] to-[#FF007A] shadow-[0_0_30px_rgba(0,229,255,0.25)] hover:shadow-[0_0_50px_rgba(121,40,202,0.45)] transition-all duration-500 hover:-translate-y-1"
           >
             <div className="bg-[#0A0C14] hover:bg-[#0E111F] rounded-[14px] p-5 sm:p-6 flex items-center justify-between transition-colors duration-300 relative overflow-hidden">
@@ -390,7 +373,7 @@ const HomeView = ({ onNavigate, onOpenLogin, onOpenSignUp, custom, viewVariants 
             </div>
           </motion.div>
 
-          {/* STATS SECTION */}
+          {/* STATS SECTION (Moved right below the CTA Button) */}
           <div className="flex flex-wrap justify-between items-center gap-4 w-full backdrop-blur-sm bg-black/10 p-5 rounded-2xl border border-white/5">
              <div className="flex items-center gap-3">
                 <div className="p-2 rounded-lg bg-[#9D4EDD]/10 border border-[#9D4EDD]/30 text-[#9D4EDD] shadow-[0_0_15px_rgba(157,78,221,0.2)]"><Rocket size={24} /></div>
@@ -428,7 +411,7 @@ const HomeView = ({ onNavigate, onOpenLogin, onOpenSignUp, custom, viewVariants 
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-10 place-items-center">
-          {resultImages.map((img) => (
+          {resultImages.map((img, index) => (
             <motion.div 
               key={img.id}
               whileHover={{ y: -10, scale: 1.02 }}
@@ -473,7 +456,7 @@ const HomeView = ({ onNavigate, onOpenLogin, onOpenSignUp, custom, viewVariants 
           </p>
         </div>
 
-        {/* Scrollable Grid */}
+        {/* Scrollable Masonry Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 max-h-[700px] overflow-y-auto pr-2 custom-scrollbar p-2">
           {defaultStrategies.map((strategy, idx) => (
             <div key={idx} className="bg-[#0A0C14]/80 border border-white/10 hover:border-[#00E5FF]/40 rounded-2xl p-6 transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,229,255,0.1)] group flex flex-col justify-between h-full">
@@ -488,10 +471,7 @@ const HomeView = ({ onNavigate, onOpenLogin, onOpenSignUp, custom, viewVariants 
                    {strategy.desc}
                  </p>
                </div>
-               <button 
-                 onClick={handleSignUp}
-                 className="w-full py-2.5 rounded-lg border border-white/10 bg-white/5 text-slate-300 font-bold text-xs uppercase tracking-widest group-hover:bg-[#00E5FF]/10 group-hover:text-[#00E5FF] group-hover:border-[#00E5FF]/30 transition-all flex justify-center items-center gap-2 mt-auto cursor-pointer"
-               >
+               <button className="w-full py-2.5 rounded-lg border border-white/10 bg-white/5 text-slate-300 font-bold text-xs uppercase tracking-widest group-hover:bg-[#00E5FF]/10 group-hover:text-[#00E5FF] group-hover:border-[#00E5FF]/30 transition-all flex justify-center items-center gap-2 mt-auto">
                  <Play size={14} /> USE TEMPLATE
                </button>
             </div>
