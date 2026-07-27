@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-// Updated imports to match the new firebase.js functions
-import { signInWithGoogle, registerUser, loginUser } from './firebase';
+// 🚨 UPDATE: Removed missing registerUser & loginUser, imported auth and db
+import { auth, db, signInWithGoogle } from './firebase'; 
+// 🚨 UPDATE: Imported standard Firebase Authentication & Firestore functions
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+
 import AlgoSayLogo from './AlgoSayLogo';
 import { AlertTriangle, Sparkles, ChevronLeft, ChevronRight, CheckCircle2, Star, ArrowLeft, User, Phone, Mail, Lock } from 'lucide-react';
 
@@ -88,8 +92,20 @@ const AuthView = ({ onBack, isSignUp = true, setIsSignUp, onLoginSuccess, custom
           return;
         }
 
-        // Updated function call: Includes Name & Phone for 10 Free Credits logic
-        const user = await registerUser(name, phone, email, password);
+        // 🚨 UPDATE: Replaced custom registerUser with standard Firebase Auth
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        
+        // 🚨 UPDATE: Directly saving user info & 10 Free credits to Firestore
+        await setDoc(doc(db, 'users', user.uid), {
+          name: name,
+          phone: phone,
+          email: email,
+          credits: 10,
+          createdAt: new Date(),
+          subscription: { is_active: false, plan_type: 'Free' }
+        });
+
         if (user) {
           onLoginSuccess(user);
         }
@@ -101,10 +117,11 @@ const AuthView = ({ onBack, isSignUp = true, setIsSignUp, onLoginSuccess, custom
           return;
         }
 
-        // Updated function call for hybrid login
-        const user = await loginUser(identifier, password);
-        if (user) {
-          onLoginSuccess(user);
+        // 🚨 UPDATE: Replaced custom loginUser with standard Firebase Auth
+        // Note: Standard Firebase uses Email. If you need Mobile login later, you can add OTP logic.
+        const userCredential = await signInWithEmailAndPassword(auth, identifier, password);
+        if (userCredential.user) {
+          onLoginSuccess(userCredential.user);
         }
       }
     } catch (error) {
