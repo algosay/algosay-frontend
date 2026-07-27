@@ -7,12 +7,12 @@ const Header = () => {
       {/* MAIN CONTAINER */}
       <div className="relative z-10 w-full max-w-[1500px] flex flex-col lg:flex-row items-center justify-between gap-6 lg:gap-12 px-2">
         
-        {/* 💎 Left Image (Brain) - Responsive: Smaller on mobile/tablet, larger on desktop */}
+        {/* 💎 Left Image (Brain) - Increased Size */}
         <div className="flex justify-center shrink-0">
           <img 
             src="/image/header left.png" 
             alt="AI Brain" 
-            className="w-38 h-38 sm:w-46 sm:h-46 lg:w-62 lg:h-62 object-contain opacity-95 drop-shadow-[0_0_15px_rgba(0,229,255,0.4)] transition-transform duration-500 hover:scale-105"
+            className="w-32 h-32 sm:w-44 sm:h-44 lg:w-64 lg:h-64 object-contain opacity-95 drop-shadow-[0_0_20px_rgba(0,229,255,0.5)] transition-transform duration-500 hover:scale-105"
           />
         </div>
 
@@ -37,12 +37,12 @@ const Header = () => {
           </div>
         </div>
 
-        {/* 💎 Right Image (Bull) - Responsive: Smaller on mobile/tablet, larger on desktop */}
+        {/* 💎 Right Image (Bull) - Increased Size */}
         <div className="flex justify-center shrink-0">
           <img 
             src="/image/header right.png" 
             alt="Bull Market" 
-            className="w-38 h-38 sm:w-46 sm:h-46 lg:w-62 lg:h-62 object-contain opacity-95 drop-shadow-[0_0_15px_rgba(0,255,136,0.3)] transition-transform duration-500 hover:scale-105"
+            className="w-32 h-32 sm:w-44 sm:h-44 lg:w-64 lg:h-64 object-contain opacity-95 drop-shadow-[0_0_20px_rgba(0,255,136,0.4)] transition-transform duration-500 hover:scale-105"
           />
         </div>
 
