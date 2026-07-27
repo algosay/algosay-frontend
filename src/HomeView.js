@@ -151,10 +151,11 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
         {/* Left Column Text & Terminal */}
         <div className="w-full lg:w-1/2 flex flex-col pt-4">
           <h3 className="text-[11px] font-bold text-[#0052FF] uppercase tracking-[0.25em] mb-4 drop-shadow-sm">
-            The Next Evolution in strategy backtesting
+            Next-Gen AI Backtesting for Indian Traders
           </h3>
           <h1 className="text-5xl lg:text-6xl font-black text-slate-900 leading-[1.1] mb-6 tracking-tight">
-            India’s #1 AI-Powered <br className="hidden lg:block" />
+            {/* Added whitespace-nowrap to keep it strictly on one line */}
+            <span className="whitespace-nowrap">India’s #1 AI-Powered</span> <br className="hidden lg:block" />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0052FF] to-indigo-600 drop-shadow-sm">
               Backtesting Engine
             </span>
