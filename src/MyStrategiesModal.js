@@ -72,111 +72,111 @@ const DEFAULT_STRATEGIES = [
   // --- TAB 1: CORE DIRECTIONAL (5) ---
   createDefaultObj(
     'cd_1', 
-    'Long Call', 
-    'Directional Bullish - Expecting strong upside.', 
-    "I have mapped your NIFTY 50 Long Call strategy. Instrument: NIFTY 50 Futures/Options. Timeframe: 5-min candle close. Execution: 09:45 AM candle close exactly. Action: Buy 10 LOT ATM CE Current Expiry. Target: 1000 points (or 100% option premium). Stoploss: 500 points (or 40% option premium). Exit: 15:15 PM mandatory auto-squareoff.", 
+    'Long Call Breakout', 
+    'Directional Bullish - Catching high momentum upwards.', 
+    "I have mapped your NIFTY 50 Long Call strategy. Instrument: NIFTY 50 Options. Timeframe: 5-min candle. Execution: 09:30 AM on breaking previous day high. Action: Buy 10 LOT ATM CE Current Expiry. Target: 40% premium gain (approx 50 pts). Stoploss: 15% premium loss (Tight SL). Exit: Trail SL by 10% after 20% gain, or mandatory exit at 15:10 PM.", 
     'core_dir'
   ),
   createDefaultObj(
     'cd_2', 
-    'Long Put', 
-    'Directional Bearish - Expecting strong downside.', 
-    "I have mapped your NIFTY 50 Long Put strategy. Instrument: NIFTY 50. Timeframe: 5-min chart. Execution: 09:45 AM candle close. Action: Buy 10 LOT ATM PE Current Expiry. Target: 1000 points premium gain. Stoploss: 500 points premium loss. Exit: 15:15 PM strict intraday exit.", 
+    'Long Put Breakdown', 
+    'Directional Bearish - Catching sharp downward moves.', 
+    "I have mapped your BANKNIFTY Long Put strategy. Instrument: BANKNIFTY Options. Timeframe: 15-min chart. Execution: 10:15 AM on breaking first hour low. Action: Buy 10 LOT ATM PE Current Expiry. Target: 60% premium gain (approx 120 pts). Stoploss: 25% premium loss (approx 50 pts). Exit: 15:05 PM strict intraday square-off.", 
     'core_dir'
   ),
   createDefaultObj(
     'cd_3', 
     'Covered Call (Intraday)', 
-    'Non-Directional/Bullish - Selling calls against futures.', 
-    "I have mapped your Covered Call strategy. Instrument: NIFTY 50. Timeframe: 5-min. Execution: Buy Future 10 LOT at 10:00 AM & Sell 10 LOT OTM CE (+100 pts) at 10:00 AM. Target: 1000 points overall strategy gain. Stoploss: 500 points overall loss. Exit: 15:15 PM, Current Expiry.", 
+    'Non-Directional/Bullish - Capitalizing on mild bullish drift.', 
+    "I have mapped your Intraday Covered Call strategy. Instrument: NIFTY 50. Timeframe: 15-min. Execution: Buy Future 10 LOT & Sell 10 LOT OTM CE (+150 pts) at 09:45 AM. Target: 30% of CE decay + 40 pts in Futures. Stoploss: 25 points combined loss. Exit: 15:15 PM.", 
     'core_dir'
   ),
   createDefaultObj(
     'cd_4', 
-    'Long Straddle', 
-    'Directional Breakout - Huge move expected.', 
-    "I have mapped your NIFTY Long Straddle strategy. Timeframe: 5-min. Execution: At 09:45 AM candle close exactly, Buy 10 LOT ATM CE & Buy 10 LOT ATM PE Current Expiry. Target: 1000 points combined target. Stoploss: 500 points combined stoploss. Exit: 15:15 PM intraday exit.", 
+    'Long Straddle Event Play', 
+    'Directional Breakout - Expecting massive explosive move (RBI/Fed).', 
+    "I have mapped your Long Straddle strategy. Timeframe: 5-min. Execution: At 09:55 AM (pre-event), Buy 10 LOT ATM CE & Buy 10 LOT ATM PE. Target: 70% combined premium spike. Stoploss: 20% combined premium decay limit (to avoid IV crush). Exit: 14:30 PM.", 
     'core_dir'
   ),
   createDefaultObj(
     'cd_5', 
-    'Long Strangle', 
-    'Directional Breakout - Cheaper breakout setup.', 
-    "I have mapped your Long Strangle strategy. Timeframe: 5-min chart. Execution: At 09:45 AM, Buy 10 LOT OTM (+100 pts) CE & Buy 10 LOT OTM (-100 pts) PE Current Expiry. Target: 1000 points combined target. Stoploss: 500 points combined SL. Exit: 15:15 PM.", 
+    'Long Strangle Gamma Blast', 
+    'Directional Breakout - Cheaper entry for trending days.', 
+    "I have mapped your Long Strangle strategy. Timeframe: 5-min chart. Execution: At 13:00 PM (European market open), Buy 10 LOT OTM (+100 pts) CE & Buy 10 LOT OTM (-100 pts) PE. Target: 50% combined target. Stoploss: 15% combined SL. Exit: 15:15 PM.", 
     'core_dir'
   ),
 
   // --- TAB 2: CORE SPREADS (5) ---
   createDefaultObj(
     'cs_1', 
-    'Bull Call Spread', 
-    'Directional Bullish - Debit Spread (Capped Risk).', 
-    "I have mapped your Bull Call Spread. Instrument: NIFTY 50 (5-min timeframe). Execution: At 09:45 AM candle close, 1. Buy 10 LOT ATM CE, 2. Sell 10 LOT OTM CE (+100 pts). Target: 1000 points gain on spread. Stoploss: 500 points loss on spread. Exit: 15:15 PM, Current Expiry.", 
+    'Bull Call Spread 1:2 RR', 
+    'Directional Bullish - Capped Risk with high probability.', 
+    "I have mapped your Bull Call Spread. Instrument: NIFTY 50. Execution: At 10:00 AM, 1. Buy 10 LOT ATM CE, 2. Sell 10 LOT OTM CE (+100 pts). Target: 60% of max spread profit (approx 35 points net). Stoploss: 30% of max spread loss (approx 15 points net). Exit: 15:00 PM.", 
     'core_spreads'
   ),
   createDefaultObj(
     'cs_2', 
-    'Bear Put Spread', 
-    'Directional Bearish - Debit Spread (Capped Risk).', 
-    "I have mapped your Bear Put Spread. Instrument: NIFTY 50 (5-min). Execution: At 09:45 AM candle close, 1. Buy 10 LOT ATM PE, 2. Sell 10 LOT OTM PE (-100 pts). Target: 1000 points spread target. Stoploss: 500 points spread SL. Exit: 15:15 PM, Current Expiry.", 
+    'Bear Put Spread Heavy', 
+    'Directional Bearish - High RR debit spread for crash.', 
+    "I have mapped your Bear Put Spread. Instrument: BANKNIFTY. Execution: At 09:45 AM, 1. Buy 10 LOT ATM PE, 2. Sell 10 LOT OTM PE (-200 pts). Target: 70% of max spread profit (approx 80 points net). Stoploss: 25% max spread loss. Exit: 15:10 PM.", 
     'core_spreads'
   ),
   createDefaultObj(
     'cs_3', 
-    'Bull Put Spread', 
-    'Directional/Neutral - Income Strategy.', 
-    "I have mapped your Bull Put Spread. Timeframe: 5-min. Execution: At 10:00 AM, 1. Sell 10 LOT OTM PE (-50 pts), 2. Buy 10 LOT Far OTM PE (-150 pts). Target: 1000 points total credit decay. Stoploss: 500 points max loss limit. Exit: 15:15 PM, Current Expiry.", 
+    'Bull Put Spread (Credit)', 
+    'Directional/Neutral - Income Generation on sideways/up days.', 
+    "I have mapped your Bull Put Spread. Timeframe: 15-min. Execution: At 10:15 AM, 1. Sell 10 LOT OTM PE (-100 pts), 2. Buy 10 LOT Far OTM PE (-200 pts) for protection. Target: 80% premium decay collected. Stoploss: Premium spikes by 50% of credit received. Exit: 15:15 PM.", 
     'core_spreads'
   ),
   createDefaultObj(
     'cs_4', 
-    'Bear Call Spread', 
-    'Directional/Neutral - Income Strategy.', 
-    "I have mapped your Bear Call Spread. Timeframe: 5-min. Execution: At 10:00 AM, 1. Sell 10 LOT OTM CE (+50 pts), 2. Buy 10 LOT Far OTM CE (+150 pts). Target: 1000 points premium decay. Stoploss: 500 points stoploss limit. Exit: 15:15 PM, Current Expiry.", 
+    'Bear Call Spread (Credit)', 
+    'Directional/Neutral - Defending a strong resistance.', 
+    "I have mapped your Bear Call Spread. Timeframe: 15-min. Execution: At 10:30 AM (if rejecting R1), 1. Sell 10 LOT OTM CE (+100 pts), 2. Buy 10 LOT Far OTM CE (+200 pts). Target: 75% decay of net credit. Stoploss: 40% hit on net credit collected. Exit: 15:15 PM.", 
     'core_spreads'
   ),
   createDefaultObj(
     'cs_5', 
     'ITM Debit Call Spread', 
-    'Deep Directional Bullish.', 
-    "I have mapped your ITM Debit Call Spread. Timeframe: 5-min. Execution: At 09:45 AM, 1. Buy 10 LOT ITM CE (-100 pts), 2. Sell 10 LOT ATM CE. Target: 1000 points strategy gain. Stoploss: 500 points combined SL. Exit: 15:15 PM, Current Expiry.", 
+    'Deep Directional Bullish - Synthetic future play.', 
+    "I have mapped your ITM Debit Call Spread. Execution: At 09:30 AM, 1. Buy 10 LOT ITM CE (-100 pts), 2. Sell 10 LOT ATM CE. Target: 50 points net strategy gain. Stoploss: 20 points net SL. Exit: Trail by 10 points or exit at 15:15 PM.", 
     'core_spreads'
   ),
 
   // --- TAB 3: CORE NON-DIRECTIONAL (5) ---
   createDefaultObj(
     'cnd_1', 
-    'Short Straddle', 
-    'Non-Directional - Intraday Theta Decay.', 
-    "I have mapped your Short Straddle. Timeframe: 5-min. Execution: At 09:20 AM, Sell 10 LOT ATM CE & Sell 10 LOT ATM PE Current Expiry. Target: 1000 points combined decay. Stoploss: 500 points combined loss. Mandatory Exit: 15:15 PM.", 
+    'Safe Short Straddle', 
+    'Non-Directional - Pure Intraday Theta Decay with strict legs.', 
+    "I have mapped your Short Straddle. Execution: At 09:20 AM, Sell 10 LOT ATM CE & Sell 10 LOT ATM PE. Target: 40% combined premium decay. Stoploss: 25% individual leg stoploss (SL hit on one side leaves the other running). Exit: 15:10 PM.", 
     'core_ndir'
   ),
   createDefaultObj(
     'cnd_2', 
-    'Short Strangle', 
-    'Non-Directional - Wide Range Decay.', 
-    "I have mapped your Short Strangle. Timeframe: 5-min. Execution: At 09:20 AM, Sell 10 LOT OTM CE (+100 pts) & Sell 10 LOT OTM PE (-100 pts). Target: 1000 points strategy decay. Stoploss: 500 points combined SL. Exit: 15:15 PM, Current Expiry.", 
+    'Wide Range Short Strangle', 
+    'Non-Directional - High win-rate selling out-of-money.', 
+    "I have mapped your Short Strangle. Execution: At 09:30 AM, Sell 10 LOT OTM CE (Delta 20) & Sell 10 LOT OTM PE (Delta 20). Target: 60% decay of total premium. Stoploss: 30% SL on individual legs. Exit: 15:15 PM.", 
     'core_ndir'
   ),
   createDefaultObj(
     'cnd_3', 
-    'Iron Condor', 
-    'Non-Directional - Range-bound play.', 
-    "I have mapped your Iron Condor strategy. Timeframe: 5-min. Execution: At 10:00 AM, 1. Sell 10 LOT OTM CE (+100 pts), 2. Buy 10 LOT OTM CE (+200 pts), 3. Sell 10 LOT OTM PE (-100 pts), 4. Buy 10 LOT OTM PE (-200 pts). Target: 1000 pts. Stoploss: 500 pts. Exit: 15:15 PM.", 
+    'Iron Condor (Risk Defined)', 
+    'Non-Directional - Range-bound play with hedged wings.', 
+    "I have mapped your Iron Condor. Execution: At 10:00 AM, Sell OTM CE (+150), Buy CE (+250), Sell OTM PE (-150), Buy PE (-250). Target: 50% of max credit received. Stoploss: 30% loss of total premium collected. Exit: 15:00 PM.", 
     'core_ndir'
   ),
   createDefaultObj(
     'cnd_4', 
-    'Iron Butterfly', 
-    'Non-Directional - Pin Risk play.', 
-    "I have mapped your Iron Butterfly strategy. Timeframe: 5-min. Execution: At 09:45 AM, 1. Sell 10 LOT ATM CE, 2. Sell 10 LOT ATM PE, 3. Buy 10 LOT OTM CE (+150 pts), 4. Buy 10 LOT OTM PE (-150 pts). Target: 1000 pts. Stoploss: 500 pts. Exit: 15:15 PM.", 
+    'Iron Butterfly (Pin Risk)', 
+    'Non-Directional - Aggressive decay play.', 
+    "I have mapped your Iron Butterfly. Execution: At 09:45 AM, Sell ATM CE & PE, Buy OTM CE (+200) & OTM PE (-200). Target: 40% decay on short legs. Stoploss: 20% fixed loss on total strategy premium. Exit: 15:10 PM.", 
     'core_ndir'
   ),
   createDefaultObj(
     'cnd_5', 
-    'Jade Lizard', 
-    'Non-Directional/Bullish - Intraday Variation.', 
-    "I have mapped your Jade Lizard strategy. Timeframe: 5-min. Execution: At 10:00 AM, 1. Sell 10 LOT OTM PE (-100 pts), 2. Sell 10 LOT OTM CE (+100 pts), 3. Buy 10 LOT OTM CE (+150 pts). Target: 1000 points. Stoploss: 500 points. Exit: 15:15 PM, Current Expiry.", 
+    'Jade Lizard (Upward Bias)', 
+    'Non-Directional/Bullish - Collecting premium with no upside risk.', 
+    "I have mapped your Jade Lizard strategy. Execution: At 10:30 AM, Sell OTM PE (-100 pts), Sell OTM CE (+100 pts), Buy OTM CE (+150 pts). Target: 60% of total credit received. Stoploss: 25% total SL if market crashes down. Exit: 15:15 PM.", 
     'core_ndir'
   ),
 
@@ -184,258 +184,258 @@ const DEFAULT_STRATEGIES = [
   createDefaultObj(
     'ca_1', 
     'Call Ratio Backspread', 
-    'Directional Explosive - Zero downside risk.', 
-    "I have mapped your Call Ratio Backspread. Timeframe: NIFTY 5-min. Execution: At 09:45 AM candle close exactly, 1. Sell 10 LOT ITM CE (-50 pts), 2. Buy 20 LOT OTM CE (+50 pts), 3. Buy 10 LOT OTM CE (+100 pts). Target: 1000 points upside gain. Stoploss: 500 points combined SL. Exit: 15:15 PM, Current Expiry.", 
+    'Directional Explosive - Free trade if market falls, massive profit if flies.', 
+    "I have mapped your Call Ratio Backspread. Execution: At 10:00 AM, Sell 10 LOT ITM CE, Buy 20 LOT OTM CE. Target: 120 points explosive upside gain. Stoploss: 30 points if it hovers in the loss valley. Exit: 15:10 PM.", 
     'core_adv'
   ),
   createDefaultObj(
     'ca_2', 
     'Put Ratio Backspread', 
-    'Directional Explosive - Zero upside risk.', 
-    "I have mapped your Put Ratio Backspread. Timeframe: NIFTY 5-min. Execution: At 09:45 AM candle close, 1. Sell 10 LOT ITM PE (+50 pts), 2. Buy 20 LOT OTM PE (-50 pts). Target: 1000 points downside profit. Stoploss: 500 points combined SL. Exit: 15:15 PM, Current Expiry.", 
+    'Directional Explosive - Zero upside risk, massive downside reward.', 
+    "I have mapped your Put Ratio Backspread. Execution: At 11:00 AM, Sell 10 LOT ITM PE, Buy 20 LOT OTM PE. Target: 150 points downside profit. Stoploss: 40 points in the trap zone. Exit: 15:15 PM.", 
     'core_adv'
   ),
   createDefaultObj(
     'ca_3', 
     'Front Ratio Spread', 
-    'Directional Mild - Income focused.', 
-    "I have mapped your Front Ratio Spread. Timeframe: 5-min. Execution: At 10:00 AM, 1. Buy 10 LOT ATM CE, 2. Sell 20 LOT OTM CE (+100 pts). Target: 1000 points decay profit. Stoploss: 500 points spread SL. Exit: 15:15 PM, Current Expiry.", 
+    'Directional Mild - Best for slow creeping trends.', 
+    "I have mapped your Front Ratio Spread. Execution: At 10:30 AM, Buy 10 LOT ATM CE, Sell 20 LOT OTM CE (+100 pts). Target: Max profit at short strike (approx 45 pts). Stoploss: 15 pts overall spread loss. Exit: 15:00 PM.", 
     'core_adv'
   ),
   createDefaultObj(
     'ca_4', 
     'Long Call Butterfly', 
-    'Directional Targeted - High RR Setup.', 
-    "I have mapped your Long Call Butterfly. Timeframe: 5-min. Execution: At 09:45 AM, 1. Buy 10 LOT ITM CE (-100 pts), 2. Sell 20 LOT ATM CE, 3. Buy 10 LOT OTM CE (+100 pts). Target: 1000 points max reward. Stoploss: 500 points max loss. Exit: 15:15 PM, Current Expiry.", 
+    'Directional Targeted - Extremely High 1:4 RR Setup.', 
+    "I have mapped your Long Call Butterfly. Execution: At 12:00 PM, Buy ITM CE (-100), Sell 2x ATM CE, Buy OTM CE (+100). Target: 80% of max reward near ATM strike. Stoploss: 20% max loss limit. Exit: 15:15 PM.", 
     'core_adv'
   ),
   createDefaultObj(
     'ca_5', 
     'Long Put Butterfly', 
-    'Directional Targeted - Downside play.', 
-    "I have mapped your Long Put Butterfly. Timeframe: 5-min. Execution: At 09:45 AM, 1. Buy 10 LOT ITM PE (+100 pts), 2. Sell 20 LOT ATM PE, 3. Buy 10 LOT OTM PE (-100 pts). Target: 1000 points. Stoploss: 500 points. Exit: 15:15 PM, Current Expiry.", 
+    'Directional Targeted - Pinning support zones.', 
+    "I have mapped your Long Put Butterfly. Execution: At 12:00 PM, Buy ITM PE (+100), Sell 2x ATM PE, Buy OTM PE (-100). Target: 75% max reward. Stoploss: 25% max loss. Exit: 15:15 PM.", 
     'core_adv'
   ),
 
   // --- TAB 5: TIME-BASED DIRECTIONAL (5) ---
   createDefaultObj(
     'tb_1', 
-    '9:16 AM Opening Drive - Long', 
-    'Time-Based Directional - First minute momentum.', 
-    "I have mapped your 9:16 Opening Drive Long strategy. Timeframe: 1-min chart. Execution: Exactly at 09:16 AM, Buy NIFTY Future 10 LOT (or Buy 10 LOT ATM CE). Target: 1000 points gain. Stoploss: 500 points (or 1-min candle low). Mandatory Exit: 15:15 PM.", 
+    '9:16 AM Opening Drive Long', 
+    'Time-Based Directional - Catching extreme pre-market sentiment.', 
+    "I have mapped your 9:16 Opening Drive. Timeframe: 1-min chart. Execution: Exactly at 09:16:00 AM, Buy 10 LOT ATM CE. Target: Fast 30 points scalp. Stoploss: 15 points (tight SL). Exit: Mandatory time exit at 09:25 AM if target not met.", 
     'time_dir'
   ),
   createDefaultObj(
     'tb_2', 
-    '9:16 AM Opening Drive - Short', 
-    'Time-Based Directional - First minute crash.', 
-    "I have mapped your 9:16 Opening Drive Short strategy. Timeframe: 1-min chart. Execution: Exactly at 09:16 AM, Sell NIFTY Future 10 LOT (or Buy 10 LOT ATM PE). Target: 1000 points gain. Stoploss: 500 points (or 1-min candle high). Mandatory Exit: 15:15 PM.", 
+    '9:16 AM Opening Dump Short', 
+    'Time-Based Directional - Catching gap-up profit booking.', 
+    "I have mapped your 9:16 Dump Short. Timeframe: 1-min chart. Execution: Exactly at 09:16:00 AM, Buy 10 LOT ATM PE. Target: 40 points quick momentum fall. Stoploss: 20 points. Exit: Maximum hold time 15 minutes (09:31 AM).", 
     'time_dir'
   ),
   createDefaultObj(
     'tb_3', 
-    '9:30 AM ORB - Bullish', 
-    'Time-Based Directional - 15 Min Breakout.', 
-    "I have mapped your 9:30 AM ORB Bullish strategy. Timeframe: 15-min chart. Execution: At 09:30 AM candle close high breakout, Buy Future 10 LOT at 09:30 AM. Target: 1000 points. Stoploss: 500 points. Mandatory Exit: 15:15 PM.", 
+    '9:30 AM ORB Bullish', 
+    'Time-Based Directional - Institutional buying zone.', 
+    "I have mapped your 9:30 AM ORB Long. Timeframe: 15-min. Execution: If 09:30 candle closes above opening 15-m high, Buy 10 LOT ATM CE. Target: 60 points. Stoploss: Low of the 09:15-09:30 candle (approx 30 pts). Exit: 15:00 PM.", 
     'time_dir'
   ),
   createDefaultObj(
     'tb_4', 
-    '9:30 AM ORB - Bearish', 
-    'Time-Based Directional - 15 Min Breakdown.', 
-    "I have mapped your 9:30 AM ORB Bearish strategy. Timeframe: 15-min chart. Execution: At 09:30 AM candle close low breakdown, Sell Future 10 LOT at 09:30 AM. Target: 1000 points target. Stoploss: 500 points SL. Exit: 15:15 PM.", 
+    '9:30 AM ORB Bearish', 
+    'Time-Based Directional - Institutional selling zone.', 
+    "I have mapped your 9:30 AM ORB Short. Timeframe: 15-min. Execution: If 09:30 candle closes below opening 15-m low, Buy 10 LOT ATM PE. Target: 75 points. Stoploss: High of the first 15-min candle. Exit: 15:00 PM.", 
     'time_dir'
   ),
   createDefaultObj(
     'tb_5', 
-    '1:30 PM Breakout Continuation', 
-    'Time-Based Directional - Second half trend.', 
-    "I have mapped your 1:30 PM Breakout strategy. Timeframe: 5-min chart. Execution: At 13:30 PM candle close, Buy Future 10 LOT (or 10 LOT ATM CE/PE on day high/low break). Target: 1000 points. Stoploss: 500 points. Exit: 15:15 PM.", 
+    '1:30 PM European Breakout', 
+    'Time-Based Directional - Second half explosive trend.', 
+    "I have mapped your 1:30 PM Breakout. Execution: At 13:30 PM, Buy CE if trading near day high, Buy PE if near day low. Target: 50 points momentum burst. Stoploss: 25 points. Trail: 10 points step. Exit: 15:15 PM.", 
     'time_dir'
   ),
 
   // --- TAB 6: TIME-BASED NON-DIRECTIONAL (5) ---
   createDefaultObj(
     'tbn_1', 
-    '9:20 AM Short Straddle', 
-    'Time-Based Neutral - Morning Theta.', 
-    "I have mapped your 9:20 AM Short Straddle. Timeframe: 1-min/5-min. Execution: Exactly at 09:20 AM, Sell 10 LOT ATM CE & Sell 10 LOT ATM PE Current Expiry. Target: 1000 points theta profit. Stoploss: 500 points overall strategy SL. Exit: 15:15 PM.", 
+    '9:20 AM Golden Straddle', 
+    'Time-Based Neutral - The classic morning theta crush.', 
+    "I have mapped your 9:20 AM Straddle. Execution: Exactly at 09:20 AM, Sell ATM CE & ATM PE. Target: 60% of total premium. Stoploss: 25% individual leg SL (Move SL to cost for remaining leg if one hits). Exit: 15:10 PM.", 
     'time_ndir'
   ),
   createDefaultObj(
     'tbn_2', 
-    '9:20 AM Short Strangle', 
-    'Time-Based Neutral - Morning Theta.', 
-    "I have mapped your 9:20 AM Short Strangle. Timeframe: 1-min/5-min. Execution: Exactly at 09:20 AM, Sell 10 LOT OTM CE (+100 pts) & Sell 10 LOT OTM PE (-100 pts). Target: 1000 points. Stoploss: 500 points. Exit: 15:15 PM, Current Expiry.", 
+    '9:30 AM Premium Strangle', 
+    'Time-Based Neutral - Letting IV settle before selling.', 
+    "I have mapped your 9:30 AM Strangle. Execution: At 09:30 AM, Sell OTM CE (+1% of spot) & Sell OTM PE (-1% of spot). Target: 70% premium decay. Stoploss: 30% individual leg SL. Exit: 15:15 PM.", 
     'time_ndir'
   ),
   createDefaultObj(
     'tbn_3', 
-    '10:30 AM Iron Condor', 
-    'Time-Based Neutral - Mid-day settling.', 
-    "I have mapped your 10:30 AM Iron Condor. Timeframe: 5-min. Execution: Executed at 10:30 AM. Sell 10 LOT OTM CE/PE (+100/-100), Buy 10 LOT Far OTM CE/PE (+200/-200). Target: 1000 points decay. Stoploss: 500 points SL. Exit: 15:15 PM.", 
+    '10:30 AM Iron Condor (Low IV)', 
+    'Time-Based Neutral - Mid-day sideways grind.', 
+    "I have mapped your 10:30 AM Iron Condor. Execution: At 10:30 AM, Sell 15-delta CE/PE, Buy 5-delta CE/PE. Target: 50% max credit collected. Stoploss: 20% of credit received. Exit: 15:15 PM.", 
     'time_ndir'
   ),
   createDefaultObj(
     'tbn_4', 
-    '11:30 AM Theta Eater', 
-    'Time-Based Neutral - Lunchtime decay.', 
-    "I have mapped your 11:30 AM Theta Eater. Timeframe: 5-min. Execution: Executed at 11:30 AM, Sell 10 LOT ATM CE & Sell 10 LOT ATM PE. Target: 1000 points decay gain. Stoploss: 500 points total SL. Strict Exit: 13:30 PM.", 
+    '11:30 AM Lunch Theta Eater', 
+    'Time-Based Neutral - Capitalizing on low volume hours.', 
+    "I have mapped your 11:30 AM Theta Eater. Execution: At 11:30 AM, Sell ATM Straddle. Target: 30% decay (quick capture). Stoploss: 15% combined SL. Strict Time Exit: 13:30 PM (Before Euro markets open).", 
     'time_ndir'
   ),
   createDefaultObj(
     'tbn_5', 
-    '2:30 PM Expiry Pin (0DTE)', 
-    'Time-Based Neutral - Late day decay.', 
-    "I have mapped your 2:30 PM Expiry Pin strategy. Timeframe: 5-min. Execution: Executed at 14:30 PM on Expiry day, Sell 10 LOT ATM Iron Butterfly. Target: 1000 points theta decay. Stoploss: 500 points total loss. Mandatory Exit: 15:15 PM.", 
+    '2:30 PM Expiry Zero Hero Sell', 
+    'Time-Based Neutral - Late day expiry crush.', 
+    "I have mapped your 2:30 PM Expiry Pin. Execution: At 14:30 PM on Expiry, Sell ATM CE & PE (Straddle). Target: 90% decay (holding to zero). Stoploss: 40% combined spike. Mandatory Exit: 15:15 PM.", 
     'time_ndir'
   ),
 
   // --- TAB 7: DIRECTIONAL INDICATORS (5) ---
   createDefaultObj(
     'di_1', 
-    'VWAP Bounce - Call', 
-    'Indicator - Mean reversion long.', 
-    "I have mapped your VWAP Bounce Call strategy. Timeframe: NIFTY 5-min. Execution: Buy Future 10 LOT (or Buy 10 LOT ATM CE) on bullish candle close at VWAP. Target: 1000 points. Stoploss: 500 points. Mandatory Exit: 15:15 PM.", 
+    'VWAP Bounce Call (1:2 RR)', 
+    'Indicator - Institutional average support.', 
+    "I have mapped your VWAP Bounce Long. Timeframe: 5-min. Execution: Buy ATM CE when price tests VWAP from above and closes green. Target: 40 points. Stoploss: 20 points (below VWAP line). Exit: 15:15 PM.", 
     'ind_dir'
   ),
   createDefaultObj(
     'di_2', 
-    'VWAP Rejection - Put', 
-    'Indicator - Mean reversion short.', 
-    "I have mapped your VWAP Rejection Put strategy. Timeframe: NIFTY 5-min. Execution: Sell Future 10 LOT (or Buy 10 LOT ATM PE) on bearish candle close at VWAP. Target: 1000 points. Stoploss: 500 points. Exit: 15:15 PM.", 
+    'VWAP Rejection Put (1:2.5 RR)', 
+    'Indicator - Selling into VWAP resistance.', 
+    "I have mapped your VWAP Rejection Short. Timeframe: 5-min. Execution: Buy ATM PE when price bounces to VWAP from below and forms red candle. Target: 50 points. Stoploss: 20 points. Exit: 15:15 PM.", 
     'ind_dir'
   ),
   createDefaultObj(
     'di_3', 
-    'RSI Oversold (Below 30) Reversal', 
-    'Indicator - Catching bottom.', 
-    "I have mapped your RSI Oversold Reversal. Timeframe: 5-min chart. Execution: Buy Future 10 LOT at 10:00 AM when RSI crosses above 30. Target: 1000 points gain. Stoploss: 500 points SL. Exit: 15:15 PM, Current Expiry.", 
+    'RSI Extreme Reversal (Below 25)', 
+    'Indicator - Catching the exhausted bottom.', 
+    "I have mapped your RSI Reversal. Timeframe: 5-min. Execution: Buy ATM CE when RSI drops below 25 and crosses back above 30. Target: 45 points gain. Stoploss: 15 points tight SL. Exit: 15:15 PM.", 
     'ind_dir'
   ),
   createDefaultObj(
     'di_4', 
-    'RSI Overbought (Above 70) Reversal', 
-    'Indicator - Catching top.', 
-    "I have mapped your RSI Overbought Reversal. Timeframe: 5-min chart. Execution: Sell Future 10 LOT at 11:00 AM when RSI crosses below 70. Target: 1000 points target. Stoploss: 500 points stoploss. Exit: 15:15 PM.", 
+    'RSI Overbought Short (Above 80)', 
+    'Indicator - Fading the euphoric top.', 
+    "I have mapped your RSI Overbought Reversal. Timeframe: 5-min. Execution: Buy ATM PE when RSI crosses below 75 from 80+. Target: 60 points target. Stoploss: 25 points stoploss. Exit: 15:15 PM.", 
     'ind_dir'
   ),
   createDefaultObj(
     'di_5', 
-    'MACD Zero Line Crossover Long', 
-    'Indicator - Momentum shift up.', 
-    "I have mapped your MACD Bullish Crossover. Timeframe: 5-min. Execution: Buy 10 LOT ATM CE when MACD line crosses above Zero line. Target: 1000 points gain. Stoploss: 500 points loss limit. Exit: 15:15 PM.", 
+    'MACD Zero Line Burst', 
+    'Indicator - Strong momentum shift validation.', 
+    "I have mapped your MACD Bullish Crossover. Timeframe: 5-min. Execution: Buy ATM CE when MACD histogram crosses above zero powerfully. Target: 50 points gain. Stoploss: 25 points. Trail SL: 15 pts. Exit: 15:15 PM.", 
     'ind_dir'
   ),
 
   // --- TAB 8: TREND & MOMENTUM (5) ---
   createDefaultObj(
     'tm_1', 
-    'EMA 9/15 Bullish Cross', 
-    'Trend - Fast momentum up.', 
-    "I have mapped your EMA 9/15 Long strategy. Timeframe: 5-min chart. Execution: Buy Future 10 LOT at 09:45 AM when 9 EMA crosses above 15 EMA. Target: 1000 points profit. Stoploss: 500 points loss. Exit: 15:15 PM.", 
+    'EMA 9/15 Bullish Ride', 
+    'Trend - Fast momentum upward trailing.', 
+    "I have mapped your EMA 9/15 Long. Timeframe: 5-min. Execution: Buy ATM CE when 9 EMA crosses above 15 EMA. Target: Open Target (Trail 9 EMA). Stoploss: 20 points or candle close below 15 EMA. Exit: 15:15 PM.", 
     'trend'
   ),
   createDefaultObj(
     'tm_2', 
-    'EMA 9/15 Bearish Cross', 
-    'Trend - Fast momentum down.', 
-    "I have mapped your EMA 9/15 Short strategy. Timeframe: 5-min chart. Execution: Sell Future 10 LOT at 11:00 AM when 9 EMA crosses below 15 EMA. Target: 1000 points profit. Stoploss: 500 points loss. Exit: 15:15 PM.", 
+    'EMA 9/15 Bearish Ride', 
+    'Trend - Fast momentum downward trailing.', 
+    "I have mapped your EMA 9/15 Short. Timeframe: 5-min. Execution: Buy ATM PE when 9 EMA crosses below 15 EMA. Target: Open Target (Trail 15 EMA). Stoploss: 25 points. Exit: 15:15 PM.", 
     'trend'
   ),
   createDefaultObj(
     'tm_3', 
-    'Supertrend Buy (10,3)', 
-    'Trend - Algorithmic Long.', 
-    "I have mapped your Supertrend Long strategy. Timeframe: 5-min chart. Execution: Buy Future 10 LOT (or Buy 10 LOT ATM CE) when Supertrend turns green. Target: 1000 points. Stoploss: 500 points. Exit: 15:15 PM.", 
+    'Supertrend (10,3) Rider', 
+    'Trend - Algorithmic Long trailing.', 
+    "I have mapped your Supertrend Long. Timeframe: 10-min. Execution: Buy ATM CE when Supertrend turns green. Target: 80 points. Stoploss: Supertrend line value (dynamic SL). Exit: 15:15 PM.", 
     'trend'
   ),
   createDefaultObj(
     'tm_4', 
-    'Supertrend Sell (10,3)', 
-    'Trend - Algorithmic Short.', 
-    "I have mapped your Supertrend Short strategy. Timeframe: 5-min chart. Execution: Sell Future 10 LOT (or Buy 10 LOT ATM PE) when Supertrend turns red. Target: 1000 points. Stoploss: 500 points. Exit: 15:15 PM.", 
+    'Supertrend (10,3) Crusher', 
+    'Trend - Algorithmic Short trailing.', 
+    "I have mapped your Supertrend Short. Timeframe: 10-min. Execution: Buy ATM PE when Supertrend turns red. Target: 100 points. Stoploss: Supertrend line value. Exit: 15:15 PM.", 
     'trend'
   ),
   createDefaultObj(
     'tm_5', 
     'Bollinger Band Squeeze Breakout', 
-    'Trend - Volatility expansion.', 
-    "I have mapped your BB Squeeze Breakout strategy. Timeframe: 5-min chart. Execution: Buy Future 10 LOT on breaking upper/lower band after squeeze close. Target: 1000 points. Stoploss: 500 points. Exit: 15:15 PM.", 
+    'Trend - Volatility expansion blast.', 
+    "I have mapped your BB Squeeze Breakout. Timeframe: 5-min. Execution: Buy ATM CE/PE on candle close outside narrowed Bollinger Bands. Target: 60 points momentum gain. Stoploss: 20 points (Middle BB line). Exit: 15:15 PM.", 
     'trend'
   ),
 
   // --- TAB 9: PRICE ACTION (5) ---
   createDefaultObj(
     'pa_1', 
-    'Inside Bar Breakout', 
-    'Price Action - Range Expansion.', 
-    "I have mapped your Inside Bar Breakout strategy. Timeframe: 15-min chart. Execution: Buy Future 10 LOT on breaking mother bar high/low. Target: 1000 points. Stoploss: 500 points. Mandatory Exit: 15:15 PM.", 
+    'Inside Bar Master Breakout', 
+    'Price Action - Volatility contraction leading to expansion.', 
+    "I have mapped your Inside Bar Breakout. Timeframe: 15-min chart. Execution: Buy ATM CE/PE on breaking the mother bar high/low. Target: 1:3 RR (Approx 60 pts). Stoploss: Below/Above the inside bar (Approx 20 pts). Exit: 15:15 PM.", 
     'pa'
   ),
   createDefaultObj(
     'pa_2', 
-    'Pin Bar Reversal at Support', 
-    'Price Action - Rejection.', 
-    "I have mapped your Pin Bar Reversal strategy. Timeframe: 5-min chart. Execution: Buy Future 10 LOT at 09:45 AM on bullish Pin Bar close at key support. Target: 1000 points. Stoploss: 500 points. Exit: 15:15 PM.", 
+    'Pin Bar Sniper Reversal', 
+    'Price Action - Smart money rejection at support.', 
+    "I have mapped your Pin Bar Reversal. Timeframe: 5-min. Execution: Buy ATM CE on bullish Pin Bar (long lower wick) close at S1/S2 support. Target: 50 points (Next resistance). Stoploss: 15 points (Just below wick). Exit: 15:15 PM.", 
     'pa'
   ),
   createDefaultObj(
     'pa_3', 
     'Double Bottom (W) Breakout', 
-    'Price Action - Structure Shift.', 
-    "I have mapped your Double Bottom Long strategy. Timeframe: 5-min chart. Execution: Buy Future 10 LOT at 10:30 AM on W-pattern neckline breakout close. Target: 1000 points. Stoploss: 500 points. Exit: 15:15 PM.", 
+    'Price Action - Structural shift to uptrend.', 
+    "I have mapped your Double Bottom Long. Timeframe: 5-min. Execution: Buy ATM CE on W-pattern neckline breakout close. Target: 70 points. Stoploss: 25 points (below right leg). Exit: 15:15 PM.", 
     'pa'
   ),
   createDefaultObj(
     'pa_4', 
     'Bull Flag Continuation', 
-    'Price Action - Trend pause.', 
-    "I have mapped your Bull Flag Long strategy. Timeframe: 5-min chart. Execution: Buy Future 10 LOT at 11:00 AM on flag resistance breakout close. Target: 1000 points. Stoploss: 500 points. Exit: 15:15 PM.", 
+    'Price Action - Resting phase before next rally.', 
+    "I have mapped your Bull Flag Long. Timeframe: 5-min. Execution: Buy ATM CE on flag resistance trendline breakout close. Target: Measured move of the pole (approx 80 points). Stoploss: 25 points (below flag base). Exit: 15:15 PM.", 
     'pa'
   ),
   createDefaultObj(
     'pa_5', 
-    'CPR (Central Pivot) Bounce', 
-    'Price Action - Floor Support.', 
-    "I have mapped your CPR Bounce strategy. Timeframe: 5-min chart. Execution: Buy Future 10 LOT at 09:45 AM on bullish reversal candle at CPR floor. Target: 1000 points. Stoploss: 500 points. Exit: 15:15 PM.", 
+    'CPR (Central Pivot) Golden Bounce', 
+    'Price Action - Institutional Floor Support.', 
+    "I have mapped your CPR Bounce. Timeframe: 5-min. Execution: Buy ATM CE on bullish engulfing candle at CPR floor. Target: 60 points (R1). Stoploss: 20 points (below bottom CPR). Exit: 15:15 PM.", 
     'pa'
   ),
 
   // --- TAB 10: INTRADAY SCALPING (5) ---
   createDefaultObj(
     'sc_1', 
-    '1-Min Marubozu Scalp CE', 
+    '1-Min Marubozu Quick CE Scalp', 
     'Scalping - High Frequency Bullish.', 
-    "I have mapped your 1-Min Marubozu Scalp CE. Timeframe: 1-min chart. Execution: Buy 10 LOT ATM CE on strong 1-min green Marubozu candle close. Target: 1000 points (or fast 15% scalp). Stoploss: 500 points (or 10% SL). Exit: 15:15 PM.", 
+    "I have mapped your 1-Min Marubozu Scalp CE. Timeframe: 1-min. Execution: Buy ATM CE immediately on strong 1-min solid green candle close. Target: 15 points premium spike. Stoploss: 7 points strict SL. Exit: Max holding time 5 minutes.", 
     'scalp'
   ),
   createDefaultObj(
     'sc_2', 
-    '1-Min Marubozu Scalp PE', 
+    '1-Min Marubozu Quick PE Scalp', 
     'Scalping - High Frequency Bearish.', 
-    "I have mapped your 1-Min Marubozu Scalp PE. Timeframe: 1-min chart. Execution: Buy 10 LOT ATM PE on strong 1-min red Marubozu candle close. Target: 1000 points. Stoploss: 500 points. Mandatory Exit: 15:15 PM.", 
+    "I have mapped your 1-Min Marubozu Scalp PE. Timeframe: 1-min. Execution: Buy ATM PE immediately on strong 1-min solid red candle close. Target: 18 points premium drop. Stoploss: 8 points strict SL. Exit: Max holding time 5 minutes.", 
     'scalp'
   ),
   createDefaultObj(
     'sc_3', 
-    'Engulfing Candlestick Scalp Long', 
-    'Scalping - Reversal Scalp.', 
-    "I have mapped your Engulfing Long Scalp. Timeframe: 3-min chart. Execution: Buy 10 LOT ATM CE immediately after 3-min Bullish Engulfing close. Target: 1000 points. Stoploss: 500 points. Exit: 15:15 PM.", 
+    '3-Min Engulfing Long Scalp', 
+    'Scalping - Reversal Trap Scalp.', 
+    "I have mapped your Engulfing Long Scalp. Timeframe: 3-min. Execution: Buy ATM CE immediately after 3-min Bullish Engulfing close. Target: 25 points. Stoploss: 10 points. Exit: 15:15 PM.", 
     'scalp'
   ),
   createDefaultObj(
     'sc_4', 
-    'Engulfing Candlestick Scalp Short', 
-    'Scalping - Reversal Scalp.', 
-    "I have mapped your Engulfing Short Scalp. Timeframe: 3-min chart. Execution: Buy 10 LOT ATM PE immediately after 3-min Bearish Engulfing close. Target: 1000 points. Stoploss: 500 points. Exit: 15:15 PM.", 
+    '3-Min Engulfing Short Scalp', 
+    'Scalping - Reversal Trap Scalp.', 
+    "I have mapped your Engulfing Short Scalp. Timeframe: 3-min. Execution: Buy ATM PE immediately after 3-min Bearish Engulfing close. Target: 30 points. Stoploss: 12 points. Exit: 15:15 PM.", 
     'scalp'
   ),
   createDefaultObj(
     'sc_5', 
-    '3-Min ORB Quick Scalp', 
-    'Scalping - Opening Momentum.', 
-    "I have mapped your 3-Min ORB Quick Scalp. Timeframe: 3-min chart. Execution: Buy 10 LOT ATM CE/PE on crossing first 3-min high/low at 09:18 AM. Target: 1000 points. Stoploss: 500 points. Fast Exit: 15:15 PM.", 
+    '3-Min ORB Lightning Scalp', 
+    'Scalping - Opening Momentum Rush.', 
+    "I have mapped your 3-Min ORB Quick Scalp. Timeframe: 3-min. Execution: Buy ATM CE/PE immediately on crossing first 3-min candle's high/low. Target: 20 points. Stoploss: 10 points. Exit: Close trade by 09:30 AM max.", 
     'scalp'
   )
 ];
