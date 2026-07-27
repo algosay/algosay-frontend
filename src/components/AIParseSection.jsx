@@ -106,7 +106,8 @@ const AIParseSection = ({
           <textarea
             className="flex-grow w-full bg-[#0a0a0f] border border-purple-900/40 rounded-xl p-4 text-white focus:outline-none focus:border-purple-500/80 focus:ring-1 focus:ring-purple-500/50 text-sm placeholder:text-gray-600 transition-all resize-none shadow-inner custom-scrollbar"
             rows="3"
-            placeholder="e.g., Sell Nifty 15min CE when RSI(14) > 70, stop 2% SL, target 1.5%. Exit at 15:10..."
+            placeholder="e.g., Call Ratio Backspread. 1.Sell 1 ITM CE, 2. Buy 2 OTM  +50  3.buy OTM +100 CE. 30% both SL. Exit at 15:15, Current Expiry. JUN 16 2025 JUN 17 2025 10 LOT   nifty 5 min time frame  9.45 am candle close exactly....buy future 10 lot at 10.00am target 1000 point stoploss 500 point  exit 3.15  SELL future 10 lot at 11.00am target 1000 point stoploss 500 point  exit 3.15 
+"
             value={aiPrompt}
             onChange={(e) => setAiPrompt(e.target.value)}
           ></textarea>
