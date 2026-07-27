@@ -28,7 +28,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
     }
   };
 
-  // 💎 4 PREMIUM NEON BOXES (Step 04 and Step 05 Removed as requested)
+  // 💎 4 PREMIUM NEON BOXES (Step 04 Updated as requested)
   const stepsData = [
     {
       num: "01",
@@ -77,28 +77,29 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
     },
     {
       num: "04",
-      title: "Live Forward Testing (Paper)",
-      desc: "Test your AI-generated algorithms in the live market with zero real capital risk before mapping them to your broker account.",
-      icon: <Crosshair strokeWidth={2} size={24} />,
+      title: "Institutional Pro Metrics",
+      desc: "Go beyond basic PnL. We provide Profit Factor, Sortino Ratio, Expectancy, Max Adverse Excursion, Edge Ratio, and 50+ advanced metrics.",
+      icon: <BarChart3 strokeWidth={2} size={24} />,
       theme: {
         cardBg: "bg-[#0A0B14]/80 backdrop-blur-xl",
-        borderHover: "border-[#1A3A3A] hover:border-[#00FFFF] hover:shadow-[0_0_30px_rgba(0,255,255,0.2)]",
-        iconText: "text-[#00FFFF]",
-        iconBorder: "border-[#00FFFF]/30 shadow-[0_0_15px_rgba(0,255,255,0.4)]",
-        hoverIconBg: "group-hover:bg-[#00FFFF]/10 group-hover:shadow-[0_0_25px_rgba(0,255,255,0.6)]",
-        badgeText: "text-[#00FFFF]",
-        gradientStart: "from-[#00FFFF]/5"
+        borderHover: "border-[#3A1818] hover:border-[#FF5252] hover:shadow-[0_0_30px_rgba(255,82,82,0.2)]",
+        iconText: "text-[#FF5252]",
+        iconBorder: "border-[#FF5252]/30 shadow-[0_0_15px_rgba(255,82,82,0.4)]",
+        hoverIconBg: "group-hover:bg-[#FF5252]/10 group-hover:shadow-[0_0_25px_rgba(255,82,82,0.6)]",
+        badgeText: "text-[#FF5252]",
+        gradientStart: "from-[#FF5252]/5"
       }
     }
   ];
 
-  // 💎 Result Images Array
+  // 💎 Result Images Array (Added AI Neural Engine next to Advanced Metrics)
   const resultImages = [
     { id: 1, src: '/image/PnL Ledger.png', title: 'PnL Ledger', color: 'from-[#00E5FF] to-[#0088FF]' },
     { id: 2, src: '/image/Drawdown Curve.png', title: 'Drawdown Curve', color: 'from-[#9D4EDD] to-[#6025F5]' },
     { id: 3, src: '/image/Heatmap Matrix.png', title: 'Heatmap Matrix', color: 'from-[#00E676] to-[#00B259]' },
     { id: 4, src: '/image/AI Diagnostics.png', title: 'AI Diagnostics', color: 'from-[#FF007A] to-[#C5005E]' },
-    { id: 5, src: '/image/Advanced Metrics.png', title: 'Advanced Metrics', color: 'from-[#FFBD2E] to-[#E6A01A]' }
+    { id: 5, src: '/image/Advanced Metrics.png', title: 'Advanced Metrics', color: 'from-[#FFBD2E] to-[#E6A01A]' },
+    { id: 6, src: '/image/AI Neural Engine.png', title: 'AI Neural Engine', color: 'from-[#2B4CFF] to-[#00E5FF]' }
   ];
 
   // 💎 50+ Default Strategies Database
@@ -219,7 +220,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
       {/* MAIN CONTENT AREA */}
       <div className="flex flex-col lg:flex-row justify-between items-start gap-12 flex-grow relative z-10 w-full max-w-[1400px] mx-auto">
         
-        {/* Left Column Text, Terminal & Stats */}
+        {/* Left Column Text, Terminal */}
         <div className="w-full lg:w-[45%] flex flex-col pt-2 relative z-20">
           <h3 className="text-[12px] font-black text-transparent bg-clip-text bg-gradient-to-r from-[#4D7CFF] to-[#9D4EDD] uppercase tracking-[0.15em] mb-4 drop-shadow-sm">
             NEXT-GEN AI BACKTESTING FOR INDIAN TRADERS
@@ -276,26 +277,6 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
             </motion.div>
           </div>
 
-          {/* STATS SECTION */}
-          <div className="flex flex-wrap items-center gap-8 mb-8 backdrop-blur-sm bg-black/10 p-4 rounded-2xl w-max border border-white/5">
-             <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-[#9D4EDD]/10 border border-[#9D4EDD]/30 text-[#9D4EDD] shadow-[0_0_15px_rgba(157,78,221,0.2)]"><Rocket size={24} /></div>
-                <div><h4 className="text-xl font-bold text-white tracking-tight">2.5M+</h4><p className="text-xs text-slate-400 uppercase tracking-wider">Backtests Run</p></div>
-             </div>
-             <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-[#00E5FF]/10 border border-[#00E5FF]/30 text-[#00E5FF] shadow-[0_0_15px_rgba(0,229,255,0.2)]"><Users size={24} /></div>
-                <div><h4 className="text-xl font-bold text-white tracking-tight">50K+</h4><p className="text-xs text-slate-400 uppercase tracking-wider">Active Traders</p></div>
-             </div>
-             <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-[#B14EFF]/10 border border-[#B14EFF]/30 text-[#B14EFF] shadow-[0_0_15px_rgba(177,78,255,0.2)]"><Zap size={24} /></div>
-                <div><h4 className="text-xl font-bold text-white tracking-tight">AI Engine</h4><p className="text-xs text-slate-400 uppercase tracking-wider">Neural Powered</p></div>
-             </div> 
-             <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-[#00E5FF]/10 border border-[#00E5FF]/30 text-[#00E5FF] shadow-[0_0_15px_rgba(0,229,255,0.2)]"><ShieldCheck size={24} /></div>
-                <div><h4 className="text-xl font-bold text-white tracking-tight">99.9%</h4><p className="text-xs text-slate-400 uppercase tracking-wider">Uptime</p></div>
-             </div>
-          </div>
-
           {/* BUILT FOR PRECISION BANNER */}
           <div className="flex flex-col gap-4 max-w-xl relative">
             <div className="p-5 rounded-2xl bg-gradient-to-r from-[#00E5FF]/10 to-transparent border border-[#00E5FF]/20 flex items-center gap-5 backdrop-blur-md">
@@ -308,7 +289,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
           </div>
         </div>
 
-        {/* RIGHT COLUMN: 4 NEON BOXES + UNIQUE RIGHT-SIDE CTA BUTTON */}
+        {/* RIGHT COLUMN: 4 NEON BOXES + UNIQUE RIGHT-SIDE CTA BUTTON + STATS */}
         <div className="w-full lg:w-[55%] flex flex-col items-end relative z-20 pt-4 gap-6">
           {/* Steps Grid (Now 4 Steps) */}
           <motion.div variants={containerVariants} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.1 }} className="grid grid-cols-1 sm:grid-cols-2 gap-5 w-full">
@@ -391,6 +372,27 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
               </div>
             </div>
           </motion.div>
+
+          {/* STATS SECTION (Moved right below the CTA Button) */}
+          <div className="flex flex-wrap justify-between items-center gap-4 w-full backdrop-blur-sm bg-black/10 p-5 rounded-2xl border border-white/5">
+             <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-[#9D4EDD]/10 border border-[#9D4EDD]/30 text-[#9D4EDD] shadow-[0_0_15px_rgba(157,78,221,0.2)]"><Rocket size={24} /></div>
+                <div><h4 className="text-xl font-bold text-white tracking-tight">2.5M+</h4><p className="text-xs text-slate-400 uppercase tracking-wider">Backtests Run</p></div>
+             </div>
+             <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-[#00E5FF]/10 border border-[#00E5FF]/30 text-[#00E5FF] shadow-[0_0_15px_rgba(0,229,255,0.2)]"><Users size={24} /></div>
+                <div><h4 className="text-xl font-bold text-white tracking-tight">50K+</h4><p className="text-xs text-slate-400 uppercase tracking-wider">Active Traders</p></div>
+             </div>
+             <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-[#B14EFF]/10 border border-[#B14EFF]/30 text-[#B14EFF] shadow-[0_0_15px_rgba(177,78,255,0.2)]"><Zap size={24} /></div>
+                <div><h4 className="text-xl font-bold text-white tracking-tight">AI Engine</h4><p className="text-xs text-slate-400 uppercase tracking-wider">Neural Powered</p></div>
+             </div> 
+             <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-[#00E5FF]/10 border border-[#00E5FF]/30 text-[#00E5FF] shadow-[0_0_15px_rgba(0,229,255,0.2)]"><ShieldCheck size={24} /></div>
+                <div><h4 className="text-xl font-bold text-white tracking-tight">99.9%</h4><p className="text-xs text-slate-400 uppercase tracking-wider">Uptime</p></div>
+             </div>
+          </div>
+          
         </div>
       </div>
 
@@ -415,7 +417,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
               whileHover={{ y: -10, scale: 1.02 }}
               transition={{ type: "spring", stiffness: 100 }}
               onClick={() => setZoomedImage(img.src)}
-              className={`relative group rounded-2xl overflow-hidden p-[2px] bg-gradient-to-b from-white/10 to-transparent hover:from-white/30 transition-all duration-500 cursor-zoom-in shadow-xl shadow-black/50 w-full min-h-[250px] max-w-md ${index > 2 ? 'lg:col-span-1' : ''}`}
+              className="relative group rounded-2xl overflow-hidden p-[2px] bg-gradient-to-b from-white/10 to-transparent hover:from-white/30 transition-all duration-500 cursor-zoom-in shadow-xl shadow-black/50 w-full min-h-[250px] max-w-md"
             >
               <div className={`absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-20 transition-opacity duration-500 ease-out z-10 pointer-events-none ${img.color}`}></div>
               <div className="bg-[#0A0C14] rounded-2xl h-full flex flex-col items-center justify-center overflow-hidden">
