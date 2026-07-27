@@ -201,7 +201,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
             </div>
             <div className="p-6 font-mono text-[15px] flex items-start min-h-[120px] bg-[#0A0E17] relative z-10">
               <div className="text-slate-600 mr-4 select-none text-right font-medium text-sm pt-0.5">01</div>
-              <span className="text-emerald-400 mr-3 font-semibold shrink-0">prompt &gt;</span>
+              <span className="text-emerald-400 mr-3 font-semibold shrink-0">Strategy &gt;</span>
               <TypeAnimation
                 sequence={[
                   'Sell BankNifty ATM Straddle at 9:20 AM with 25% SL...',
