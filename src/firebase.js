@@ -5,7 +5,8 @@ import {
   GoogleAuthProvider, 
   signInWithPopup, 
   createUserWithEmailAndPassword, 
-  signInWithEmailAndPassword 
+  signInWithEmailAndPassword,
+  updateProfile // 🚨 UPDATED: Added updateProfile to save Name in Auth
 } from "firebase/auth";
 // 🚨 NEW: Import Firestore Database functions (Added collection, addDoc, getDocs, deleteDoc)
 import { getFirestore, doc, getDoc, setDoc, serverTimestamp, updateDoc, increment, collection, addDoc, getDocs, deleteDoc } from "firebase/firestore";
@@ -40,11 +41,28 @@ export const signInWithGoogle = async () => {
   }
 };
 
-// 🚨 NEW: Email/Password Sign Up Function
-export const signUpWithEmail = async (email, password) => {
+// 🚨 UPDATED: Email/Password Sign Up Function (Now accepts Name and Phone)
+export const signUpWithEmail = async (email, password, name, phone) => {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    return userCredential.user;
+    const user = userCredential.user;
+
+    // 1. Update Display Name in Firebase Authentication Profile
+    await updateProfile(user, { displayName: name });
+
+    // 2. Save complete details (Name, Phone, Credits) immediately to Firestore
+    const userRef = doc(db, "users", user.uid);
+    await setDoc(userRef, {
+      uid: user.uid,
+      name: name,
+      email: email,
+      phone: phone,
+      credits: 10, // Welcome Bonus
+      createdAt: serverTimestamp(),
+      lastLogin: serverTimestamp()
+    });
+
+    return user;
   } catch (error) {
     console.error("Sign Up Error:", error.code, error.message);
     throw error;
@@ -70,10 +88,12 @@ export const createUserProfile = async (user) => {
   const userSnap = await getDoc(userRef);
 
   // If user doesn't exist in database, create them with 10 credits!
+  // (Note: For Email Signup, the doc is already created above. This will primarily catch Google Sign-ins)
   if (!userSnap.exists()) {
     try {
       await setDoc(userRef, {
         uid: user.uid,
+        name: user.displayName || "Trader", // 🚨 UPDATED: Added name field for Google users
         email: user.email,
         credits: 10, // Welcome Bonus
         createdAt: serverTimestamp(),
