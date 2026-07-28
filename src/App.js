@@ -19,7 +19,7 @@ import { doc, getDoc } from 'firebase/firestore';
 
 // 🚨 NEW: Views for Routing 🚨
 import Login from './Login';
-import HomeView from './homeView';
+import HomeView from './HomeView';
 import AuthView from './AuthView';
 
 function App() {
