@@ -98,7 +98,7 @@ function App() {
                 qty={logic.qty} setQty={logic.setQty}
                 transactionType={logic.transactionType} setTransactionType={logic.setTransactionType}
                 fromDate={logic.fromDate} setFromDate={logic.setFromDate}
-                toDate={logic.toDate} setToDate={logic.setToDate}
+                toDate={logic.toDate} setToDate={logic.setToData}
                 entryTime={logic.entryTime} setEntryTime={logic.setEntryTime}
                 exitTime={logic.exitTime} setExitTime={logic.setExitTime}
                 trailMoveX={logic.trailMoveX} setTrailMoveX={logic.setTrailMoveX}
@@ -128,7 +128,7 @@ function App() {
                 </button>
 
                 <button
-                  onClick={logic.runBacktest}
+                  onClick={logic.logic?.runBacktest || logic.runBacktest}
                   disabled={logic.loading || !logic.isConfirmed}
                   className={`w-full md:w-2/3 py-4 rounded-lg font-bold text-sm tracking-widest uppercase transition-all flex justify-center items-center gap-3 ${
                     logic.loading || !logic.isConfirmed 
@@ -147,7 +147,7 @@ function App() {
               <ResultsDashboard 
                 result={logic.result} 
                 withTax={logic.withTax} 
-                setWithTax={logic.setWithTax} 
+                setWithTax={logic.setWithTest || logic.setWithTax} 
               />
               
             </div>
@@ -166,7 +166,7 @@ function App() {
           {/* 🚦 ROUTING SYSTEM 🚦 */}
           <Routes>
             
-            {/* PUBLIC PAGES (Anyone can visit these without logging in, looks like a standard website) */}
+            {/* PUBLIC PAGES (Anyone can visit these without logging in) */}
             <Route path="/about-us" element={<AboutUs />} />
             <Route path="/terms-conditions" element={<TermsConditions />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
@@ -174,7 +174,7 @@ function App() {
             <Route path="/contact-us" element={<ContactUs />} />
             <Route path="/careers" element={<Careers />} />
 
-            {/* PRIVATE APP DASHBOARD (If you go to '/', it asks for login) */}
+            {/* PRIVATE APP DASHBOARD (Root path requires login) */}
             <Route path="/" element={<ProtectedDashboard />} />
             
           </Routes>

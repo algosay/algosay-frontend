@@ -11,11 +11,11 @@ const Footer = () => {
 
       <div className="max-w-7xl mx-auto px-6 py-12 md:py-16 relative z-10 space-y-12">
         
-        {/* Top Section: Branding & Links Grid (Updated to 4 columns to push items left) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+        {/* Top Section: Branding & Links Grid (5 Columns to pull columns left) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
           
           {/* Column 1: AlgoSay Branding & Tech Stack (Takes 2 cols on LG) */}
-          <div className="lg:col-span-2 space-y-5 lg:pr-10">
+          <div className="lg:col-span-2 space-y-5 lg:pr-6">
             <Link to="/" className="inline-flex items-center gap-2 group">
               <span className="text-2xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 drop-shadow-[0_0_10px_rgba(34,211,238,0.4)]">
                 AlgoSay
@@ -43,8 +43,11 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Column 2: Company & Legal (Moved to Left) */}
-          <div className="space-y-4">
+          {/* Spacer Column on Large screens to pull remaining columns left */}
+          <div className="hidden lg:block lg:col-span-0" />
+
+          {/* Column 2: Company & Legal (Pushed Left) */}
+          <div className="space-y-4 lg:col-span-1">
             <h4 className="text-sm font-semibold text-white uppercase tracking-wider font-mono">
               Company & Legal
             </h4>
@@ -73,13 +76,13 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Column 3: Security & Payments (Moved to Left) */}
-          <div className="space-y-4">
+          {/* Column 3: Secure Gateway (Pushed Left) */}
+          <div className="space-y-4 lg:col-span-1">
             <h4 className="text-sm font-semibold text-white uppercase tracking-wider font-mono">
               Secure Gateway
             </h4>
             <p className="text-xs text-gray-500 leading-relaxed">
-              All subscription payments and pay-as-you-go credit token recharges are encrypted and processed securely via Razorpay PCI-DSS compliant infrastructure.
+              All subscription payments and credit token recharges are encrypted and processed securely via Razorpay PCI-DSS compliant infrastructure.
             </p>
             <div className="pt-2">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-900 border border-gray-800 text-xs text-gray-300 font-mono">
