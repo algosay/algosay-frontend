@@ -13,21 +13,13 @@ import UserProfile from './components/UserProfile';
 import { auth, db, getUserCredits, deductUserCredit, saveUserStrategy, getUserStrategies, deleteUserStrategy } from './firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore'; 
-
-// 🚨 NEW: Imported homeView for Initial Routing 🚨
-import HomeView from './HomeView';
-
-// 🚨 LATEST UPDATE: Imported AuthView instead of separate Login and Signup 🚨
-import AuthView from './AuthView'; 
+import Login from './Login';
 
 function App() {
   // --- Auth & Credits State ---
   const [user, setUser] = useState(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
   const [userCredits, setUserCredits] = useState(0); 
-  
-  // 🚨 NEW: State to manage Initial Route (HomeView) 🚨
-  const [showHomeView, setShowHomeView] = useState(true);
 
   // 🚨 NEW: Subscription States 🚨
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -413,7 +405,7 @@ function App() {
         target: leg.target || 0, target_unit: leg.targetUnit || '%', stop_loss: leg.stopLoss || 0, sl_unit: leg.slUnit || '%',
         trail_sl: { x: leg.trailX || 0, y: leg.trailY || 0, unit_x: leg.trailUnitX || 'Pts', unit_y: leg.trailUnitY || 'Pts' }, 
         sl_reentry: leg.slReentry || 0, target_reexecute: leg.targetReexecute || 0, 
-        wait_and_trade: leg.wait_and_trade || false, cost_to_cost: leg.costToCost || false, move_to_stoploss: leg.moveToStoploss || false
+        wait_and_trade: leg.waitAndTrade || false, cost_to_cost: leg.costToCost || false, move_to_stoploss: leg.moveToStoploss || false
       }))
     };
 
@@ -442,14 +434,8 @@ function App() {
     );
   }
 
-  // 🚨 LATEST UPDATE: Render HomeView or AuthView when user is not logged in 🚨
   if (!user) {
-    if (showHomeView) {
-      // 🚀 User முதல்ல HomeView பார்ப்பாங்க, அங்கருந்து Signup/Login பட்டன் அமுக்குனா AuthView போகும்
-      return <HomeView onNavigateToAuth={() => setShowHomeView(false)} />;
-    }
-    // 🚀 HomeView-லருந்து வந்த அப்புறம், அவங்க AuthView-வ பார்ப்பாங்க
-    return <AuthView onLoginSuccess={(userData) => setUser(userData)} />;
+    return <Login onLoginSuccess={(loggedInUser) => setUser(loggedInUser)} />;
   }
 
   return (

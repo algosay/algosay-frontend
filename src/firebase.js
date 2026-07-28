@@ -5,12 +5,10 @@ import {
   GoogleAuthProvider, 
   signInWithPopup, 
   createUserWithEmailAndPassword, 
-  signInWithEmailAndPassword,
-  updateProfile,
-  fetchSignInMethodsForEmail // 🚨 NEW: Added fetchSignInMethodsForEmail to check if email exists
+  signInWithEmailAndPassword 
 } from "firebase/auth";
-// 🚨 NEW: Import Firestore Database functions (Added query, where for Mobile Login)
-import { getFirestore, doc, getDoc, setDoc, serverTimestamp, updateDoc, increment, collection, addDoc, getDocs, deleteDoc, query, where } from "firebase/firestore";
+// 🚨 NEW: Import Firestore Database functions (Added collection, addDoc, getDocs, deleteDoc)
+import { getFirestore, doc, getDoc, setDoc, serverTimestamp, updateDoc, increment, collection, addDoc, getDocs, deleteDoc } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -30,18 +28,6 @@ const googleProvider = new GoogleAuthProvider();
 // 🚨 NEW: Initialize Firestore Database
 export const db = getFirestore(app);
 
-// 🚨 LATEST UPDATE: Check if Email already exists in Firebase
-export const checkEmailExists = async (email) => {
-  try {
-    const signInMethods = await fetchSignInMethodsForEmail(auth, email);
-    // If array has elements, it means the email is already registered
-    return signInMethods.length > 0;
-  } catch (error) {
-    console.error("Error checking email:", error.code, error.message);
-    throw error;
-  }
-};
-
 // Google Sign-In Function
 export const signInWithGoogle = async () => {
   try {
@@ -54,28 +40,11 @@ export const signInWithGoogle = async () => {
   }
 };
 
-// 🚨 UPDATED: Email/Password Sign Up Function (Now accepts Name and Phone)
-export const signUpWithEmail = async (email, password, name, phone) => {
+// 🚨 NEW: Email/Password Sign Up Function
+export const signUpWithEmail = async (email, password) => {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-
-    // 1. Update Display Name in Firebase Authentication Profile
-    await updateProfile(user, { displayName: name });
-
-    // 2. Save complete details (Name, Phone, Credits) immediately to Firestore
-    const userRef = doc(db, "users", user.uid);
-    await setDoc(userRef, {
-      uid: user.uid,
-      name: name,
-      email: email,
-      phone: phone,
-      credits: 10, // Welcome Bonus
-      createdAt: serverTimestamp(),
-      lastLogin: serverTimestamp()
-    });
-
-    return user;
+    return userCredential.user;
   } catch (error) {
     console.error("Sign Up Error:", error.code, error.message);
     throw error;
@@ -93,33 +62,6 @@ export const signInWithEmail = async (email, password) => {
   }
 };
 
-// 🚨 LATEST UPDATE: Mobile/Password Login Function
-export const signInWithMobile = async (phone, password) => {
-  try {
-    // 1. Find user email by phone number in Firestore
-    const usersRef = collection(db, "users");
-    const q = query(usersRef, where("phone", "==", phone));
-    const querySnapshot = await getDocs(q);
-
-    if (querySnapshot.empty) {
-      throw new Error("Mobile number not found. Please sign up.");
-    }
-
-    // 2. Get the email associated with this mobile number
-    let userEmail = "";
-    querySnapshot.forEach((doc) => {
-      userEmail = doc.data().email;
-    });
-
-    // 3. Login using the found email and the provided password
-    const userCredential = await signInWithEmailAndPassword(auth, userEmail, password);
-    return userCredential.user;
-  } catch (error) {
-    console.error("Mobile Login Error:", error.message);
-    throw error;
-  }
-};
-
 // 🚨 NEW: Create User Profile in Database with 10 Free Credits
 export const createUserProfile = async (user) => {
   if (!user) return;
@@ -128,12 +70,10 @@ export const createUserProfile = async (user) => {
   const userSnap = await getDoc(userRef);
 
   // If user doesn't exist in database, create them with 10 credits!
-  // (Note: For Email Signup, the doc is already created above. This will primarily catch Google Sign-ins)
   if (!userSnap.exists()) {
     try {
       await setDoc(userRef, {
         uid: user.uid,
-        name: user.displayName || "Trader", // 🚨 UPDATED: Added name field for Google users
         email: user.email,
         credits: 10, // Welcome Bonus
         createdAt: serverTimestamp(),

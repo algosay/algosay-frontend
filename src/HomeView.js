@@ -181,7 +181,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
 
       {/* HEADER: Logo & Login/Signup Buttons */}
       <div className="flex items-center justify-between z-50 mb-10 w-full max-w-[1400px] mx-auto border-b border-white/5 pb-4">
-        <div className="flex items-center gap-3 whitespace-nowrap cursor-pointer group" onClick={() => onNavigate('home')}>
+        <div className="flex items-center gap-3 whitespace-nowrap cursor-pointer group" onClick={() => onNavigate(false)}>
           <div className="relative">
             <AlgoSayLogo className="w-10 h-10 shadow-lg shadow-blue-500/20 rounded-xl border border-white/10 relative z-10" />
             <div className="absolute inset-0 bg-blue-500 blur-xl opacity-30 group-hover:opacity-60 transition-opacity"></div>
@@ -198,13 +198,13 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
 
         <div className="flex items-center gap-3 sm:gap-4">
           <button 
-            onClick={() => onNavigate('auth')}
+            onClick={() => onNavigate(false)}
             className="px-5 py-2.5 text-sm font-medium text-slate-300 bg-transparent border border-white/10 hover:border-white/30 hover:text-white rounded-lg transition-all duration-300"
           >
             Log In
           </button>
           <button 
-            onClick={() => onNavigate('auth')}
+            onClick={() => onNavigate(true)}
             className="relative overflow-hidden group px-6 py-2.5 bg-gradient-to-r from-[#2B4CFF] to-[#6025F5] text-white text-sm font-semibold rounded-lg shadow-[0_0_20px_rgba(43,76,255,0.4)] hover:shadow-[0_0_30px_rgba(96,37,245,0.6)] transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0"
           >
             <span className="relative z-10 flex items-center gap-2">
@@ -328,7 +328,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.5 }}
-            onClick={() => onNavigate('auth')}
+            onClick={() => onNavigate(true)}
             className="w-full relative group cursor-pointer overflow-hidden rounded-2xl p-[2px] bg-gradient-to-r from-[#00E5FF] via-[#7928CA] to-[#FF007A] shadow-[0_0_30px_rgba(0,229,255,0.25)] hover:shadow-[0_0_50px_rgba(121,40,202,0.45)] transition-all duration-500 hover:-translate-y-1"
           >
             <div className="bg-[#0A0C14] hover:bg-[#0E111F] rounded-[14px] p-5 sm:p-6 flex items-center justify-between transition-colors duration-300 relative overflow-hidden">
