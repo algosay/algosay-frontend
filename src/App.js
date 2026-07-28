@@ -14,6 +14,9 @@ import { auth, db, getUserCredits, deductUserCredit, saveUserStrategy, getUserSt
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore'; 
 
+// 🚨 NEW: Imported homeView for Initial Routing 🚨
+import HomeView from './homeView';
+
 // 🚨 LATEST UPDATE: Imported AuthView instead of separate Login and Signup 🚨
 import AuthView from './AuthView'; 
 
@@ -23,6 +26,9 @@ function App() {
   const [loadingAuth, setLoadingAuth] = useState(true);
   const [userCredits, setUserCredits] = useState(0); 
   
+  // 🚨 NEW: State to manage Initial Route (HomeView) 🚨
+  const [showHomeView, setShowHomeView] = useState(true);
+
   // 🚨 NEW: Subscription States 🚨
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [subscriptionPlan, setSubscriptionPlan] = useState('');
@@ -436,8 +442,13 @@ function App() {
     );
   }
 
-  // 🚨 LATEST UPDATE: Render AuthView when user is not logged in 🚨
+  // 🚨 LATEST UPDATE: Render HomeView or AuthView when user is not logged in 🚨
   if (!user) {
+    if (showHomeView) {
+      // 🚀 User முதல்ல HomeView பார்ப்பாங்க, அங்கருந்து Signup/Login பட்டன் அமுக்குனா AuthView போகும்
+      return <HomeView onNavigateToAuth={() => setShowHomeView(false)} />;
+    }
+    // 🚀 HomeView-லருந்து வந்த அப்புறம், அவங்க AuthView-வ பார்ப்பாங்க
     return <AuthView onLoginSuccess={(userData) => setUser(userData)} />;
   }
 

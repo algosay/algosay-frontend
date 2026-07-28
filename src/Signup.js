@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
-import { auth, db } from './firebase';
+import { auth, db, checkEmailExists } from './firebase'; // 🚨 UPDATED: Imported checkEmailExists from firebase.js
 
 const Signup = ({ onSignupSuccess, switchToLogin }) => {
   const [name, setName] = useState('');
@@ -47,6 +47,19 @@ const Signup = ({ onSignupSuccess, switchToLogin }) => {
     setSuccessMsg('');
 
     try {
+      // 🚨 LATEST UPDATE: Check if the entered email already exists in Firebase before signing up
+      const emailExists = await checkEmailExists(email);
+
+      if (emailExists) {
+        // If the email is already registered, redirect them to Login view automatically
+        setError('Email already exists. Redirecting to Login...');
+        setTimeout(() => {
+          switchToLogin();
+        }, 1500);
+        setLoading(false);
+        return;
+      }
+
       // 1. Create User in Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
@@ -63,7 +76,10 @@ const Signup = ({ onSignupSuccess, switchToLogin }) => {
     } catch (err) {
       console.error(err);
       if (err.code === 'auth/email-already-in-use') {
-        setError('Email already exists. Please login instead.');
+        setError('Email already exists. Redirecting to Login...');
+        setTimeout(() => {
+          switchToLogin();
+        }, 1500);
       } else {
         setError('Failed to create an account. ' + err.message);
       }

@@ -6,7 +6,8 @@ import {
   signInWithPopup, 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword,
-  updateProfile // 🚨 UPDATED: Added updateProfile to save Name in Auth
+  updateProfile,
+  fetchSignInMethodsForEmail // 🚨 NEW: Added fetchSignInMethodsForEmail to check if email exists
 } from "firebase/auth";
 // 🚨 NEW: Import Firestore Database functions (Added query, where for Mobile Login)
 import { getFirestore, doc, getDoc, setDoc, serverTimestamp, updateDoc, increment, collection, addDoc, getDocs, deleteDoc, query, where } from "firebase/firestore";
@@ -28,6 +29,18 @@ const googleProvider = new GoogleAuthProvider();
 
 // 🚨 NEW: Initialize Firestore Database
 export const db = getFirestore(app);
+
+// 🚨 LATEST UPDATE: Check if Email already exists in Firebase
+export const checkEmailExists = async (email) => {
+  try {
+    const signInMethods = await fetchSignInMethodsForEmail(auth, email);
+    // If array has elements, it means the email is already registered
+    return signInMethods.length > 0;
+  } catch (error) {
+    console.error("Error checking email:", error.code, error.message);
+    throw error;
+  }
+};
 
 // Google Sign-In Function
 export const signInWithGoogle = async () => {
