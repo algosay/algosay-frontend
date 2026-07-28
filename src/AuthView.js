@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { signInWithGoogle } from './firebase';
+// Update: firebase.js la irunthu registerNewUser and loginUser import panni irukom
+import { signInWithGoogle, registerNewUser, loginUser } from './firebase';
 import AlgoSayLogo from './AlgoSayLogo';
 import { AlertTriangle, Sparkles, ChevronLeft, ChevronRight, CheckCircle2, Star, ArrowLeft } from 'lucide-react';
 
@@ -45,8 +46,13 @@ const testimonials = [
 
 const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewVariants }) => {
   const [activeReview, setActiveReview] = useState(0);
+  
+  // Update: Name and Mobile states add panni irukom for Signup
+  const [name, setName] = useState('');
+  const [mobile, setMobile] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  
   const [authError, setAuthError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [ripple, setRipple] = useState(null);
@@ -73,7 +79,8 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
     }
   };
 
-  const handleEmailAuth = (e) => {
+  // Update: Real authentication logic using Firebase imported functions
+  const handleEmailAuth = async (e) => {
     e.preventDefault();
     setAuthError('');
     
@@ -86,17 +93,42 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
       return;
     }
 
-    // Example Error Simulation (Replace with actual Firebase Auth logic)
-    if (isSignUp && email === 'test@example.com') {
-      setAuthError('Email already exists. Please log in instead.');
-      return;
-    } else if (!isSignUp && password === 'wrongpassword') {
-      setAuthError('Invalid password. Please try again.');
-      return;
-    }
+    setIsLoading(true);
 
-    console.log(isSignUp ? "Signing up:" : "Logging in:", { email, password });
-    alert(`${isSignUp ? 'Sign Up' : 'Login'} successful for ${email}!`);
+    try {
+      if (isSignUp) {
+        // Sign Up Flow
+        if (!name || !mobile) {
+          setAuthError('Please enter Name and Mobile number for Sign Up.');
+          setIsLoading(false);
+          return;
+        }
+        
+        const user = await registerNewUser(email, password, name, mobile);
+        if (user) {
+          alert('Sign Up successful! 10 Free Credits added.');
+          onLoginSuccess(user);
+        }
+      } else {
+        // Login Flow
+        const userCredential = await loginUser(email, password);
+        if (userCredential && userCredential.user) {
+          onLoginSuccess(userCredential.user);
+        }
+      }
+    } catch (error) {
+      console.error("Auth Error:", error);
+      // Clean up Firebase error messages for the UI
+      const errorMessage = error.message.includes('auth/email-already-in-use') 
+        ? 'Email already exists. Please log in instead.' 
+        : error.message.includes('auth/invalid-credential') 
+        ? 'Invalid email or password. Please try again.' 
+        : 'Authentication failed. Please try again.';
+      
+      setAuthError(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleRippleClick = (e) => {
@@ -236,6 +268,29 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
               </motion.div>
             )}
 
+            {/* Update: Conditionally render Name and Mobile fields only if isSignUp is true */}
+            <AnimatePresence>
+              {isSignUp && (
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }} 
+                  animate={{ opacity: 1, height: 'auto' }} 
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="space-y-4 overflow-hidden"
+                >
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 mb-1.5">Full Name</label>
+                    <input type="text" placeholder="John Doe" value={name} onChange={(e) => setName(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none transition-all text-sm bg-slate-50 text-slate-900 placeholder-slate-400 font-medium" required />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 mb-1.5">Mobile Number</label>
+                    <input type="tel" placeholder="+91 9876543210" value={mobile} onChange={(e) => setMobile(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none transition-all text-sm bg-slate-50 text-slate-900 placeholder-slate-400 font-medium" required />
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             <div>
               <label className="block text-sm font-bold text-slate-700 mb-1.5">Email Address</label>
               <input type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none transition-all text-sm bg-slate-50 text-slate-900 placeholder-slate-400 font-medium" required />
@@ -254,8 +309,8 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
               {!isSignUp && <span className="text-sm font-bold text-blue-600 hover:text-blue-800 cursor-pointer transition-colors">Forgot Password?</span>}
             </div>
 
-            <button type="submit" className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md shadow-blue-500/30 transition-all hover:-translate-y-0.5 text-sm mt-2">
-              {isSignUp ? 'Sign Up' : 'Log In'}
+            <button type="submit" disabled={isLoading} className={`w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md shadow-blue-500/30 transition-all hover:-translate-y-0.5 text-sm mt-2 ${isLoading ? 'opacity-70 cursor-wait' : ''}`}>
+              {isLoading ? (isSignUp ? 'Creating Account...' : 'Logging In...') : (isSignUp ? 'Sign Up' : 'Log In')}
             </button>
 
             <div className="relative flex items-center justify-center mt-5 mb-5">
@@ -289,7 +344,7 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
             <div className="mt-6 text-center">
               <p className="text-sm font-semibold text-slate-600">
                 {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
-                <span onClick={() => { setIsSignUp(!isSignUp); setAuthError(''); }} className="text-blue-600 hover:text-blue-800 cursor-pointer transition-colors">
+                <span onClick={() => { setIsSignUp(!isSignUp); setAuthError(''); setName(''); setMobile(''); }} className="text-blue-600 hover:text-blue-800 cursor-pointer transition-colors">
                   {isSignUp ? "Log In" : "Sign Up"}
                 </span>
               </p>

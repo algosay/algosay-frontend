@@ -9,6 +9,9 @@ export const useAppLogic = () => {
   const [loadingAuth, setLoadingAuth] = useState(true);
   const [userCredits, setUserCredits] = useState(0); 
 
+  // 🚨 NEW: User Profile Data State (To store Name, Mobile, etc. from DB) 🚨
+  const [userProfileData, setUserProfileData] = useState(null);
+
   // 🚨 NEW: Subscription States 🚨
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [subscriptionPlan, setSubscriptionPlan] = useState('');
@@ -61,13 +64,14 @@ export const useAppLogic = () => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
-        // 🚨 UPDATED: Fetching both credits and subscription status directly from Firestore
+        // 🚨 UPDATED: Fetching credits, name, mobile, and subscription status directly from Firestore
         const userRef = doc(db, 'users', currentUser.uid);
         const userSnap = await getDoc(userRef);
         
         if (userSnap.exists()) {
           const userData = userSnap.data();
           setUserCredits(userData.credits || 0);
+          setUserProfileData(userData); // <-- Capturing Full DB Profile (Name, Mobile)
           
           // Check if subscription is valid and not expired
           if (userData.subscription && userData.subscription.is_active) {
@@ -83,7 +87,10 @@ export const useAppLogic = () => {
           // Fallback just in case
           const credits = await getUserCredits(currentUser.uid);
           setUserCredits(credits);
+          setUserProfileData(null);
         }
+      } else {
+        setUserProfileData(null); // Clear data on logout
       }
       setLoadingAuth(false);
     });
@@ -397,6 +404,7 @@ export const useAppLogic = () => {
 
   return {
     user, setUser, loadingAuth, userCredits, isSubscribed, subscriptionPlan,
+    userProfileData, setUserProfileData, // 🚨 NEW EXPORT 🚨
     showStrategiesModal, setShowStrategiesModal, savedStrategies, isLoadingStrategies, modalTab, setModalTab,
     showPricingModal, setShowPricingModal, showProfileModal, setShowProfileModal,
     aiPrompt, setAiPrompt, isParsing, setIsParsing, aiMessage, setAiMessage,

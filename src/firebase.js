@@ -33,6 +33,8 @@ export const signInWithGoogle = async () => {
   try {
     const res = await signInWithPopup(auth, googleProvider);
     const user = res.user;
+    // Google vali ah signup pannalum profile create panni 10 credits tharanum
+    await createUserProfile(user, user.displayName || "Google User", "");
     return user;
   } catch (error) {
     console.error("Error signing in with Google:", error.code, error.message);
@@ -40,30 +42,39 @@ export const signInWithGoogle = async () => {
   }
 };
 
-// 🚨 NEW: Email/Password Sign Up Function
-export const signUpWithEmail = async (email, password) => {
+// 🚨 UPDATE: Email/Password Sign Up Function with Name and Mobile
+export const registerNewUser = async (email, password, name, mobile) => {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    return userCredential.user;
+    const user = userCredential.user;
+    
+    // Auth-la user create aanathum, name and mobile-a Firestore-la save panna anupurom
+    await createUserProfile(user, name, mobile);
+    
+    return user;
   } catch (error) {
     console.error("Sign Up Error:", error.code, error.message);
     throw error;
   }
 };
 
-// 🚨 NEW: Email/Password Login Function
-export const signInWithEmail = async (email, password) => {
+// 🚨 UPDATE: Email/Password Login Function
+export const loginUser = async (email, password) => {
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    return userCredential.user;
+    
+    // Login aanathum lastLogin time update panrathuku
+    await createUserProfile(userCredential.user);
+    
+    return userCredential;
   } catch (error) {
     console.error("Login Error:", error.code, error.message);
     throw error;
   }
 };
 
-// 🚨 NEW: Create User Profile in Database with 10 Free Credits
-export const createUserProfile = async (user) => {
+// 🚨 UPDATE: Create User Profile in Database with 10 Free Credits, Name, and Mobile
+export const createUserProfile = async (user, name = "", mobile = "") => {
   if (!user) return;
   
   const userRef = doc(db, "users", user.uid);
@@ -74,12 +85,14 @@ export const createUserProfile = async (user) => {
     try {
       await setDoc(userRef, {
         uid: user.uid,
+        name: name,         // User enter panna Name
+        mobile: mobile,     // User enter panna Mobile
         email: user.email,
-        credits: 10, // Welcome Bonus
+        credits: 10,        // Welcome Bonus 10 Free Credits
         createdAt: serverTimestamp(),
         lastLogin: serverTimestamp()
       });
-      console.log("New user profile created with 10 free credits!");
+      console.log("New user profile created with Name, Mobile and 10 free credits!");
     } catch (error) {
       console.error("Error creating user profile:", error);
     }

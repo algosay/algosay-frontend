@@ -45,12 +45,16 @@ function App() {
       />
 
       {logic.showProfileModal && (
-        <UserProfile onClose={() => logic.setShowProfileModal(false)} />
+        <UserProfile 
+          onClose={() => logic.setShowProfileModal(false)} 
+          userProfileData={logic.userProfileData} // 🚨 NEW UPDATE: Sending Profile Data (Name, Mobile) to Modal
+        />
       )}
 
       {/* 🌟 REDESIGNED TOP NAVIGATION BAR (Extracted Component) 🌟 */}
       <TopNavBar 
         user={logic.user}
+        userProfileData={logic.userProfileData} // 🚨 NEW UPDATE: Sending Profile Data to Nav Bar
         isSubscribed={logic.isSubscribed}
         subscriptionPlan={logic.subscriptionPlan}
         userCredits={logic.userCredits}

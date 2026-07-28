@@ -2,13 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { auth, db } from '../firebase'; // Update path if needed
 import { doc, getDoc } from 'firebase/firestore';
 
-const UserProfile = ({ onClose }) => {
-  const [userData, setUserData] = useState(null);
-  const [loading, setLoading] = useState(true);
+// 🚨 UPDATED: Accept userProfileData prop passed from App.js 🚨
+const UserProfile = ({ onClose, userProfileData }) => {
+  // Initialize with userProfileData if available, otherwise null
+  const [userData, setUserData] = useState(userProfileData || null);
+  // If userProfileData is already there, no need to show loading spinner
+  const [loading, setLoading] = useState(!userProfileData);
 
   useEffect(() => {
     const fetchUserData = async () => {
-      if (auth.currentUser) {
+      // Only fetch from DB if userProfileData prop is missing
+      if (auth.currentUser && !userProfileData) {
         try {
           const userRef = doc(db, 'users', auth.currentUser.uid);
           const docSnap = await getDoc(userRef);
@@ -26,7 +30,7 @@ const UserProfile = ({ onClose }) => {
     };
 
     fetchUserData();
-  }, []);
+  }, [userProfileData]);
 
   // Calculate remaining days for unlimited plan
   const calculateDaysLeft = (expiryDate) => {
@@ -94,14 +98,29 @@ const UserProfile = ({ onClose }) => {
         {/* Profile Content */}
         <div className="p-6 space-y-6">
           
-          {/* Email Info - Dark sleek look */}
-          <div className="bg-[#0c0c16] p-4 rounded-xl border border-[#1e1e30] flex items-center gap-4 shadow-inner">
-            <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-2xl font-black text-white shadow-[0_0_15px_rgba(147,51,234,0.5)]">
-              {auth.currentUser?.email?.charAt(0).toUpperCase()}
+          {/* 🚨 UPDATED: Enhanced Profile Info showing Name, Mobile, and Email smoothly 🚨 */}
+          <div className="bg-[#0c0c16] p-5 rounded-xl border border-[#1e1e30] shadow-inner space-y-4">
+            {/* Top section: Avatar & Name */}
+            <div className="flex items-center gap-4 border-b border-[#1e1e30] pb-4">
+              <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-2xl font-black text-white shadow-[0_0_15px_rgba(147,51,234,0.5)] shrink-0">
+                {(userData?.name || auth.currentUser?.email || 'U').charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <p className="text-xs tracking-wider text-cyan-500/80 font-bold uppercase mb-1">Trader Profile</p>
+                <p className="text-xl text-gray-200 font-black capitalize">{userData?.name || 'Algo Trader'}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-xs tracking-wider text-cyan-500/80 font-bold uppercase mb-1">Registered Email</p>
-              <p className="text-lg text-gray-200 font-bold">{auth.currentUser?.email}</p>
+            
+            {/* Bottom section: Email & Mobile Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <p className="text-[10px] tracking-wider text-gray-500 font-bold uppercase mb-1">Registered Email</p>
+                <p className="text-sm text-gray-300 font-bold truncate">{auth.currentUser?.email}</p>
+              </div>
+              <div>
+                <p className="text-[10px] tracking-wider text-gray-500 font-bold uppercase mb-1">Mobile Number</p>
+                <p className="text-sm text-gray-300 font-bold">{userData?.mobile || 'Not Provided'}</p>
+              </div>
             </div>
           </div>
 
