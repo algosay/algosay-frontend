@@ -14,65 +14,72 @@ const PrivacyPolicy = () => {
             Last Updated: {new Date().toLocaleDateString()}
           </p>
           <p className="text-lg text-gray-400">
-            At AlgoSay, we prioritize the privacy and security of your data. This policy outlines how we collect, use, and protect your information when you use our algorithmic backtesting platform.
+            At AlgoSay, we prioritize the privacy and security of your data. This policy outlines how we collect, use, and protect your information when you use our historical backtesting platform.
           </p>
         </div>
 
         {/* Content Container */}
         <div className="bg-gray-900/40 border border-gray-800 rounded-2xl p-6 md:p-10 space-y-10 shadow-xl backdrop-blur-sm">
           
-          {/* Section 1: Data Collection */}
+          {/* Section 1: Information We Collect */}
           <section className="space-y-4">
             <h2 className="text-2xl font-semibold text-cyan-400 flex items-center gap-3">
               <span className="w-6 h-[2px] bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.8)]"></span>
               1. Information We Collect
             </h2>
             <div className="text-gray-300 leading-relaxed space-y-3">
-              <p>We collect information that you voluntarily provide to us when registering and using AlgoSay:</p>
+              <p>To provide a seamless backtesting experience, we collect limited and necessary information:</p>
               <ul className="list-disc list-inside space-y-2 text-gray-400">
-                <li><strong>Account Data:</strong> Name, email address, and profile picture (via Google OAuth or email signup) powered by Firebase Authentication.</li>
-                <li><strong>Trading Strategies:</strong> Custom parameters, natural language prompts, and strategy configurations you save to your profile.</li>
-                <li><strong>Usage Data:</strong> Backtest logs, AI diagnostic queries, and interaction metrics to improve our platform's performance.</li>
+                <li><strong className="text-white">Account Details:</strong> Basic profile information (Name, Email ID, and Profile Picture) when you sign in via Google OAuth.</li>
+                <li><strong className="text-white">Strategy Parameters:</strong> Quantitative trading rules, indicators, and multi-leg option strategies you create and save on our platform.</li>
+                <li><strong className="text-white">Usage Data:</strong> Credit token balance, subscription history, and logs related to historical backtest simulations.</li>
               </ul>
+              <p className="text-xs text-amber-400/90 font-mono bg-amber-950/20 border border-amber-950 p-3 rounded-lg mt-2">
+                <strong>Note on Broker Data:</strong> Since AlgoSay is strictly a historical backtesting platform and does not perform live trading or broker order execution, we never collect, request, or store your live brokerage credentials (API keys, client IDs, or passwords).
+              </p>
             </div>
           </section>
 
-          {/* Section 2: Data Usage */}
+          {/* Section 2: How We Use Your Information */}
           <section className="space-y-4">
             <h2 className="text-2xl font-semibold text-blue-400 flex items-center gap-3">
               <span className="w-6 h-[2px] bg-blue-400 shadow-[0_0_10px_rgba(59,130,246,0.8)]"></span>
               2. How We Use Your Information
             </h2>
             <div className="text-gray-300 leading-relaxed space-y-3">
-              <p>Your data is strictly used to provide and enhance our services:</p>
+              <p>Your data is strictly used to operate and enhance our backtesting engine:</p>
               <ul className="list-disc list-inside space-y-2 text-gray-400">
-                <li>To authenticate your account and securely manage your subscription credits.</li>
-                <li>To process natural language inputs via Google Generative AI for strategy parsing and diagnostics.</li>
-                <li>To execute your multi-leg options strategies against our historical cloud data engine.</li>
-                <li>To communicate important updates, security alerts, and support messages.</li>
+                <li>To authenticate your account and securely manage your subscription and credit tokens.</li>
+                <li>To parse natural language prompts using Google Generative AI into structured backtest rules.</li>
+                <li>To execute your simulated strategies against our historical market database.</li>
+                <li>To send critical account alerts, billing receipts, and platform updates.</li>
               </ul>
             </div>
           </section>
 
-          {/* Section 3: Third-Party Services (Crucial for Razorpay & Firebase) */}
+          {/* Section 3: Third-Party Services (Firebase & Razorpay) */}
           <section className="space-y-4">
             <h2 className="text-2xl font-semibold text-purple-400 flex items-center gap-3">
               <span className="w-6 h-[2px] bg-purple-400 shadow-[0_0_10px_rgba(168,85,247,0.8)]"></span>
               3. Third-Party Services & Payments
             </h2>
             <p className="text-gray-300 leading-relaxed">
-              We integrate with trusted third-party services to operate AlgoSay safely. We use <strong>Firebase (Google)</strong> for secure database storage (Firestore) and authentication. For payments, we use <strong>Razorpay</strong>. AlgoSay does not store or process your credit card or UPI details directly; all transactions are handled securely by Razorpay's PCI-compliant gateway.
+              We partner with trusted industry leaders to maintain high operational standards:
             </p>
+            <ul className="list-disc list-inside space-y-2 text-gray-400">
+              <li><strong className="text-white">Firebase (Google):</strong> Used for secure user authentication and database storage (Firestore).</li>
+              <li><strong className="text-white">Razorpay:</strong> Used for processing subscription payments and credit recharges safely under PCI-DSS compliance. AlgoSay does not store or process your credit card, debit card, or UPI PIN details.</li>
+            </ul>
           </section>
 
-          {/* Section 4: Data Security */}
+          {/* Section 4: Data Security & Strategy IP Protection */}
           <section className="space-y-4">
             <h2 className="text-2xl font-semibold text-cyan-400 flex items-center gap-3">
               <span className="w-6 h-[2px] bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.8)]"></span>
-              4. Data Security & IP Protection
+              4. Data Security & Strategy Privacy
             </h2>
             <p className="text-gray-300 leading-relaxed">
-              We employ industry-standard encryption protocols (HTTPS/TLS) for data in transit and at rest. Your custom strategies saved in our Firestore database are strictly private and linked uniquely to your User ID. Our system executes these strategies in isolated environments to ensure data integrity and prevent cross-contamination.
+              We employ robust encryption protocols (HTTPS/TLS) for data in transit. Your custom backtesting strategies stored in our database are strictly private, tied uniquely to your user profile, and are never shared, sold, or used to trade live markets.
             </p>
           </section>
 
@@ -80,10 +87,10 @@ const PrivacyPolicy = () => {
           <section className="space-y-4">
             <h2 className="text-2xl font-semibold text-gray-400 flex items-center gap-3">
               <span className="w-6 h-[2px] bg-gray-500"></span>
-              5. Your Data Rights
+              5. Your Data Rights & Account Deletion
             </h2>
             <p className="text-gray-300 leading-relaxed">
-              You have the right to access, update, or delete your personal information at any time. You can clear your saved strategies directly from the "My Strategies" dashboard. To request a complete deletion of your AlgoSay account and associated data, please contact our support team.
+              You retain full control over your data. You can delete your saved strategies at any time from your dashboard. If you wish to permanently delete your account and all associated data from our servers, you can contact our support team.
             </p>
           </section>
 

@@ -11,11 +11,11 @@ const Footer = () => {
 
       <div className="max-w-7xl mx-auto px-6 py-12 md:py-16 relative z-10 space-y-12">
         
-        {/* Top Section: Branding & Links Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
+        {/* Top Section: Branding & Links Grid (Updated to 4 columns to push items left) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           
           {/* Column 1: AlgoSay Branding & Tech Stack (Takes 2 cols on LG) */}
-          <div className="lg:col-span-2 space-y-5">
+          <div className="lg:col-span-2 space-y-5 lg:pr-10">
             <Link to="/" className="inline-flex items-center gap-2 group">
               <span className="text-2xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 drop-shadow-[0_0_10px_rgba(34,211,238,0.4)]">
                 AlgoSay
@@ -43,7 +43,7 @@ const Footer = () => {
             </div>
           </div>
 
-                   {/* Column 3: Company & Legal (Mandatory for Razorpay) */}
+          {/* Column 2: Company & Legal (Moved to Left) */}
           <div className="space-y-4">
             <h4 className="text-sm font-semibold text-white uppercase tracking-wider font-mono">
               Company & Legal
@@ -73,7 +73,7 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Column 4: Security & Payments */}
+          {/* Column 3: Security & Payments (Moved to Left) */}
           <div className="space-y-4">
             <h4 className="text-sm font-semibold text-white uppercase tracking-wider font-mono">
               Secure Gateway
