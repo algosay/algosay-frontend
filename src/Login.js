@@ -8,6 +8,7 @@ import { createUserProfile } from './firebase';
 const Login = ({ onLoginSuccess }) => {
   const [currentView, setCurrentView] = useState('home');
   const [isSignUp, setIsSignUp] = useState(false);
+  const [loginErrorState, setLoginErrorState] = useState(''); // 💎 NEW: Track error state to detect non-existent accounts
 
   // Common animation variants passed to both children
   const viewVariants = {
@@ -35,6 +36,11 @@ const Login = ({ onLoginSuccess }) => {
     }
   };
 
+  // 💎 NEW: Function to handle non-existent account catch from AuthView
+  const handleLoginError = (errorMessage) => {
+    setLoginErrorState(errorMessage);
+  };
+
   return (
     <div className="flex min-h-screen w-full font-sans text-slate-800 selection:bg-blue-200 relative pt-8 overflow-hidden bg-white">
       
@@ -60,6 +66,22 @@ const Login = ({ onLoginSuccess }) => {
         </motion.div>
       </div>
 
+      {/* 💎 NEW: Global Account-Not-Found Alert Banner inside Login Container if triggered */}
+      {loginErrorState && (
+        <div className="absolute top-10 left-1/2 -translate-x-1/2 z-[100] bg-amber-500 text-slate-950 font-bold px-6 py-2.5 rounded-2xl shadow-xl flex items-center gap-3 border border-amber-300 text-xs sm:text-sm animate-bounce">
+          <span>⚠️ {loginErrorState}</span>
+          <button 
+            onClick={() => {
+              setIsSignUp(true); // Switch to Sign Up mode
+              setLoginErrorState(''); // Clear alert
+            }}
+            className="bg-slate-950 text-white px-3 py-1 rounded-xl text-xs font-black hover:bg-slate-800 transition-colors shadow-sm"
+          >
+            Account illaya? Inga Sign Up pannunga 🚀
+          </button>
+        </div>
+      )}
+
       <AnimatePresence mode="wait" custom={currentView === 'login' ? 'right' : 'left'}>
         {currentView === 'home' ? (
           <HomeView 
@@ -68,6 +90,7 @@ const Login = ({ onLoginSuccess }) => {
             viewVariants={viewVariants}
             onNavigate={(isSignUpMode) => {
               setIsSignUp(isSignUpMode);
+              setLoginErrorState('');
               setCurrentView('login');
             }} 
           />
@@ -78,8 +101,12 @@ const Login = ({ onLoginSuccess }) => {
             viewVariants={viewVariants}
             isSignUp={isSignUp}
             setIsSignUp={setIsSignUp}
-            onBack={() => setCurrentView('home')}
-            onLoginSuccess={handleAuthSuccess} // 🚨 NEW: Passing our new wrapper function here
+            onBack={() => {
+              setCurrentView('home');
+              setLoginErrorState('');
+            }}
+            onLoginSuccess={handleAuthSuccess} 
+            onErrorOccurred={handleLoginError} // 💎 NEW: Passing error handler callback down to AuthView
           />
         )}
       </AnimatePresence>

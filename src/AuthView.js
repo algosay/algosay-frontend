@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { signInWithGoogle } from './firebase';
+import { auth, db, signInWithGoogle } from './firebase'; // Added auth and db imports
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'; // Added Email Auth
+import { doc, setDoc, getDoc } from 'firebase/firestore'; // Added Firestore imports
 import AlgoSayLogo from './AlgoSayLogo';
 import { AlertTriangle, Sparkles, ChevronLeft, ChevronRight, CheckCircle2, Star, ArrowLeft } from 'lucide-react';
 
@@ -65,15 +67,31 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
     try {
       const user = await signInWithGoogle();
       if (user) {
+        // Firestore logic for Google Sign In
+        const userRef = doc(db, 'users', user.uid);
+        const userSnap = await getDoc(userRef);
+        
+        // If user document doesn't exist, it means they are a NEW user
+        if (!userSnap.exists()) {
+          await setDoc(userRef, {
+            email: user.email,
+            name: user.displayName || "Trader",
+            free_backtests: 10, // 💎 10 Free credits for new Google users
+            createdAt: new Date(),
+          });
+        }
+        
         onLoginSuccess(user);
       }
     } catch (error) {
       setAuthError("Google Login failed. Please try again.");
+      console.error(error);
+    } finally {
       setIsLoading(false);
     }
   };
 
-  const handleEmailAuth = (e) => {
+  const handleEmailAuth = async (e) => {
     e.preventDefault();
     setAuthError('');
     
@@ -86,17 +104,40 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
       return;
     }
 
-    // Example Error Simulation (Replace with actual Firebase Auth logic)
-    if (isSignUp && email === 'test@example.com') {
-      setAuthError('Email already exists. Please log in instead.');
-      return;
-    } else if (!isSignUp && password === 'wrongpassword') {
-      setAuthError('Invalid password. Please try again.');
-      return;
-    }
+    setIsLoading(true);
 
-    console.log(isSignUp ? "Signing up:" : "Logging in:", { email, password });
-    alert(`${isSignUp ? 'Sign Up' : 'Login'} successful for ${email}!`);
+    try {
+      if (isSignUp) {
+        // 💎 Email/Password Sign Up Logic
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        
+        // Save new user to Firestore with 10 free backtests
+        await setDoc(doc(db, 'users', user.uid), {
+          email: user.email,
+          name: "Trader", // Can be updated later in profile
+          free_backtests: 10, // 💎 10 Free credits assigned here
+          createdAt: new Date(),
+        });
+
+        onLoginSuccess(user);
+      } else {
+        // Email/Password Log In Logic
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        onLoginSuccess(userCredential.user);
+      }
+    } catch (error) {
+      console.error(error);
+      if (error.code === 'auth/email-already-in-use') {
+        setAuthError('Email already exists. Please log in instead.');
+      } else if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+        setAuthError('Invalid credentials. Please try again.');
+      } else {
+        setAuthError(error.message || 'Authentication failed. Please try again.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleRippleClick = (e) => {
@@ -254,8 +295,8 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
               {!isSignUp && <span className="text-sm font-bold text-blue-600 hover:text-blue-800 cursor-pointer transition-colors">Forgot Password?</span>}
             </div>
 
-            <button type="submit" className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md shadow-blue-500/30 transition-all hover:-translate-y-0.5 text-sm mt-2">
-              {isSignUp ? 'Sign Up' : 'Log In'}
+            <button type="submit" disabled={isLoading} className={`w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md shadow-blue-500/30 transition-all hover:-translate-y-0.5 text-sm mt-2 ${isLoading ? 'opacity-70 cursor-wait' : ''}`}>
+               {isLoading ? 'Processing...' : (isSignUp ? 'Sign Up' : 'Log In')}
             </button>
 
             <div className="relative flex items-center justify-center mt-5 mb-5">

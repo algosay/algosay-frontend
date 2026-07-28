@@ -5,7 +5,8 @@ import {
   GoogleAuthProvider, 
   signInWithPopup, 
   createUserWithEmailAndPassword, 
-  signInWithEmailAndPassword 
+  signInWithEmailAndPassword,
+  updateProfile // 🚨 NEW: Imported to update user's name during signup
 } from "firebase/auth";
 // 🚨 NEW: Import Firestore Database functions (Added collection, addDoc, getDocs, deleteDoc)
 import { getFirestore, doc, getDoc, setDoc, serverTimestamp, updateDoc, increment, collection, addDoc, getDocs, deleteDoc } from "firebase/firestore";
@@ -40,10 +41,14 @@ export const signInWithGoogle = async () => {
   }
 };
 
-// 🚨 NEW: Email/Password Sign Up Function
-export const signUpWithEmail = async (email, password) => {
+// 🚨 UPDATED: Email/Password Sign Up Function (Now accepts Name)
+export const signUpWithEmail = async (email, password, name = "") => {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    // Update Firebase Auth Profile with the provided Name
+    if (name) {
+      await updateProfile(userCredential.user, { displayName: name });
+    }
     return userCredential.user;
   } catch (error) {
     console.error("Sign Up Error:", error.code, error.message);
@@ -62,8 +67,8 @@ export const signInWithEmail = async (email, password) => {
   }
 };
 
-// 🚨 NEW: Create User Profile in Database with 10 Free Credits
-export const createUserProfile = async (user) => {
+// 🚨 UPDATED: Create User Profile in Database with Name, Mobile & 10 Free Credits
+export const createUserProfile = async (user, name = "", mobile = "") => {
   if (!user) return;
   
   const userRef = doc(db, "users", user.uid);
@@ -75,11 +80,13 @@ export const createUserProfile = async (user) => {
       await setDoc(userRef, {
         uid: user.uid,
         email: user.email,
+        name: name || user.displayName || "", // 🚨 NEW: Saves user name
+        mobile: mobile || "",                 // 🚨 NEW: Saves mobile number
         credits: 10, // Welcome Bonus
         createdAt: serverTimestamp(),
         lastLogin: serverTimestamp()
       });
-      console.log("New user profile created with 10 free credits!");
+      console.log("New user profile created with Name, Mobile, and 10 free credits!");
     } catch (error) {
       console.error("Error creating user profile:", error);
     }
