@@ -15,7 +15,7 @@ import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore'; 
 
 // 🚨 NEW: Imported homeView for Initial Routing 🚨
-import HomeView from './homeView';
+import HomeView from './HomeView';
 
 // 🚨 LATEST UPDATE: Imported AuthView instead of separate Login and Signup 🚨
 import AuthView from './AuthView'; 
