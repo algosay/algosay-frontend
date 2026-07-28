@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 
 const AIParseSection = ({ 
@@ -10,6 +10,23 @@ const AIParseSection = ({
   onParsedDataSuccess                  // 🟢 Puthusa Add panni irukkom (To pass data to parent)
 }) => {
 
+  // 🛠️ FIX: Local state added to prevent focus loss during heavy parent re-renders
+  const [localPrompt, setLocalPrompt] = useState(aiPrompt || "");
+  const textareaRef = useRef(null);
+
+  // Sync external prompt changes (e.g., if a template is loaded from parent) to local state
+  useEffect(() => {
+    if (aiPrompt !== localPrompt) {
+      setLocalPrompt(aiPrompt || "");
+    }
+  }, [aiPrompt]);
+
+  const handleTextChange = (e) => {
+    const val = e.target.value;
+    setLocalPrompt(val); // Update local state instantly so typing is smooth
+    if (setAiPrompt) setAiPrompt(val); // Pass to parent silently
+  };
+
   const handleAIParse = async () => {
     setIsParsing(true);
     
@@ -20,7 +37,7 @@ const AIParseSection = ({
 
     try {
       const response = await axios.post("https://algosay-backend.onrender.com/parse_strategy", {
-        prompt: aiPrompt
+        prompt: localPrompt // using localPrompt here for safety
       });
       
       const data = response.data; // Axios-la result 'data'-kulla thaan irukkum
@@ -104,19 +121,19 @@ const AIParseSection = ({
         {/* TEXTAREA & BUTTON ROW */}
         <div className="flex flex-col lg:flex-row gap-4">
           <textarea
+            ref={textareaRef}
             className="flex-grow w-full bg-[#0a0a0f] border border-purple-900/40 rounded-xl p-4 text-white focus:outline-none focus:border-purple-500/80 focus:ring-1 focus:ring-purple-500/50 text-sm placeholder:text-gray-600 transition-all resize-none shadow-inner custom-scrollbar"
             rows="3"
-            placeholder="e.g., Call Ratio Backspread. 1.Sell 1 ITM CE, 2. Buy 2 OTM  +50  3.buy OTM +100 CE. 30% both SL. Exit at 15:15, Current Expiry. JUN 16 2025 JUN 17 2025 10 LOT   nifty 5 min time frame  9.45 am candle close exactly....buy future 10 lot at 10.00am target 1000 point stoploss 500 point  exit 3.15  SELL future 10 lot at 11.00am target 1000 point stoploss 500 point  exit 3.15 
-"
-            value={aiPrompt}
-            onChange={(e) => setAiPrompt(e.target.value)}
+            placeholder="e.g., Call Ratio Backspread. 1.Sell 1 ITM CE, 2. Buy 2 OTM  +50  3.buy OTM +100 CE. 30% both SL. Exit at 15:15, Current Expiry. JUN 16 2025 JUN 17 2025 10 LOT  nifty 5 min time frame  9.45 am candle close exactly....buy future 10 lot at 10.00am target 1000 point stoploss 500 point  exit 3.15  SELL future 10 lot at 11.00am target 1000 point stoploss 500 point  exit 3.15"
+            value={localPrompt}
+            onChange={handleTextChange}
           ></textarea>
           
           <button
             onClick={handleAIParse}
-            disabled={isParsing || !aiPrompt}
+            disabled={isParsing || !localPrompt}
             className={`lg:w-48 px-6 py-4 rounded-xl font-bold text-base transition-all duration-300 flex items-center justify-center gap-2 ${
-              isParsing || !aiPrompt 
+              isParsing || !localPrompt 
               ? 'bg-[#1a1b26] text-gray-500 border border-[#2a2b40] cursor-not-allowed' 
               : 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white shadow-[0_0_20px_rgba(124,58,237,0.3)]'
             }`}
@@ -187,4 +204,5 @@ const AIParseSection = ({
   );
 };
 
-export default AIParseSection;
+// 🛠️ FIX: React.memo will prevent this component from re-rendering unless its specific props change
+export default React.memo(AIParseSection);

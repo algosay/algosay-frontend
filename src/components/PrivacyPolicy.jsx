@@ -1,9 +1,12 @@
 import React from 'react';
 import Footer from './Footer';
+
 const PrivacyPolicy = () => {
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-300 p-6 md:p-12 lg:p-20 font-sans selection:bg-cyan-900 selection:text-cyan-100">
-      <div className="max-w-4xl mx-auto space-y-12">
+    <div className="min-h-screen flex flex-col justify-between bg-gray-950 text-gray-300 font-sans selection:bg-cyan-900 selection:text-cyan-100">
+      
+      {/* Main Content Wrapper */}
+      <div className="max-w-4xl mx-auto space-y-12 p-6 md:p-12 lg:p-20 w-full flex-grow mb-10">
         
         {/* Header Section */}
         <div className="space-y-4 animate-fade-in-up">
@@ -102,6 +105,10 @@ const PrivacyPolicy = () => {
         </div>
 
       </div>
+
+      {/* 💎 Global Footer Rendered Here */}
+      <Footer />
+
     </div>
   );
 };

@@ -1,9 +1,12 @@
 import React from 'react';
 import Footer from './Footer';
+
 const TermsConditions = () => {
   return (
-    <div className="bg-gray-950 text-gray-300 py-12 px-6 md:px-12 lg:px-20 font-sans selection:bg-cyan-900 selection:text-cyan-100">
-      <div className="max-w-4xl mx-auto space-y-12 pb-12">
+    <div className="min-h-screen flex flex-col justify-between bg-gray-950 text-gray-300 font-sans selection:bg-cyan-900 selection:text-cyan-100">
+      
+      {/* Main Content Wrapper */}
+      <div className="max-w-4xl mx-auto space-y-12 pb-12 pt-12 px-6 md:px-12 lg:px-20 w-full flex-grow">
         
         {/* Header Section */}
         <div className="space-y-4 animate-fade-in-up">
@@ -107,6 +110,10 @@ const TermsConditions = () => {
         </div>
 
       </div>
+
+      {/* 💎 Global Footer Rendered Here */}
+      <Footer />
+
     </div>
   );
 };

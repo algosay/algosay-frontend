@@ -9,6 +9,9 @@ import StrategyCapabilities from './components/StrategyCapabilities';
 import ResultsShowcase from './components/ResultsShowcase';
 import StrategyTemplates from './components/StrategyTemplates';
 
+// 💎 Footer Component Import
+import Footer from './components/Footer';
+
 const HomeView = ({ onNavigate, custom, viewVariants }) => {
   // 💎 Image Zoom State (Ithu main laye iruku, ResultsShowcase ku prop aag pass agum)
   const [zoomedImage, setZoomedImage] = useState(null);
@@ -378,8 +381,11 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
         )}
       </AnimatePresence>
 
+      {/* 💎 Global Footer Added Here */}
+      <Footer />
+
     </motion.div>
   );
-};
+};   
 
 export default HomeView;

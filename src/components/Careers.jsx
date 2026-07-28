@@ -47,8 +47,10 @@ const Careers = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-300 p-6 md:p-12 lg:p-20 font-sans selection:bg-cyan-900 selection:text-cyan-100">
-      <div className="max-w-6xl mx-auto space-y-16">
+    <div className="min-h-screen flex flex-col justify-between bg-gray-950 text-gray-300 font-sans selection:bg-cyan-900 selection:text-cyan-100">
+      
+      {/* Main Content Wrapper */}
+      <div className="w-full max-w-6xl mx-auto space-y-16 p-6 md:p-12 lg:p-20 mb-10">
         
         {/* Hero Section */}
         <div className="text-center space-y-6 animate-fade-in-up">
@@ -174,6 +176,10 @@ const Careers = () => {
         </div>
 
       </div>
+
+      {/* 💎 Global Footer Rendered Here */}
+      <Footer />
+      
     </div>
   );
 };

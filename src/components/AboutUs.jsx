@@ -1,10 +1,10 @@
 import React from 'react';
-import Footer from './Footer';
+import Footer from './Footer'; // Path unga folder structure-ku etha maathiri irundha ok (e.g., './Footer' or './components/Footer')
 
 const AboutUs = () => {
   return (
-    <div className="bg-gray-950 text-gray-300 py-12 px-6 md:px-12 lg:px-20 font-sans selection:bg-cyan-900 selection:text-cyan-100">
-      <div className="max-w-6xl mx-auto space-y-16 pb-12">
+    <div className="bg-gray-950 text-gray-300 py-12 px-6 md:px-12 lg:px-20 font-sans selection:bg-cyan-900 selection:text-cyan-100 min-h-screen flex flex-col justify-between">
+      <div className="max-w-6xl mx-auto space-y-16 pb-12 w-full">
         
         {/* Header / Hero Section */}
         <div className="text-center space-y-6 animate-fade-in-up">
@@ -108,6 +108,9 @@ const AboutUs = () => {
         </div>
 
       </div>
+
+      {/* 💎 Global Footer Rendered Here */}
+      <Footer />
     </div>
   );
 };
