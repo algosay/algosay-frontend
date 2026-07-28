@@ -11,14 +11,13 @@ import Login from './Login';
 import TopNavBar from './components/TopNavBar';
 import { useAppLogic } from './useAppLogic'; 
 
-// 🌟 Import Company Pages & Footer
+// 🌟 Import Company Pages (Footer public pages kulla handle panalam)
 import AboutUs from './components/AboutUs';
 import TermsConditions from './components/TermsConditions';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import RefundPolicy from './components/RefundPolicy';
 import ContactUs from './components/ContactUs';
 import Careers from './components/Careers';
-import Footer from './components/Footer';
 
 function App() {
   const logic = useAppLogic();
@@ -166,7 +165,7 @@ function App() {
           {/* 🚦 ROUTING SYSTEM 🚦 */}
           <Routes>
             
-            {/* PUBLIC PAGES (Anyone can visit these without logging in) */}
+            {/* PUBLIC PAGES */}
             <Route path="/about-us" element={<AboutUs />} />
             <Route path="/terms-conditions" element={<TermsConditions />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
@@ -174,14 +173,11 @@ function App() {
             <Route path="/contact-us" element={<ContactUs />} />
             <Route path="/careers" element={<Careers />} />
 
-            {/* PRIVATE APP DASHBOARD (Root path requires login) */}
+            {/* PRIVATE APP DASHBOARD */}
             <Route path="/" element={<ProtectedDashboard />} />
             
           </Routes>
         </div>
-
-        {/* Global Footer (Visible on both public pages and dashboard) */}
-        <Footer />
 
       </div>
     </Router>

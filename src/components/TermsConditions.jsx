@@ -1,5 +1,5 @@
 import React from 'react';
-
+import Footer from './Footer';
 const TermsConditions = () => {
   return (
     <div className="bg-gray-950 text-gray-300 py-12 px-6 md:px-12 lg:px-20 font-sans selection:bg-cyan-900 selection:text-cyan-100">

@@ -1,5 +1,5 @@
 import React from 'react';
-
+import Footer from './Footer';
 const PrivacyPolicy = () => {
   return (
     <div className="min-h-screen bg-gray-950 text-gray-300 p-6 md:p-12 lg:p-20 font-sans selection:bg-cyan-900 selection:text-cyan-100">
