@@ -43,31 +43,7 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Column 2: Platform Features */}
-          <div className="space-y-4">
-            <h4 className="text-sm font-semibold text-white uppercase tracking-wider font-mono">
-              Platform Features
-            </h4>
-            <ul className="space-y-2.5 text-sm">
-              <li>
-                <Link to="/" className="hover:text-cyan-400 transition-colors">AI Neural Engine</Link>
-              </li>
-              <li>
-                <Link to="/" className="hover:text-cyan-400 transition-colors">Multi-Leg Options Spreads</Link>
-              </li>
-              <li>
-                <Link to="/" className="hover:text-cyan-400 transition-colors">Daily PnL Heatmaps</Link>
-              </li>
-              <li>
-                <Link to="/" className="hover:text-cyan-400 transition-colors">Execution Trade Ledger</Link>
-              </li>
-              <li>
-                <Link to="/" className="hover:text-cyan-400 transition-colors">Strategy Templates (50+)</Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Column 3: Company & Legal (Mandatory for Razorpay) */}
+                   {/* Column 3: Company & Legal (Mandatory for Razorpay) */}
           <div className="space-y-4">
             <h4 className="text-sm font-semibold text-white uppercase tracking-wider font-mono">
               Company & Legal
