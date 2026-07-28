@@ -414,7 +414,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
             <textarea
               value={customPrompt}
               onChange={(e) => setCustomPrompt(e.target.value)}
-              placeholder="E.g., How can I reduce drawdown? / Filter out consecutive losses / Focus on win rate..."
+              placeholder="EClicking the Ask AI button will instantly generate a comprehensive, detailed backtest analysis report with deep insights for your strategy"
               className="w-full bg-transparent text-gray-300 text-sm focus:outline-none resize-none placeholder-gray-600 mb-2"
               rows="2"
             />

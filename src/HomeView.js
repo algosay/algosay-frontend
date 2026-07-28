@@ -295,7 +295,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
                     </span>
                   </div>
                   <h4 className="text-lg sm:text-xl font-black text-white tracking-tight flex items-center gap-2 group-hover:text-[#00E5FF] transition-colors">
-                    Get 10 Free Backtests
+                    Get 10 Free Backtests Credits Now
                     <span className="inline-block group-hover:translate-x-1.5 transition-transform duration-300 text-[#00E5FF]">➜</span>
                   </h4>
                   <p className="text-xs text-slate-400 font-medium mt-0.5">
