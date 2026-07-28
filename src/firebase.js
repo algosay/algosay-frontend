@@ -5,9 +5,9 @@ import {
   GoogleAuthProvider, 
   signInWithPopup, 
   createUserWithEmailAndPassword, 
-  signInWithEmailAndPassword 
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail // 🚨 NEW: Import for Forgot Password
 } from "firebase/auth";
-// 🚨 NEW: Import Firestore Database functions (Added collection, addDoc, getDocs, deleteDoc)
 import { getFirestore, doc, getDoc, setDoc, serverTimestamp, updateDoc, increment, collection, addDoc, getDocs, deleteDoc } from "firebase/firestore";
 
 // Your web app's Firebase configuration
@@ -25,7 +25,7 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 
-// 🚨 NEW: Initialize Firestore Database
+// Initialize Firestore Database
 export const db = getFirestore(app);
 
 // Google Sign-In Function
@@ -33,7 +33,6 @@ export const signInWithGoogle = async () => {
   try {
     const res = await signInWithPopup(auth, googleProvider);
     const user = res.user;
-    // Google vali ah signup pannalum profile create panni 10 credits tharanum
     await createUserProfile(user, user.displayName || "Google User", "");
     return user;
   } catch (error) {
@@ -42,13 +41,12 @@ export const signInWithGoogle = async () => {
   }
 };
 
-// 🚨 UPDATE: Email/Password Sign Up Function with Name and Mobile
+// Email/Password Sign Up Function with Name and Mobile
 export const registerNewUser = async (email, password, name, mobile) => {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
     
-    // Auth-la user create aanathum, name and mobile-a Firestore-la save panna anupurom
     await createUserProfile(user, name, mobile);
     
     return user;
@@ -58,14 +56,11 @@ export const registerNewUser = async (email, password, name, mobile) => {
   }
 };
 
-// 🚨 UPDATE: Email/Password Login Function
+// Email/Password Login Function
 export const loginUser = async (email, password) => {
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    
-    // Login aanathum lastLogin time update panrathuku
     await createUserProfile(userCredential.user);
-    
     return userCredential;
   } catch (error) {
     console.error("Login Error:", error.code, error.message);
@@ -73,22 +68,32 @@ export const loginUser = async (email, password) => {
   }
 };
 
-// 🚨 UPDATE: Create User Profile in Database with 10 Free Credits, Name, and Mobile
+// 🚨 NEW: Forgot Password Function 🚨
+export const resetPassword = async (email) => {
+  try {
+    await sendPasswordResetEmail(auth, email);
+    return true;
+  } catch (error) {
+    console.error("Password Reset Error:", error.code, error.message);
+    throw error;
+  }
+};
+
+// Create User Profile in Database with 10 Free Credits, Name, and Mobile
 export const createUserProfile = async (user, name = "", mobile = "") => {
   if (!user) return;
   
   const userRef = doc(db, "users", user.uid);
   const userSnap = await getDoc(userRef);
 
-  // If user doesn't exist in database, create them with 10 credits!
   if (!userSnap.exists()) {
     try {
       await setDoc(userRef, {
         uid: user.uid,
-        name: name,         // User enter panna Name
-        mobile: mobile,     // User enter panna Mobile
+        name: name,
+        mobile: mobile,
         email: user.email,
-        credits: 10,        // Welcome Bonus 10 Free Credits
+        credits: 10,
         createdAt: serverTimestamp(),
         lastLogin: serverTimestamp()
       });
@@ -97,7 +102,6 @@ export const createUserProfile = async (user, name = "", mobile = "") => {
       console.error("Error creating user profile:", error);
     }
   } else {
-    // If user already exists, just update their last login time
     try {
       await setDoc(userRef, { lastLogin: serverTimestamp() }, { merge: true });
     } catch (error) {
@@ -106,7 +110,7 @@ export const createUserProfile = async (user, name = "", mobile = "") => {
   }
 };
 
-// 🚨 NEW: Get Real-time User Credits
+// Get Real-time User Credits
 export const getUserCredits = async (uid) => {
   try {
     const userRef = doc(db, "users", uid);
@@ -121,11 +125,10 @@ export const getUserCredits = async (uid) => {
   }
 };
 
-// 🚨 NEW: Deduct 1 Credit when Backtest Runs
+// Deduct 1 Credit when Backtest Runs
 export const deductUserCredit = async (uid) => {
   try {
     const userRef = doc(db, "users", uid);
-    // increment(-1) will safely subtract exactly 1 credit in the database
     await updateDoc(userRef, {
       credits: increment(-1)
     });
@@ -136,7 +139,7 @@ export const deductUserCredit = async (uid) => {
   }
 };
 
-// 🚨 NEW: Save User Strategy to Firestore
+// Save User Strategy to Firestore
 export const saveUserStrategy = async (uid, strategyName, strategyData) => {
   try {
     const strategiesRef = collection(db, "users", uid, "saved_strategies");
@@ -152,7 +155,7 @@ export const saveUserStrategy = async (uid, strategyName, strategyData) => {
   }
 };
 
-// 🚨 NEW: Get All Saved Strategies for User
+// Get All Saved Strategies for User
 export const getUserStrategies = async (uid) => {
   try {
     const strategiesRef = collection(db, "users", uid, "saved_strategies");
@@ -168,13 +171,12 @@ export const getUserStrategies = async (uid) => {
   }
 };
 
-// 🚨 NEW: Delete Saved Strategy for User
+// Delete Saved Strategy for User
 export const deleteUserStrategy = async (strategyId) => {
   try {
     const user = auth.currentUser;
     if (!user) throw new Error("User not logged in");
 
-    // Correct path: "users" -> "uid" -> "saved_strategies" -> "strategyId"
     const strategyRef = doc(db, "users", user.uid, "saved_strategies", strategyId);
     await deleteDoc(strategyRef);
     
@@ -185,7 +187,7 @@ export const deleteUserStrategy = async (strategyId) => {
   }
 };
 
-// 🚨 NEW: Get Common Default Strategies for all users
+// Get Common Default Strategies for all users
 export const getDefaultStrategies = async () => {
   try {
     const defaultRef = collection(db, "default_strategies");

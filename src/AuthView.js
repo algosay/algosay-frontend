@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-// Update: firebase.js la irunthu registerNewUser and loginUser import panni irukom
-import { signInWithGoogle, registerNewUser, loginUser } from './firebase';
+// 🚨 NEW: Imported resetPassword function
+import { signInWithGoogle, registerNewUser, loginUser, resetPassword } from './firebase';
 import AlgoSayLogo from './AlgoSayLogo';
 import { AlertTriangle, Sparkles, ChevronLeft, ChevronRight, CheckCircle2, Star, ArrowLeft } from 'lucide-react';
 
@@ -47,7 +47,6 @@ const testimonials = [
 const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewVariants }) => {
   const [activeReview, setActiveReview] = useState(0);
   
-  // Update: Name and Mobile states add panni irukom for Signup
   const [name, setName] = useState('');
   const [mobile, setMobile] = useState('');
   const [email, setEmail] = useState('');
@@ -79,7 +78,6 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
     }
   };
 
-  // Update: Real authentication logic using Firebase imported functions
   const handleEmailAuth = async (e) => {
     e.preventDefault();
     setAuthError('');
@@ -97,7 +95,6 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
 
     try {
       if (isSignUp) {
-        // Sign Up Flow
         if (!name || !mobile) {
           setAuthError('Please enter Name and Mobile number for Sign Up.');
           setIsLoading(false);
@@ -110,7 +107,6 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
           onLoginSuccess(user);
         }
       } else {
-        // Login Flow
         const userCredential = await loginUser(email, password);
         if (userCredential && userCredential.user) {
           onLoginSuccess(userCredential.user);
@@ -118,14 +114,41 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
       }
     } catch (error) {
       console.error("Auth Error:", error);
-      // Clean up Firebase error messages for the UI
-      const errorMessage = error.message.includes('auth/email-already-in-use') 
-        ? 'Email already exists. Please log in instead.' 
-        : error.message.includes('auth/invalid-credential') 
-        ? 'Invalid email or password. Please try again.' 
-        : 'Authentication failed. Please try again.';
+      
+      let errorMessage = 'Authentication failed. Please try again.';
+      const errStr = error.message || error.code || '';
+      
+      if (errStr.includes('email-already-in-use')) {
+        errorMessage = 'Email already exists. Please log in instead.';
+      } else if (errStr.includes('user-not-found')) {
+        errorMessage = 'This Email ID is not registered. Please Sign Up to create an account.';
+      } else if (errStr.includes('wrong-password')) {
+        errorMessage = 'Incorrect password. Please try again.';
+      } else if (errStr.includes('invalid-credential')) {
+        errorMessage = 'Email not registered or incorrect password. If you are a new user, please click Sign Up.';
+      }
       
       setAuthError(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 🚨 NEW: Forgot Password Handler Function 🚨
+  const handleForgotPassword = async () => {
+    if (!email) {
+      setAuthError('Please enter your Email Address first, then click Forgot Password.');
+      return;
+    }
+    
+    setIsLoading(true);
+    setAuthError('');
+    
+    try {
+      await resetPassword(email);
+      alert(`If an account exists for ${email}, a password reset link has been sent. Please check your inbox (and spam folder).`);
+    } catch (error) {
+      setAuthError('Failed to send password reset email. Please ensure the email is valid.');
     } finally {
       setIsLoading(false);
     }
@@ -147,7 +170,6 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
       exit="exit"
       className="w-full min-h-screen lg:h-screen flex flex-col lg:flex-row relative z-10 pt-0"
     >
-      {/* Back Button */}
       <button 
         onClick={onBack}
         className="absolute top-6 left-6 lg:left-10 flex items-center gap-2 text-slate-600 hover:text-blue-600 font-bold bg-white/90 backdrop-blur-sm px-4 py-2 rounded-xl shadow-sm border border-slate-200 transition-all z-[60] hover:-translate-x-1"
@@ -155,7 +177,6 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
         <ArrowLeft size={18} /> Back to Home
       </button>
 
-      {/* LEFT SIDE: Reviews & Reality Check */}
       <div className="w-full lg:w-1/2 lg:h-full bg-white flex flex-col justify-center items-center p-6 pt-16 pb-20 lg:p-12 relative overflow-y-visible lg:overflow-y-auto z-10 border-r border-slate-100 order-2 lg:order-1">
         <div className="w-full max-w-md space-y-6 mt-8 lg:mt-0">
           <div className="mb-8">
@@ -240,7 +261,6 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
         </div>
       </div>
 
-      {/* RIGHT SIDE: Light Blue Theme (Login Form) */}
       <div className="w-full lg:w-1/2 lg:h-full bg-gradient-to-br from-slate-100 via-blue-50/80 to-indigo-100/70 flex flex-col items-center justify-center p-6 pt-24 pb-12 lg:p-12 relative overflow-y-visible lg:overflow-y-auto z-0 order-1 lg:order-2">
         <div className="absolute top-10 right-10 w-96 h-96 bg-blue-300/40 rounded-full blur-[100px] pointer-events-none"></div>
         <div className="absolute bottom-20 left-10 w-80 h-80 bg-indigo-300/30 rounded-full blur-[100px] pointer-events-none"></div>
@@ -268,7 +288,6 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
               </motion.div>
             )}
 
-            {/* Update: Conditionally render Name and Mobile fields only if isSignUp is true */}
             <AnimatePresence>
               {isSignUp && (
                 <motion.div 
@@ -280,12 +299,12 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
                 >
                   <div>
                     <label className="block text-sm font-bold text-slate-700 mb-1.5">Full Name</label>
-                    <input type="text" placeholder="John Doe" value={name} onChange={(e) => setName(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none transition-all text-sm bg-slate-50 text-slate-900 placeholder-slate-400 font-medium" required />
+                    <input type="text" placeholder="John Doe" value={name} onChange={(e) => setName(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none transition-all text-sm bg-slate-50 text-slate-900 placeholder-slate-400 font-medium" required={isSignUp} />
                   </div>
                   
                   <div>
                     <label className="block text-sm font-bold text-slate-700 mb-1.5">Mobile Number</label>
-                    <input type="tel" placeholder="+91 9876543210" value={mobile} onChange={(e) => setMobile(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none transition-all text-sm bg-slate-50 text-slate-900 placeholder-slate-400 font-medium" required />
+                    <input type="tel" placeholder="+91 9876543210" value={mobile} onChange={(e) => setMobile(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none transition-all text-sm bg-slate-50 text-slate-900 placeholder-slate-400 font-medium" required={isSignUp} />
                   </div>
                 </motion.div>
               )}
@@ -306,7 +325,15 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
                 <input type="checkbox" className="w-4 h-4 text-blue-600 bg-white border-slate-300 rounded focus:ring-blue-600" />
                 <span className="text-sm text-slate-600 font-semibold group-hover:text-slate-900 transition-colors">Remember me</span>
               </label>
-              {!isSignUp && <span className="text-sm font-bold text-blue-600 hover:text-blue-800 cursor-pointer transition-colors">Forgot Password?</span>}
+              {/* 🚨 NEW: Added onClick handler to trigger handleForgotPassword 🚨 */}
+              {!isSignUp && (
+                <span 
+                  onClick={handleForgotPassword} 
+                  className="text-sm font-bold text-blue-600 hover:text-blue-800 cursor-pointer transition-colors"
+                >
+                  Forgot Password?
+                </span>
+              )}
             </div>
 
             <button type="submit" disabled={isLoading} className={`w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md shadow-blue-500/30 transition-all hover:-translate-y-0.5 text-sm mt-2 ${isLoading ? 'opacity-70 cursor-wait' : ''}`}>
