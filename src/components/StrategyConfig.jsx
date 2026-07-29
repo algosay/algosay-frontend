@@ -165,6 +165,10 @@ const StrategyConfig = ({
               const currentTrailX = leg.trailX ?? leg.trailMoveX ?? leg.trail_x ?? '';
               const currentTrailY = leg.trailY ?? leg.trailPointY ?? leg.trailMoveY ?? leg.trail_y ?? '';
 
+              // 🚨 DETECT IF IT IS DYNAMIC / CONDITION-BASED LOOP STRATEGY 🚨
+              const rawEntryTime = leg.entryTime || leg.entry_time || '';
+              const isDynamicLeg = String(rawEntryTime).toLowerCase() === 'dynamic';
+
               return (
                 <div key={leg.id || index} className="bg-[#121212] p-4 rounded-xl border border-[#333] relative hover:border-gray-800 transition-all flex flex-col justify-between shadow-inner">
                   <div>
@@ -204,7 +208,23 @@ const StrategyConfig = ({
                         </div>
                         <div>
                           <label className="block text-[9px] text-gray-500 uppercase tracking-wide mb-1">Entry Time</label>
-                          <input type="time" value={leg.entryTime || leg.entry_time || ''} onChange={(e) => updateLeg(leg.id, 'entryTime', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500" />
+                          {/* 🚨 CONDITION-BASED DYNAMIC FIELD RENDERER 🚨 */}
+                          {isDynamicLeg ? (
+                            <input 
+                              type="text" 
+                              value="Dynamic (Condition Loop)" 
+                              disabled 
+                              className="w-full bg-[#181818] border border-amber-600/50 rounded p-1.5 text-xs text-amber-400 font-semibold cursor-not-allowed opacity-90 text-center" 
+                              title="Controlled dynamically by candle condition loop"
+                            />
+                          ) : (
+                            <input 
+                              type="time" 
+                              value={rawEntryTime} 
+                              onChange={(e) => updateLeg(leg.id, 'entryTime', e.target.value)} 
+                              className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500" 
+                            />
+                          )}
                         </div>
                         <div>
                           <label className="block text-[9px] text-gray-500 uppercase tracking-wide mb-1">Exit Time</label>

@@ -43,6 +43,7 @@ export const useAppLogic = () => {
   const [qty, setQty] = useState(150); 
   const [transactionType, setTransactionType] = useState('BUY');
   const [strategyType, setStrategyType] = useState('Intraday');
+  const [isDynamic, setIsDynamic] = useState(false); // 🚨 NEW STATE: To track if it's a Condition-based Loop 🚨
   const [entryTime, setEntryTime] = useState('09:15');
   const [exitTime, setExitTime] = useState('15:15');
   
@@ -122,6 +123,10 @@ export const useAppLogic = () => {
     const risk = data.risk_management || {};
     const dates = data.date_settings || {}; 
 
+    // 🚨 THE FIX: Identify Condition-based / Dynamic Logic
+    const isDynamicFlag = data.is_dynamic || entry.is_dynamic || (entry.strategyType && String(entry.strategyType).toLowerCase() === 'dynamic') || (entry.entryTime && String(entry.entryTime).toLowerCase() === 'dynamic') || !!data.strategy_function || false;
+    setIsDynamic(isDynamicFlag);
+
     // Priority: Extracted Ticker from Prompt > AI Response Ticker > Empty
     const finalTicker = extractedTicker || inst.ticker || '';
 
@@ -135,9 +140,13 @@ export const useAppLogic = () => {
     setUnderlyingFrom(inst.underlyingFrom || inst.segment || 'Options');
     setQty(inst.qty || 150); 
     setTransactionType(inst.transactionType || 'BUY');
-    setStrategyType(entry.strategyType || 'Intraday');
-    setEntryTime(entry.entryTime || '09:15');
-    setExitTime(entry.exitTime || '15:15');
+    setStrategyType(entry.strategyType || (isDynamicFlag ? 'Dynamic' : 'Intraday'));
+    
+    // 🚨 THE FIX: Avoid defaulting to 09:15 if it's a dynamic condition!
+    const resolvedEntryTime = entry.entryTime || (isDynamicFlag ? 'Dynamic' : '09:15');
+    setEntryTime(resolvedEntryTime);
+    setExitTime(entry.exitTime || (isDynamicFlag ? 'Positional' : '15:15'));
+
     setFromDate(dates.fromDate || '');
     setToDate(dates.toDate || '');
     
@@ -207,8 +216,8 @@ export const useAppLogic = () => {
           id: leg.id || Date.now() + idx,
           ticker: finalTicker || leg.ticker || leg.asset || '', 
           timeframe: leg.timeframe || inst.timeframe || '5m',
-          entryTime: leg.entryTime || leg.entry_time || entry.entryTime || '', 
-          exitTime: leg.exitTime || leg.exit_time || entry.exitTime || '',
+          entryTime: leg.entryTime || leg.entry_time || resolvedEntryTime || '', // 🚨 Passed resolved time directly
+          exitTime: leg.exitTime || leg.exit_time || entry.exitTime || (isDynamicFlag ? 'Positional' : '15:15'),
           segment: leg.segment || 'Options',
           position: leg.position || 'Buy',
           lots: leg.lots || 1,
@@ -267,7 +276,7 @@ export const useAppLogic = () => {
     const strategyData = {
       aiPrompt, aiExplanation,
       ticker, timeframe, underlyingFrom, qty, transactionType,
-      strategyType, entryTime, exitTime, fromDate, toDate,
+      strategyType, isDynamic, entryTime, exitTime, fromDate, toDate,
       trailMoveX, trailPointY, indicators, legs
     };
 
@@ -308,6 +317,7 @@ export const useAppLogic = () => {
     setQty(data.qty || 150);
     setTransactionType(data.transactionType || 'BUY');
     setStrategyType(data.strategyType || 'Intraday');
+    setIsDynamic(data.isDynamic || false); // 🚨 NEW
     setEntryTime(data.entryTime || '09:15');
     setExitTime(data.exitTime || '15:15');
     setFromDate(data.fromDate || '');
@@ -364,9 +374,13 @@ export const useAppLogic = () => {
       }
     }
 
+    // 🚨 Evaluate exact flag to send to backend for loop logic
+    const conditionBasedLoop = isDynamic || String(entryTime).toLowerCase() === 'dynamic' || String(strategyType).toLowerCase() === 'dynamic';
+
     const payload = {
       user_id: user?.uid || "guest_123", 
       strategy_text: aiPrompt, 
+      is_dynamic: conditionBasedLoop, // 🚨 NEW FLAG FOR BACKEND 🚨
       instrument_settings: { ticker, timeframe, underlyingFrom, qty, transactionType },
       date_settings: { fromDate, toDate },
       entry_settings: { strategyType, entryTime, exitTime },
@@ -375,7 +389,9 @@ export const useAppLogic = () => {
       
       legs: legs.map(leg => ({
         id: leg.id, 
-        ticker: leg.ticker || ticker, timeframe: leg.timeframe, entry_time: leg.entryTime, exit_time: leg.exitTime,
+        ticker: leg.ticker || ticker, timeframe: leg.timeframe, 
+        entry_time: String(leg.entryTime).toLowerCase() === 'dynamic' ? 'dynamic' : leg.entryTime, // Force explicit mapping
+        exit_time: leg.exitTime,
         segment: leg.segment, position: leg.position, lots: leg.lots, option_type: leg.optionType, expiry: leg.expiry, 
         strike_type: leg.strikeType, strike_distance: parseInt(leg.strikeDistance) || 0,
         target: leg.target || 0, target_unit: leg.targetUnit || '%', stop_loss: leg.stopLoss || 0, sl_unit: leg.slUnit || '%',
@@ -404,13 +420,14 @@ export const useAppLogic = () => {
 
   return {
     user, setUser, loadingAuth, userCredits, isSubscribed, subscriptionPlan,
-    userProfileData, setUserProfileData, // 🚨 NEW EXPORT 🚨
+    userProfileData, setUserProfileData,
     showStrategiesModal, setShowStrategiesModal, savedStrategies, isLoadingStrategies, modalTab, setModalTab,
     showPricingModal, setShowPricingModal, showProfileModal, setShowProfileModal,
     aiPrompt, setAiPrompt, isParsing, setIsParsing, aiMessage, setAiMessage,
     aiExplanation, setAiExplanation, isConfirmed, setIsConfirmed, needsInfoQuestion, setNeedsInfoQuestion,
     ticker, setTicker, timeframe, setTimeframe, underlyingFrom, setUnderlyingFrom,
     qty, setQty, transactionType, setTransactionType, strategyType, setStrategyType,
+    isDynamic, setIsDynamic, // 🚨 NEW EXPORT
     entryTime, setEntryTime, exitTime, setExitTime, fromDate, setFromDate, toDate, setToDate,
     trailMoveX, setTrailMoveX, trailPointY, setTrailPointY, indicators, legs,
     loading, result, error, withTax, setWithTax,
