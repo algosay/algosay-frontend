@@ -377,28 +377,47 @@ export const useAppLogic = () => {
     // 🚨 Evaluate exact flag to send to backend for loop logic
     const conditionBasedLoop = isDynamic || String(entryTime).toLowerCase() === 'dynamic' || String(strategyType).toLowerCase() === 'dynamic';
 
+    // 🚨 NEW PAYLOAD BRIDGE: Map Frontend states strictly to Backend Pydantic Keys
+    const formattedLegs = legs.map(leg => ({
+        id: leg.id, 
+        ticker: leg.ticker || ticker, 
+        timeframe: leg.timeframe, 
+        entry_time: String(leg.entryTime).toLowerCase() === 'dynamic' ? 'dynamic' : leg.entryTime,
+        exit_time: leg.exitTime,
+        segment: leg.segment, 
+        
+        // --- 🎯 KEY FIXES FOR PYDANTIC HERE ---
+        position: leg.position || leg.action || "Buy",
+        option_type: leg.option_type || leg.optionType || "CE", 
+        strike_type: leg.strike_type || leg.strikeType || "ATM", 
+        // --------------------------------------
+        
+        lots: leg.lots, 
+        expiry: leg.expiry, 
+        strike_distance: parseInt(leg.strikeDistance) || 0,
+        target: leg.target || 0, 
+        target_unit: leg.target_unit || leg.targetUnit || '%', 
+        stop_loss: leg.stopLoss || 0, 
+        sl_unit: leg.sl_unit || leg.slUnit || '%',
+        trail_sl: { x: leg.trailX || 0, y: leg.trailY || 0, unit_x: leg.trailUnitX || 'Pts', unit_y: leg.trailUnitY || 'Pts' }, 
+        sl_reentry: leg.slReentry || 0, 
+        target_reexecute: leg.targetReexecute || 0, 
+        wait_and_trade: leg.waitAndTrade || false, 
+        cost_to_cost: leg.costToCost || false, 
+        move_to_stoploss: leg.moveToStoploss || false
+    }));
+
     const payload = {
       user_id: user?.uid || "guest_123", 
       strategy_text: aiPrompt, 
-      is_dynamic: conditionBasedLoop, // 🚨 NEW FLAG FOR BACKEND 🚨
+      is_dynamic: conditionBasedLoop, 
       instrument_settings: { ticker, timeframe, underlyingFrom, qty, transactionType },
       date_settings: { fromDate, toDate },
       entry_settings: { strategyType, entryTime, exitTime },
       risk_management: { trailMoveX, trailPointY }, 
       indicators: indicators.map(i => ({ name: i.name, settings: i.settings })), 
       
-      legs: legs.map(leg => ({
-        id: leg.id, 
-        ticker: leg.ticker || ticker, timeframe: leg.timeframe, 
-        entry_time: String(leg.entryTime).toLowerCase() === 'dynamic' ? 'dynamic' : leg.entryTime, // Force explicit mapping
-        exit_time: leg.exitTime,
-        segment: leg.segment, position: leg.position, lots: leg.lots, option_type: leg.optionType, expiry: leg.expiry, 
-        strike_type: leg.strikeType, strike_distance: parseInt(leg.strikeDistance) || 0,
-        target: leg.target || 0, target_unit: leg.targetUnit || '%', stop_loss: leg.stopLoss || 0, sl_unit: leg.slUnit || '%',
-        trail_sl: { x: leg.trailX || 0, y: leg.trailY || 0, unit_x: leg.trailUnitX || 'Pts', unit_y: leg.trailUnitY || 'Pts' }, 
-        sl_reentry: leg.slReentry || 0, target_reexecute: leg.targetReexecute || 0, 
-        wait_and_trade: leg.waitAndTrade || false, cost_to_cost: leg.costToCost || false, move_to_stoploss: leg.moveToStoploss || false
-      }))
+      legs: formattedLegs // 👈 Passing the bridged formatted leg data
     };
 
     try {
@@ -427,7 +446,7 @@ export const useAppLogic = () => {
     aiExplanation, setAiExplanation, isConfirmed, setIsConfirmed, needsInfoQuestion, setNeedsInfoQuestion,
     ticker, setTicker, timeframe, setTimeframe, underlyingFrom, setUnderlyingFrom,
     qty, setQty, transactionType, setTransactionType, strategyType, setStrategyType,
-    isDynamic, setIsDynamic, // 🚨 NEW EXPORT
+    isDynamic, setIsDynamic, 
     entryTime, setEntryTime, exitTime, setExitTime, fromDate, setFromDate, toDate, setToDate,
     trailMoveX, setTrailMoveX, trailPointY, setTrailPointY, indicators, legs,
     loading, result, error, withTax, setWithTax,
