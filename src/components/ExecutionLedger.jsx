@@ -15,15 +15,37 @@ const ExecutionLedger = ({ result, onFilterChange }) => {
     const keys = Object.keys(result?.Trade_Ledger?.[0] || {});
     
     const tradeNumKey = keys.find(k => k === 'Trade_Num' || k === 'Trade Num');
-    const dateKey = keys.find(k => k.toLowerCase() === 'date' || k === 'Entry Time' || k === 'Entry_Time');
-    
-    if (tradeNumKey && dateKey) {
-      const otherKeys = keys.filter(k => k !== tradeNumKey && k !== dateKey);
-      return [tradeNumKey, dateKey, ...otherKeys];
-    } else if (dateKey) {
-      return [dateKey, ...keys.filter(k => k !== dateKey)];
+    const dateKey = keys.find(k => k.toLowerCase() === 'date');
+    const entryTimeKey = keys.find(k => k === 'Entry Time' || k === 'Entry_Time');
+    const tickerKey = keys.find(k => k.toLowerCase() === 'ticker' || k === 'Symbol');
+
+    // 1. Prepare front keys (Trade Num and Date)
+    const frontKeys = [];
+    if (tradeNumKey) frontKeys.push(tradeNumKey);
+    if (dateKey) {
+      frontKeys.push(dateKey);
+    } else if (!dateKey && entryTimeKey) {
+      // Fallback just in case 'Date' doesn't exist but old code expected Entry Time at front
+      frontKeys.push(entryTimeKey);
     }
-    return keys;
+
+    // 2. Prepare remaining keys by excluding front keys and Ticker
+    let otherKeys = keys.filter(k => !frontKeys.includes(k) && k !== tickerKey);
+
+    // 3. Find Entry Time in the remaining keys
+    const entryIndex = otherKeys.findIndex(k => k === entryTimeKey);
+
+    // 4. Insert Ticker right before Entry Time
+    if (tickerKey) {
+      if (entryIndex !== -1) {
+        otherKeys.splice(entryIndex, 0, tickerKey);
+      } else {
+        // If Entry time isn't found, place Ticker right after the front keys
+        otherKeys.unshift(tickerKey);
+      }
+    }
+
+    return [...frontKeys, ...otherKeys];
   }, [result?.Trade_Ledger]);
 
   // Hook 2: Filter Logic (Moved ABOVE the early return to fix ESLint Rule of Hooks)
