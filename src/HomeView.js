@@ -106,7 +106,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
       initial="initial"
       animate="animate"
       exit="exit"
-      className="flex flex-col w-full min-h-screen relative px-6 md:px-12 lg:px-20 py-6 z-10 bg-[#04060F] overflow-hidden font-sans"
+      className="flex flex-col w-full min-h-screen relative px-6 md:px-12 lg:px-20 py-4 z-10 bg-[#04060F] overflow-hidden font-sans"
     >
       <img src="/image/header right.png" alt="Right Glow" className="absolute top-0 right-0 w-full lg:w-[45%] h-full object-cover mix-blend-screen opacity-20 z-0 pointer-events-none" />
 
@@ -123,14 +123,14 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
       ></div>
 
       {/* HEADER: Logo & Login/Signup Buttons */}
-      <div className="flex items-center justify-between z-50 mb-10 w-full max-w-[1400px] mx-auto border-b border-white/5 pb-4">
+      <div className="flex items-center justify-between z-50 mb-6 w-full max-w-[1400px] mx-auto border-b border-white/5 pb-4">
         <div className="flex items-center gap-3 whitespace-nowrap cursor-pointer group" onClick={() => onNavigate(false)}>
           <div className="relative">
             <AlgoSayLogo className="w-10 h-10 shadow-lg shadow-blue-500/20 rounded-xl border border-white/10 relative z-10" />
             <div className="absolute inset-0 bg-blue-500 blur-xl opacity-30 group-hover:opacity-60 transition-opacity"></div>
           </div>
           <div className="flex flex-col justify-center">
-            {/* 🔥 UPDATE 1: Logo Text Colors - Algo (White), Say (Dark Blue) with drop shadow */}
+            {/* Logo Text Colors - Algo (White), Say (Dark Blue) with drop shadow */}
             <span className="text-2xl lg:text-[28px] font-black tracking-tight whitespace-nowrap leading-normal py-0.5">
               <span className="text-white">Algo</span>
               <span className="text-[#0234ff] drop-shadow-[0_0_12px_rgba(30,58,138,0.9)]">Say</span>
@@ -144,7 +144,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
         <div className="flex items-center gap-3 sm:gap-4">
           <button 
             onClick={() => onNavigate(false)}
-            className="px-5 py-2.5 text-sm font-medium text-slate-300 bg-transparent border border-white/10 hover:border-white/30 hover:text-white rounded-lg transition-all duration-300"
+            className="px-6 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-[#FF007A] to-[#7928CA] rounded-lg shadow-[0_0_15px_rgba(255,0,122,0.3)] hover:shadow-[0_0_25px_rgba(121,40,202,0.5)] transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0"
           >
             Log In
           </button>
@@ -162,50 +162,50 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
         </div>
       </div>
 
-      {/* MAIN CONTENT AREA (HERO) - FIXED ALIGNMENT WITH ITEMS-STRETCH */}
-      <div className="flex flex-col lg:flex-row justify-between items-stretch gap-12 flex-grow relative z-10 w-full max-w-[1400px] mx-auto min-h-min">
+      {/* MAIN CONTENT AREA (HERO) - ADJUSTED GAP FOR SPACING & COMPACTNESS */}
+      <div className="flex flex-col lg:flex-row justify-between items-stretch gap-12 lg:gap-20 flex-grow relative z-10 w-full max-w-[1400px] mx-auto min-h-min">
         
         {/* Left Column Text, Terminal & Built for Precision */}
-        <div className="w-full lg:w-[45%] flex flex-col pt-2 relative z-20">
-          <h3 className="text-[12px] font-black text-transparent bg-clip-text bg-gradient-to-r from-[#4D7CFF] to-[#9D4EDD] uppercase tracking-[0.15em] mb-4 drop-shadow-sm">
+        <div className="w-full lg:w-[44%] flex flex-col pt-1 relative z-20">
+          <h3 className="text-[12px] font-black text-transparent bg-clip-text bg-gradient-to-r from-[#4D7CFF] to-[#9D4EDD] uppercase tracking-[0.15em] mb-3 drop-shadow-sm">
             NEXT-GEN AI BACKTESTING FOR INDIAN TRADERS
           </h3>
           
-          <h1 className="font-black leading-[1.1] mb-6 tracking-tight flex flex-col drop-shadow-lg">
-            <span className="whitespace-nowrap text-5xl lg:text-[64px] text-white mb-2">
+          <h1 className="font-black leading-[1.15] mb-4 tracking-tight flex flex-col drop-shadow-lg">
+            <span className="whitespace-nowrap text-[44px] lg:text-[54px] text-white mb-1">
               India’s #1 
             </span>
-            <span className="whitespace-nowrap text-5xl lg:text-[64px]">
+            <span className="whitespace-nowrap text-[44px] lg:text-[54px]">
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00E5FF] to-[#6A00F4] drop-shadow-[0_0_30px_rgba(0,229,255,0.3)]">AI-Powered</span>
             </span>
-            <span className="whitespace-nowrap text-5xl lg:text-[64px] text-white">
+            <span className="whitespace-nowrap text-[44px] lg:text-[54px] text-white">
               Backtesting Engine
             </span>
           </h1>
           
-          <p className="text-lg text-slate-300 font-medium mb-8 leading-relaxed max-w-xl backdrop-blur-sm bg-black/10 p-2 rounded-lg">
+          <p className="text-[16px] text-slate-300 font-medium mb-5 leading-relaxed max-w-xl backdrop-blur-sm bg-black/10 p-2 rounded-lg">
             Unlike traditional platforms where you manually click through dozens of dropdowns, AlgoSay uses an advanced Neural Engine to understand your trading strategies.
             <br/><span className="text-[#00E5FF] font-bold mt-2 inline-block">Just type it, and we test it.</span>
           </p>
 
-          {/* PRO TERMINAL ENGINE BOX */}
-          <div className="mb-6 p-[1.5px] rounded-2xl bg-gradient-to-r from-[#FF007A] via-[#7928CA] to-[#00E5FF] shadow-[0_0_40px_rgba(121,40,202,0.3)] relative max-w-xl backdrop-blur-md">
+          {/* PRO TERMINAL ENGINE BOX - HEIGHT REDUCED SLIGHTLY FOR COMPACTNESS */}
+          <div className="mb-5 p-[1.5px] rounded-2xl bg-gradient-to-r from-[#FF007A] via-[#7928CA] to-[#00E5FF] shadow-[0_0_40px_rgba(121,40,202,0.3)] relative max-w-xl backdrop-blur-md">
             <motion.div className="rounded-2xl overflow-hidden bg-[#0A0C14]/95 flex flex-col w-full h-full relative">
-              <div className="bg-[#0A0C14] px-5 py-4 flex items-center justify-between border-b border-white/5 relative z-10">
+              <div className="bg-[#0A0C14] px-4 py-3 flex items-center justify-between border-b border-white/5 relative z-10">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full bg-[#FF5F56] shadow-[0_0_10px_rgba(255,95,86,0.5)]"></div>
                   <div className="w-3 h-3 rounded-full bg-[#FFBD2E] shadow-[0_0_10px_rgba(255,189,46,0.5)]"></div>
                   <div className="w-3 h-3 rounded-full bg-[#27C93F] shadow-[0_0_10px_rgba(39,201,63,0.5)]"></div>
-                  <span className="text-slate-400 text-[13px] font-mono ml-4 tracking-wide">strategy_backtest.py</span>
+                  <span className="text-slate-400 text-[12px] font-mono ml-4 tracking-wide">strategy_backtest.py</span>
                 </div>
-                <div className="flex items-center gap-1.5 bg-[#00E676]/10 px-3 py-1.5 rounded-full border border-[#00E676]/30 shadow-[0_0_15px_rgba(0,230,118,0.2)]">
+                <div className="flex items-center gap-1.5 bg-[#00E676]/10 px-3 py-1 rounded-full border border-[#00E676]/30 shadow-[0_0_15px_rgba(0,230,118,0.2)]">
                   <span className="w-2 h-2 rounded-full bg-[#00E676] animate-pulse"></span>
                   <span className="text-[10px] font-mono font-bold text-[#00E676] tracking-widest flex items-center gap-1.5">
                     AI NEURAL ENGINE v2.1
                   </span>
                 </div>
               </div>
-              <div className="p-6 font-mono text-[16px] flex items-start min-h-[120px] bg-transparent relative z-10">
+              <div className="p-5 font-mono text-[15px] flex items-start min-h-[100px] bg-transparent relative z-10">
                 <div className="text-slate-600 mr-4 select-none text-right font-medium text-sm pt-0.5">01</div>
                 <span className="text-[#00E676] mr-3 font-semibold shrink-0">Strategy &gt;</span>
                 <TypeAnimation
@@ -222,45 +222,45 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
             </motion.div>
           </div>
 
-          {/* BUILT FOR PRECISION BANNER - FIXED: mt-auto pushes this box strictly to the bottom aligning perfectly with right side */}
-          <div className="flex flex-col gap-4 max-w-xl relative mt-auto pb-1">
-            <div className="p-5 rounded-2xl bg-gradient-to-r from-[#00E5FF]/10 to-transparent border border-[#00E5FF]/20 flex items-center gap-5 backdrop-blur-md">
-              <div className="p-3 rounded-full bg-[#00E5FF]/10 border border-[#00E5FF]/30 text-[#00E5FF] shadow-[0_0_20px_rgba(0,229,255,0.3)]"><Shield size={28} /></div>
+          {/* BUILT FOR PRECISION BANNER - mt-auto ALIGNS IT PERFECTLY WITH RIGHT SIDE BOTTOM */}
+          <div className="flex flex-col gap-3 max-w-xl relative mt-auto pb-1">
+            <div className="p-4 rounded-2xl bg-gradient-to-r from-[#00E5FF]/10 to-transparent border border-[#00E5FF]/20 flex items-center gap-4 backdrop-blur-md">
+              <div className="p-2.5 rounded-full bg-[#00E5FF]/10 border border-[#00E5FF]/30 text-[#00E5FF] shadow-[0_0_20px_rgba(0,229,255,0.3)]"><Shield size={24} /></div>
               <div>
-                <h4 className="text-lg font-bold text-[#00E5FF] tracking-wide mb-1">BUILT FOR PRECISION. DESIGNED FOR TRADERS.</h4>
-                <p className="text-sm text-slate-400 font-medium">Advanced AI • Lightning Fast • Institutional Grade</p>
+                <h4 className="text-base font-bold text-[#00E5FF] tracking-wide mb-0.5">BUILT FOR PRECISION. DESIGNED FOR TRADERS.</h4>
+                <p className="text-[13px] text-slate-400 font-medium">Advanced AI • Lightning Fast • Institutional Grade</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* RIGHT COLUMN: 4 NEON BOXES + UNIQUE CTA BUTTON + STATS */}
-        <div className="w-full lg:w-[55%] flex flex-col justify-between relative z-20 pt-4 gap-6 h-full">
-          {/* Steps Grid */}
-          <motion.div variants={containerVariants} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.1 }} className="grid grid-cols-1 sm:grid-cols-2 gap-5 w-full">
+        <div className="w-full lg:w-[50%] flex flex-col justify-between relative z-20 gap-4 h-full">
+          {/* Steps Grid - Gap and Padding slightly reduced to fit screen without scrolling */}
+          <motion.div variants={containerVariants} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.1 }} className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
             {stepsData.map((step, index) => (
               <motion.div 
                 key={index}
                 variants={itemVariants} 
-                whileHover={{ y: -6, scale: 1.02 }}
-                className={`relative overflow-hidden group flex flex-col p-6 rounded-2xl border transition-all duration-300 cursor-default h-full ${step.theme.cardBg} ${step.theme.borderHover}`}
+                whileHover={{ y: -4, scale: 1.02 }}
+                className={`relative overflow-hidden group flex flex-col p-5 rounded-2xl border transition-all duration-300 cursor-default h-full ${step.theme.cardBg} ${step.theme.borderHover}`}
               >
                 <div className={`absolute inset-0 bg-gradient-to-br to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none ${step.theme.gradientStart}`}></div>
                 
-                <div className="flex items-center justify-between mb-4 relative z-10">
-                  <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-500 border group-hover:scale-110 ${step.theme.iconText} ${step.theme.iconBorder} ${step.theme.hoverIconBg} bg-transparent`}>
-                    {step.icon}
+                <div className="flex items-center justify-between mb-3 relative z-10">
+                  <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 border group-hover:scale-110 ${step.theme.iconText} ${step.theme.iconBorder} ${step.theme.hoverIconBg} bg-transparent`}>
+                    {React.cloneElement(step.icon, { size: 20 })}
                   </div>
-                  <span className={`text-[12px] font-black tracking-[0.1em] ${step.theme.badgeText} bg-white/5 px-3 py-1 rounded-full border border-white/10`}>
+                  <span className={`text-[10px] font-black tracking-[0.1em] ${step.theme.badgeText} bg-white/5 px-2.5 py-1 rounded-full border border-white/10`}>
                     STEP {step.num}
                   </span>
                 </div>
                 
                 <div className="relative z-10 flex flex-col flex-grow">
-                  <h4 className="text-[17px] font-bold text-white tracking-tight leading-tight group-hover:text-white transition-colors duration-300 mb-2">
+                  <h4 className="text-[16px] font-bold text-white tracking-tight leading-tight group-hover:text-white transition-colors duration-300 mb-1.5">
                     {step.title}
                   </h4>
-                  <p className="text-[13px] text-slate-400 font-medium leading-[1.6] group-hover:text-slate-300 transition-colors duration-300 mt-auto">
+                  <p className="text-[12px] text-slate-400 font-medium leading-[1.5] group-hover:text-slate-300 transition-colors duration-300 mt-auto">
                     {step.desc}
                   </p>
                 </div>
@@ -270,19 +270,19 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
 
           {/* 💎 CTA CARD */}
           <motion.div 
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.5 }}
             onClick={() => onNavigate(true)}
             className="w-full relative group cursor-pointer overflow-hidden rounded-2xl p-[2px] bg-gradient-to-r from-[#00E5FF] via-[#7928CA] to-[#FF007A] shadow-[0_0_30px_rgba(0,229,255,0.25)] hover:shadow-[0_0_50px_rgba(121,40,202,0.45)] transition-all duration-500 hover:-translate-y-1"
           >
-            <div className="bg-[#0A0C14] hover:bg-[#0E111F] rounded-[14px] p-5 sm:p-6 flex items-center justify-between transition-colors duration-300 relative overflow-hidden">
+            <div className="bg-[#0A0C14] hover:bg-[#0E111F] rounded-[14px] p-4 sm:p-5 flex items-center justify-between transition-colors duration-300 relative overflow-hidden">
               <div className="absolute -top-12 -right-12 w-36 h-36 bg-[#00E5FF]/20 rounded-full blur-2xl group-hover:bg-[#00E5FF]/35 transition-all duration-500"></div>
               <div className="absolute -bottom-12 -left-12 w-36 h-36 bg-[#FF007A]/20 rounded-full blur-2xl group-hover:bg-[#FF007A]/35 transition-all duration-500"></div>
               
-              <div className="flex items-center gap-4 sm:gap-5 relative z-10">
+              <div className="flex items-center gap-4 relative z-10">
                 <div className="relative">
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-[#00E5FF]/20 to-[#6025F5]/30 border border-[#00E5FF]/40 flex items-center justify-center text-2xl group-hover:scale-110 shadow-[0_0_20px_rgba(0,229,255,0.3)] transition-transform duration-300">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-[#00E5FF]/20 to-[#6025F5]/30 border border-[#00E5FF]/40 flex items-center justify-center text-xl group-hover:scale-110 shadow-[0_0_20px_rgba(0,229,255,0.3)] transition-transform duration-300">
                     ⚡
                   </div>
                   <span className="absolute -top-1 -right-1 flex h-3 w-3">
@@ -292,48 +292,42 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
                 </div>
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-[#00E5FF] bg-[#00E5FF]/10 px-2.5 py-0.5 rounded-full border border-[#00E5FF]/30">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-[#00E5FF] bg-[#00E5FF]/10 px-2 py-0.5 rounded-full border border-[#00E5FF]/30">
                       Signup Bonus
                     </span>
                     <span className="text-[10px] font-bold text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded-full border border-amber-400/20">
                       Instant Activation
                     </span>
                   </div>
-                  <h4 className="text-lg sm:text-xl font-black text-white tracking-tight flex items-center gap-2 group-hover:text-[#00E5FF] transition-colors">
+                  <h4 className="text-base sm:text-lg font-black text-white tracking-tight flex items-center gap-2 group-hover:text-[#00E5FF] transition-colors">
                     Get 10 Free Backtests Credits Now
                     <span className="inline-block group-hover:translate-x-1.5 transition-transform duration-300 text-[#00E5FF]">➜</span>
                   </h4>
-                  <p className="text-xs text-slate-400 font-medium mt-0.5">
+                  <p className="text-[11px] text-slate-400 font-medium mt-0.5">
                     Start testing your trading strategies with AI speed instantly.
                   </p>
                 </div>
               </div>
-
-              <div className="hidden sm:flex items-center justify-center w-10 h-10 rounded-full bg-white/5 group-hover:bg-[#00E5FF] text-slate-300 group-hover:text-black transition-all duration-300 border border-white/10 group-hover:border-[#00E5FF] shadow-md group-hover:shadow-[0_0_20px_rgba(0,229,255,0.6)] shrink-0">
-                <svg className="w-5 h-5 group-hover:translate-x-0.5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </div>
             </div>
           </motion.div>
 
-          {/* STATS SECTION */}
-          <div className="flex flex-wrap justify-between items-center gap-4 w-full backdrop-blur-sm bg-black/10 p-5 rounded-2xl border border-white/5 mt-1">
-             <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-[#9D4EDD]/10 border border-[#9D4EDD]/30 text-[#9D4EDD] shadow-[0_0_15px_rgba(157,78,221,0.2)]"><Rocket size={24} /></div>
-                <div><h4 className="text-xl font-bold text-white tracking-tight">2.5M+</h4><p className="text-xs text-slate-400 uppercase tracking-wider">Backtests Run</p></div>
+          {/* STATS SECTION - 4 ITEMS IN A SINGLE ROW */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 w-full backdrop-blur-sm bg-black/10 p-4 rounded-2xl border border-white/5 mt-auto">
+             <div className="flex items-center gap-2.5">
+                <div className="p-1.5 rounded-lg bg-[#9D4EDD]/10 border border-[#9D4EDD]/30 text-[#9D4EDD] shadow-[0_0_15px_rgba(157,78,221,0.2)]"><Rocket size={20} /></div>
+                <div><h4 className="text-[17px] font-bold text-white tracking-tight leading-none mb-0.5">2.5M+</h4><p className="text-[9px] text-slate-400 uppercase tracking-wider font-semibold">Backtests Run</p></div>
              </div>
-             <div className="files-stat flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-[#00E5FF]/10 border border-[#00E5FF]/30 text-[#00E5FF] shadow-[0_0_15px_rgba(0,229,255,0.2)]"><Users size={24} /></div>
-                <div><h4 className="text-xl font-bold text-white tracking-tight">50K+</h4><p className="text-xs text-slate-400 uppercase tracking-wider">Active Traders</p></div>
+             <div className="flex items-center gap-2.5">
+                <div className="p-1.5 rounded-lg bg-[#00E5FF]/10 border border-[#00E5FF]/30 text-[#00E5FF] shadow-[0_0_15px_rgba(0,229,255,0.2)]"><Users size={20} /></div>
+                <div><h4 className="text-[17px] font-bold text-white tracking-tight leading-none mb-0.5">50K+</h4><p className="text-[9px] text-slate-400 uppercase tracking-wider font-semibold">Active Traders</p></div>
              </div>
-             <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-[#B14EFF]/10 border border-[#B14EFF]/30 text-[#B14EFF] shadow-[0_0_15px_rgba(177,78,255,0.2)]"><Zap size={24} /></div>
-                <div><h4 className="text-xl font-bold text-white tracking-tight">AI Engine</h4><p className="text-xs text-slate-400 uppercase tracking-wider">Neural Powered</p></div>
+             <div className="flex items-center gap-2.5">
+                <div className="p-1.5 rounded-lg bg-[#B14EFF]/10 border border-[#B14EFF]/30 text-[#B14EFF] shadow-[0_0_15px_rgba(177,78,255,0.2)]"><Zap size={20} /></div>
+                <div><h4 className="text-[17px] font-bold text-white tracking-tight leading-none mb-0.5">AI Engine</h4><p className="text-[9px] text-slate-400 uppercase tracking-wider font-semibold">Neural Powered</p></div>
              </div> 
-             <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-[#00E5FF]/10 border border-[#00E5FF]/30 text-[#00E5FF] shadow-[0_0_15px_rgba(0,229,255,0.2)]"><ShieldCheck size={24} /></div>
-                <div><h4 className="text-xl font-bold text-white tracking-tight">99.9%</h4><p className="text-xs text-slate-400 uppercase tracking-wider">Uptime</p></div>
+             <div className="flex items-center gap-2.5">
+                <div className="p-1.5 rounded-lg bg-[#00E5FF]/10 border border-[#00E5FF]/30 text-[#00E5FF] shadow-[0_0_15px_rgba(0,229,255,0.2)]"><ShieldCheck size={20} /></div>
+                <div><h4 className="text-[17px] font-bold text-white tracking-tight leading-none mb-0.5">99.9%</h4><p className="text-[9px] text-slate-400 uppercase tracking-wider font-semibold">Uptime</p></div>
              </div>
           </div>
           
@@ -390,4 +384,4 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
   );
 };   
 
-export default HomeView; 
+export default HomeView;
