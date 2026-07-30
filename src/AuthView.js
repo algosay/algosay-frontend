@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 // 🚨 UPDATE: Puthiya Firebase functions import pannirukkom
 import { signInWithGoogle, registerNewUser, loginUser, resetPassword } from './firebase';
 import AlgoSayLogo from './AlgoSayLogo';
-import { AlertTriangle, Sparkles, ChevronLeft, ChevronRight, CheckCircle2, Star, ArrowLeft, Eye, EyeOff, CheckCircle } from 'lucide-react';
+import { AlertTriangle, Sparkles, ChevronLeft, ChevronRight, CheckCircle2, Star, ArrowLeft, Eye, EyeOff, CheckCircle, TrendingUp } from 'lucide-react';
 
 const testimonials = [
   {
@@ -172,41 +172,79 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
       initial="initial"
       animate="animate"
       exit="exit"
-      className="w-full min-h-screen lg:h-screen flex flex-col lg:flex-row relative z-10 pt-0"
+      className="w-full min-h-screen lg:h-screen flex flex-col lg:flex-row relative z-10 pt-0 bg-[#0b0e14]"
     >
-      {/* Back Button */}
+      {/* Back Button - Fixed Z-index and position */}
       <button 
         onClick={onBack}
-        className="absolute top-6 left-6 lg:left-10 flex items-center gap-2 text-slate-600 hover:text-blue-600 font-bold bg-white/90 backdrop-blur-sm px-4 py-2 rounded-xl shadow-sm border border-slate-200 transition-all z-[60] hover:-translate-x-1"
+        className="absolute top-6 left-6 lg:left-10 flex items-center gap-2 text-white/80 hover:text-white font-bold bg-white/10 backdrop-blur-md px-4 py-2 rounded-xl shadow-sm border border-white/10 transition-all z-[60] hover:-translate-x-1"
       >
         <ArrowLeft size={18} /> Back to Home
       </button>
 
-      {/* LEFT SIDE: Reviews & Reality Check */}
-      <div className="w-full lg:w-1/2 lg:h-full bg-white flex flex-col justify-center items-center p-6 pt-16 pb-20 lg:p-12 relative overflow-y-visible lg:overflow-y-auto z-10 border-r border-slate-100 order-2 lg:order-1">
-        <div className="w-full max-w-md space-y-6 mt-8 lg:mt-0">
+      {/* LEFT SIDE: Reviews & Reality Check with Candlestick Theme */}
+      <div className="w-full lg:w-1/2 min-h-screen lg:h-full bg-[#0a0f1c] flex flex-col justify-center items-center p-6 pt-24 pb-20 lg:p-12 relative overflow-hidden z-10 border-r border-white/5 order-2 lg:order-1">
+        
+        {/* Background Candlestick Graph Elements */}
+        <div className="absolute inset-0 z-0 opacity-40 pointer-events-none">
+          {/* Grid lines */}
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:40px_40px]"></div>
+          
+          {/* Abstract Candles inspired by image */}
+          <div className="absolute right-[15%] bottom-[20%] flex items-end gap-3 opacity-80 blur-[1px]">
+             {/* Candle 1 (Green) */}
+             <div className="relative w-4 h-24 bg-emerald-500 rounded-sm shadow-[0_0_15px_rgba(16,185,129,0.5)]">
+               <div className="absolute top-[-15px] left-1/2 -translate-x-1/2 w-[2px] h-32 bg-emerald-500"></div>
+             </div>
+             {/* Candle 2 (Red) */}
+             <div className="relative w-4 h-16 bg-rose-500 rounded-sm shadow-[0_0_15px_rgba(244,63,94,0.5)] mb-8">
+               <div className="absolute top-[-10px] left-1/2 -translate-x-1/2 w-[2px] h-24 bg-rose-500"></div>
+             </div>
+             {/* Candle 3 (Green - Tall) */}
+             <div className="relative w-4 h-36 bg-emerald-500 rounded-sm shadow-[0_0_15px_rgba(16,185,129,0.5)] mb-4">
+               <div className="absolute top-[-25px] left-1/2 -translate-x-1/2 w-[2px] h-48 bg-emerald-500"></div>
+               <div className="absolute top-[-40px] right-[-60px] bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 text-[10px] px-2 py-1 rounded font-bold">▲ 5.83%</div>
+             </div>
+             {/* Candle 4 (Red) */}
+             <div className="relative w-4 h-20 bg-rose-500 rounded-sm shadow-[0_0_15px_rgba(244,63,94,0.5)] mb-12">
+               <div className="absolute top-[-20px] left-1/2 -translate-x-1/2 w-[2px] h-32 bg-rose-500"></div>
+               <div className="absolute top-[-10px] left-[-70px] bg-rose-500/20 border border-rose-500/50 text-rose-400 text-[10px] px-2 py-1 rounded font-bold">▼ -7.38%</div>
+             </div>
+          </div>
+          
+          {/* Glow effects */}
+          <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-blue-600/20 rounded-full blur-[120px]"></div>
+          <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-emerald-600/10 rounded-full blur-[100px]"></div>
+        </div>
+
+        <div className="w-full max-w-md space-y-6 mt-8 lg:mt-0 relative z-10">
           <div className="mb-8">
-            <h2 className="text-2xl font-black text-slate-900 mb-2">Join the top 1% Traders.</h2>
-            <p className="text-sm font-medium text-slate-500">Don't rely on gut feelings. Backtest everything with Algosay.</p>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-900/30 border border-blue-500/30 text-blue-400 text-xs font-black uppercase tracking-widest mb-4">
+              <TrendingUp size={14} /> Premium Trading
+            </div>
+            <h2 className="text-4xl lg:text-5xl font-black text-white mb-3 tracking-tight drop-shadow-lg">
+              Join the top <span className="text-rose-500">1%</span> Traders.
+            </h2>
+            <p className="text-sm font-medium text-slate-400">Don't rely on gut feelings. Backtest every strategy with Algosay's precision.</p>
           </div>
 
           <motion.div 
             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }}
-            className="w-full bg-white rounded-2xl border border-rose-100 shadow-xl shadow-rose-900/5 p-5 relative overflow-hidden group"
+            className="w-full bg-slate-900/60 backdrop-blur-lg rounded-2xl border border-rose-500/20 shadow-2xl p-5 relative overflow-hidden group"
           >
-            <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-rose-500 via-amber-500 to-emerald-500"></div>
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-rose-500 via-amber-500 to-emerald-500 opacity-80"></div>
             <div className="flex items-start gap-3.5 relative z-10">
-               <div className="p-2.5 bg-rose-50 rounded-xl border border-rose-200/80 shrink-0 shadow-sm mt-0.5">
-                 <AlertTriangle className="w-6 h-6 text-rose-600 animate-pulse" />
+               <div className="p-2.5 bg-rose-950/50 rounded-xl border border-rose-500/30 shrink-0 shadow-sm mt-0.5">
+                 <AlertTriangle className="w-6 h-6 text-rose-500 animate-pulse" />
                </div>
                <div className="flex-grow">
                  <div className="flex items-center justify-between mb-1">
-                   <span className="text-[10px] font-black tracking-wider uppercase text-rose-700 bg-rose-100/80 px-2 py-0.5 rounded border border-rose-200">SEBI Market Reality</span>
-                   <span className="text-[10px] font-extrabold text-slate-400">Official Study</span>
+                   <span className="text-[10px] font-black tracking-wider uppercase text-rose-400 bg-rose-950/50 px-2 py-0.5 rounded border border-rose-500/20">SEBI Market Reality</span>
+                   <span className="text-[10px] font-extrabold text-slate-500">Official Study</span>
                  </div>
-                 <h4 className="text-slate-900 font-black text-base mb-1 leading-snug">93% of Retail F&O Traders Suffer Losses</h4>
-                 <p className="text-slate-600 text-xs leading-relaxed font-medium mb-1">
-                   SEBI's latest report reveals individual traders lost over <span className="text-rose-600 font-black">₹1.81 Lakh Crore</span> in F&O due to unverified gut feelings without systematic testing.
+                 <h4 className="text-white font-black text-base mb-1 leading-snug">93% of Retail F&O Traders Suffer Losses</h4>
+                 <p className="text-slate-400 text-xs leading-relaxed font-medium mb-1">
+                   SEBI's latest report reveals individual traders lost over <span className="text-rose-400 font-black">₹1.81 Lakh Crore</span> in F&O due to unverified gut feelings without systematic testing.
                  </p>
                </div>
             </div>
@@ -214,21 +252,21 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
 
           <motion.div 
             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: 0.1 }}
-            className="w-full bg-white rounded-2xl border border-blue-100 shadow-xl shadow-blue-900/5 p-5 flex flex-col justify-between"
+            className="w-full bg-slate-900/60 backdrop-blur-lg rounded-2xl border border-blue-500/20 shadow-2xl p-5 flex flex-col justify-between"
           >
             <div>
-              <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
+              <div className="flex items-center justify-between mb-3 pb-2 border-b border-white/5">
                 <div className="flex items-center gap-2">
-                  <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg border border-blue-100">
+                  <div className="p-1.5 bg-blue-950/50 text-blue-400 rounded-lg border border-blue-500/30">
                     <Sparkles size={16} />
                   </div>
-                  <span className="text-xs font-black text-slate-900 uppercase tracking-wider">Trader Reviews</span>
+                  <span className="text-xs font-black text-white uppercase tracking-wider">Trader Reviews</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <button onClick={() => setActiveReview((prev) => (prev === 0 ? testimonials.length - 1 : prev - 1))} className="p-1.2 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-600 transition-colors border border-slate-200">
+                  <button onClick={() => setActiveReview((prev) => (prev === 0 ? testimonials.length - 1 : prev - 1))} className="p-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 transition-colors border border-white/10">
                     <ChevronLeft size={16} />
                   </button>
-                  <button onClick={() => setActiveReview((prev) => (prev + 1) % testimonials.length)} className="p-1.2 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-600 transition-colors border border-slate-200">
+                  <button onClick={() => setActiveReview((prev) => (prev + 1) % testimonials.length)} className="p-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 transition-colors border border-white/10">
                     <ChevronRight size={16} />
                   </button>
                 </div>
@@ -239,15 +277,15 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
                   <div>
                     <div className="flex items-center justify-between mb-2.5">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white font-black text-sm shadow-sm">
+                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black text-sm shadow-sm">
                           {testimonials[activeReview].name.charAt(0)}
                         </div>
                         <div>
                           <div className="flex items-center gap-1">
-                            <h5 className="text-slate-900 font-extrabold text-xs sm:text-sm">{testimonials[activeReview].name}</h5>
-                            {testimonials[activeReview].verified && <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 fill-blue-100" />}
+                            <h5 className="text-white font-extrabold text-xs sm:text-sm">{testimonials[activeReview].name}</h5>
+                            {testimonials[activeReview].verified && <CheckCircle2 className="w-3.5 h-3.5 text-blue-400 fill-blue-900/50" />}
                           </div>
-                          <p className="text-[10px] text-slate-500 font-semibold">{testimonials[activeReview].role} • {testimonials[activeReview].location}</p>
+                          <p className="text-[10px] text-slate-400 font-semibold">{testimonials[activeReview].role} • {testimonials[activeReview].location}</p>
                         </div>
                       </div>
                       <div className="flex gap-0.5">
@@ -256,8 +294,8 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
                         ))}
                       </div>
                     </div>
-                    <div className="bg-slate-50/80 rounded-xl p-3 border border-slate-200/60 relative">
-                      <p className="text-xs text-slate-700 leading-relaxed font-medium italic">"{testimonials[activeReview].text}"</p>
+                    <div className="bg-[#0b0e14]/80 rounded-xl p-3 border border-white/5 relative">
+                      <p className="text-xs text-slate-300 leading-relaxed font-medium italic">"{testimonials[activeReview].text}"</p>
                     </div>
                   </div>
                 </motion.div>
@@ -267,12 +305,13 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
         </div>
       </div>
 
-      {/* RIGHT SIDE: Light Blue Theme (Login Form) */}
-      <div className="w-full lg:w-1/2 lg:h-full bg-gradient-to-br from-slate-100 via-blue-50/80 to-indigo-100/70 flex flex-col items-center justify-center p-6 pt-24 pb-12 lg:p-12 relative overflow-y-visible lg:overflow-y-auto z-0 order-1 lg:order-2">
+      {/* RIGHT SIDE: Light Blue Theme (Login Form) - Fixed overflow and cutoff */}
+      <div className="w-full lg:w-1/2 lg:h-full bg-gradient-to-br from-slate-100 via-blue-50/80 to-indigo-100/70 overflow-y-auto flex flex-col items-center justify-start lg:justify-center p-6 py-24 lg:p-12 relative z-0 order-1 lg:order-2">
         <div className="absolute top-10 right-10 w-96 h-96 bg-blue-300/40 rounded-full blur-[100px] pointer-events-none"></div>
         <div className="absolute bottom-20 left-10 w-80 h-80 bg-indigo-300/30 rounded-full blur-[100px] pointer-events-none"></div>
 
-        <div className="w-full max-w-lg bg-white/95 backdrop-blur-2xl rounded-3xl shadow-[0_20px_50px_rgba(30,58,138,0.12)] p-8 lg:p-10 z-10 border border-white my-auto">
+        {/* Removed my-auto and added proper margins so it doesn't cut at the top */}
+        <div className="w-full max-w-lg bg-white/95 backdrop-blur-2xl rounded-3xl shadow-[0_20px_50px_rgba(30,58,138,0.12)] p-8 lg:p-10 z-10 border border-white shrink-0 mt-12 lg:mt-0 mb-8 lg:mb-0">
           <div className="flex flex-col items-center justify-center mb-6">
             <div className="flex items-center gap-3 mb-2">
               <AlgoSayLogo className="w-12 h-12 shadow-lg shadow-blue-500/30 rounded-2xl" />
@@ -290,7 +329,6 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
             </p>
           </div>
 
-          {/* 🚨 UPDATE: Form submit ippo context-ku etha mathiri maarum */}
           <form onSubmit={isForgotPassword ? handleResetPassword : handleEmailAuth} className="space-y-4 w-full">
             <div className="relative flex items-center justify-center mb-4">
               <div className="absolute border-t border-slate-200 w-full"></div>
