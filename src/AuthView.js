@@ -105,6 +105,9 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
 
     console.log(isSignUp ? "Signing up:" : "Logging in:", { fullName, mobileNumber, email, password });
     alert(`${isSignUp ? 'Sign Up' : 'Login'} successful for ${email}!`);
+    
+    // 💎 UPDATED HERE: This line actually triggers the navigation to the next page!
+    onLoginSuccess({ email: email, name: fullName || 'User' });
   };
 
   const handleRippleClick = (e) => {
@@ -216,17 +219,15 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
         </div>
       </div>
 
-      {/* RIGHT SIDE: Light Blue Theme (Login Form) - UPDATED SPACING HERE */}
+      {/* RIGHT SIDE: Light Blue Theme (Login Form) */}
       <div className="w-full lg:w-1/2 lg:h-full bg-gradient-to-br from-slate-100 via-blue-50/80 to-indigo-100/70 flex flex-col items-center justify-start lg:justify-center p-6 pt-36 pb-12 lg:p-12 lg:pt-32 relative overflow-y-auto z-0 order-1 lg:order-2">
         <div className="absolute top-10 right-10 w-96 h-96 bg-blue-300/40 rounded-full blur-[100px] pointer-events-none"></div>
         <div className="absolute bottom-20 left-10 w-80 h-80 bg-indigo-300/30 rounded-full blur-[100px] pointer-events-none"></div>
 
-        {/* UPDATED: Replaced 'my-auto' with 'mt-12 lg:mt-16 mb-8' to force it down from the top header */}
         <div className="w-full max-w-lg bg-white/95 backdrop-blur-2xl rounded-3xl shadow-[0_20px_50px_rgba(30,58,138,0.12)] p-8 lg:p-10 z-10 border border-white mt-12 lg:mt-16 mb-8">
           <div className="flex flex-col items-center justify-center mb-6">
             <div className="flex items-center gap-3 mb-2">
               <AlgoSayLogo className="w-12 h-12 shadow-lg shadow-blue-500/30 rounded-2xl" />
-              {/* Logo text color and clipping fixed here */}
               <span className="text-4xl font-extrabold tracking-tight pb-1">
                 <span className="text-black">Algo</span>
                 <span className="text-blue-600">Say</span>
@@ -249,7 +250,6 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
               </motion.div>
             )}
 
-            {/* Added Full Name & Mobile Number inputs for Sign Up */}
             {isSignUp && (
               <>
                 <div className="w-full box-border">
@@ -271,7 +271,6 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
             <div className="w-full box-border">
               <label className="block text-sm font-bold text-slate-700 mb-1.5">Password</label>
               <div className="relative w-full box-border">
-                {/* Fixed password field and added Eye toggle icon */}
                 <input 
                   type={showPassword ? "text" : "password"} 
                   placeholder="••••••••" 
