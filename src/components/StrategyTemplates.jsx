@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-// Play icon removed since the button is replaced by numbers
+import { Play } from 'lucide-react'; 
 
 const StrategyTemplates = () => {
   // 💎 50+ Default Strategies Database (NOT A SINGLE LINE MISSED)
@@ -61,14 +61,14 @@ const StrategyTemplates = () => {
     <div className="w-full max-w-[1400px] mx-auto mt-24 mb-12 relative z-20 border-t border-white/5 pt-20" style={{ perspective: '1200px' }}>
       
       {/* Background Ambient Lights */}
-      <div className="absolute top-1/4 left-1/4 w-[40%] h-[50%] bg-[#FFD700]/5 blur-[120px] rounded-full pointer-events-none z-0 mix-blend-screen"></div>
+      <div className="absolute top-1/4 left-1/4 w-[40%] h-[50%] bg-[#00E5FF]/5 blur-[120px] rounded-full pointer-events-none z-0 mix-blend-screen"></div>
       
       <div className="text-center mb-16 relative z-10">
         <motion.h3 
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="inline-block text-[#FFD700] bg-[#FFD700]/10 border border-[#FFD700]/30 px-5 py-1.5 rounded-full text-[12px] font-black uppercase tracking-[0.2em] mb-4 shadow-[0_0_15px_rgba(255,215,0,0.2)]"
+          className="inline-block text-[#9D4EDD] bg-[#9D4EDD]/10 border border-[#9D4EDD]/30 px-5 py-1.5 rounded-full text-[12px] font-black uppercase tracking-[0.2em] mb-4 shadow-[0_0_15px_rgba(157,78,221,0.2)]"
         >
           No Coding. No Blocks. Just Type.
         </motion.h3>
@@ -80,7 +80,7 @@ const StrategyTemplates = () => {
           transition={{ delay: 0.1 }}
           className="text-4xl md:text-5xl font-black text-white mb-6 drop-shadow-lg"
         >
-          50+ Ready-to-Use <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFD700] to-[#FDB931] drop-shadow-[0_0_20px_rgba(255,215,0,0.3)]">Strategy Templates</span>
+          50+ Ready-to-Use <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00E5FF] to-[#0088FF] drop-shadow-[0_0_20px_rgba(0,229,255,0.3)]">Strategy Templates</span>
         </motion.h2>
         
         <motion.p 
@@ -105,15 +105,15 @@ const StrategyTemplates = () => {
             // 💎 Ultra 3D Hover Animation
             whileHover={{ y: -6, scale: 1.02, rotateX: 2, rotateY: -2 }}
             transition={{ type: "spring", stiffness: 100, damping: 15 }}
-            // 💎 3D Glassmorphism Card Box with GOLDEN Glowing effects & Border
-            className="bg-[#0A0C14]/90 backdrop-blur-xl border border-[#FFD700]/30 hover:border-[#FFD700]/80 rounded-2xl p-6 transition-colors duration-300 shadow-[0_10px_30px_rgba(0,0,0,0.8),inset_0_2px_5px_rgba(255,215,0,0.05)] hover:shadow-[0_0_30px_rgba(255,215,0,0.25)] group flex flex-col justify-between h-full transform-gpu relative overflow-hidden"
+            // 💎 3D Glassmorphism Card Box with Neon Glowing effects
+            className="bg-[#0A0C14]/90 backdrop-blur-xl border border-white/10 hover:border-[#00E5FF]/40 rounded-2xl p-6 transition-colors duration-300 shadow-[0_10px_30px_rgba(0,0,0,0.8),inset_0_2px_5px_rgba(255,255,255,0.05)] hover:shadow-[0_0_30px_rgba(0,229,255,0.15)] group flex flex-col justify-between h-full transform-gpu relative overflow-hidden"
           >
-             {/* Golden Glow on hover inside the card */}
-             <div className="absolute inset-0 bg-gradient-to-br from-[#FFD700]/0 to-[#FFD700]/0 group-hover:from-[#FFD700]/10 transition-all duration-500 pointer-events-none z-0"></div>
+             {/* Neon Glow on hover inside the card */}
+             <div className="absolute inset-0 bg-gradient-to-br from-[#00E5FF]/0 to-[#00E5FF]/0 group-hover:from-[#00E5FF]/5 transition-all duration-500 pointer-events-none z-0"></div>
              
              <div className="relative z-10">
                <div className="flex justify-between items-start mb-4">
-                 <h4 className="text-white font-extrabold text-lg leading-tight group-hover:text-[#FFD700] transition-colors drop-shadow-sm">
+                 <h4 className="text-white font-extrabold text-lg leading-tight group-hover:text-[#00E5FF] transition-colors drop-shadow-sm">
                    {strategy.title}
                  </h4>
                  <span className="text-[9px] font-black tracking-wider text-[#9D4EDD] bg-[#9D4EDD]/10 px-2.5 py-1 rounded border border-[#9D4EDD]/30 whitespace-nowrap ml-3 shadow-[0_0_10px_rgba(157,78,221,0.0)] group-hover:shadow-[0_0_15px_rgba(157,78,221,0.3)] transition-all">
@@ -125,15 +125,10 @@ const StrategyTemplates = () => {
                </p>
              </div>
              
-             {/* 💎 3D Premium Golden Number replacing the Button */}
-             <div className="relative z-10 mt-auto pt-4 flex items-end justify-between border-t border-[#FFD700]/20 group-hover:border-[#FFD700]/50 transition-colors duration-300">
-               <span className="text-[#FFD700]/50 text-[10px] font-black uppercase tracking-[0.2em] group-hover:text-[#FFD700] transition-colors">
-                 Template
-               </span>
-               <span className="text-4xl font-black italic text-transparent bg-clip-text bg-gradient-to-b from-[#FFF200] via-[#FFD700] to-[#B8860B] drop-shadow-[0_0_15px_rgba(255,215,0,0.4)] group-hover:scale-110 transition-transform origin-bottom-right">
-                 #{String(idx + 1).padStart(2, '0')}
-               </span>
-             </div>
+             {/* 3D Button Design */}
+             <button className="relative z-10 w-full py-3 rounded-xl border border-white/10 bg-white/5 text-slate-300 font-bold text-xs uppercase tracking-widest group-hover:bg-[#00E5FF]/10 group-hover:text-[#00E5FF] group-hover:border-[#00E5FF]/40 group-hover:shadow-[0_0_20px_rgba(0,229,255,0.2)] transition-all flex justify-center items-center gap-2 mt-auto transform hover:scale-[1.02]">
+               <Play size={15} className="group-hover:fill-[#00E5FF] transition-all" /> USE TEMPLATE
+             </button>
           </motion.div>
         ))}
       </div>
@@ -141,7 +136,7 @@ const StrategyTemplates = () => {
       {/* Fade out bottom overlay */}
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#04060F] via-[#04060F]/80 to-transparent pointer-events-none z-20"></div>
 
-      {/* Custom CSS for Scrollbar - Updated with Gold Theme */}
+      {/* Custom CSS for Scrollbar - Styled for Dark Theme */}
       <style dangerouslySetInnerHTML={{__html: `
         .custom-scrollbar::-webkit-scrollbar {
           width: 8px;
@@ -152,12 +147,12 @@ const StrategyTemplates = () => {
           border: 1px solid rgba(255, 255, 255, 0.05);
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(255, 215, 0, 0.15);
+          background: rgba(255, 255, 255, 0.15);
           border-radius: 10px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: rgba(255, 215, 0, 0.6);
-          box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+          background: rgba(0, 229, 255, 0.6);
+          box-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
         }
       `}} />
     </div>
