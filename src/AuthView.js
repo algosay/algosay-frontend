@@ -94,7 +94,6 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
       return;
     }
 
-    // Example Error Simulation (Replace with actual Firebase Auth logic)
     if (isSignUp && email === 'test@example.com') {
       setAuthError('Email already exists. Please log in instead.');
       return;
@@ -104,9 +103,8 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
     }
 
     console.log(isSignUp ? "Signing up:" : "Logging in:", { fullName, mobileNumber, email, password });
-    alert(`${isSignUp ? 'Sign Up' : 'Login'} successful for ${email}!`);
     
-    // 💎 UPDATED HERE: This line actually triggers the navigation to the next page!
+    // Alert ah thookiyachu. Ippa direct ah next page (main terminal) ku poidum!
     onLoginSuccess({ email: email, name: fullName || 'User' });
   };
 
