@@ -61,24 +61,26 @@ const ResultsShowcase = ({ setZoomedImage }) => {
             // 💎 Ultra 3D Hover Animation with rotateX and rotateY
             whileHover={{ y: -12, scale: 1.03, rotateX: 4, rotateY: -4 }}
             onClick={() => setZoomedImage(img.src)}
-            // 💎 3D Glassmorphism Box Design with Drop Shadows
-            className={`relative group rounded-2xl p-[2px] bg-gradient-to-b from-white/15 to-white/5 hover:from-white/30 transition-all duration-500 cursor-zoom-in shadow-[0_20px_50px_rgba(0,0,0,0.8),inset_0_2px_5px_rgba(255,255,255,0.05)] w-full min-h-[260px] max-w-md transform-gpu ${img.shadow} hover:shadow-[0_0_50px_rgba(255,255,255,0.1)]`}
+            // 💎 UPDATED: White & Pink Mixed Border (using padding on a vibrant gradient background) + Premium pink hover glow
+            className={`relative group rounded-2xl p-[2px] bg-gradient-to-br from-white/90 via-pink-500/80 to-white/50 hover:from-white hover:via-pink-400 hover:to-pink-300 transition-all duration-500 cursor-zoom-in shadow-[0_20px_50px_rgba(0,0,0,0.9),inset_0_2px_5px_rgba(255,255,255,0.3)] w-full min-h-[260px] max-w-md transform-gpu ${img.shadow} hover:shadow-[0_0_45px_rgba(236,72,153,0.6)]`}
           >
             {/* Inner Glowing Gradient overlay */}
-            <div className={`absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-20 transition-opacity duration-700 ease-out z-10 pointer-events-none rounded-2xl ${img.color}`}></div>
+            <div className={`absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-25 transition-opacity duration-700 ease-out z-10 pointer-events-none rounded-2xl ${img.color}`}></div>
             
-            <div className="bg-[#0A0C14]/90 backdrop-blur-xl rounded-2xl h-full flex flex-col items-center justify-center overflow-hidden relative">
+            {/* 💎 UPDATED: Deep Black Background inside to make the border pop */}
+            <div className="bg-black/95 backdrop-blur-xl rounded-2xl h-full flex flex-col items-center justify-center overflow-hidden relative">
               
               <img 
                 src={img.src} 
                 alt={img.title} 
-                className="w-full h-[80%] object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-transform duration-700 ease-out" 
+                className="w-full h-[80%] object-cover opacity-85 group-hover:opacity-100 group-hover:scale-110 transition-transform duration-700 ease-out" 
               />
               
               {/* Enlarge Button Overlay */}
-              <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 pb-12">
-                 <div className="bg-black/80 text-white px-5 py-2.5 rounded-full border border-white/20 text-sm font-bold backdrop-blur-md shadow-[0_10px_20px_rgba(0,0,0,0.5)] flex items-center gap-2 transform group-hover:scale-105 transition-transform duration-300">
-                   <svg className="w-4 h-4 text-[#00E5FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 pb-12">
+                 {/* 💎 UPDATED: Button accents changed to Pink to match the new theme */}
+                 <div className="bg-black/80 text-white px-5 py-2.5 rounded-full border border-pink-400/40 text-sm font-bold backdrop-blur-md shadow-[0_10px_20px_rgba(0,0,0,0.7)] flex items-center gap-2 transform group-hover:scale-105 transition-transform duration-300">
+                   <svg className="w-4 h-4 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
                    </svg>
                    Click to Enlarge
@@ -86,8 +88,9 @@ const ResultsShowcase = ({ setZoomedImage }) => {
               </div>
               
               {/* Bottom Title Area */}
-              <div className="w-full p-4 border-t border-white/10 bg-[#0A0C14]/90 backdrop-blur-md z-20 absolute bottom-0">
-                <h4 className="text-center font-extrabold text-slate-300 text-[15px] tracking-wide group-hover:text-white transition-colors drop-shadow-md">
+              {/* 💎 UPDATED: Made bottom section jet black with a subtle pink top border, changed text to solid white for max visibility */}
+              <div className="w-full p-4 border-t border-pink-500/30 bg-black/95 backdrop-blur-md z-20 absolute bottom-0">
+                <h4 className="text-center font-extrabold text-white text-[15px] tracking-wide drop-shadow-md">
                   {img.title}
                 </h4>
                 {/* Expanding Glowing Line */}
