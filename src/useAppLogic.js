@@ -212,6 +212,12 @@ export const useAppLogic = () => {
 
         console.log("🤖 AI JSON LEG DATA:", leg); 
 
+        // 🚨 STRICT POSITION GUARDRAIL: Format Position to always be UPPERCASE to prevent Backend Fallback Bugs
+        let strictPosition = (leg.position || leg.action || 'BUY').toString().toUpperCase();
+        if (strictPosition !== 'BUY' && strictPosition !== 'SELL') {
+            strictPosition = 'BUY'; // Safe default for Options Buying
+        }
+
         return {
           id: leg.id || Date.now() + idx,
           ticker: finalTicker || leg.ticker || leg.asset || '', 
@@ -219,7 +225,7 @@ export const useAppLogic = () => {
           entryTime: leg.entryTime || leg.entry_time || resolvedEntryTime || '', // 🚨 Passed resolved time directly
           exitTime: leg.exitTime || leg.exit_time || entry.exitTime || (isDynamicFlag ? 'Positional' : '15:15'),
           segment: leg.segment || 'Options',
-          position: leg.position || 'Buy',
+          position: strictPosition, // 👈 🚨 GUARANTEED to be "BUY" or "SELL" (Uppercase)
           lots: leg.lots || 1,
           optionType: leg.optionType || leg.option_type || 'CE', 
           expiry: leg.expiry || 'Weekly',
@@ -254,7 +260,8 @@ export const useAppLogic = () => {
   const addLeg = () => { 
     setLegs([...legs, { 
       id: Date.now(), ticker: ticker, timeframe: timeframe, entryTime: '', exitTime: '', 
-      segment: 'Options', position: 'Buy', lots: 1, optionType: 'CE', expiry: 'Weekly', strikeType: 'ATM', 
+      segment: 'Options', position: 'BUY', // 👈 🚨 Made default UpperCase
+      lots: 1, optionType: 'CE', expiry: 'Weekly', strikeType: 'ATM', 
       strikeDistance: 0, stopLoss: '', target: '', slUnit: '%', targetUnit: '%', 
       trailX: 0, trailY: 0, trailUnitX: 'Pts', trailUnitY: 'Pts', 
       slReentry: 0, targetReexecute: 0, waitAndTrade: false, costToCost: false, moveToStoploss: false 
@@ -387,9 +394,10 @@ export const useAppLogic = () => {
         segment: leg.segment, 
         
         // --- 🎯 KEY FIXES FOR PYDANTIC HERE ---
-        position: leg.position || leg.action || "Buy",
-        option_type: leg.option_type || leg.optionType || "CE", 
-        strike_type: leg.strike_type || leg.strikeType || "ATM", 
+        // 🚨 STRICT PAYLOAD ENFORCEMENT: Ensure string conversion and Uppercase so Python Engine doesn't fail
+        position: (leg.position || leg.action || "BUY").toString().toUpperCase(), 
+        option_type: (leg.option_type || leg.optionType || "CE").toString().toUpperCase(), 
+        strike_type: (leg.strike_type || leg.strikeType || "ATM").toString().toUpperCase(), 
         // --------------------------------------
         
         lots: leg.lots, 

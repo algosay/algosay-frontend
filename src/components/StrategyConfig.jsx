@@ -169,6 +169,9 @@ const StrategyConfig = ({
               const rawEntryTime = leg.entryTime || leg.entry_time || '';
               const isDynamicLeg = String(rawEntryTime).toLowerCase() === 'dynamic';
 
+              // 🚨 STANDARDIZED POSITION VALUE FOR DROPDOWN (UPPERCASE) 🚨
+              const currentPosition = (leg.position || leg.action || 'BUY').toString().toUpperCase() === 'SELL' ? 'SELL' : 'BUY';
+
               return (
                 <div key={leg.id || index} className="bg-[#121212] p-4 rounded-xl border border-[#333] relative hover:border-gray-800 transition-all flex flex-col justify-between shadow-inner">
                   <div>
@@ -243,9 +246,10 @@ const StrategyConfig = ({
                       
                       <div>
                         <label className="block text-[9px] text-gray-500 uppercase tracking-wide mb-1">Position</label>
-                        <select value={leg.position || leg.action || 'Sell'} onChange={(e) => updateLeg(leg.id, 'position', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500">
-                          <option value="Buy">Buy</option>
-                          <option value="Sell">Sell</option>
+                        {/* 🚨 ENFORCED UPPERCASE VALUES TO PREVENT BACKEND FLIP BUGS 🚨 */}
+                        <select value={currentPosition} onChange={(e) => updateLeg(leg.id, 'position', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500">
+                          <option value="BUY">Buy</option>
+                          <option value="SELL">Sell</option>
                         </select>
                       </div>
 
