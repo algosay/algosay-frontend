@@ -130,9 +130,10 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
             <div className="absolute inset-0 bg-blue-500 blur-xl opacity-30 group-hover:opacity-60 transition-opacity"></div>
           </div>
           <div className="flex flex-col justify-center">
-            {/* FIXED: 'leading-none' changed to 'leading-normal py-0.5' to prevent bottom cutoff on 'g' and 'y' */}
-            <span className="text-2xl lg:text-[28px] font-black tracking-tight text-white whitespace-nowrap leading-normal py-0.5">
-              AlgoSay
+            {/* 🔥 UPDATE 1: Logo Text Colors - Algo (White), Say (Dark Blue) with drop shadow */}
+            <span className="text-2xl lg:text-[28px] font-black tracking-tight whitespace-nowrap leading-normal py-0.5">
+              <span className="text-white">Algo</span>
+              <span className="text-[#1E3A8A] drop-shadow-[0_0_12px_rgba(30,58,138,0.9)]">Say</span>
             </span>
             <span className="text-[10px] text-slate-400 font-bold tracking-[0.2em] uppercase -mt-1">
               AI Quant Edge
