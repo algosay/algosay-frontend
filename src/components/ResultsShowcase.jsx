@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 const ResultsShowcase = ({ setZoomedImage }) => {
-  // 💎 Result Images Array
+  // 💎 Result Images Array (Original data preserved exactly as it was)
   const resultImages = [
     { id: 1, src: '/image/PnL Ledger.png', title: 'PnL Ledger', color: 'from-[#00E5FF] to-[#0088FF]', shadow: 'shadow-[0_0_30px_rgba(0,229,255,0.3)]' },
     { id: 2, src: '/image/Drawdown Curve.png', title: 'Drawdown Curve', color: 'from-[#9D4EDD] to-[#6025F5]', shadow: 'shadow-[0_0_30px_rgba(157,78,221,0.3)]' },
@@ -17,14 +17,14 @@ const ResultsShowcase = ({ setZoomedImage }) => {
     <div className="w-full max-w-[1400px] mx-auto mt-32 mb-16 relative z-20 overflow-hidden" style={{ perspective: '1200px' }}>
       
       {/* 💎 Upgraded Ambient Background Glows for Dark Mode */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] h-[60%] bg-gradient-to-r from-[#4D7CFF]/10 via-[#9D4EDD]/10 to-[#00E5FF]/10 blur-[150px] rounded-full mix-blend-screen pointer-events-none z-0"></div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] h-[60%] bg-gradient-to-r from-[#FFD700]/5 via-[#B8860B]/5 to-[#FFF200]/5 blur-[150px] rounded-full mix-blend-screen pointer-events-none z-0"></div>
       
       <div className="text-center mb-16 relative z-10">
         <motion.span 
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="inline-block px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#00E5FF] text-[12px] font-black uppercase tracking-[0.2em] mb-4 shadow-[0_0_15px_rgba(0,229,255,0.15)]"
+          className="inline-block px-4 py-1.5 rounded-full bg-[#FFD700]/10 border border-[#FFD700]/30 text-[#FFD700] text-[12px] font-black uppercase tracking-[0.2em] mb-4 shadow-[0_0_15px_rgba(255,215,0,0.2)]"
         >
           Unmatched Analytical Power
         </motion.span>
@@ -36,7 +36,7 @@ const ResultsShowcase = ({ setZoomedImage }) => {
           transition={{ delay: 0.1 }}
           className="text-4xl md:text-5xl font-black text-white mb-6 drop-shadow-lg"
         >
-          Institutional <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#9D4EDD] via-[#FF007A] to-[#00E5FF] drop-shadow-[0_0_20px_rgba(0,229,255,0.3)]">Result Metrics</span>
+          Institutional <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFD700] via-[#FDB931] to-[#FFF200] drop-shadow-[0_0_20px_rgba(255,215,0,0.3)]">Result Metrics</span>
         </motion.h2>
         
         <motion.p 
@@ -61,13 +61,13 @@ const ResultsShowcase = ({ setZoomedImage }) => {
             // 💎 Ultra 3D Hover Animation with rotateX and rotateY
             whileHover={{ y: -12, scale: 1.03, rotateX: 4, rotateY: -4 }}
             onClick={() => setZoomedImage(img.src)}
-            // 💎 3D Glassmorphism Box Design with Drop Shadows
-            className={`relative group rounded-2xl p-[2px] bg-gradient-to-b from-white/15 to-white/5 hover:from-white/30 transition-all duration-500 cursor-zoom-in shadow-[0_20px_50px_rgba(0,0,0,0.8),inset_0_2px_5px_rgba(255,255,255,0.05)] w-full min-h-[260px] max-w-md transform-gpu ${img.shadow} hover:shadow-[0_0_50px_rgba(255,255,255,0.1)]`}
+            // 💎 3D Glassmorphism Box Design WITH FIXED UNIQUE SHADOW CLASSES
+            className="relative group rounded-2xl p-[2.5px] bg-gradient-to-b from-[#FFD700]/40 via-[#B8860B]/10 to-[#FFD700]/40 hover:from-[#FFF200] hover:via-[#FFD700]/50 hover:to-[#FFF200] transition-all duration-500 cursor-zoom-in w-full min-h-[260px] max-w-md transform-gpu shadow-[0_20px_50px_rgba(0,0,0,0.8),inset_0_2px_5px_rgba(255,215,0,0.15),0_0_25px_rgba(255,215,0,0.15)] hover:shadow-[0_0_60px_rgba(255,215,0,0.4)]"
           >
             {/* Inner Glowing Gradient overlay */}
             <div className={`absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-20 transition-opacity duration-700 ease-out z-10 pointer-events-none rounded-2xl ${img.color}`}></div>
             
-            <div className="bg-[#0A0C14]/90 backdrop-blur-xl rounded-2xl h-full flex flex-col items-center justify-center overflow-hidden relative">
+            <div className="bg-[#0A0C14]/95 backdrop-blur-xl rounded-2xl h-full flex flex-col items-center justify-center overflow-hidden relative">
               
               <img 
                 src={img.src} 
@@ -76,9 +76,9 @@ const ResultsShowcase = ({ setZoomedImage }) => {
               />
               
               {/* Enlarge Button Overlay */}
-              <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 pb-12">
-                 <div className="bg-black/80 text-white px-5 py-2.5 rounded-full border border-white/20 text-sm font-bold backdrop-blur-md shadow-[0_10px_20px_rgba(0,0,0,0.5)] flex items-center gap-2 transform group-hover:scale-105 transition-transform duration-300">
-                   <svg className="w-4 h-4 text-[#00E5FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 pb-12">
+                 <div className="bg-[#0A0C14]/90 text-white px-5 py-2.5 rounded-full border border-[#FFD700]/40 text-sm font-bold backdrop-blur-md shadow-[0_10px_30px_rgba(0,0,0,0.8),0_0_15px_rgba(255,215,0,0.3)] flex items-center gap-2 transform group-hover:scale-105 transition-transform duration-300">
+                   <svg className="w-4 h-4 text-[#FFD700]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
                    </svg>
                    Click to Enlarge
@@ -86,8 +86,8 @@ const ResultsShowcase = ({ setZoomedImage }) => {
               </div>
               
               {/* Bottom Title Area */}
-              <div className="w-full p-4 border-t border-white/10 bg-[#0A0C14]/90 backdrop-blur-md z-20 absolute bottom-0">
-                <h4 className="text-center font-extrabold text-slate-300 text-[15px] tracking-wide group-hover:text-white transition-colors drop-shadow-md">
+              <div className="w-full p-4 border-t border-[#FFD700]/20 group-hover:border-[#FFD700]/50 bg-[#0A0C14]/90 backdrop-blur-md z-20 absolute bottom-0 transition-colors duration-500">
+                <h4 className="text-center font-extrabold text-slate-300 text-[15px] tracking-wide group-hover:text-[#FFD700] transition-colors drop-shadow-md">
                   {img.title}
                 </h4>
                 {/* Expanding Glowing Line */}

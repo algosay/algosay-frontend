@@ -142,12 +142,19 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
         </div>
 
         <div className="flex items-center gap-3 sm:gap-4">
+          {/* 🔥 UPDATE 2: New Double Color Log In Button */}
           <button 
             onClick={() => onNavigate(false)}
-            className="px-5 py-2.5 text-sm font-medium text-slate-300 bg-transparent border border-white/10 hover:border-white/30 hover:text-white rounded-lg transition-all duration-300"
+            className="relative p-[1.5px] group rounded-lg overflow-hidden shadow-[0_0_15px_rgba(0,229,255,0.15)] hover:shadow-[0_0_25px_rgba(0,229,255,0.4)] transition-all duration-300 hover:-translate-y-0.5"
           >
-            Log In
+            <div className="absolute inset-0 bg-gradient-to-r from-[#00E5FF] to-[#9D4EDD] transition-opacity"></div>
+            <div className="relative px-5 py-2.5 bg-[#04060F] group-hover:bg-transparent rounded-[6.5px] transition-all duration-300 flex items-center justify-center">
+              <span className="text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#00E5FF] to-[#9D4EDD] group-hover:text-white transition-all duration-300">
+                Log In
+              </span>
+            </div>
           </button>
+
           <button 
             onClick={() => onNavigate(true)}
             className="relative overflow-hidden group px-6 py-2.5 bg-gradient-to-r from-[#2B4CFF] to-[#6025F5] text-white text-sm font-semibold rounded-lg shadow-[0_0_20px_rgba(43,76,255,0.4)] hover:shadow-[0_0_30px_rgba(96,37,245,0.6)] transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0"
