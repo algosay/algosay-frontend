@@ -269,12 +269,13 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
           </motion.div>
 
           {/* 💎 CTA CARD */}
+          {/* 🚨 UPDATE: Comment ah opening tag ku mela thooki pottachu. Ithu thaan error ah create pannuchu! */}
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.5 }}
             onClick={() => onNavigate(true)}
-            className="w-full relative group cursor-pointer overflow-hidden rounded-2xl p-[2px] bg-gradient-to-r from-[#00E5FF] via-[#7928CA] to-[#FF007A] shadow-[0_0_30px_rgba(0,229,255,0.25)] hover:shadow-[0_0_50px_rgba(121,40,202,0.45)] transition-all duration-500 hover:-translate-y-1"
+            className="w-full relative group cursor-pointer overflow-hidden rounded-2xl p-[2px] mt-3 lg:mt-6 bg-gradient-to-r from-[#00E5FF] via-[#7928CA] to-[#FF007A] shadow-[0_0_30px_rgba(0,229,255,0.25)] hover:shadow-[0_0_50px_rgba(121,40,202,0.45)] transition-all duration-500 hover:-translate-y-1"
           >
             <div className="bg-[#0A0C14] hover:bg-[#0E111F] rounded-[14px] p-4 sm:p-5 flex items-center justify-between transition-colors duration-300 relative overflow-hidden">
               <div className="absolute -top-12 -right-12 w-36 h-36 bg-[#00E5FF]/20 rounded-full blur-2xl group-hover:bg-[#00E5FF]/35 transition-all duration-500"></div>
