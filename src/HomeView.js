@@ -43,8 +43,8 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
       desc: "Explain your strategy in simple English or Tanglish. Our AI instantly translates your text into precision options legs, strikes, and execution rules.",
       icon: <Wand2 strokeWidth={2.5} size={24} />,
       theme: {
-        cardBg: "bg-gradient-to-br from-blue-50/80 to-cyan-50/80 backdrop-blur-xl",
-        borderHover: "border-blue-200 hover:border-blue-500 hover:shadow-[0_10px_40px_rgba(59,130,246,0.3)]",
+        cardBg: "bg-gradient-to-br from-blue-50/90 to-cyan-50/90 backdrop-blur-xl",
+        borderHover: "border-blue-200 hover:border-blue-500 hover:shadow-[0_15px_40px_rgba(59,130,246,0.25)]",
         iconText: "text-blue-600",
         iconBorder: "border-blue-300 shadow-[0_0_15px_rgba(59,130,246,0.2)] bg-blue-100",
         hoverIconBg: "group-hover:bg-blue-600 group-hover:text-white group-hover:shadow-[0_0_25px_rgba(59,130,246,0.5)] group-hover:scale-110",
@@ -60,8 +60,8 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
       desc: "The moment your backtest completes, our AI analyzes turnover, hidden drawdown leaks & optimizes your trade sequence instantly.",
       icon: <Activity strokeWidth={2.5} size={24} />,
       theme: {
-        cardBg: "bg-gradient-to-br from-fuchsia-50/80 to-purple-50/80 backdrop-blur-xl",
-        borderHover: "border-fuchsia-200 hover:border-fuchsia-500 hover:shadow-[0_10px_40px_rgba(217,70,239,0.3)]",
+        cardBg: "bg-gradient-to-br from-fuchsia-50/90 to-purple-50/90 backdrop-blur-xl",
+        borderHover: "border-fuchsia-200 hover:border-fuchsia-500 hover:shadow-[0_15px_40px_rgba(217,70,239,0.25)]",
         iconText: "text-fuchsia-600",
         iconBorder: "border-fuchsia-300 shadow-[0_0_15px_rgba(217,70,239,0.2)] bg-fuchsia-100",
         hoverIconBg: "group-hover:bg-fuchsia-600 group-hover:text-white group-hover:shadow-[0_0_25px_rgba(217,70,239,0.5)] group-hover:scale-110",
@@ -77,8 +77,8 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
       desc: "Slice your data with precision using 0DTE & Day-wise filters. Includes detailed Ledger with PDF & CSV exports and AI Analyzer.",
       icon: <Filter strokeWidth={2.5} size={24} />,
       theme: {
-        cardBg: "bg-gradient-to-br from-emerald-50/80 to-teal-50/80 backdrop-blur-xl",
-        borderHover: "border-emerald-200 hover:border-emerald-500 hover:shadow-[0_10px_40px_rgba(16,185,129,0.3)]",
+        cardBg: "bg-gradient-to-br from-emerald-50/90 to-teal-50/90 backdrop-blur-xl",
+        borderHover: "border-emerald-200 hover:border-emerald-500 hover:shadow-[0_15px_40px_rgba(16,185,129,0.25)]",
         iconText: "text-emerald-600",
         iconBorder: "border-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.2)] bg-emerald-100",
         hoverIconBg: "group-hover:bg-emerald-600 group-hover:text-white group-hover:shadow-[0_0_25px_rgba(16,185,129,0.5)] group-hover:scale-110",
@@ -94,8 +94,8 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
       desc: "Go beyond basic PnL. We provide Profit Factor, Sortino Ratio, Expectancy, Max Adverse Excursion, Edge Ratio, and 50+ advanced metrics.",
       icon: <BarChart3 strokeWidth={2.5} size={24} />,
       theme: {
-        cardBg: "bg-gradient-to-br from-rose-50/80 to-orange-50/80 backdrop-blur-xl",
-        borderHover: "border-rose-200 hover:border-rose-500 hover:shadow-[0_10px_40px_rgba(244,63,94,0.3)]",
+        cardBg: "bg-gradient-to-br from-rose-50/90 to-orange-50/90 backdrop-blur-xl",
+        borderHover: "border-rose-200 hover:border-rose-500 hover:shadow-[0_15px_40px_rgba(244,63,94,0.25)]",
         iconText: "text-rose-600",
         iconBorder: "border-rose-300 shadow-[0_0_15px_rgba(244,63,94,0.2)] bg-rose-100",
         hoverIconBg: "group-hover:bg-rose-600 group-hover:text-white group-hover:shadow-[0_0_25px_rgba(244,63,94,0.5)] group-hover:scale-110",
@@ -116,6 +116,52 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
       exit="exit"
       className="flex flex-col w-full min-h-screen relative px-6 md:px-12 lg:px-20 py-6 z-10 bg-white overflow-hidden font-sans"
     >
+      {/* 💎 MAGIC CSS OVERRIDE: Ithu kela iruka components oda dark theme ah block panni Premium White Theme ah aakum! */}
+      <style>{`
+        .premium-child-override {
+          width: 100%;
+        }
+        /* Convert Dark Headings to Colorful Gradients */
+        .premium-child-override h1, 
+        .premium-child-override h2, 
+        .premium-child-override h3 {
+          background: linear-gradient(to right, #1e3a8a, #9333ea, #db2777) !important;
+          -webkit-background-clip: text !important;
+          -webkit-text-fill-color: transparent !important;
+          color: transparent !important;
+          font-weight: 900 !important;
+          letter-spacing: -0.02em !important;
+        }
+        /* Convert White/Dim Texts to Clear Dark Slate */
+        .premium-child-override p, 
+        .premium-child-override span.text-slate-300, 
+        .premium-child-override span.text-slate-400,
+        .premium-child-override .text-white {
+          color: #334155 !important;
+          font-weight: 600 !important;
+        }
+        /* Convert Black Boxes to Premium Glass White Boxes */
+        .premium-child-override .bg-black, 
+        .premium-child-override [class*="bg-[#04060F]"], 
+        .premium-child-override [class*="bg-[#0A0C14]"] {
+          background: #ffffff !important;
+          border: 2px solid #e2e8f0 !important;
+          box-shadow: 0 10px 40px rgba(99,102,241,0.08) !important;
+          transition: all 0.3s ease !important;
+        }
+        .premium-child-override .bg-black:hover, 
+        .premium-child-override [class*="bg-[#0A0C14]"]:hover {
+          border-color: #a855f7 !important;
+          transform: translateY(-5px) !important;
+          box-shadow: 0 15px 45px rgba(168,85,247,0.15) !important;
+        }
+        /* Fix thin borders */
+        .premium-child-override .border-white\\/5,
+        .premium-child-override .border-white\\/10 {
+          border-color: #e2e8f0 !important;
+        }
+      `}</style>
+
       {/* Super Colorful Gradient Background Blobs */}
       <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-gradient-to-br from-blue-300/40 via-purple-300/30 to-pink-300/40 rounded-full blur-[100px] z-0 pointer-events-none mix-blend-multiply animate-pulse"></div>
       <div className="absolute bottom-[-10%] left-[-5%] w-[500px] h-[500px] bg-gradient-to-tr from-emerald-300/30 via-cyan-300/30 to-blue-300/30 rounded-full blur-[120px] z-0 pointer-events-none mix-blend-multiply"></div>
@@ -127,11 +173,12 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
             <AlgoSayLogo className="w-10 h-10 shadow-[0_5px_15px_rgba(99,102,241,0.3)] rounded-xl border-2 border-indigo-100 bg-white relative z-10 transition-transform group-hover:scale-105" />
             <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-500 blur-xl opacity-30 group-hover:opacity-60 transition-opacity"></div>
           </div>
-          <div className="flex flex-col">
-            <span className="text-2xl lg:text-[28px] font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-900 to-purple-900 whitespace-nowrap leading-none">
+          <div className="flex flex-col justify-center">
+            {/* FIXED: 'leading-none' changed to 'leading-normal py-0.5' to prevent bottom cutoff on 'g' and 'y' */}
+            <span className="text-2xl lg:text-[28px] font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-900 to-purple-900 whitespace-nowrap leading-normal py-0.5">
               AlgoSay
             </span>
-            <span className="text-[10px] text-pink-600 font-extrabold tracking-[0.2em] uppercase mt-1">
+            <span className="text-[10px] text-pink-600 font-extrabold tracking-[0.2em] uppercase -mt-1">
               AI Quant Edge
             </span>
           </div>
@@ -159,10 +206,10 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
         </div>
       </div>
 
-      {/* MAIN CONTENT AREA (HERO) */}
-      <div className="flex flex-col lg:flex-row justify-between items-start gap-12 flex-grow relative z-10 w-full max-w-[1400px] mx-auto">
+      {/* MAIN CONTENT AREA (HERO) - FIXED ALIGNMENT WITH ITEMS-STRETCH */}
+      <div className="flex flex-col lg:flex-row justify-between items-stretch gap-12 flex-grow relative z-10 w-full max-w-[1400px] mx-auto min-h-min">
         
-        {/* Left Column Text, Terminal */}
+        {/* Left Column Text, Terminal & Built for Precision */}
         <div className="w-full lg:w-[45%] flex flex-col pt-2 relative z-20">
           <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }}>
             <h3 className="inline-block px-4 py-1.5 rounded-full border-2 border-blue-200 bg-blue-50 text-[12px] font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-700 to-purple-700 uppercase tracking-[0.15em] mb-6 shadow-sm">
@@ -187,10 +234,10 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
             </p>
           </motion.div>
 
-          {/* PRO TERMINAL ENGINE BOX - Dark vibrant look inside to make neon colors pop, glowing vibrant border outside */}
+          {/* PRO TERMINAL ENGINE BOX */}
           <motion.div 
             initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.6 }}
-            className="mb-10 p-[3px] rounded-[20px] bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 shadow-[0_15px_40px_rgba(168,85,247,0.3)] relative max-w-xl hover:shadow-[0_20px_50px_rgba(236,72,153,0.4)] transition-all duration-500 hover:-translate-y-1"
+            className="mb-6 p-[3px] rounded-[20px] bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 shadow-[0_15px_40px_rgba(168,85,247,0.3)] relative max-w-xl hover:shadow-[0_20px_50px_rgba(236,72,153,0.4)] transition-all duration-500 hover:-translate-y-1"
           >
             <div className="rounded-[17px] overflow-hidden bg-[#0A0F24] flex flex-col w-full h-full relative">
               <div className="bg-[#111836] px-5 py-4 flex items-center justify-between border-b border-indigo-500/30 relative z-10">
@@ -224,20 +271,20 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
             </div>
           </motion.div>
 
-          {/* BUILT FOR PRECISION BANNER - Colorful */}
-          <div className="flex flex-col gap-4 max-w-xl relative">
-            <div className="p-5 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 flex items-center gap-5 shadow-[0_8px_20px_rgba(59,130,246,0.1)] hover:shadow-[0_12px_25px_rgba(99,102,241,0.2)] transition-all">
+          {/* BUILT FOR PRECISION BANNER - FIXED: mt-auto pushes this box strictly to the bottom aligning perfectly with right side */}
+          <div className="flex flex-col gap-4 max-w-xl relative mt-auto pb-1">
+            <div className="p-5 rounded-[18px] bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 flex items-center gap-5 shadow-[0_8px_20px_rgba(59,130,246,0.12)] hover:shadow-[0_12px_25px_rgba(99,102,241,0.2)] transition-all cursor-default">
               <div className="p-3 rounded-xl bg-blue-100 border-2 border-blue-300 text-blue-700 shadow-inner"><Shield size={28} /></div>
               <div>
                 <h4 className="text-lg font-black text-indigo-950 tracking-wide mb-1">BUILT FOR PRECISION. DESIGNED FOR TRADERS.</h4>
-                <p className="text-sm text-indigo-700/80 font-bold">Advanced AI • Lightning Fast • Institutional Grade</p>
+                <p className="text-sm text-indigo-700/90 font-bold">Advanced AI • Lightning Fast • Institutional Grade</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* RIGHT COLUMN: 4 COLORFUL BOXES + UNIQUE CTA BUTTON + STATS */}
-        <div className="w-full lg:w-[55%] flex flex-col items-end relative z-20 pt-4 gap-6">
+        <div className="w-full lg:w-[55%] flex flex-col justify-between relative z-20 pt-4 gap-6 h-full">
           {/* Steps Grid */}
           <motion.div variants={containerVariants} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.1 }} className="grid grid-cols-1 sm:grid-cols-2 gap-5 w-full">
             {stepsData.map((step, index) => (
@@ -318,7 +365,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
           </motion.div>
 
           {/* COLORFUL STATS SECTION */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full mt-2">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full mt-1">
              <motion.div whileHover={{ y: -5 }} className="flex flex-col items-center justify-center text-center p-4 rounded-[16px] bg-gradient-to-b from-indigo-50 to-white border-2 border-indigo-100 shadow-[0_5px_15px_rgba(79,70,229,0.08)]">
                 <div className="p-2.5 rounded-xl bg-indigo-100 text-indigo-600 mb-2 shadow-sm"><Rocket size={22} /></div>
                 <h4 className="text-xl font-black text-indigo-950 tracking-tight">2.5M+</h4>
@@ -344,24 +391,27 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
         </div>
       </div>
 
-      {/* 💎 COMPONENT RENDERS */}
-      
-      {/* 1. Results Images Showcase Component */}
-      <div className="w-full relative z-20 mt-10">
-        <ResultsShowcase setZoomedImage={setZoomedImage} />
+      {/* 💎 COMPONENT RENDERS WRAPPED WITH MAGIC PREMIUM OVERRIDE */}
+      <div className="premium-child-override">
+        
+        {/* 1. Results Images Showcase Component */}
+        <div className="w-full relative z-20 mt-16 pt-10 border-t-2 border-slate-100">
+          <ResultsShowcase setZoomedImage={setZoomedImage} />
+        </div>
+
+        {/* 2. 50+ Strategies Component */}
+        <div className="w-full relative z-20 mt-12">
+          <StrategyTemplates />
+        </div>
+
+        {/* 3. Strategy Capabilities Component */}
+        <div className="w-full relative z-20 mt-12 pb-10">
+          <StrategyCapabilities />
+        </div>
+
       </div>
 
-      {/* 2. 50+ Strategies Component */}
-      <div className="w-full relative z-20 mt-8">
-        <StrategyTemplates />
-      </div>
-
-      {/* 3. Strategy Capabilities Component */}
-      <div className="w-full relative z-20 mt-12 border-t-2 border-slate-100 pt-12">
-        <StrategyCapabilities />
-      </div>
-
-      {/* 💎 IMAGE ZOOM MODAL OVERLAY (Dark for viewing clear images) */}
+      {/* 💎 IMAGE ZOOM MODAL OVERLAY */}
       <AnimatePresence>
         {zoomedImage && (
           <motion.div 
@@ -392,7 +442,9 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
       </AnimatePresence>
 
       {/* 💎 Global Footer */}
-      <Footer />
+      <div className="w-full border-t-2 border-slate-200 bg-slate-50 mt-10">
+         <Footer />
+      </div>
 
     </motion.div>
   );
