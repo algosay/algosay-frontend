@@ -390,4 +390,4 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
   );
 };   
 
-export default HomeView;
+export default HomeView; 
