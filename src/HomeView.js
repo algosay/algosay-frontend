@@ -293,7 +293,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-[10px] font-black uppercase tracking-widest text-[#00E5FF] bg-[#00E5FF]/10 px-2.5 py-0.5 rounded-full border border-[#00E5FF]/30">
-                      Free Access
+                      Signup Bonus
                     </span>
                     <span className="text-[10px] font-bold text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded-full border border-amber-400/20">
                       Instant Activation

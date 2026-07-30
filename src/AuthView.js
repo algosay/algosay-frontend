@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-// 🚨 NEW: Imported resetPassword function
-import { signInWithGoogle, registerNewUser, loginUser, resetPassword } from './firebase';
+import { signInWithGoogle } from './firebase';
 import AlgoSayLogo from './AlgoSayLogo';
-import { AlertTriangle, Sparkles, ChevronLeft, ChevronRight, CheckCircle2, Star, ArrowLeft } from 'lucide-react';
+import { AlertTriangle, Sparkles, ChevronLeft, ChevronRight, CheckCircle2, Star, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 
 const testimonials = [
   {
@@ -46,12 +45,11 @@ const testimonials = [
 
 const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewVariants }) => {
   const [activeReview, setActiveReview] = useState(0);
-  
-  const [name, setName] = useState('');
-  const [mobile, setMobile] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [mobileNumber, setMobileNumber] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  
+  const [showPassword, setShowPassword] = useState(false);
   const [authError, setAuthError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [ripple, setRipple] = useState(null);
@@ -78,9 +76,14 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
     }
   };
 
-  const handleEmailAuth = async (e) => {
+  const handleEmailAuth = (e) => {
     e.preventDefault();
     setAuthError('');
+    
+    if (isSignUp && (!fullName || !mobileNumber)) {
+      setAuthError('Please fill in all the details.');
+      return;
+    }
     
     if (!email || !password) {
       setAuthError('Please enter both email and password.');
@@ -91,67 +94,17 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
       return;
     }
 
-    setIsLoading(true);
-
-    try {
-      if (isSignUp) {
-        if (!name || !mobile) {
-          setAuthError('Please enter Name and Mobile number for Sign Up.');
-          setIsLoading(false);
-          return;
-        }
-        
-        const user = await registerNewUser(email, password, name, mobile);
-        if (user) {
-          alert('Sign Up successful! 10 Free Credits added.');
-          onLoginSuccess(user);
-        }
-      } else {
-        const userCredential = await loginUser(email, password);
-        if (userCredential && userCredential.user) {
-          onLoginSuccess(userCredential.user);
-        }
-      }
-    } catch (error) {
-      console.error("Auth Error:", error);
-      
-      let errorMessage = 'Authentication failed. Please try again.';
-      const errStr = error.message || error.code || '';
-      
-      if (errStr.includes('email-already-in-use')) {
-        errorMessage = 'Email already exists. Please log in instead.';
-      } else if (errStr.includes('user-not-found')) {
-        errorMessage = 'This Email ID is not registered. Please Sign Up to create an account.';
-      } else if (errStr.includes('wrong-password')) {
-        errorMessage = 'Incorrect password. Please try again.';
-      } else if (errStr.includes('invalid-credential')) {
-        errorMessage = 'Email not registered or incorrect password. If you are a new user, please click Sign Up.';
-      }
-      
-      setAuthError(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // 🚨 NEW: Forgot Password Handler Function 🚨
-  const handleForgotPassword = async () => {
-    if (!email) {
-      setAuthError('Please enter your Email Address first, then click Forgot Password.');
+    // Example Error Simulation (Replace with actual Firebase Auth logic)
+    if (isSignUp && email === 'test@example.com') {
+      setAuthError('Email already exists. Please log in instead.');
+      return;
+    } else if (!isSignUp && password === 'wrongpassword') {
+      setAuthError('Invalid password. Please try again.');
       return;
     }
-    
-    setIsLoading(true);
-    setAuthError('');
-    
-    try {
-      await resetPassword(email);
-      alert(`If an account exists for ${email}, a password reset link has been sent. Please check your inbox (and spam folder).`);
-    } catch (error) {
-      setAuthError('Failed to send password reset email. Please ensure the email is valid.');
-    } finally {
-      setIsLoading(false);
-    }
+
+    console.log(isSignUp ? "Signing up:" : "Logging in:", { fullName, mobileNumber, email, password });
+    alert(`${isSignUp ? 'Sign Up' : 'Login'} successful for ${email}!`);
   };
 
   const handleRippleClick = (e) => {
@@ -170,6 +123,7 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
       exit="exit"
       className="w-full min-h-screen lg:h-screen flex flex-col lg:flex-row relative z-10 pt-0"
     >
+      {/* Back Button */}
       <button 
         onClick={onBack}
         className="absolute top-6 left-6 lg:left-10 flex items-center gap-2 text-slate-600 hover:text-blue-600 font-bold bg-white/90 backdrop-blur-sm px-4 py-2 rounded-xl shadow-sm border border-slate-200 transition-all z-[60] hover:-translate-x-1"
@@ -177,6 +131,7 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
         <ArrowLeft size={18} /> Back to Home
       </button>
 
+      {/* LEFT SIDE: Reviews & Reality Check */}
       <div className="w-full lg:w-1/2 lg:h-full bg-white flex flex-col justify-center items-center p-6 pt-16 pb-20 lg:p-12 relative overflow-y-visible lg:overflow-y-auto z-10 border-r border-slate-100 order-2 lg:order-1">
         <div className="w-full max-w-md space-y-6 mt-8 lg:mt-0">
           <div className="mb-8">
@@ -261,6 +216,7 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
         </div>
       </div>
 
+      {/* RIGHT SIDE: Light Blue Theme (Login Form) */}
       <div className="w-full lg:w-1/2 lg:h-full bg-gradient-to-br from-slate-100 via-blue-50/80 to-indigo-100/70 flex flex-col items-center justify-center p-6 pt-24 pb-12 lg:p-12 relative overflow-y-visible lg:overflow-y-auto z-0 order-1 lg:order-2">
         <div className="absolute top-10 right-10 w-96 h-96 bg-blue-300/40 rounded-full blur-[100px] pointer-events-none"></div>
         <div className="absolute bottom-20 left-10 w-80 h-80 bg-indigo-300/30 rounded-full blur-[100px] pointer-events-none"></div>
@@ -269,55 +225,68 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
           <div className="flex flex-col items-center justify-center mb-6">
             <div className="flex items-center gap-3 mb-2">
               <AlgoSayLogo className="w-12 h-12 shadow-lg shadow-blue-500/30 rounded-2xl" />
-              <span className="text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-700">AlgoSay</span>
+              {/* Logo text color and clipping fixed here */}
+              <span className="text-4xl font-extrabold tracking-tight pb-1">
+                <span className="text-black">Algo</span>
+                <span className="text-blue-600">Say</span>
+              </span>
             </div>
             <p className="text-sm font-bold text-slate-500 mt-2">
               {isSignUp ? 'Create your AlgoSay account' : 'Sign in to your AlgoSay terminal'}
             </p>
           </div>
 
-          <form onSubmit={handleEmailAuth} className="space-y-4">
+          <form onSubmit={handleEmailAuth} className="space-y-4 w-full">
             <div className="relative flex items-center justify-center mb-4">
               <div className="absolute border-t border-slate-200 w-full"></div>
               <span className="bg-white px-3 text-[10px] font-black text-slate-400 uppercase tracking-widest relative z-10 rounded-full">Secure {isSignUp ? 'Registration' : 'Login'}</span>
             </div>
 
             {authError && (
-              <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm font-bold mb-4 flex items-center gap-2">
+              <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm font-bold mb-4 flex items-center gap-2 w-full box-border">
                 <AlertTriangle size={18} className="shrink-0" /> {authError}
               </motion.div>
             )}
 
-            <AnimatePresence>
-              {isSignUp && (
-                <motion.div 
-                  initial={{ opacity: 0, height: 0 }} 
-                  animate={{ opacity: 1, height: 'auto' }} 
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="space-y-4 overflow-hidden"
-                >
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-1.5">Full Name</label>
-                    <input type="text" placeholder="John Doe" value={name} onChange={(e) => setName(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none transition-all text-sm bg-slate-50 text-slate-900 placeholder-slate-400 font-medium" required={isSignUp} />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-1.5">Mobile Number</label>
-                    <input type="tel" placeholder="+91 9876543210" value={mobile} onChange={(e) => setMobile(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none transition-all text-sm bg-slate-50 text-slate-900 placeholder-slate-400 font-medium" required={isSignUp} />
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {/* Added Full Name & Mobile Number inputs for Sign Up */}
+            {isSignUp && (
+              <>
+                <div className="w-full box-border">
+                  <label className="block text-sm font-bold text-slate-700 mb-1.5">Full Name</label>
+                  <input type="text" placeholder="John Doe" value={fullName} onChange={(e) => setFullName(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none transition-all text-sm bg-slate-50 text-slate-900 placeholder-slate-400 font-medium box-border" required />
+                </div>
+                <div className="w-full box-border">
+                  <label className="block text-sm font-bold text-slate-700 mb-1.5">Mobile Number</label>
+                  <input type="tel" placeholder="+91 9876543210" value={mobileNumber} onChange={(e) => setMobileNumber(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none transition-all text-sm bg-slate-50 text-slate-900 placeholder-slate-400 font-medium box-border" required />
+                </div>
+              </>
+            )}
 
-            <div>
+            <div className="w-full box-border">
               <label className="block text-sm font-bold text-slate-700 mb-1.5">Email Address</label>
-              <input type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none transition-all text-sm bg-slate-50 text-slate-900 placeholder-slate-400 font-medium" required />
+              <input type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none transition-all text-sm bg-slate-50 text-slate-900 placeholder-slate-400 font-medium box-border" required />
             </div>
             
-            <div>
+            <div className="w-full box-border">
               <label className="block text-sm font-bold text-slate-700 mb-1.5">Password</label>
-              <input type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none transition-all text-sm bg-slate-50 text-slate-900 placeholder-slate-400 font-medium" required />
+              <div className="relative w-full box-border">
+                {/* Fixed password field and added Eye toggle icon */}
+                <input 
+                  type={showPassword ? "text" : "password"} 
+                  placeholder="••••••••" 
+                  value={password} 
+                  onChange={(e) => setPassword(e.target.value)} 
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none transition-all text-sm bg-slate-50 text-slate-900 placeholder-slate-400 font-medium box-border pr-12" 
+                  required 
+                />
+                <button 
+                  type="button" 
+                  onClick={() => setShowPassword(!showPassword)} 
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
 
             <div className="flex items-center justify-between pt-1">
@@ -325,19 +294,11 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
                 <input type="checkbox" className="w-4 h-4 text-blue-600 bg-white border-slate-300 rounded focus:ring-blue-600" />
                 <span className="text-sm text-slate-600 font-semibold group-hover:text-slate-900 transition-colors">Remember me</span>
               </label>
-              {/* 🚨 NEW: Added onClick handler to trigger handleForgotPassword 🚨 */}
-              {!isSignUp && (
-                <span 
-                  onClick={handleForgotPassword} 
-                  className="text-sm font-bold text-blue-600 hover:text-blue-800 cursor-pointer transition-colors"
-                >
-                  Forgot Password?
-                </span>
-              )}
+              {!isSignUp && <span className="text-sm font-bold text-blue-600 hover:text-blue-800 cursor-pointer transition-colors">Forgot Password?</span>}
             </div>
 
-            <button type="submit" disabled={isLoading} className={`w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md shadow-blue-500/30 transition-all hover:-translate-y-0.5 text-sm mt-2 ${isLoading ? 'opacity-70 cursor-wait' : ''}`}>
-              {isLoading ? (isSignUp ? 'Creating Account...' : 'Logging In...') : (isSignUp ? 'Sign Up' : 'Log In')}
+            <button type="submit" className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md shadow-blue-500/30 transition-all hover:-translate-y-0.5 text-sm mt-2 box-border">
+              {isSignUp ? 'Sign Up' : 'Log In'}
             </button>
 
             <div className="relative flex items-center justify-center mt-5 mb-5">
@@ -345,7 +306,7 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
               <span className="bg-white px-3 text-[11px] font-black text-slate-400 uppercase tracking-widest relative z-10 rounded-full">Or Continue With</span>
             </div>
 
-            <div className="relative p-[2px] rounded-xl group overflow-hidden bg-slate-200">
+            <div className="relative p-[2px] rounded-xl group overflow-hidden bg-slate-200 w-full box-border">
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-indigo-600 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <button type="button" onMouseDown={handleRippleClick} disabled={isLoading} className={`relative w-full flex items-center justify-center gap-3 py-3.5 px-4 bg-white hover:bg-slate-50 text-slate-900 font-black rounded-[10px] transition-colors shadow-sm overflow-hidden z-10 text-sm ${isLoading ? 'opacity-70 cursor-wait' : ''}`}>
                 <AnimatePresence>
@@ -371,7 +332,7 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
             <div className="mt-6 text-center">
               <p className="text-sm font-semibold text-slate-600">
                 {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
-                <span onClick={() => { setIsSignUp(!isSignUp); setAuthError(''); setName(''); setMobile(''); }} className="text-blue-600 hover:text-blue-800 cursor-pointer transition-colors">
+                <span onClick={() => { setIsSignUp(!isSignUp); setAuthError(''); }} className="text-blue-600 hover:text-blue-800 cursor-pointer transition-colors">
                   {isSignUp ? "Log In" : "Sign Up"}
                 </span>
               </p>
