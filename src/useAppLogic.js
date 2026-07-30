@@ -382,25 +382,18 @@ export const useAppLogic = () => {
       }
     }
 
-    // 🚨 Evaluate exact flag to send to backend for loop logic
     const conditionBasedLoop = isDynamic || String(entryTime).toLowerCase() === 'dynamic' || String(strategyType).toLowerCase() === 'dynamic';
 
-    // 🚨 NEW PAYLOAD BRIDGE: Map Frontend states strictly to Backend Pydantic Keys
     const formattedLegs = legs.map(leg => ({
         id: leg.id, 
         ticker: leg.ticker || ticker, 
-        timeframe: leg.timeframe || timeframe, // 👈 🚨 Verified Timeframe passed to backend!
+        timeframe: leg.timeframe || timeframe, 
         entry_time: String(leg.entryTime).toLowerCase() === 'dynamic' ? 'dynamic' : leg.entryTime,
         exit_time: leg.exitTime,
         segment: leg.segment, 
-        
-        // --- 🎯 KEY FIXES FOR PYDANTIC HERE ---
-        // 🚨 STRICT PAYLOAD ENFORCEMENT: Ensure string conversion and Uppercase so Python Engine doesn't fail
         position: (leg.position || leg.action || "BUY").toString().toUpperCase(), 
         option_type: (leg.option_type || leg.optionType || "CE").toString().toUpperCase(), 
         strike_type: (leg.strike_type || leg.strikeType || "ATM").toString().toUpperCase(), 
-        // --------------------------------------
-        
         lots: leg.lots, 
         expiry: leg.expiry, 
         strike_distance: parseInt(leg.strikeDistance) || 0,
@@ -411,7 +404,7 @@ export const useAppLogic = () => {
         trail_sl: { x: leg.trailX || 0, y: leg.trailY || 0, unit_x: leg.trailUnitX || 'Pts', unit_y: leg.trailUnitY || 'Pts' }, 
         sl_reentry: leg.slReentry || 0, 
         target_reexecute: leg.targetReexecute || 0, 
-        wait_for_candle_close: leg.waitForCandleClose || false, // 👈 🚨 Wait for Candle Close passed to backend!
+        wait_for_candle_close: leg.waitForCandleClose || false, 
         wait_and_trade: leg.waitAndTrade || false, 
         cost_to_cost: leg.costToCost || false, 
         move_to_stoploss: leg.moveToStoploss || false
@@ -421,14 +414,13 @@ export const useAppLogic = () => {
       user_id: user?.uid || "guest_123", 
       strategy_text: aiPrompt, 
       is_dynamic: conditionBasedLoop, 
-      timeframe: timeframe, // 👈 🚨 Root timeframe explicitly sent in payload!
+      timeframe: timeframe, 
       instrument_settings: { ticker, timeframe, underlyingFrom, qty, transactionType },
       date_settings: { fromDate, toDate },
       entry_settings: { strategyType, timeframe, entryTime, exitTime },
       risk_management: { trailMoveX, trailPointY }, 
       indicators: indicators.map(i => ({ name: i.name, settings: i.settings })), 
-      
-      legs: formattedLegs // 👈 Passing the bridged formatted leg data
+      legs: formattedLegs 
     };
 
     try {
@@ -438,11 +430,24 @@ export const useAppLogic = () => {
         body: JSON.stringify(payload),
       });
 
-      if (!response.ok) throw new Error('Backtest execution encountered an error.');
-      const data = await response.json();
+      // 🔍 Detailed Error Debugging for Backend Response
+      const responseText = await response.text();
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (e) {
+        console.error("❌ Non-JSON Response from Backend:", responseText);
+        throw new Error(`Server returned invalid response (${response.status})`);
+      }
+
+      if (!response.ok) {
+        throw new Error(data.detail || data.error || 'Backtest execution encountered an error.');
+      }
+
       setResult(data.results || data); 
     } catch (err) {
-      setError('Execution Error: Failed to retrieve backtest results from the engine.');
+      console.error("🚨 Backtest Catch Error:", err);
+      setError(`Execution Error: ${err.message || 'Failed to retrieve backtest results from the engine.'}`);
     } finally {
       setLoading(false);
     }
