@@ -245,6 +245,7 @@ export const useAppLogic = () => {
           trailUnitY: extractedTrailUnitY,
           slReentry: leg.sl_reentry || leg.slReentry || 0,
           targetReexecute: leg.target_reexecute || leg.targetReexecute || 0,
+          waitForCandleClose: leg.wait_for_candle_close || leg.waitForCandleClose || false, // 👈 Wait for Candle Close mapped!
           waitAndTrade: leg.wait_and_trade || leg.waitAndTrade || false,
           costToCost: leg.cost_to_cost || leg.costToCost || false,
           moveToStoploss: leg.move_to_stoploss || leg.moveToStoploss || false
@@ -264,7 +265,7 @@ export const useAppLogic = () => {
       lots: 1, optionType: 'CE', expiry: 'Weekly', strikeType: 'ATM', 
       strikeDistance: 0, stopLoss: '', target: '', slUnit: '%', targetUnit: '%', 
       trailX: 0, trailY: 0, trailUnitX: 'Pts', trailUnitY: 'Pts', 
-      slReentry: 0, targetReexecute: 0, waitAndTrade: false, costToCost: false, moveToStoploss: false 
+      slReentry: 0, targetReexecute: 0, waitForCandleClose: false, waitAndTrade: false, costToCost: false, moveToStoploss: false 
     }]); 
     setIsConfirmed(false); 
   };
@@ -388,7 +389,7 @@ export const useAppLogic = () => {
     const formattedLegs = legs.map(leg => ({
         id: leg.id, 
         ticker: leg.ticker || ticker, 
-        timeframe: leg.timeframe, 
+        timeframe: leg.timeframe || timeframe, // 👈 🚨 Verified Timeframe passed to backend!
         entry_time: String(leg.entryTime).toLowerCase() === 'dynamic' ? 'dynamic' : leg.entryTime,
         exit_time: leg.exitTime,
         segment: leg.segment, 
@@ -410,6 +411,7 @@ export const useAppLogic = () => {
         trail_sl: { x: leg.trailX || 0, y: leg.trailY || 0, unit_x: leg.trailUnitX || 'Pts', unit_y: leg.trailUnitY || 'Pts' }, 
         sl_reentry: leg.slReentry || 0, 
         target_reexecute: leg.targetReexecute || 0, 
+        wait_for_candle_close: leg.waitForCandleClose || false, // 👈 🚨 Wait for Candle Close passed to backend!
         wait_and_trade: leg.waitAndTrade || false, 
         cost_to_cost: leg.costToCost || false, 
         move_to_stoploss: leg.moveToStoploss || false
@@ -419,9 +421,10 @@ export const useAppLogic = () => {
       user_id: user?.uid || "guest_123", 
       strategy_text: aiPrompt, 
       is_dynamic: conditionBasedLoop, 
+      timeframe: timeframe, // 👈 🚨 Root timeframe explicitly sent in payload!
       instrument_settings: { ticker, timeframe, underlyingFrom, qty, transactionType },
       date_settings: { fromDate, toDate },
-      entry_settings: { strategyType, entryTime, exitTime },
+      entry_settings: { strategyType, timeframe, entryTime, exitTime },
       risk_management: { trailMoveX, trailPointY }, 
       indicators: indicators.map(i => ({ name: i.name, settings: i.settings })), 
       

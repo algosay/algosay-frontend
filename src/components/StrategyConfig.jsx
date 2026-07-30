@@ -467,8 +467,13 @@ const StrategyConfig = ({
                         </div>
                       </div>
 
-                      {/* Leg Toggles */}
-                      <div className="col-span-2 grid grid-cols-3 gap-1.5 mt-3 pt-2.5 border-t border-[#222]">
+                      {/* 🚨 UPDATED: Leg Toggles (Wait for Candle Close Added) */}
+                      <div className="col-span-2 grid grid-cols-2 sm:grid-cols-4 gap-1.5 mt-3 pt-2.5 border-t border-[#222]">
+                        <label className="flex flex-col items-center justify-center p-1 bg-[#161616] border border-[#252525] rounded cursor-pointer select-none hover:bg-[#1a1a1a] transition-colors">
+                          <span className="text-[8px] text-gray-400 font-medium mb-1">Wait Candle Close</span>
+                          <input type="checkbox" checked={leg.waitForCandleClose || false} onChange={(e) => updateLeg(leg.id, 'waitForCandleClose', e.target.checked)} className="rounded text-blue-500 w-3 h-3 bg-[#111] border-[#333]" />
+                        </label>
+                        
                         <label className="flex flex-col items-center justify-center p-1 bg-[#161616] border border-[#252525] rounded cursor-pointer select-none hover:bg-[#1a1a1a] transition-colors">
                           <span className="text-[8px] text-gray-400 font-medium mb-1">Wait & Trade</span>
                           <input type="checkbox" checked={leg.waitAndTrade || false} onChange={(e) => updateLeg(leg.id, 'waitAndTrade', e.target.checked)} className="rounded text-blue-500 w-3 h-3 bg-[#111] border-[#333]" />
