@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TypeAnimation } from 'react-type-animation';
 import AlgoSayLogo from './AlgoSayLogo'; 
-import { Wand2, Activity, Filter, BarChart3, Rocket, Users, Zap, Shield, ShieldCheck, PlayCircle } from 'lucide-react'; 
+import { Wand2, Activity, Filter, BarChart3, Rocket, Users, Zap, Shield, ShieldCheck, PlayCircle, CheckCircle2 } from 'lucide-react'; 
 import StrategyCapabilities from './components/StrategyCapabilities';
 
 // Puthusa piricha 2 components import pandrom
@@ -23,7 +23,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
     { id: 1, src: "/video/ALGOSAY_SIGNUP-1.mp4", title: "Seamless Onboarding", desc: "Instant access to your AI edge" },
     { id: 2, src: "/video/ALGOSAY_STRATEGY ANALYSIS-2.mp4", title: "Strategy Analysis", desc: "Deep dive into precision metrics" },
     { id: 3, src: "/video/ALGOSAY_BACKTEST REPORT-3.mp4", title: "Backtest Engine", desc: "Lightning fast execution results" },
-    { id: 4, src: "/video/ALGOSAY_ AI_Diagnostics-4.mp4", title: "AI Diagnostics", desc: "Neural engine trade optimizations" },
+    { id: 4, src: "/video/ALGOSAY_ AI_Diagnostics-4.mp4", title: "AI Diagnostics", desc: "Neural engine trade optimizations" },
     { id: 5, src: "/video/ALGOSAY_FINAL REPORT  DOWNLOAD-5.mp4", title: "Institutional Export", desc: "Download & share your strategy" }
   ];
 
@@ -110,6 +110,50 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
     }
   ];
 
+  // 💎 PRICING DATA FOR VIEW ONLY SECTION
+  const pricingPlans = [
+    {
+      name: "Starter",
+      price: "Free",
+      desc: "Perfect to test the waters with basic AI capabilities.",
+      features: ["10 Free Backtests", "Basic Performance Metrics", "End of Day Data", "Standard Community Support"],
+      buttonText: "Sign Up Free",
+      theme: "from-slate-600 to-slate-800",
+      accent: "text-slate-300",
+      glow: "hover:shadow-[0_0_30px_rgba(148,163,184,0.2)]"
+    },
+    {
+      name: "Pro Trader",
+      price: "₹999",
+      period: "/month",
+      desc: "For serious traders needing deep insights & speed.",
+      features: ["Unlimited AI Backtests", "Advanced Neural Diagnostics", "Tick-by-Tick Data Execution", "PDF & CSV Institutional Reports", "0DTE & Granular Filtering"],
+      buttonText: "Login to Subscribe",
+      theme: "from-[#2B4CFF] to-[#6025F5]",
+      accent: "text-[#00E5FF]",
+      glow: "hover:shadow-[0_0_40px_rgba(96,37,245,0.4)]",
+      popular: true
+    },
+    {
+      name: "Institutional",
+      price: "Custom",
+      desc: "For funds and prop desks needing API access.",
+      features: ["Everything in Pro Trader", "Direct API Access", "Custom AI Model Fine-tuning", "Dedicated Server Instance", "1-on-1 Priority Tech Support"],
+      buttonText: "Contact Sales",
+      theme: "from-[#FF007A] to-[#7928CA]",
+      accent: "text-[#FF007A]",
+      glow: "hover:shadow-[0_0_30px_rgba(255,0,122,0.3)]"
+    }
+  ];
+
+  // Smooth scroll handler function
+  const scrollToSection = (id) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <motion.div 
       custom={custom}
@@ -133,7 +177,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
         }}
       ></div>
 
-      {/* HEADER: Logo & Login/Signup Buttons */}
+      {/* HEADER: Logo & Login/Signup Buttons with New Nav Links */}
       <div className="flex items-center justify-between z-50 mb-6 w-full max-w-[1400px] mx-auto border-b border-white/5 pb-4">
         <div className="flex items-center gap-3 whitespace-nowrap cursor-pointer group" onClick={() => onNavigate(false)}>
           <div className="relative">
@@ -152,29 +196,43 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
           </div>
         </div>
 
-        <div className="flex items-center gap-3 sm:gap-4">
-          <button 
-            onClick={() => onNavigate(false)}
-            className="px-6 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-[#FF007A] to-[#7928CA] rounded-lg shadow-[0_0_15px_rgba(255,0,122,0.3)] hover:shadow-[0_0_25px_rgba(121,40,202,0.5)] transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0"
-          >
-            Log In
-          </button>
-          <button 
-            onClick={() => onNavigate(true)}
-            className="relative overflow-hidden group px-6 py-2.5 bg-gradient-to-r from-[#2B4CFF] to-[#6025F5] text-white text-sm font-semibold rounded-lg shadow-[0_0_20px_rgba(43,76,255,0.4)] hover:shadow-[0_0_30px_rgba(96,37,245,0.6)] transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0"
-          >
-            <span className="relative z-10 flex items-center gap-2">
-              Sign Up 
-              <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-            </span>
-          </button>
+        {/* 💎 4 NEW NAV BUTTONS ADDED HERE ALONG WITH LOGIN/SIGNUP */}
+        <div className="flex items-center gap-6">
+          {/* Navigation Links - Hidden on very small screens for responsiveness */}
+          <div className="hidden lg:flex items-center gap-7 mr-4 bg-[#0A0C14]/80 px-6 py-2 rounded-full border border-white/5 backdrop-blur-md">
+            <button onClick={() => scrollToSection('features')} className="text-[13px] font-bold text-slate-300 hover:text-[#00E5FF] transition-colors duration-300">Features</button>
+            <button onClick={() => scrollToSection('showcase')} className="text-[13px] font-bold text-slate-300 hover:text-[#B14EFF] transition-colors duration-300">Workflow</button>
+            <button onClick={() => scrollToSection('strategies')} className="text-[13px] font-bold text-slate-300 hover:text-[#00E676] transition-colors duration-300">Strategies</button>
+            <button onClick={() => scrollToSection('pricing')} className="relative group text-[13px] font-black text-white px-3 py-1 bg-white/5 rounded-md hover:bg-white/10 transition-all duration-300 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#FF007A] animate-pulse"></span>
+              Pricing
+            </button>
+          </div>
+
+          <div className="flex items-center gap-3 sm:gap-4">
+            <button 
+              onClick={() => onNavigate(false)}
+              className="px-6 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-[#FF007A] to-[#7928CA] rounded-lg shadow-[0_0_15px_rgba(255,0,122,0.3)] hover:shadow-[0_0_25px_rgba(121,40,202,0.5)] transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0"
+            >
+              Log In
+            </button>
+            <button 
+              onClick={() => onNavigate(true)}
+              className="relative overflow-hidden group px-6 py-2.5 bg-gradient-to-r from-[#2B4CFF] to-[#6025F5] text-white text-sm font-semibold rounded-lg shadow-[0_0_20px_rgba(43,76,255,0.4)] hover:shadow-[0_0_30px_rgba(96,37,245,0.6)] transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0"
+            >
+              <span className="relative z-10 flex items-center gap-2">
+                Sign Up 
+                <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* MAIN CONTENT AREA (HERO) - ADJUSTED GAP FOR SPACING & COMPACTNESS */}
-      <div className="flex flex-col lg:flex-row justify-between items-stretch gap-12 lg:gap-20 flex-grow relative z-10 w-full max-w-[1400px] mx-auto min-h-min">
+      {/* MAIN CONTENT AREA (HERO) - Added ID 'features' for smooth scrolling */}
+      <div id="features" className="flex flex-col lg:flex-row justify-between items-stretch gap-12 lg:gap-20 flex-grow relative z-10 w-full max-w-[1400px] mx-auto min-h-min scroll-mt-24">
         
         {/* Left Column Text, Terminal & Built for Precision */}
         <div className="w-full lg:w-[44%] flex flex-col pt-1 relative z-20">
@@ -345,13 +403,14 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
         </div>
       </div>
 
-      {/* 🎬 💎 CINEMATIC VIDEO SHOWCASE SECTION (NEWLY ADDED) */}
+      {/* 🎬 💎 CINEMATIC VIDEO SHOWCASE SECTION - Added ID 'showcase' */}
       <motion.div 
+        id="showcase"
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-100px" }}
         transition={{ duration: 0.7 }}
-        className="w-full max-w-[1400px] mx-auto mt-24 mb-10 relative z-20"
+        className="w-full max-w-[1400px] mx-auto mt-24 mb-10 relative z-20 scroll-mt-24"
       >
         <div className="text-center mb-10">
           <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight mb-3">
@@ -451,17 +510,80 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
       </motion.div>
       {/* 🎬 END OF CINEMATIC VIDEO SHOWCASE */}
 
-      {/* 💎 COMPONENT RENDERS */}
-      
-      {/* 1. Results Images Showcase Component */}
-      <ResultsShowcase setZoomedImage={setZoomedImage} />
+      {/* 💎 COMPONENT RENDERS - Added ID 'strategies' */}
+      <div id="strategies" className="w-full scroll-mt-24">
+        {/* 1. Results Images Showcase Component */}
+        <ResultsShowcase setZoomedImage={setZoomedImage} />
 
-      {/* 2. 50+ Strategies Component */}
-      <StrategyTemplates />
+        {/* 2. 50+ Strategies Component */}
+        <StrategyTemplates />
 
-      {/* 3. Strategy Capabilities Component (Already an external import) */}
-      <div className="w-full relative z-20 mt-12 border-t border-white/5 pt-12">
-        <StrategyCapabilities />
+        {/* 3. Strategy Capabilities Component */}
+        <div className="w-full relative z-20 mt-12 border-t border-white/5 pt-12">
+          <StrategyCapabilities />
+        </div>
+      </div>
+
+      {/* 💎 NEW VIEW-ONLY PRICING SECTION BEFORE FOOTER 💎 */}
+      <div id="pricing" className="w-full max-w-[1400px] mx-auto mt-24 mb-16 relative z-20 scroll-mt-24 border-t border-white/5 pt-16">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight mb-3">
+            Simple, Transparent <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00E5FF] to-[#6025F5]">Pricing</span>
+          </h2>
+          <p className="text-slate-400 font-medium max-w-2xl mx-auto">
+            View our plans below. Start for free and upgrade when you are ready to unleash full AI power.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 px-4 md:px-0">
+          {pricingPlans.map((plan, index) => (
+            <motion.div 
+              key={index}
+              whileHover={{ y: -8 }}
+              className={`relative flex flex-col p-[2px] rounded-3xl transition-all duration-500 bg-gradient-to-b ${plan.theme} ${plan.glow}`}
+            >
+              {plan.popular && (
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#2B4CFF] to-[#00E5FF] text-white text-xs font-black uppercase tracking-widest py-1.5 px-4 rounded-full shadow-[0_0_15px_rgba(0,229,255,0.5)] z-20">
+                  Most Popular
+                </div>
+              )}
+              
+              <div className="bg-[#0A0C14] rounded-[22px] p-8 flex flex-col h-full relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 blur-3xl rounded-full -z-10"></div>
+                
+                <h3 className="text-xl font-bold text-white mb-2">{plan.name}</h3>
+                <div className="flex items-baseline gap-1 mb-4">
+                  <span className={`text-4xl font-black ${plan.accent}`}>{plan.price}</span>
+                  {plan.period && <span className="text-sm font-medium text-slate-400">{plan.period}</span>}
+                </div>
+                <p className="text-sm text-slate-400 mb-8 min-h-[40px]">{plan.desc}</p>
+                
+                <div className="flex flex-col gap-4 mb-8 flex-grow">
+                  {plan.features.map((feature, i) => (
+                    <div key={i} className="flex items-start gap-3">
+                      <CheckCircle2 size={18} className={`shrink-0 mt-0.5 ${plan.accent}`} />
+                      <span className="text-sm text-slate-300 font-medium">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+                
+                {/* View-Only Restriction: Navigates to Sign in/Sign up, NOT direct purchase */}
+                <button 
+                  onClick={() => onNavigate(true)}
+                  className={`w-full py-3.5 rounded-xl font-bold text-sm tracking-wide transition-all duration-300 flex items-center justify-center gap-2
+                    ${plan.popular 
+                      ? 'bg-gradient-to-r from-[#2B4CFF] to-[#6025F5] text-white shadow-[0_0_20px_rgba(43,76,255,0.4)] hover:shadow-[0_0_30px_rgba(96,37,245,0.6)]' 
+                      : 'bg-white/5 border border-white/10 text-white hover:bg-white/10'}`}
+                >
+                  {plan.buttonText}
+                </button>
+                <p className="text-[10px] text-center text-slate-500 mt-3 font-medium uppercase tracking-wider">
+                  Requires Account to Access
+                </p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
       </div>
 
       {/* 💎 IMAGE ZOOM MODAL OVERLAY */}
