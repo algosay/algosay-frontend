@@ -177,7 +177,7 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
       {/* Back Button */}
       <button 
         onClick={onBack}
-        className="absolute top-6 left-6 lg:left-10 flex items-center gap-2 text-slate-600 hover:text-blue-600 font-bold bg-white/90 backdrop-blur-sm px-4 py-2 rounded-xl shadow-sm border border-slate-200 transition-all z-[60] hover:-translate-x-1"
+        className="absolute top-1 left-1 lg:left-1 flex items-center gap-2 text-slate-600 hover:text-blue-600 font-bold bg-white/90 backdrop-blur-sm px-4 py-2 rounded-xl shadow-sm border border-slate-200 transition-all z-[60] hover:-translate-x-1"
       >
         <ArrowLeft size={18} /> Back to Home
       </button>
