@@ -334,7 +334,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
           
           <p className="text-[16px] text-slate-300 font-medium mb-5 leading-relaxed max-w-xl backdrop-blur-sm bg-black/10 p-2 rounded-lg">
             Breaking free from traditional time-based strategies <span className="text-[#00E5FF] font-bold">We empower retail traders to think out-of-the-box and backtest their own unique, custom strategies</span>. In today's market, true profitability comes from thinking like an institutional trader.
-            <br/><span className="text-[#00E5FF] font-bold mt-2 inline-block">Just type it in your strategy, and we test it.</span>
+            <br/><span className="text-[#00E5FF] font-bold mt-2 inline-block">Simply describe your strategy, and we'll backtest it for you</span>
           </p>
 
           {/* PRO TERMINAL ENGINE BOX */}
