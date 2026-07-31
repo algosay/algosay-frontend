@@ -346,10 +346,9 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
   <span className="text-amber-400 font-bold">
     institutional trader
   </span>.
-  <br />
-
   
-  <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-red-500 font-extrabold">
+  {/* Intha idathula 'block' and 'mt-4' add panniruken for proper gap */}
+  <span className="block mt-4 text-transparent bg-clip-text bg-gradient-to-r from-white-400 to-blue-800 font-extrabold text-lg tracking-wider">
     JUST TYPE IT. WE TEST IT.
   </span>
 </p>
