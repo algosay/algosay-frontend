@@ -269,7 +269,7 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
 
       {/* RIGHT SIDE: Light Blue Theme (Login Form) */}
       {/* 🚨 UPDATE: Changed padding for optimal spacing without massive gaps (pt-12 and lg:pt-16) */}
-      <div className="w-full lg:w-1/2 lg:h-full bg-gradient-to-br from-slate-100 via-blue-50/80 to-indigo-100/70 flex flex-col items-center justify-start p-6 pt-12 pb-12 lg:p-12 lg:pt-16 relative overflow-y-auto z-0 order-1 lg:order-2">
+      <div className="w-full lg:w-1/2 lg:h-full bg-gradient-to-br from-slate-100 via-blue-50/80 to-indigo-100/70 flex flex-col items-center justify-start p-6 pt-40 pb-40 lg:p-40lg:pt-55 relative overflow-y-auto z-0 order-1 lg:order-2">
         <div className="absolute top-10 right-10 w-96 h-96 bg-blue-300/40 rounded-full blur-[100px] pointer-events-none"></div>
         <div className="absolute bottom-20 left-10 w-80 h-80 bg-indigo-300/30 rounded-full blur-[100px] pointer-events-none"></div>
 
