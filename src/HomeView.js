@@ -23,7 +23,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
     { id: 1, src: "/video/ALGOSAY_SIGNUP-1.mp4", title: "Seamless Onboarding", desc: "Instant access to your AI edge" },
     { id: 2, src: "/video/ALGOSAY_STRATEGY ANALYSIS-2.mp4", title: "Strategy Analysis", desc: "Deep dive into precision metrics" },
     { id: 3, src: "/video/ALGOSAY_BACKTEST REPORT-3.mp4", title: "Backtest Engine", desc: "Lightning fast execution results" },
-    { id: 4, src: "/video/ALGOSAY_ AI_Diagnostics-4.mp4", title: "AI Diagnostics", desc: "Neural engine trade optimizations" },
+    { id: 4, src: "/video/ALGOSAY_ AI_Diagnostics-4.mp4", title: "AI Diagnostics", desc: "Neural engine trade optimizations" },
     { id: 5, src: "/video/ALGOSAY_FINAL REPORT  DOWNLOAD-5.mp4", title: "Institutional Export", desc: "Download & share your strategy" }
   ];
 
@@ -110,39 +110,59 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
     }
   ];
 
-  // 💎 PRICING DATA FOR VIEW ONLY SECTION
+  // 💎 PRICING DATA UPDATED WITH REAL MODAL VALUES & HIGHLIGHTS
   const pricingPlans = [
     {
       name: "Starter",
       price: "Free",
       desc: "Perfect to test the waters with basic AI capabilities.",
-      features: ["10 Free Backtests", "Basic Performance Metrics", "End of Day Data", "Standard Community Support"],
+      features: [
+        "10 Free Backtests", 
+        "Basic Performance Metrics", 
+        "End of Day Data", 
+        "Standard Community Support"
+      ],
       buttonText: "Sign Up Free",
       theme: "from-slate-600 to-slate-800",
       accent: "text-slate-300",
-      glow: "hover:shadow-[0_0_30px_rgba(148,163,184,0.2)]"
+      glow: "hover:shadow-[0_0_30px_rgba(148,163,184,0.2)]",
+      popular: false
     },
     {
-      name: "Pro Trader",
-      price: "₹999",
-      period: "/month",
-      desc: "For serious traders needing deep insights & speed.",
-      features: ["Unlimited AI Backtests", "Advanced Neural Diagnostics", "Tick-by-Tick Data Execution", "PDF & CSV Institutional Reports", "0DTE & Granular Filtering"],
-      buttonText: "Login to Subscribe",
-      theme: "from-[#2B4CFF] to-[#6025F5]",
+      name: "Pay-As-You-Go",
+      price: "₹49",
+      period: " onwards",
+      desc: "Buy credits as you need. No hidden fees or expiry.",
+      features: [
+        "Starter: 10 Credits (₹49)", 
+        "Value: 25 Credits (₹99)", 
+        "🌟 Popular: 50 Credits (₹179)", 
+        "Pro: 100 Credits (₹299)", 
+        "Custom Credits: ₹3.00 - ₹4.90/credit"
+      ],
+      buttonText: "View Pay-As-You-Go",
+      theme: "from-[#2B4CFF] to-[#00E5FF]",
       accent: "text-[#00E5FF]",
-      glow: "hover:shadow-[0_0_40px_rgba(96,37,245,0.4)]",
-      popular: true
+      glow: "hover:shadow-[0_0_40px_rgba(43,76,255,0.4)]",
+      popular: false
     },
     {
-      name: "Institutional",
-      price: "Custom",
-      desc: "For funds and prop desks needing API access.",
-      features: ["Everything in Pro Trader", "Direct API Access", "Custom AI Model Fine-tuning", "Dedicated Server Instance", "1-on-1 Priority Tech Support"],
-      buttonText: "Contact Sales",
+      name: "Unlimited Pro",
+      price: "₹599",
+      period: " onwards",
+      desc: "Unlimited AI backtests for serious day traders.",
+      features: [
+        "Weekly: 7 Days (₹599)", 
+        "Monthly: 30 Days (₹1599)", 
+        "🔥 Quarterly: 90 Days (₹3999)", 
+        "Half-Yearly: 180 Days (₹7499)", 
+        "Full Institutional Reports & Filters"
+      ],
+      buttonText: "View Unlimited Plans",
       theme: "from-[#FF007A] to-[#7928CA]",
       accent: "text-[#FF007A]",
-      glow: "hover:shadow-[0_0_30px_rgba(255,0,122,0.3)]"
+      glow: "hover:shadow-[0_0_40px_rgba(255,0,122,0.4)]",
+      popular: true
     }
   ];
 
@@ -198,13 +218,31 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
 
         {/* 💎 4 NEW NAV BUTTONS ADDED HERE ALONG WITH LOGIN/SIGNUP */}
         <div className="flex items-center gap-6">
-          {/* Navigation Links - Hidden on very small screens for responsiveness */}
-          <div className="hidden lg:flex items-center gap-7 mr-4 bg-[#0A0C14]/80 px-6 py-2 rounded-full border border-white/5 backdrop-blur-md">
-            <button onClick={() => scrollToSection('features')} className="text-[13px] font-bold text-slate-300 hover:text-[#00E5FF] transition-colors duration-300">Features</button>
-            <button onClick={() => scrollToSection('showcase')} className="text-[13px] font-bold text-slate-300 hover:text-[#B14EFF] transition-colors duration-300">Workflow</button>
-            <button onClick={() => scrollToSection('strategies')} className="text-[13px] font-bold text-slate-300 hover:text-[#00E676] transition-colors duration-300">Strategies</button>
-            <button onClick={() => scrollToSection('pricing')} className="relative group text-[13px] font-black text-white px-3 py-1 bg-white/5 rounded-md hover:bg-white/10 transition-all duration-300 flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#FF007A] animate-pulse"></span>
+          {/* Navigation Links - Updated with Login Button style gradients */}
+          <div className="hidden lg:flex items-center gap-4 mr-4 bg-[#0A0C14]/80 px-4 py-2 rounded-2xl border border-white/5 backdrop-blur-md shadow-xl">
+            <button 
+              onClick={() => scrollToSection('capabilities')} 
+              className="px-4 py-1.5 text-[13px] font-bold text-white bg-gradient-to-r from-[#FF007A] to-[#7928CA] rounded-lg shadow-[0_0_10px_rgba(255,0,122,0.3)] hover:shadow-[0_0_15px_rgba(121,40,202,0.5)] transition-all duration-300 hover:-translate-y-0.5"
+            >
+              Features
+            </button>
+            <button 
+              onClick={() => scrollToSection('showcase')} 
+              className="px-4 py-1.5 text-[13px] font-bold text-white bg-gradient-to-r from-[#2B4CFF] to-[#6025F5] rounded-lg shadow-[0_0_10px_rgba(43,76,255,0.3)] hover:shadow-[0_0_15px_rgba(96,37,245,0.5)] transition-all duration-300 hover:-translate-y-0.5"
+            >
+              Workflow
+            </button>
+            <button 
+              onClick={() => scrollToSection('templates')} 
+              className="px-4 py-1.5 text-[13px] font-bold text-white bg-gradient-to-r from-[#00E676] to-[#00BFFF] rounded-lg shadow-[0_0_10px_rgba(0,230,118,0.3)] hover:shadow-[0_0_15px_rgba(0,191,255,0.5)] transition-all duration-300 hover:-translate-y-0.5"
+            >
+              Strategies
+            </button>
+            <button 
+              onClick={() => scrollToSection('pricing')} 
+              className="px-4 py-1.5 text-[13px] font-bold text-white bg-gradient-to-r from-[#FF5252] to-[#FFBD2E] rounded-lg shadow-[0_0_10px_rgba(255,82,82,0.3)] hover:shadow-[0_0_15px_rgba(255,189,46,0.5)] transition-all duration-300 hover:-translate-y-0.5 flex items-center gap-1.5"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
               Pricing
             </button>
           </div>
@@ -231,8 +269,8 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
         </div>
       </div>
 
-      {/* MAIN CONTENT AREA (HERO) - Added ID 'features' for smooth scrolling */}
-      <div id="features" className="flex flex-col lg:flex-row justify-between items-stretch gap-12 lg:gap-20 flex-grow relative z-10 w-full max-w-[1400px] mx-auto min-h-min scroll-mt-24">
+      {/* MAIN CONTENT AREA (HERO) - Id changed to hero to avoid conflict */}
+      <div id="hero" className="flex flex-col lg:flex-row justify-between items-stretch gap-12 lg:gap-20 flex-grow relative z-10 w-full max-w-[1400px] mx-auto min-h-min scroll-mt-24">
         
         {/* Left Column Text, Terminal & Built for Precision */}
         <div className="w-full lg:w-[44%] flex flex-col pt-1 relative z-20">
@@ -510,16 +548,18 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
       </motion.div>
       {/* 🎬 END OF CINEMATIC VIDEO SHOWCASE */}
 
-      {/* 💎 COMPONENT RENDERS - Added ID 'strategies' */}
-      <div id="strategies" className="w-full scroll-mt-24">
+      {/* 💎 COMPONENT RENDERS - Added ID 'templates' to wrap the StrategyTemplates correctly */}
+      <div className="w-full scroll-mt-24">
         {/* 1. Results Images Showcase Component */}
         <ResultsShowcase setZoomedImage={setZoomedImage} />
 
-        {/* 2. 50+ Strategies Component */}
-        <StrategyTemplates />
+        {/* 2. 50+ Strategies Component - TARGET ID FOR STRATEGIES BUTTON */}
+        <div id="templates" className="scroll-mt-24">
+           <StrategyTemplates />
+        </div>
 
-        {/* 3. Strategy Capabilities Component */}
-        <div className="w-full relative z-20 mt-12 border-t border-white/5 pt-12">
+        {/* 3. Strategy Capabilities Component - TARGET ID FOR FEATURES BUTTON */}
+        <div id="capabilities" className="w-full relative z-20 mt-12 border-t border-white/5 pt-12 scroll-mt-24">
           <StrategyCapabilities />
         </div>
       </div>
