@@ -348,7 +348,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
   </span>.
   
   {/* Intha idathula 'block' and 'mt-4' add panniruken for proper gap */}
-  <span className="block mt-4 text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-blue-800 font-extrabold text-lg tracking-wider">
+  <span className="block mt-4 text-transparent bg-clip-text bg-gradient-to-r from-white-400 to-blue-800 font-extrabold text-lg tracking-wider">
     JUST TYPE IT. WE TEST IT.
   </span>
 </p>
