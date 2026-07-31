@@ -347,9 +347,8 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
     institutional trader
   </span>.
   <br />
-  <span className="mt-4 inline-flex items-center gap-2 text-white font-bold bg-gradient-to-r from-[#00E5FF]/20 to-blue-600/20 px-3 py-1.5 rounded-lg border border-[#00E5FF]/30">
-    <Sparkles size={16} className="text-[#00E5FF]" /> 
-    Simply describe your strategy, and we'll backtest it for you.
+  <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500 font-extrabold">
+    JUST TYPE IT. WE TEST IT.
   </span>
 </p>
 
