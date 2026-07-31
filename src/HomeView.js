@@ -65,7 +65,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
     { id: 1, src: "/video/ALGOSAY_SIGNUP-1.mp4", title: "Seamless Onboarding", desc: "Instant access to your AI edge" },
     { id: 2, src: "/video/ALGOSAY_STRATEGY ANALYSIS-2.mp4", title: "Strategy Analysis", desc: "Deep dive into precision metrics" },
     { id: 3, src: "/video/ALGOSAY_BACKTEST REPORT-3.mp4", title: "Backtest Engine", desc: "Lightning fast execution results" },
-    { id: 4, src: "/video/ALGOSAY_ AI_Diagnostics-4.mp4", title: "AI Diagnostics", desc: "Neural engine trade optimizations" },
+    { id: 4, src: "/video/ALGOSAY_ AI_Diagnostics-4.mp4", title: "AI Diagnostics", desc: "Neural engine trade optimizations" },
     { id: 5, src: "/video/ALGOSAY_FINAL REPORT  DOWNLOAD-5.mp4", title: "Institutional Export", desc: "Download & share your strategy" },
     { id: 6, src: "/video/ALGOSAY_Pan-India Native Support-6.mp4", title: "Pan-India Native Support", desc: "Multilingual AI in action" }
   ];
@@ -333,7 +333,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
             </span>
           </h1>
           
-         <p className="text-[16px] text-slate-300 font-medium mb-5 leading-relaxed max-w-xl backdrop-blur-md bg-slate-900/40 border border-slate-800/50 p-4 rounded-xl shadow-lg">
+         <p className="text-[16px] text-slate-300 font-medium mb-2 leading-relaxed max-w-xl backdrop-blur-md bg-slate-900/40 border border-slate-800/50 p-4 rounded-xl shadow-lg">
   Breaking free from traditional logic. We empower retail traders to think{' '}
   <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00E5FF] to-blue-500 font-extrabold">
     out-of-the-box
@@ -347,13 +347,12 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
     institutional trader
   </span>.
   
-  {/* Intha idathula 'block' and 'mt-4' add panniruken for proper gap */}
-  <span className="block mt-4 text-transparent bg-clip-text bg-gradient-to-r from-white-400 to-blue-800 font-extrabold text-lg tracking-wider">
+  <span className="block mt-3 text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-blue-800 font-extrabold text-lg tracking-wider">
     JUST TYPE IT. WE TEST IT.
   </span>
 </p>
           {/* PRO TERMINAL ENGINE BOX */}
-          <div className="mb-5 p-[1.5px] rounded-2xl bg-gradient-to-r from-[#FF007A] via-[#7928CA] to-[#00E5FF] shadow-[0_0_40px_rgba(121,40,202,0.3)] relative max-w-xl backdrop-blur-md">
+          <div className="mb-5 lg:-mt-4 p-[1.5px] rounded-2xl bg-gradient-to-r from-[#FF007A] via-[#7928CA] to-[#00E5FF] shadow-[0_0_40px_rgba(121,40,202,0.3)] relative max-w-xl backdrop-blur-md z-30">
             <motion.div className="rounded-2xl overflow-hidden bg-[#0A0C14]/95 flex flex-col w-full h-full relative">
               <div className="bg-[#0A0C14] px-4 py-3 flex items-center justify-between border-b border-white/5 relative z-10">
                 <div className="flex items-center gap-2">
