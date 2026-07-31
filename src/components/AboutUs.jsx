@@ -26,7 +26,7 @@ const AboutUs = () => {
               Our Vision
             </h2>
             <p className="text-gray-300 leading-relaxed text-lg">
-              To democratize quantitative market research by providing retail and professional traders with lightning-fast, highly accurate historical backtesting infrastructure. We believe that robust data and simulation tools should be accessible to everyone, not just large institutions.
+              To revolutionize quantitative market research by breaking free from traditional, time-based strategies. We empower retail traders to think out-of-the-box and backtest their own unique, custom strategies. In today's market, true profitability comes from thinking like an institutional trader, and our lightning-fast infrastructure provides the exact tools needed to discover that unique edge.
             </p>
           </div>
 
@@ -38,7 +38,7 @@ const AboutUs = () => {
               Our Mission
             </h2>
             <p className="text-gray-300 leading-relaxed text-lg">
-              To eliminate technical barriers in strategy formulation. By leveraging cutting-edge cloud architecture and AI diagnostics, AlgoSay empowers traders to formulate, test, and analyze multi-leg options and equity strategies purely through natural language.
+              To eliminate technical barriers and actively elevate our users' strategic thinking. By leveraging cutting-edge cloud architecture and AI diagnostics, AlgoSay empowers traders to easily formulate, test, and refine next-level, highly customized logic through natural language—turning out-of-the-box ideas into highly accurate, institutional-grade backtest results.
             </p>
           </div>
         </div>
