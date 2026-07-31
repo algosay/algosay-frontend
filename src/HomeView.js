@@ -23,8 +23,8 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
     { id: 1, src: "/video/ALGOSAY_SIGNUP-1.mp4", title: "Seamless Onboarding", desc: "Instant access to your AI edge" },
     { id: 2, src: "/video/ALGOSAY_STRATEGY ANALYSIS-2.mp4", title: "Strategy Analysis", desc: "Deep dive into precision metrics" },
     { id: 3, src: "/video/ALGOSAY_BACKTEST REPORT-3.mp4", title: "Backtest Engine", desc: "Lightning fast execution results" },
-    { id: 4, src: "/video/ALGOSAY_AI_Diagnostics-4.mp4", title: "AI Diagnostics", desc: "Neural engine trade optimizations" },
-    { id: 5, src: "/video/ALGOSAY_FINAL REPORT DOWNLOAD-5.mp4", title: "Institutional Export", desc: "Download & share your strategy" }
+    { id: 4, src: "/video/ALGOSAY_ AI_Diagnostics-4.mp4", title: "AI Diagnostics", desc: "Neural engine trade optimizations" },
+    { id: 5, src: "/video/ALGOSAY_FINAL REPORT  DOWNLOAD-5.mp4", title: "Institutional Export", desc: "Download & share your strategy" }
   ];
 
   // 💎 Premium Spring Animations
