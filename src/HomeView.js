@@ -332,10 +332,25 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
             </span>
           </h1>
           
-          <p className="text-[16px] text-slate-300 font-medium mb-5 leading-relaxed max-w-xl backdrop-blur-sm bg-black/10 p-2 rounded-lg">
-            Breaking free from traditional logic<span className="text-[#00E5FF] font-bold">We empower retail traders to think out-of-the-box and backtest their own unique, custom strategies</span>. True profitability comes from thinking like an institutional trader.
-            <br/><span className="text-[#00E5FF] font-bold mt-2 inline-block">Simply describe your strategy, and we'll backtest it for you</span>
-          </p>
+         <p className="text-[16px] text-slate-300 font-medium mb-5 leading-relaxed max-w-xl backdrop-blur-md bg-slate-900/40 border border-slate-800/50 p-4 rounded-xl shadow-lg">
+  Breaking free from traditional logic. We empower retail traders to think{' '}
+  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00E5FF] to-blue-500 font-extrabold">
+    out-of-the-box
+  </span>{' '}
+  and backtest their own unique,{' '}
+  <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500 font-extrabold">
+    custom strategies
+  </span>. 
+  True profitability comes from thinking like an{' '}
+  <span className="text-amber-400 font-bold">
+    institutional trader
+  </span>.
+  <br />
+  <span className="mt-4 inline-flex items-center gap-2 text-white font-bold bg-gradient-to-r from-[#00E5FF]/20 to-blue-600/20 px-3 py-1.5 rounded-lg border border-[#00E5FF]/30">
+    <Sparkles size={16} className="text-[#00E5FF]" /> 
+    Simply describe your strategy, and we'll backtest it for you.
+  </span>
+</p>
 
           {/* PRO TERMINAL ENGINE BOX */}
           <div className="mb-5 p-[1.5px] rounded-2xl bg-gradient-to-r from-[#FF007A] via-[#7928CA] to-[#00E5FF] shadow-[0_0_40px_rgba(121,40,202,0.3)] relative max-w-xl backdrop-blur-md">
