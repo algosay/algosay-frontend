@@ -33,15 +33,15 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
     {
       lang: "Hindi (हिन्दी)",
       flag: "🇮🇳",
-      input: "Nifty ATM Put खरीदो जब RSI 70 से ऊपर हो...",
-      translated: "Buy Nifty ATM Put when RSI is above 70...",
+      input: "Nifty ATM Put खरीदो जब RSI 70 से ऊपर हो... period JAN 2025 TO DEC 2025",
+      translated: "Buy Nifty ATM Put when RSI is above 70... period JAN 2025 TO DEC 2025",
       report: "AI विश्लेषण: जीत दर 71.2% | अधिकतम गिरावट: 3.8% | मोमेंटम फ़िल्टर पास।"
     },
     {
       lang: "Malayalam (മലയാളം)",
       flag: "🇮🇳",
       input: "RSI 30-ൽ താഴെയാകുമ്പോൾ Call Option വാങ്ങുക...",
-      translated: "Buy Call Option when RSI drops below 30...",
+      translated: "Buy Call Option when RSI drops below 30... period JAN 2025 TO DEC 2025",
       report: "AI വിശകലനം: വിജയ നിരക്ക് 69.5% | പ്രകടനം മികച്ചതാണ്."
     },
     {
@@ -333,8 +333,8 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
           </h1>
           
           <p className="text-[16px] text-slate-300 font-medium mb-5 leading-relaxed max-w-xl backdrop-blur-sm bg-black/10 p-2 rounded-lg">
-            Type your trading strategies in <span className="text-[#00E5FF] font-bold">English, Tamil, Hindi, Malayalam, or Telugu</span>. Our Neural Engine translates and tests instantly with AI diagnostics.
-            <br/><span className="text-[#00E5FF] font-bold mt-2 inline-block">Just type it in your mother tongue, and we test it.</span>
+            Breaking free from traditional time-based strategies <span className="text-[#00E5FF] font-bold">We empower retail traders to think out-of-the-box and backtest their own unique, custom strategies</span>. In today's market, true profitability comes from thinking like an institutional trader.
+            <br/><span className="text-[#00E5FF] font-bold mt-2 inline-block">Just type it in your strategy, and we test it.</span>
           </p>
 
           {/* PRO TERMINAL ENGINE BOX */}
