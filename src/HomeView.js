@@ -26,7 +26,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
     {
       lang: "Tamil (தமிழ்)",
       flag: "🇮🇳",
-      input: "BANKNIFTY 9:20 AM Straddle போட்டு 25% Stoploss வை...",
+      input: "BANKNIFTY 9:20 AM Straddle போட்டு 25% Stoploss வை...period JAN 2025 TO DEC 2025",
       translated: "Sell Nifty/BankNifty Straddle at 9:20 AM with 25% Stoploss... period JAN 2025 TO DEC 2025",
       report: "AI Diagnostics: Win Rate 68.4% | Max DD: 4.2% | Optimized for 0DTE execution."
     },
