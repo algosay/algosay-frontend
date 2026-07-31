@@ -347,7 +347,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
     institutional trader
   </span>.
   
-  <span className="block mt-3 text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-blue-800 font-extrabold text-lg tracking-wider">
+  <span className="block mt-3 text-transparent bg-clip-text bg-gradient-to-r from-[#00E5FF] to-blue-500 font-extrabold text-lg tracking-wider">
     JUST TYPE IT. WE TEST IT.
   </span>
 </p>
