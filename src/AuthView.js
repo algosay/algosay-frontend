@@ -185,10 +185,38 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
       {/* LEFT SIDE: Reviews & Reality Check */}
       <div className="w-full lg:w-1/2 lg:h-full bg-white flex flex-col justify-center items-center p-6 pt-16 pb-20 lg:p-12 relative overflow-y-visible lg:overflow-y-auto z-10 border-r border-slate-100 order-2 lg:order-1">
         <div className="w-full max-w-md space-y-6 mt-8 lg:mt-0">
-          <div className="mb-8">
+          
+          <div className="mb-2">
             <h2 className="text-2xl font-black text-slate-900 mb-2">Join the top 1% Traders.</h2>
             <p className="text-sm font-medium text-slate-500">Don't rely on gut feelings. Backtest everything with Algosay.</p>
           </div>
+
+          {/* 🚨 PUTHIYA UPDATE: Mission & Vision Highlight Card */}
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }} 
+            whileInView={{ opacity: 1, scale: 1 }} 
+            viewport={{ once: true }} 
+            transition={{ duration: 0.5 }}
+            className="w-full bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 rounded-2xl shadow-xl shadow-blue-900/10 p-5 relative overflow-hidden group border border-slate-800"
+          >
+            {/* Background Glow Effects */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/20 rounded-full blur-[40px] pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-32 h-32 bg-purple-500/20 rounded-full blur-[40px] pointer-events-none" />
+            
+            <div className="relative z-10">
+              <div className="flex items-center gap-2.5 mb-3">
+                <div className="p-1.5 bg-cyan-950/50 rounded-lg border border-cyan-800/50">
+                  <Sparkles className="w-4 h-4 text-cyan-400" />
+                </div>
+                <h3 className="text-sm font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400 uppercase tracking-widest">
+                  Our Mission & Vision
+                </h3>
+              </div>
+              <p className="text-slate-300 text-sm leading-relaxed font-medium">
+                Break free from traditional time-based logic. We empower you to think <span className="text-cyan-300 font-bold">out-of-the-box</span> and backtest your <span className="text-purple-300 font-bold">own unique strategies</span>. Experience institutional-grade precision right here.
+              </p>
+            </div>
+          </motion.div>
 
           <motion.div 
             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }}
@@ -268,12 +296,10 @@ const AuthView = ({ onBack, isSignUp, setIsSignUp, onLoginSuccess, custom, viewV
       </div>
 
       {/* RIGHT SIDE: Light Blue Theme (Login Form) */}
-      {/* 🚨 UPDATE: Changed padding for optimal spacing without massive gaps (pt-12 and lg:pt-16) */}
-      <div className="w-full lg:w-1/2 lg:h-full bg-gradient-to-br from-slate-100 via-blue-50/80 to-indigo-100/70 flex flex-col items-center justify-start p-6 pt-1 pb-1 lg:p-1lg:pt-2 relative overflow-y-auto z-0 order-1 lg:order-2">
+      <div className="w-full lg:w-1/2 lg:h-full bg-gradient-to-br from-slate-100 via-blue-50/80 to-indigo-100/70 flex flex-col items-center justify-start p-6 pt-1 pb-1 lg:p-1 lg:pt-2 relative overflow-y-auto z-0 order-1 lg:order-2">
         <div className="absolute top-10 right-10 w-96 h-96 bg-blue-300/40 rounded-full blur-[100px] pointer-events-none"></div>
         <div className="absolute bottom-20 left-10 w-80 h-80 bg-indigo-300/30 rounded-full blur-[100px] pointer-events-none"></div>
 
-        {/* 🚨 UPDATE: Removed extra margins (mt-8, mb-12, etc.) to rely purely on parent's safe padding. Kept shrink-0 so it doesn't get squashed. */}
         <div className="w-full max-w-lg bg-white/95 backdrop-blur-2xl rounded-3xl shadow-[0_20px_50px_rgba(30,58,138,0.12)] p-8 lg:p-10 z-10 border border-white shrink-0">
           <div className="flex flex-col items-center justify-center mb-6">
             <div className="flex items-center gap-3 mb-2">
