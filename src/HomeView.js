@@ -347,11 +347,10 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
     institutional trader
   </span>.
   <br />
-  <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500 font-extrabold">
+  <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-red-500 font-extrabold">
     JUST TYPE IT. WE TEST IT.
   </span>
 </p>
-
           {/* PRO TERMINAL ENGINE BOX */}
           <div className="mb-5 p-[1.5px] rounded-2xl bg-gradient-to-r from-[#FF007A] via-[#7928CA] to-[#00E5FF] shadow-[0_0_40px_rgba(121,40,202,0.3)] relative max-w-xl backdrop-blur-md">
             <motion.div className="rounded-2xl overflow-hidden bg-[#0A0C14]/95 flex flex-col w-full h-full relative">
