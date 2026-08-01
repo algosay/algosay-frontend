@@ -99,7 +99,7 @@ const AIParseSection = ({
             
             <div>
               <h2 className="text-xl font-bold text-white tracking-wide">AI Neural Engine</h2>
-              <p className="text-sm text-gray-400 mt-0.5">Describe your trading logic in natural language or mix.</p>
+              <p className="text-sm text-gray-400 mt-0.5">Describe your trading logic in natural language. (Now supports "Current Week" & "Next Week" expiries)</p>
             </div>
           </div>
 
@@ -124,7 +124,7 @@ const AIParseSection = ({
             ref={textareaRef}
             className="flex-grow w-full bg-[#0a0a0f] border border-purple-900/40 rounded-xl p-4 text-white focus:outline-none focus:border-purple-500/80 focus:ring-1 focus:ring-purple-500/50 text-sm placeholder:text-gray-600 transition-all resize-none shadow-inner custom-scrollbar"
             rows="3"
-            placeholder="e.g., Call Ratio Backspread. 1.Sell 1 ITM CE, 2. Buy 2 OTM  +50  3.buy OTM +100 CE. 30% both SL. Exit at 15:15, Current Expiry. JUN 16 2025 JUN 17 2025 10 LOT  nifty 5 min time frame  9.45 am candle close exactly....buy future 10 lot at 10.00am target 1000 point stoploss 500 point  exit 3.15  SELL future 10 lot at 11.00am target 1000 point stoploss 500 point  exit 3.15"
+            placeholder="e.g., Call Ratio Backspread. 1.Sell 1 ITM CE, 2. Buy 2 OTM  +50  3.buy OTM +100 CE. 30% both SL. Exit at 15:15, Current Week / Next Week Expiry. JUN 16 2025 JUN 17 2025 10 LOT  nifty 5 min time frame  9.45 am candle close exactly....buy future 10 lot at 10.00am target 1000 point stoploss 500 point  exit 3.15  SELL future 10 lot at 11.00am target 1000 point stoploss 500 point  exit 3.15"
             value={localPrompt}
             onChange={handleTextChange}
           ></textarea>

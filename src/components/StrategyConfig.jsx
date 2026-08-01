@@ -235,12 +235,13 @@ const StrategyConfig = ({
                         </div>
                       </div>
 
+                      {/* 🚨 UPDATED: Segment Data Aligned to Backend Constants */}
                       <div>
                         <label className="block text-[9px] text-gray-500 uppercase tracking-wide mb-1">Segment</label>
-                        <select value={leg.segment || 'Options'} onChange={(e) => updateLeg(leg.id, 'segment', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500">
-                          <option value="Cash">Cash</option>
-                          <option value="Futures">Futures</option>
-                          <option value="Options">Options</option>
+                        <select value={leg.segment || 'OPTION'} onChange={(e) => updateLeg(leg.id, 'segment', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500">
+                          <option value="SPOT">Spot (Cash)</option>
+                          <option value="FUTURE">Futures</option>
+                          <option value="OPTION">Options</option>
                         </select>
                       </div>
                       
@@ -253,14 +254,16 @@ const StrategyConfig = ({
                         </select>
                       </div>
 
-                      {(leg.segment === 'Options' || !leg.segment) && (
+                      {/* 🚨 UPDATED: Only show Options config if OPTION is selected */}
+                      {(leg.segment === 'OPTION' || leg.segment === 'Options' || !leg.segment) && (
                         <>
+                          {/* 🚨 UPDATED: Expiry Type Aligned to Backend Constants */}
                           <div className="col-span-2 mt-1">
                             <label className="block text-[9px] text-gray-500 uppercase tracking-wide mb-1">Expiry Type</label>
-                            <select value={leg.expiryType || leg.expiry_type || 'Current Week'} onChange={(e) => updateLeg(leg.id, 'expiryType', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500">
-                              <option value="Current Week">Current Week</option>
-                              <option value="Next Week">Next Week</option>
-                              <option value="Monthly">Monthly</option>
+                            <select value={leg.expiryType || leg.expiry_type || 'CURRENT_WEEK'} onChange={(e) => updateLeg(leg.id, 'expiryType', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500">
+                              <option value="CURRENT_WEEK">Current Week</option>
+                              <option value="NEXT_WEEK">Next Week</option>
+                              <option value="MONTHLY">Monthly</option>
                             </select>
                           </div>
 

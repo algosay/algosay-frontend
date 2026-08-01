@@ -170,7 +170,7 @@ export const useAppLogic = () => {
       setIndicators([]);
     }
     
-    // 🚨 UPDATED: Map legs with priority finalTicker and handle all strike fields seamlessly
+    // 🚨 UPDATED: Map legs with priority finalTicker and handle expiry type & strike fields seamlessly
     if (data.legs && Array.isArray(data.legs)) {
       const mappedLegs = data.legs.map((leg, idx) => {
         
@@ -218,6 +218,15 @@ export const useAppLogic = () => {
             strictPosition = 'BUY'; // Safe default for Options Buying
         }
 
+        // 🚨 EXPIRY TYPE RESOLUTION (CURRENT_WEEK or NEXT_WEEK) 🚨
+        let resolvedExpiryType = leg.expiryType || leg.expiry_type || leg.expiry || 'CURRENT_WEEK';
+        const expStr = resolvedExpiryType.toString().toUpperCase();
+        if (expStr.includes('NEXT') || expStr.includes('MONTH') || expStr.includes('FAR')) {
+          resolvedExpiryType = 'NEXT_WEEK';
+        } else {
+          resolvedExpiryType = 'CURRENT_WEEK';
+        }
+
         return {
           id: leg.id || Date.now() + idx,
           ticker: finalTicker || leg.ticker || leg.asset || '', 
@@ -228,7 +237,8 @@ export const useAppLogic = () => {
           position: strictPosition, // 👈 🚨 GUARANTEED to be "BUY" or "SELL" (Uppercase)
           lots: leg.lots || 1,
           optionType: leg.optionType || leg.option_type || 'CE', 
-          expiry: leg.expiry || 'Weekly',
+          expiry: resolvedExpiryType, // 👈 🚨 Mapped correctly to Cloudflare R2 folder schemas (CURRENT_WEEK / NEXT_WEEK)
+          expiryType: resolvedExpiryType,
           strikeCriteria: leg.strikeCriteria || leg.strike_criteria || 'Strike Type',
           targetPremium: leg.targetPremium || leg.target_premium || leg.premium || '',
           lowerPremium: leg.lowerPremium || leg.lower_premium || '',
@@ -262,7 +272,7 @@ export const useAppLogic = () => {
     setLegs([...legs, { 
       id: Date.now(), ticker: ticker, timeframe: timeframe, entryTime: '', exitTime: '', 
       segment: 'Options', position: 'BUY', // 👈 🚨 Made default UpperCase
-      lots: 1, optionType: 'CE', expiry: 'Weekly', strikeType: 'ATM', 
+      lots: 1, optionType: 'CE', expiry: 'CURRENT_WEEK', expiryType: 'CURRENT_WEEK', strikeType: 'ATM', 
       strikeDistance: 0, stopLoss: '', target: '', slUnit: '%', targetUnit: '%', 
       trailX: 0, trailY: 0, trailUnitX: 'Pts', trailUnitY: 'Pts', 
       slReentry: 0, targetReexecute: 0, waitForCandleClose: false, waitAndTrade: false, costToCost: false, moveToStoploss: false 
@@ -395,7 +405,8 @@ export const useAppLogic = () => {
         option_type: (leg.option_type || leg.optionType || "CE").toString().toUpperCase(), 
         strike_type: (leg.strike_type || leg.strikeType || "ATM").toString().toUpperCase(), 
         lots: leg.lots, 
-        expiry: leg.expiry, 
+        expiry: leg.expiry || leg.expiryType || 'CURRENT_WEEK', 
+        expiry_type: leg.expiryType || leg.expiry || 'CURRENT_WEEK', // 👈 🚨 Added direct mapping to new Cloudflare R2 structure!
         strike_distance: parseInt(leg.strikeDistance) || 0,
         target: leg.target || 0, 
         target_unit: leg.target_unit || leg.targetUnit || '%', 
