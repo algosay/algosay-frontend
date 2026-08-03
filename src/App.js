@@ -69,6 +69,9 @@ const ProtectedDashboard = ({ logic }) => {
         openStrategiesModal={logic.openStrategiesModal}
         setShowProfileModal={logic.setShowProfileModal}
         setShowPricingModal={logic.setShowPricingModal}
+        // ⚡ NEW: Fyers Login & Connection Props injected ⚡
+        isFyersConnected={logic.isFyersConnected}
+        handleFyersLogin={logic.handleFyersLogin}
       />
 
       <Header />
@@ -109,6 +112,9 @@ const ProtectedDashboard = ({ logic }) => {
               updateLeg={logic.updateLeg} 
               removeLeg={logic.removeLeg}
               setIsConfirmed={logic.setIsConfirmed}
+              // ⚡ NEW: Data Source S3 vs Fyers Toggle Props injected ⚡
+              dataSource={logic.dataSource}
+              setDataSource={logic.setDataSource}
             />
 
             <div className="flex flex-col md:flex-row gap-4 mb-8">
