@@ -28,6 +28,11 @@ export const useAppLogic = () => {
   // 🚨 NEW: User Profile Modal State 🚨
   const [showProfileModal, setShowProfileModal] = useState(false);
 
+  // ⚡ NEW: Fyers & Data Source States ⚡
+  const [dataSource, setDataSource] = useState('s3'); // default to S3
+  const [isFyersConnected, setIsFyersConnected] = useState(false);
+  const [fyersToken, setFyersToken] = useState(null);
+
   // --- AI Input & Workflow State ---
   const [aiPrompt, setAiPrompt] = useState('');
   const [isParsing, setIsParsing] = useState(false);
@@ -60,6 +65,34 @@ export const useAppLogic = () => {
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const [withTax, setWithTax] = useState(false);
+
+  // ⚡ NEW: Fyers Login & Token Extraction Effect ⚡
+  useEffect(() => {
+    // Check local storage for an existing token
+    const storedToken = localStorage.getItem('fyers_access_token');
+    if (storedToken) {
+      setIsFyersConnected(true);
+      setFyersToken(storedToken);
+    }
+
+    // Check URL for token (if redirected back from backend after login)
+    const urlParams = new URLSearchParams(window.location.search);
+    const tokenFromUrl = urlParams.get('fyers_token');
+    
+    if (tokenFromUrl) {
+      localStorage.setItem('fyers_access_token', tokenFromUrl);
+      setIsFyersConnected(true);
+      setFyersToken(tokenFromUrl);
+      // Clean up the URL so the token isn't visible in the address bar
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
+
+  // ⚡ NEW: Trigger Fyers Auth Flow ⚡
+  const handleFyersLogin = () => {
+    // Redirect to backend Fyers auth endpoint
+    window.location.href = "https://algosay-backend.onrender.com/fyers-login";
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -372,6 +405,12 @@ export const useAppLogic = () => {
   const runBacktest = async () => {
     if (!isConfirmed) return; 
 
+    // ⚡ NEW: Fyers validation check before proceeding
+    if (dataSource === 'fyers' && !isFyersConnected) {
+      alert("⚠️ Fyers is not connected! Please click the 'Fyers Login' button at the top to connect your account before running live data backtests.");
+      return;
+    }
+
     if (!isSubscribed && userCredits <= 0) {
       alert("⚠️ Insufficient Credits & No Active Subscription! Please recharge your account.");
       setError('Insufficient Credits. Please upgrade your account.');
@@ -423,6 +462,8 @@ export const useAppLogic = () => {
 
     const payload = {
       user_id: user?.uid || "guest_123", 
+      data_source: dataSource,            // ⚡ NEW: Added data_source (s3 or fyers)
+      fyers_access_token: fyersToken,     // ⚡ NEW: Passed Fyers token to Backend Engine
       strategy_text: aiPrompt, 
       is_dynamic: conditionBasedLoop, 
       timeframe: timeframe, 
@@ -469,6 +510,10 @@ export const useAppLogic = () => {
     userProfileData, setUserProfileData,
     showStrategiesModal, setShowStrategiesModal, savedStrategies, isLoadingStrategies, modalTab, setModalTab,
     showPricingModal, setShowPricingModal, showProfileModal, setShowProfileModal,
+    
+    // ⚡ NEW EXPORTS: Fyers & Data Source logic ⚡
+    dataSource, setDataSource, isFyersConnected, setIsFyersConnected, handleFyersLogin,
+
     aiPrompt, setAiPrompt, isParsing, setIsParsing, aiMessage, setAiMessage,
     aiExplanation, setAiExplanation, isConfirmed, setIsConfirmed, needsInfoQuestion, setNeedsInfoQuestion,
     ticker, setTicker, timeframe, setTimeframe, underlyingFrom, setUnderlyingFrom,

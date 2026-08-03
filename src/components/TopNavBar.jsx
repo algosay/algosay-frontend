@@ -9,7 +9,9 @@ const TopNavBar = ({
   userCredits, 
   openStrategiesModal, 
   setShowProfileModal, 
-  setShowPricingModal 
+  setShowPricingModal,
+  isFyersConnected, // ⚡ NEW: Added to check Fyers connection status
+  handleFyersLogin  // ⚡ NEW: Function to trigger Fyers login flow
 }) => {
   return (
     <div className="flex justify-between items-center px-4 py-3 md:px-6 bg-[#020205] border-b border-[#16162a] shadow-[0_4px_30px_rgba(0,0,0,0.4)] sticky top-0 z-50">
@@ -51,6 +53,26 @@ const TopNavBar = ({
             <span className="text-purple-500">👤</span> {user?.email || user?.displayName}
           </button>
         </div>
+
+        {/* ⚡ NEW: Fyers Login / Connection Badge */}
+        {isFyersConnected ? (
+          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#001405] border border-green-600/40 rounded-full shadow-inner cursor-default">
+            <span className="text-green-500 text-sm">🟢</span>
+            <span className="text-xs font-bold text-green-500 tracking-wide hidden md:block">
+              FYERS CONNECTED
+            </span>
+          </div>
+        ) : (
+          <button 
+            onClick={handleFyersLogin}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#140500] hover:bg-[#240a00] border border-orange-600/40 rounded-full shadow-inner transition-all cursor-pointer"
+          >
+            <span className="text-orange-500 text-sm">🔥</span>
+            <span className="text-xs font-bold text-orange-500 tracking-wide hidden md:block">
+              FYERS LOGIN
+            </span>
+          </button>
+        )}
 
         {/* Credits / Pro Badge Button */}
         <button 
