@@ -16,6 +16,19 @@ const normalizeUnit = (unit) => {
   return '%';
 };
 
+// 🚨 NEW: SMART SEGMENT NORMALIZER (Fixes Spot Default Bug)
+const normalizeSegment = (segment, optionType) => {
+  if (optionType && ['CE', 'PE', 'CALL', 'PUT'].includes(optionType.toString().toUpperCase())) {
+    return 'Options';
+  }
+  if (!segment) return 'Options';
+  const s = segment.toString().toLowerCase().trim();
+  if (s.includes('opt') || s.includes('option') || s === 'ce' || s === 'pe') return 'Options';
+  if (s.includes('fut') || s.includes('future')) return 'Futures';
+  if (s.includes('spot') || s.includes('cash') || s.includes('eq')) return 'Spot';
+  return 'Options';
+};
+
 const StrategyConfig = ({
   // ✨ SELLING CONFIGURATIONS
   sellTicker, setSellTicker, sellTimeframe, setSellTimeframe, sellUnderlyingFrom, setSellUnderlyingFrom,
@@ -63,7 +76,7 @@ const StrategyConfig = ({
 
     currentLegs.forEach(leg => {
         const position = (leg.action || leg.position || "BUY").toUpperCase();
-        const optType = (leg.optionType || leg.type || "CE").toUpperCase();
+        const optType = (leg.optionType || leg.option_type || leg.type || "CE").toUpperCase();
         
         let rawQty = parseInt(leg.lots || leg.qty || 1);
         let lots = rawQty >= 65 ? Math.floor(rawQty / 65) : rawQty;
@@ -108,7 +121,7 @@ const StrategyConfig = ({
         </div>
         
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-          {/* ⚡ NEW: Data Source Toggle Switch (S3 vs Fyers) */}
+          {/* ⚡ Data Source Toggle Switch (S3 vs Fyers) */}
           <div className="flex items-center bg-[#121212] p-1 rounded-lg border border-[#333] shadow-inner">
             <button
               onClick={() => handleConfigChange(setDataSource, 's3')}
@@ -191,6 +204,9 @@ const StrategyConfig = ({
               const currentTargetUnit = normalizeUnit(leg.targetUnit || leg.target_unit);
               const targetPremiumVal = leg.targetPremium ?? leg.target_premium ?? leg.premium ?? '';
 
+              // 🚨 SMART SEGMENT NORMALIZER DETECTOR
+              const currentSegment = normalizeSegment(leg.segment, leg.optionType || leg.option_type || leg.type);
+
               // 🚀 Smart fallback for Trail X & Y inside legs card UI
               const currentTrailX = leg.trailX ?? leg.trailMoveX ?? leg.trail_x ?? '';
               const currentTrailY = leg.trailY ?? leg.trailPointY ?? leg.trailMoveY ?? leg.trail_y ?? '';
@@ -226,7 +242,7 @@ const StrategyConfig = ({
                         </div>
                         <div>
                           <label className="block text-[9px] text-gray-500 uppercase tracking-wide mb-1">Timeframe</label>
-                          <select value={leg.timeframe || '5m'} onChange={(e) => updateLeg(leg.id, 'timeframe', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500">
+                          <select value={leg.timeframe || '15m'} onChange={(e) => updateLeg(leg.id, 'timeframe', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500">
                             <option value="1m">1 Min</option>
                             <option value="5m">5 Min</option>
                             <option value="15m">15 Min</option>
@@ -265,41 +281,43 @@ const StrategyConfig = ({
                         </div>
                       </div>
 
-                      {/* 🚨 UPDATED: Segment Data Aligned to Backend Constants */}
+                      {/* 🚨 UPDATED: Segment Data Perfectly Matched to AI Backend */}
                       <div>
                         <label className="block text-[9px] text-gray-500 uppercase tracking-wide mb-1">Segment</label>
-                        <select value={leg.segment || 'OPTION'} onChange={(e) => updateLeg(leg.id, 'segment', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500">
-                          <option value="SPOT">Spot (Cash)</option>
-                          <option value="FUTURE">Futures</option>
-                          <option value="OPTION">Options</option>
+                        <select 
+                          value={currentSegment} 
+                          onChange={(e) => updateLeg(leg.id, 'segment', e.target.value)} 
+                          className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500 font-semibold"
+                        >
+                          <option value="Spot">Spot (Cash)</option>
+                          <option value="Futures">Futures</option>
+                          <option value="Options">Options</option>
                         </select>
                       </div>
                       
                       <div>
                         <label className="block text-[9px] text-gray-500 uppercase tracking-wide mb-1">Position</label>
-                        {/* 🚨 ENFORCED UPPERCASE VALUES TO PREVENT BACKEND FLIP BUGS 🚨 */}
                         <select value={currentPosition} onChange={(e) => updateLeg(leg.id, 'position', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500">
                           <option value="BUY">Buy</option>
                           <option value="SELL">Sell</option>
                         </select>
                       </div>
 
-                      {/* 🚨 UPDATED: Only show Options config if OPTION is selected */}
-                      {(leg.segment === 'OPTION' || leg.segment === 'Options' || !leg.segment) && (
+                      {/* 🚨 UPDATED: Display Options configuration when currentSegment is Options */}
+                      {currentSegment === 'Options' && (
                         <>
-                          {/* 🚨 UPDATED: Expiry Type Aligned to Backend Constants */}
                           <div className="col-span-2 mt-1">
                             <label className="block text-[9px] text-gray-500 uppercase tracking-wide mb-1">Expiry Type</label>
-                            <select value={leg.expiryType || leg.expiry_type || 'CURRENT_WEEK'} onChange={(e) => updateLeg(leg.id, 'expiryType', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500">
-                              <option value="CURRENT_WEEK">Current Week</option>
-                              <option value="NEXT_WEEK">Next Week</option>
-                              <option value="MONTHLY">Monthly</option>
+                            <select value={leg.expiryType || leg.expiry_type || 'Current Week'} onChange={(e) => updateLeg(leg.id, 'expiryType', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500">
+                              <option value="Current Week">Current Week</option>
+                              <option value="Next Week">Next Week</option>
+                              <option value="Monthly">Monthly</option>
                             </select>
                           </div>
 
                           <div>
                             <label className="block text-[9px] text-gray-500 uppercase tracking-wide mb-1">Option Type</label>
-                            <select value={leg.optionType || leg.type || 'CE'} onChange={(e) => updateLeg(leg.id, 'optionType', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500">
+                            <select value={leg.optionType || leg.option_type || leg.type || 'CE'} onChange={(e) => updateLeg(leg.id, 'optionType', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500">
                               <option value="CE">CE (Call)</option>
                               <option value="PE">PE (Put)</option>
                             </select>
@@ -500,7 +518,7 @@ const StrategyConfig = ({
                         </div>
                       </div>
 
-                      {/* 🚨 UPDATED: Leg Toggles (Wait for Candle Close Added) */}
+                      {/* Leg Toggles */}
                       <div className="col-span-2 grid grid-cols-2 sm:grid-cols-4 gap-1.5 mt-3 pt-2.5 border-t border-[#222]">
                         <label className="flex flex-col items-center justify-center p-1 bg-[#161616] border border-[#252525] rounded cursor-pointer select-none hover:bg-[#1a1a1a] transition-colors">
                           <span className="text-[8px] text-gray-400 font-medium mb-1">Wait Candle Close</span>
