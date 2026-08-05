@@ -260,24 +260,32 @@ export const useAppLogic = () => {
           resolvedExpiryType = 'CURRENT_WEEK';
         }
 
+        // 🚨 NEW UPDATE: Segment Validation for Nullifying Option Fields
+        const resolvedSegment = leg.segment || 'Options';
+        const isOptions = resolvedSegment.toUpperCase() === 'OPTIONS';
+
         return {
           id: leg.id || Date.now() + idx,
           ticker: finalTicker || leg.ticker || leg.asset || '', 
           timeframe: leg.timeframe || inst.timeframe || '5m',
-          entryTime: leg.entryTime || leg.entry_time || resolvedEntryTime || '', // 🚨 Passed resolved time directly
+          entryTime: leg.entryTime || leg.entry_time || resolvedEntryTime || '', 
           exitTime: leg.exitTime || leg.exit_time || entry.exitTime || (isDynamicFlag ? 'Positional' : '15:15'),
-          segment: leg.segment || 'Options',
-          position: strictPosition, // 👈 🚨 GUARANTEED to be "BUY" or "SELL" (Uppercase)
+          
+          segment: resolvedSegment,
+          position: strictPosition,
           lots: leg.lots || 1,
-          optionType: leg.optionType || leg.option_type || 'CE', 
-          expiry: resolvedExpiryType, // 👈 🚨 Mapped correctly to Cloudflare R2 folder schemas (CURRENT_WEEK / NEXT_WEEK)
-          expiryType: resolvedExpiryType,
-          strikeCriteria: leg.strikeCriteria || leg.strike_criteria || 'Strike Type',
-          targetPremium: leg.targetPremium || leg.target_premium || leg.premium || '',
-          lowerPremium: leg.lowerPremium || leg.lower_premium || '',
-          upperPremium: leg.upperPremium || leg.upper_premium || '',
-          strikeType: leg.strikeType || leg.strike_type || 'ATM',
-          strikeDistance: leg.strikeDistance || leg.strike_distance || 0,
+          
+          // 🚨 FIXED: If Segment is NOT Options (e.g., Futures), don't set Option fields
+          optionType: isOptions ? (leg.optionType || leg.option_type || 'CE') : '', 
+          expiry: isOptions ? resolvedExpiryType : '', 
+          expiryType: isOptions ? resolvedExpiryType : '',
+          strikeCriteria: isOptions ? (leg.strikeCriteria || leg.strike_criteria || 'Strike Type') : '',
+          targetPremium: isOptions ? (leg.targetPremium || leg.target_premium || leg.premium || '') : '',
+          lowerPremium: isOptions ? (leg.lowerPremium || leg.lower_premium || '') : '',
+          upperPremium: isOptions ? (leg.upperPremium || leg.upper_premium || '') : '',
+          strikeType: isOptions ? (leg.strikeType || leg.strike_type || 'ATM') : '',
+          strikeDistance: isOptions ? (leg.strikeDistance || leg.strike_distance || 0) : 0,
+
           stopLoss: rawSlVal, 
           target: rawTargetVal,
           slUnit: extractedSlUnit,
@@ -288,7 +296,7 @@ export const useAppLogic = () => {
           trailUnitY: extractedTrailUnitY,
           slReentry: leg.sl_reentry || leg.slReentry || 0,
           targetReexecute: leg.target_reexecute || leg.targetReexecute || 0,
-          waitForCandleClose: leg.wait_for_candle_close || leg.waitForCandleClose || false, // 👈 Wait for Candle Close mapped!
+          waitForCandleClose: leg.wait_for_candle_close || leg.waitForCandleClose || false, 
           waitAndTrade: leg.wait_and_trade || leg.waitAndTrade || false,
           costToCost: leg.cost_to_cost || leg.costToCost || false,
           moveToStoploss: leg.move_to_stoploss || leg.moveToStoploss || false
@@ -304,7 +312,7 @@ export const useAppLogic = () => {
   const addLeg = () => { 
     setLegs([...legs, { 
       id: Date.now(), ticker: ticker, timeframe: timeframe, entryTime: '', exitTime: '', 
-      segment: 'Options', position: 'BUY', // 👈 🚨 Made default UpperCase
+      segment: 'Options', position: 'BUY', 
       lots: 1, optionType: 'CE', expiry: 'CURRENT_WEEK', expiryType: 'CURRENT_WEEK', strikeType: 'ATM', 
       strikeDistance: 0, stopLoss: '', target: '', slUnit: '%', targetUnit: '%', 
       trailX: 0, trailY: 0, trailUnitX: 'Pts', trailUnitY: 'Pts', 
@@ -441,12 +449,14 @@ export const useAppLogic = () => {
         exit_time: leg.exitTime,
         segment: leg.segment, 
         position: (leg.position || leg.action || "BUY").toString().toUpperCase(), 
-        option_type: (leg.option_type || leg.optionType || "CE").toString().toUpperCase(), 
-        strike_type: (leg.strike_type || leg.strikeType || "ATM").toString().toUpperCase(), 
+        // 🚨 FIXED: Prevent passing Option Data for Futures payload to Backend
+        option_type: leg.segment.toUpperCase() === 'OPTIONS' ? (leg.option_type || leg.optionType || "CE").toString().toUpperCase() : '', 
+        strike_type: leg.segment.toUpperCase() === 'OPTIONS' ? (leg.strike_type || leg.strikeType || "ATM").toString().toUpperCase() : '', 
+        expiry: leg.segment.toUpperCase() === 'OPTIONS' ? (leg.expiry || leg.expiryType || 'CURRENT_WEEK') : '', 
+        expiry_type: leg.segment.toUpperCase() === 'OPTIONS' ? (leg.expiryType || leg.expiry || 'CURRENT_WEEK') : '', 
+        strike_distance: leg.segment.toUpperCase() === 'OPTIONS' ? (parseInt(leg.strikeDistance) || 0) : 0,
+        
         lots: leg.lots, 
-        expiry: leg.expiry || leg.expiryType || 'CURRENT_WEEK', 
-        expiry_type: leg.expiryType || leg.expiry || 'CURRENT_WEEK', // 👈 🚨 Added direct mapping to new Cloudflare R2 structure!
-        strike_distance: parseInt(leg.strikeDistance) || 0,
         target: leg.target || 0, 
         target_unit: leg.target_unit || leg.targetUnit || '%', 
         stop_loss: leg.stopLoss || 0, 

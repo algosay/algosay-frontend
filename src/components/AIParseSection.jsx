@@ -14,6 +14,9 @@ const AIParseSection = ({
   const [localPrompt, setLocalPrompt] = useState(aiPrompt || "");
   const textareaRef = useRef(null);
 
+  // 🚨 NEW UPDATE: State to hold and display parsed legs clearly before confirmation
+  const [parsedLegs, setParsedLegs] = useState([]);
+
   // Sync external prompt changes (e.g., if a template is loaded from parent) to local state
   useEffect(() => {
     if (aiPrompt !== localPrompt) {
@@ -34,6 +37,7 @@ const AIParseSection = ({
     if(setAiMessage) setAiMessage(null);
     if(setAiExplanation) setAiExplanation(null);
     if(setNeedsInfoQuestion) setNeedsInfoQuestion(null);
+    setParsedLegs([]); // 🚨 NEW UPDATE: Clear old legs
 
     try {
       const response = await axios.post("https://algosay-backend.onrender.com/parse_strategy", {
@@ -47,6 +51,11 @@ const AIParseSection = ({
         if(setAiExplanation) setAiExplanation(data.explanation);
         if(setAiMessage) setAiMessage("Strategy Auto-Mapped Successfully! ✨");
         
+        // 🚨 NEW UPDATE: Store the legs locally to render distinct Futures vs Options UI
+        if(data.legs && Array.isArray(data.legs)) {
+          setParsedLegs(data.legs);
+        }
+
         // Parent component-ku AI extract panna exact data-va apdiye anuppuroom (No forced default overrides)
         if(onParsedDataSuccess) onParsedDataSuccess(data);
       } else {
@@ -182,6 +191,58 @@ const AIParseSection = ({
                 </div>
               );
             })}
+
+            {/* 🚨 NEW UPDATE: RENDER DETECTED LEGS VISUALLY FOR FUTURES VS OPTIONS CLARITY */}
+            {parsedLegs && parsedLegs.length > 0 && (
+              <div className="mt-4 pt-4 border-t border-[#1f2030] flex flex-col gap-2">
+                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Detected Strategy Legs:</span>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                  {parsedLegs.map((leg, idx) => {
+                    // Logic to check if it's options or futures
+                    const isOptions = (leg.segment || 'Options').toUpperCase() === 'OPTIONS';
+                    
+                    // Cyberpunk color themes for visual separation
+                    const legTypeColor = isOptions 
+                      ? 'text-pink-400 border-pink-500/30 bg-pink-500/10' 
+                      : 'text-blue-400 border-blue-500/30 bg-blue-500/10';
+                      
+                    const actionColor = (leg.position || leg.action || 'BUY').toUpperCase() === 'BUY' 
+                      ? 'text-green-400' 
+                      : 'text-red-400';
+
+                    return (
+                      <div key={idx} className={`p-3 rounded-lg border ${legTypeColor} flex flex-col gap-2`}>
+                        <div className="flex justify-between items-center border-b border-white/10 pb-1.5">
+                          <span className="text-xs font-bold font-mono tracking-wide">
+                            LEG #{idx + 1} | {(leg.segment || 'OPTIONS').toUpperCase()}
+                          </span>
+                          <span className={`text-[11px] font-bold px-2 py-0.5 rounded bg-black/40 ${actionColor}`}>
+                            {(leg.position || leg.action || 'BUY').toUpperCase()} {leg.lots || 1} LOT(S)
+                          </span>
+                        </div>
+                        
+                        <div className="text-[11px] text-gray-300 flex flex-wrap gap-2 mt-1">
+                          {isOptions ? (
+                            <>
+                              <span className="bg-black/50 px-2 py-1 rounded border border-white/5">Type: <strong className="text-white">{leg.optionType || leg.option_type || 'CE'}</strong></span>
+                              <span className="bg-black/50 px-2 py-1 rounded border border-white/5">Strike: <strong className="text-white">{leg.strikeType || leg.strike_type || 'ATM'}</strong></span>
+                              <span className="bg-black/50 px-2 py-1 rounded border border-white/5">Expiry: <strong className="text-white">{leg.expiryType || leg.expiry || 'CURRENT_WEEK'}</strong></span>
+                            </>
+                          ) : (
+                            <>
+                              <span className="bg-black/50 px-2 py-1 rounded border border-white/5">Asset: <strong className="text-white">{leg.ticker || 'NIFTY'} FUT</strong></span>
+                              <span className="bg-black/50 px-2 py-1 rounded border border-white/5">Target: <strong className="text-white">{leg.target || '-'} {leg.target_unit || leg.targetUnit || 'Pts'}</strong></span>
+                              <span className="bg-black/50 px-2 py-1 rounded border border-white/5">SL: <strong className="text-white">{leg.stopLoss || leg.stop_loss || '-'} {leg.sl_unit || leg.slUnit || 'Pts'}</strong></span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            {/* 🚨 END NEW UPDATE */}
           </div>
           
           {/* VALIDATION FOOTER WITH CONFIRM BUTTON */}
