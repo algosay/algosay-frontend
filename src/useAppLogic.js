@@ -273,7 +273,9 @@ export const useAppLogic = () => {
           
           segment: resolvedSegment,
           position: strictPosition,
-          lots: leg.lots || 1,
+          
+          // 🚨 UPDATE: Parse Lots cleanly from AI / default
+          lots: parseInt(leg.lots, 10) || 1,
           
           // 🚨 FIXED: If Segment is NOT Options (e.g., Futures), don't set Option fields
           optionType: isOptions ? (leg.optionType || leg.option_type || 'CE') : '', 
@@ -284,7 +286,10 @@ export const useAppLogic = () => {
           lowerPremium: isOptions ? (leg.lowerPremium || leg.lower_premium || '') : '',
           upperPremium: isOptions ? (leg.upperPremium || leg.upper_premium || '') : '',
           strikeType: isOptions ? (leg.strikeType || leg.strike_type || 'ATM') : '',
-          strikeDistance: isOptions ? (leg.strikeDistance || leg.strike_distance || 0) : 0,
+          
+          // 🚨 UPDATE: Capture both strikeDistance and strike_offset perfectly
+          strikeDistance: isOptions ? (leg.strikeDistance || leg.strike_distance || leg.strike_offset || leg.strikeOffset || 0) : 0,
+          strike_offset: isOptions ? (leg.strike_offset || leg.strikeOffset || leg.strikeDistance || leg.strike_distance || 0) : 0,
 
           stopLoss: rawSlVal, 
           target: rawTargetVal,
@@ -314,7 +319,8 @@ export const useAppLogic = () => {
       id: Date.now(), ticker: ticker, timeframe: timeframe, entryTime: '', exitTime: '', 
       segment: 'Options', position: 'BUY', 
       lots: 1, optionType: 'CE', expiry: 'CURRENT_WEEK', expiryType: 'CURRENT_WEEK', strikeType: 'ATM', 
-      strikeDistance: 0, stopLoss: '', target: '', slUnit: '%', targetUnit: '%', 
+      strikeDistance: 0, strike_offset: 0, // 🚨 Added strike_offset mapping here
+      stopLoss: '', target: '', slUnit: '%', targetUnit: '%', 
       trailX: 0, trailY: 0, trailUnitX: 'Pts', trailUnitY: 'Pts', 
       slReentry: 0, targetReexecute: 0, waitForCandleClose: false, waitAndTrade: false, costToCost: false, moveToStoploss: false 
     }]); 
@@ -454,9 +460,12 @@ export const useAppLogic = () => {
         strike_type: leg.segment.toUpperCase() === 'OPTIONS' ? (leg.strike_type || leg.strikeType || "ATM").toString().toUpperCase() : '', 
         expiry: leg.segment.toUpperCase() === 'OPTIONS' ? (leg.expiry || leg.expiryType || 'CURRENT_WEEK') : '', 
         expiry_type: leg.segment.toUpperCase() === 'OPTIONS' ? (leg.expiryType || leg.expiry || 'CURRENT_WEEK') : '', 
-        strike_distance: leg.segment.toUpperCase() === 'OPTIONS' ? (parseInt(leg.strikeDistance) || 0) : 0,
         
-        lots: leg.lots, 
+        // 🚨 UPDATE: Guarantee proper integer mapping for complex Dynamic Options Logic
+        lots: parseInt(leg.lots, 10) || 1, 
+        strike_distance: leg.segment.toUpperCase() === 'OPTIONS' ? (parseInt(leg.strikeDistance || leg.strike_offset) || 0) : 0,
+        strike_offset: leg.segment.toUpperCase() === 'OPTIONS' ? (parseInt(leg.strike_offset || leg.strikeDistance || leg.strikeOffset) || 0) : 0,
+        
         target: leg.target || 0, 
         target_unit: leg.target_unit || leg.targetUnit || '%', 
         stop_loss: leg.stopLoss || 0, 

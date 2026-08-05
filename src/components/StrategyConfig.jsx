@@ -428,9 +428,20 @@ const StrategyConfig = ({
                         </>
                       )}
 
-                      <div className="col-span-2 flex items-center justify-between gap-2 mt-1 bg-[#181818] px-2.5 py-1.5 rounded border border-[#222]">
-                        <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Lots Allocation:</span>
-                        <input type="number" value={leg.lots || 1} onChange={(e) => updateLeg(leg.id, 'lots', Number(e.target.value))} className="w-20 bg-[#121212] border border-[#333] rounded p-1 text-center text-xs text-gray-200 font-bold outline-none focus:border-blue-500" />
+                      {/* 🚨 UPDATED: Lots & Strike Offset Inputs integrated neatly into the UI */}
+                      <div className="col-span-2 grid grid-cols-2 gap-2 mt-1">
+                        <div className="flex items-center justify-between gap-1 bg-[#181818] px-2 py-1.5 rounded border border-[#222]">
+                          <span className="text-[9px] font-semibold text-gray-400 uppercase tracking-wider">Lots Allocation:</span>
+                          <input type="number" value={leg.lots || 1} onChange={(e) => updateLeg(leg.id, 'lots', Number(e.target.value))} className="w-16 bg-[#121212] border border-[#333] rounded p-1 text-center text-xs text-gray-200 font-bold outline-none focus:border-blue-500" min="1" />
+                        </div>
+                        {currentSegment === 'Options' ? (
+                          <div className="flex items-center justify-between gap-1 bg-[#181818] px-2 py-1.5 rounded border border-[#222]">
+                            <span className="text-[9px] font-semibold text-gray-400 uppercase tracking-wider" title="Points or steps to offset from Strike">Strike Offset:</span>
+                            <input type="number" value={leg.strike_offset || 0} onChange={(e) => updateLeg(leg.id, 'strike_offset', Number(e.target.value))} className="w-16 bg-[#121212] border border-[#333] rounded p-1 text-center text-xs text-gray-200 font-bold outline-none focus:border-blue-500" placeholder="0" />
+                          </div>
+                        ) : (
+                          <div></div> /* Empty div to maintain grid balance for Futures/Spot */
+                        )}
                       </div>
 
                       {/* 🎚️ STOP LOSS & TARGET WITH SMART UNIT DETECTOR */}
