@@ -3,18 +3,18 @@ import axios from 'axios';
 
 const AIParseSection = ({ 
   aiPrompt, setAiPrompt, isParsing, setIsParsing, 
-  aiMessage, setAiMessage,             // 🟢 Puthusa Add panni irukkom
-  needsInfoQuestion, setNeedsInfoQuestion, // 🟢 Puthusa Add panni irukkom
-  aiExplanation, setAiExplanation,         // 🟢 Puthusa Add panni irukkom
+  aiMessage, setAiMessage,             
+  needsInfoQuestion, setNeedsInfoQuestion, 
+  aiExplanation, setAiExplanation,         
   isConfirmed, setIsConfirmed,
-  onParsedDataSuccess                  // 🟢 Puthusa Add panni irukkom (To pass data to parent)
+  onParsedDataSuccess                  
 }) => {
 
   // 🛠️ FIX: Local state added to prevent focus loss during heavy parent re-renders
   const [localPrompt, setLocalPrompt] = useState(aiPrompt || "");
   const textareaRef = useRef(null);
 
-  // 🚨 NEW UPDATE: State to hold and display parsed legs clearly before confirmation
+  // 🚨 State to hold and display parsed legs clearly before confirmation
   const [parsedLegs, setParsedLegs] = useState([]);
 
   // Sync external prompt changes (e.g., if a template is loaded from parent) to local state
@@ -37,7 +37,7 @@ const AIParseSection = ({
     if(setAiMessage) setAiMessage(null);
     if(setAiExplanation) setAiExplanation(null);
     if(setNeedsInfoQuestion) setNeedsInfoQuestion(null);
-    setParsedLegs([]); // 🚨 NEW UPDATE: Clear old legs
+    setParsedLegs([]); 
 
     try {
       const response = await axios.post("https://algosay-backend.onrender.com/parse_strategy", {
@@ -51,12 +51,62 @@ const AIParseSection = ({
         if(setAiExplanation) setAiExplanation(data.explanation);
         if(setAiMessage) setAiMessage("Strategy Auto-Mapped Successfully! ✨");
         
-        // 🚨 NEW UPDATE: Store the legs locally to render distinct Futures vs Options UI
+        // 🚨 NEW UPDATE: SMART EXTRACTION LOGIC FOR PERFECT UI PREVIEW
         if(data.legs && Array.isArray(data.legs)) {
-          setParsedLegs(data.legs);
+          
+          let extractedTicker = '';
+          const promptText = (localPrompt || '').toUpperCase();
+          
+          // Identify EXACT asset from User Prompt dynamically
+          if (promptText.includes('MIDCPNIFTY') || promptText.includes('MIDCAP')) extractedTicker = 'MIDCPNIFTY';
+          else if (promptText.includes('FINNIFTY') || promptText.includes('FIN NIFTY')) extractedTicker = 'FINNIFTY';
+          else if (promptText.includes('BANKNIFTY') || promptText.includes('BANK NIFTY')) extractedTicker = 'BANKNIFTY';
+          else if (promptText.includes('BANKEX')) extractedTicker = 'BANKEX';
+          else if (promptText.includes('SENSEX')) extractedTicker = 'SENSEX';
+          else if (promptText.includes('NIFTY')) extractedTicker = 'NIFTY';
+
+          const enhancedLegs = data.legs.map(leg => {
+            // Force the exact ticker user asked for
+            const finalTicker = extractedTicker || leg.ticker || leg.asset || 'NIFTY';
+            
+            // Smart Extraction for Stoploss Units (Pts vs %)
+            let rawSlVal = leg.stopLoss ?? leg.stop_loss ?? '';
+            let slUnit = leg.slUnit || leg.sl_unit || leg.stopLossUnit || leg.stop_loss_unit || 'Pts';
+            if (typeof rawSlVal === 'string') {
+              if (rawSlVal.toLowerCase().includes('pt') || rawSlVal.toLowerCase().includes('point')) slUnit = 'Pts';
+              else if (rawSlVal.includes('%')) slUnit = '%';
+              rawSlVal = parseFloat(rawSlVal) || rawSlVal;
+            }
+
+            // Smart Extraction for Target Units (Pts vs %)
+            let rawTargetVal = leg.target ?? '';
+            let targetUnit = leg.targetUnit || leg.target_unit || 'Pts';
+            if (typeof rawTargetVal === 'string') {
+              if (rawTargetVal.toLowerCase().includes('pt') || rawTargetVal.toLowerCase().includes('point')) targetUnit = 'Pts';
+              else if (rawTargetVal.includes('%')) targetUnit = '%';
+              rawTargetVal = parseFloat(rawTargetVal) || rawTargetVal;
+            }
+
+            // Fallback: If user types "point" in prompt, force Pts if AI misses it
+            if (promptText.includes('PT') || promptText.includes('POINT')) {
+              if (!leg.target_unit && !leg.targetUnit && typeof leg.target !== 'string') targetUnit = 'Pts';
+              if (!leg.sl_unit && !leg.slUnit && typeof (leg.stopLoss ?? leg.stop_loss) !== 'string') slUnit = 'Pts';
+            }
+
+            return {
+              ...leg,
+              displayTicker: finalTicker,
+              displayTarget: rawTargetVal,
+              displayTargetUnit: targetUnit,
+              displaySl: rawSlVal,
+              displaySlUnit: slUnit
+            };
+          });
+
+          setParsedLegs(enhancedLegs);
         }
 
-        // Parent component-ku AI extract panna exact data-va apdiye anuppuroom (No forced default overrides)
+        // Parent component-ku AI extract panna exact data-va apdiye anuppuroom
         if(onParsedDataSuccess) onParsedDataSuccess(data);
       } else {
         // AI-ku innum details thevai patta
@@ -81,10 +131,8 @@ const AIParseSection = ({
           
           {/* TITLE & GLOWING BRAIN */}
           <div className="flex items-center gap-4">
-            {/* Colorful Glowing Brain Icon Container */}
             <div className="relative flex items-center justify-center w-14 h-14 rounded-full p-[2px] bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 shadow-[0_0_20px_rgba(168,85,247,0.4)]">
               <div className="flex items-center justify-center w-full h-full bg-[#05050A] rounded-full">
-                {/* Custom Tech Brain SVG */}
                 <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8">
                   <defs>
                     <linearGradient id="brain-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -112,7 +160,7 @@ const AIParseSection = ({
             </div>
           </div>
 
-          {/* RIGHT SIDE BADGES (Matching Image) */}
+          {/* RIGHT SIDE BADGES */}
           <div className="flex items-center gap-3 w-full lg:w-auto">
             <div className="px-4 py-1.5 rounded-full border border-purple-800/60 bg-purple-900/10 text-purple-400 text-xs font-bold tracking-wider">
               ALGOSAY AI
@@ -169,7 +217,7 @@ const AIParseSection = ({
         )}
       </div>
 
-      {/* 💬 CLARIFICATION QUESTION PROMPT (Retained exactly as requested) */}
+      {/* 💬 CLARIFICATION QUESTION PROMPT */}
       {needsInfoQuestion && (
         <div className="bg-yellow-500/10 border border-yellow-500/20 p-5 rounded-xl mb-6 flex flex-col gap-2">
           <h3 className="text-sm font-bold text-yellow-500 flex items-center gap-2">💬 Clarification Needed</h3>
@@ -177,7 +225,7 @@ const AIParseSection = ({
         </div>
       )}
 
-      {/* ⚙️ AI INTERPRETATION PARAMETERS LIST (Retained exactly as requested) */}
+      {/* ⚙️ AI INTERPRETATION PARAMETERS LIST */}
       {aiExplanation && (
         <div className="bg-[#05050A] border border-[#2a2b40] p-5 rounded-xl mb-6 shadow-md animate-fade-in">
           <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">⚙️ Interpretation Parameters</h3>
@@ -192,16 +240,14 @@ const AIParseSection = ({
               );
             })}
 
-            {/* 🚨 NEW UPDATE: RENDER DETECTED LEGS VISUALLY FOR FUTURES VS OPTIONS CLARITY */}
+            {/* 🚨 UPDATED: RENDERING WITH DYNAMIC displayTicker AND displayUnit */}
             {parsedLegs && parsedLegs.length > 0 && (
               <div className="mt-4 pt-4 border-t border-[#1f2030] flex flex-col gap-2">
                 <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Detected Strategy Legs:</span>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                   {parsedLegs.map((leg, idx) => {
-                    // Logic to check if it's options or futures
                     const isOptions = (leg.segment || 'Options').toUpperCase() === 'OPTIONS';
                     
-                    // Cyberpunk color themes for visual separation
                     const legTypeColor = isOptions 
                       ? 'text-pink-400 border-pink-500/30 bg-pink-500/10' 
                       : 'text-blue-400 border-blue-500/30 bg-blue-500/10';
@@ -224,15 +270,16 @@ const AIParseSection = ({
                         <div className="text-[11px] text-gray-300 flex flex-wrap gap-2 mt-1">
                           {isOptions ? (
                             <>
+                              <span className="bg-black/50 px-2 py-1 rounded border border-white/5">Asset: <strong className="text-white">{leg.displayTicker}</strong></span>
                               <span className="bg-black/50 px-2 py-1 rounded border border-white/5">Type: <strong className="text-white">{leg.optionType || leg.option_type || 'CE'}</strong></span>
                               <span className="bg-black/50 px-2 py-1 rounded border border-white/5">Strike: <strong className="text-white">{leg.strikeType || leg.strike_type || 'ATM'}</strong></span>
                               <span className="bg-black/50 px-2 py-1 rounded border border-white/5">Expiry: <strong className="text-white">{leg.expiryType || leg.expiry || 'CURRENT_WEEK'}</strong></span>
                             </>
                           ) : (
                             <>
-                              <span className="bg-black/50 px-2 py-1 rounded border border-white/5">Asset: <strong className="text-white">{leg.ticker || 'NIFTY'} FUT</strong></span>
-                              <span className="bg-black/50 px-2 py-1 rounded border border-white/5">Target: <strong className="text-white">{leg.target || '-'} {leg.target_unit || leg.targetUnit || 'Pts'}</strong></span>
-                              <span className="bg-black/50 px-2 py-1 rounded border border-white/5">SL: <strong className="text-white">{leg.stopLoss || leg.stop_loss || '-'} {leg.sl_unit || leg.slUnit || 'Pts'}</strong></span>
+                              <span className="bg-black/50 px-2 py-1 rounded border border-white/5">Asset: <strong className="text-white">{leg.displayTicker} FUT</strong></span>
+                              <span className="bg-black/50 px-2 py-1 rounded border border-white/5">Target: <strong className="text-white">{leg.displayTarget || '-'} {leg.displayTargetUnit}</strong></span>
+                              <span className="bg-black/50 px-2 py-1 rounded border border-white/5">SL: <strong className="text-white">{leg.displaySl || '-'} {leg.displaySlUnit}</strong></span>
                             </>
                           )}
                         </div>
@@ -242,7 +289,6 @@ const AIParseSection = ({
                 </div>
               </div>
             )}
-            {/* 🚨 END NEW UPDATE */}
           </div>
           
           {/* VALIDATION FOOTER WITH CONFIRM BUTTON */}
@@ -265,5 +311,4 @@ const AIParseSection = ({
   );
 };
 
-// 🛠️ FIX: React.memo will prevent this component from re-rendering unless its specific props change
 export default React.memo(AIParseSection);
