@@ -3,16 +3,27 @@ import { auth, db, getUserCredits, deductUserCredit, saveUserStrategy, getUserSt
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore'; 
 
+// 🎯 INDEX STEP SIZE LOOKUP FOR DYNAMIC DISTANCE CALCULATION
+const INDEX_STEP_SIZES = {
+  "NIFTY 50": 50,
+  "NIFTY": 50,
+  "BANKNIFTY": 100,
+  "FINNIFTY": 50,
+  "MIDCPNIFTY": 25,
+  "SENSEX": 100,
+  "BANKEX": 100
+};
+
 export const useAppLogic = () => {
   // --- Auth & Credits State ---
   const [user, setUser] = useState(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
   const [userCredits, setUserCredits] = useState(0); 
 
-  // 🚨 NEW: User Profile Data State (To store Name, Mobile, etc. from DB) 🚨
+  // 🚨 User Profile Data State (To store Name, Mobile, etc. from DB) 🚨
   const [userProfileData, setUserProfileData] = useState(null);
 
-  // 🚨 NEW: Subscription States 🚨
+  // 🚨 Subscription States 🚨
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [subscriptionPlan, setSubscriptionPlan] = useState('');
 
@@ -25,10 +36,10 @@ export const useAppLogic = () => {
   // 🚨 Pricing Modal State 🚨
   const [showPricingModal, setShowPricingModal] = useState(false);
 
-  // 🚨 NEW: User Profile Modal State 🚨
+  // 🚨 User Profile Modal State 🚨
   const [showProfileModal, setShowProfileModal] = useState(false);
 
-  // ⚡ NEW: Fyers & Data Source States ⚡
+  // ⚡ Fyers & Data Source States ⚡
   const [dataSource, setDataSource] = useState('s3'); // default to S3
   const [isFyersConnected, setIsFyersConnected] = useState(false);
   const [fyersToken, setFyersToken] = useState(null);
@@ -41,22 +52,22 @@ export const useAppLogic = () => {
   const [isConfirmed, setIsConfirmed] = useState(false);   
   const [needsInfoQuestion, setNeedsInfoQuestion] = useState(''); 
 
-  // --- Global Strategy State (No Forced Ticker Defaults) ---
+  // --- Global Strategy State (Initial defaults kept simple for manual entry, but overridden by AI) ---
   const [ticker, setTicker] = useState(''); 
-  const [timeframe, setTimeframe] = useState('15m'); 
-  const [underlyingFrom, setUnderlyingFrom] = useState('Options');
-  const [qty, setQty] = useState(150); 
-  const [transactionType, setTransactionType] = useState('BUY');
-  const [strategyType, setStrategyType] = useState('Intraday');
-  const [isDynamic, setIsDynamic] = useState(false); // 🚨 NEW STATE: To track if it's a Condition-based Loop 🚨
-  const [entryTime, setEntryTime] = useState('09:15');
-  const [exitTime, setExitTime] = useState('15:15');
+  const [timeframe, setTimeframe] = useState(''); 
+  const [underlyingFrom, setUnderlyingFrom] = useState('');
+  const [qty, setQty] = useState(''); 
+  const [transactionType, setTransactionType] = useState('');
+  const [strategyType, setStrategyType] = useState('');
+  const [isDynamic, setIsDynamic] = useState(false); 
+  const [entryTime, setEntryTime] = useState('');
+  const [exitTime, setExitTime] = useState('');
   
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   
-  const [trailMoveX, setTrailMoveX] = useState(0);
-  const [trailPointY, setTrailPointY] = useState(0);
+  const [trailMoveX, setTrailMoveX] = useState('');
+  const [trailPointY, setTrailPointY] = useState('');
 
   const [indicators, setIndicators] = useState([]);
   const [legs, setLegs] = useState([]); 
@@ -66,16 +77,14 @@ export const useAppLogic = () => {
   const [error, setError] = useState('');
   const [withTax, setWithTax] = useState(false);
 
-  // ⚡ NEW: Fyers Login & Token Extraction Effect ⚡
+  // ⚡ Fyers Login & Token Extraction Effect ⚡
   useEffect(() => {
-    // Check local storage for an existing token
     const storedToken = localStorage.getItem('fyers_access_token');
     if (storedToken) {
       setIsFyersConnected(true);
       setFyersToken(storedToken);
     }
 
-    // Check URL for token (if redirected back from backend after login)
     const urlParams = new URLSearchParams(window.location.search);
     const tokenFromUrl = urlParams.get('fyers_token');
     
@@ -83,14 +92,12 @@ export const useAppLogic = () => {
       localStorage.setItem('fyers_access_token', tokenFromUrl);
       setIsFyersConnected(true);
       setFyersToken(tokenFromUrl);
-      // Clean up the URL so the token isn't visible in the address bar
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, []);
 
-  // ⚡ NEW: Trigger Fyers Auth Flow ⚡
+  // ⚡ Trigger Fyers Auth Flow ⚡
   const handleFyersLogin = () => {
-    // Redirect to backend Fyers auth endpoint
     window.location.href = "https://algosay-backend.onrender.com/fyers-login";
   };
 
@@ -98,16 +105,14 @@ export const useAppLogic = () => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
-        // 🚨 UPDATED: Fetching credits, name, mobile, and subscription status directly from Firestore
         const userRef = doc(db, 'users', currentUser.uid);
         const userSnap = await getDoc(userRef);
         
         if (userSnap.exists()) {
           const userData = userSnap.data();
           setUserCredits(userData.credits || 0);
-          setUserProfileData(userData); // <-- Capturing Full DB Profile (Name, Mobile)
+          setUserProfileData(userData); 
           
-          // Check if subscription is valid and not expired
           if (userData.subscription && userData.subscription.is_active) {
             const endDate = new Date(userData.subscription.end_date);
             if (endDate > new Date()) {
@@ -118,72 +123,56 @@ export const useAppLogic = () => {
             }
           }
         } else {
-          // Fallback just in case
           const credits = await getUserCredits(currentUser.uid);
           setUserCredits(credits);
           setUserProfileData(null);
         }
       } else {
-        setUserProfileData(null); // Clear data on logout
+        setUserProfileData(null); 
       }
       setLoadingAuth(false);
     });
     return () => unsubscribe();
   }, []);
 
+  // 🚨 100% PURE DYNAMIC PARSING FUNCTION (NO HARDCODED DEFAULTS) 🚨
   const handleParsedDataSuccess = (data) => {
-    // 🚨 Extract actual Ticker/Index mentioned directly from user's AI Prompt
     let extractedTicker = '';
     const promptText = (aiPrompt || '').toUpperCase();
     
-    if (promptText.includes('MIDCPNIFTY') || promptText.includes('MIDCAP')) {
-      extractedTicker = 'MIDCPNIFTY';
-    } else if (promptText.includes('FINNIFTY') || promptText.includes('FIN NIFTY')) {
-      extractedTicker = 'FINNIFTY';
-    } else if (promptText.includes('BANKNIFTY') || promptText.includes('BANK NIFTY')) {
-      extractedTicker = 'BANKNIFTY';
-    } else if (promptText.includes('BANKEX')) {
-      extractedTicker = 'BANKEX';
-    } else if (promptText.includes('SENSEX')) {
-      extractedTicker = 'SENSEX';
-    } else if (promptText.includes('NIFTY')) {
-      extractedTicker = 'NIFTY';
-    }
+    if (promptText.includes('MIDCPNIFTY') || promptText.includes('MIDCAP')) extractedTicker = 'MIDCPNIFTY';
+    else if (promptText.includes('FINNIFTY') || promptText.includes('FIN NIFTY')) extractedTicker = 'FINNIFTY';
+    else if (promptText.includes('BANKNIFTY') || promptText.includes('BANK NIFTY')) extractedTicker = 'BANKNIFTY';
+    else if (promptText.includes('BANKEX')) extractedTicker = 'BANKEX';
+    else if (promptText.includes('SENSEX')) extractedTicker = 'SENSEX';
+    else if (promptText.includes('NIFTY')) extractedTicker = 'NIFTY';
 
-    // Extract Global Settings for fallbacks
     const inst = data.instrument_settings || {};
     const entry = data.entry_settings || {};
     const risk = data.risk_management || {};
     const dates = data.date_settings || {}; 
 
-    // 🚨 THE FIX: Identify Condition-based / Dynamic Logic
     const isDynamicFlag = data.is_dynamic || entry.is_dynamic || (entry.strategyType && String(entry.strategyType).toLowerCase() === 'dynamic') || (entry.entryTime && String(entry.entryTime).toLowerCase() === 'dynamic') || !!data.strategy_function || false;
     setIsDynamic(isDynamicFlag);
 
-    // Priority: Extracted Ticker from Prompt > AI Response Ticker > Empty
     const finalTicker = extractedTicker || inst.ticker || '';
 
-    // 🎯 ROBUST GLOBAL TRAIL EXTRACTION 🎯
-    const globalTrailX = risk.trailMoveX ?? risk.trail_x ?? risk.trailX ?? data.trailMoveX ?? data.trailX ?? data.trail_x ?? 0;
-    const globalTrailY = risk.trailPointY ?? risk.trailMoveY ?? risk.trail_y ?? risk.trailY ?? data.trailMoveY ?? data.trailPointY ?? data.trailY ?? data.trail_y ?? 0;
+    const globalTrailX = risk.trailMoveX ?? risk.trail_x ?? risk.trailX ?? data.trailMoveX ?? data.trailX ?? data.trail_x ?? '';
+    const globalTrailY = risk.trailPointY ?? risk.trailMoveY ?? risk.trail_y ?? risk.trailY ?? data.trailMoveY ?? data.trailPointY ?? data.trailY ?? data.trail_y ?? '';
 
-    // Directly assign the calculated finalTicker & variables
+    // 🎯 NO DEFAULTS HERE - STRICTLY TAKING WHAT AI PROVIDES 🎯
     setTicker(finalTicker);
-    setTimeframe(inst.timeframe || '15m'); 
-    setUnderlyingFrom(inst.underlyingFrom || inst.segment || 'Options');
-    setQty(inst.qty || 150); 
-    setTransactionType(inst.transactionType || 'BUY');
-    setStrategyType(entry.strategyType || (isDynamicFlag ? 'Dynamic' : 'Intraday'));
-    
-    // 🚨 THE FIX: Avoid defaulting to 09:15 if it's a dynamic condition!
-    const resolvedEntryTime = entry.entryTime || (isDynamicFlag ? 'Dynamic' : '09:15');
-    setEntryTime(resolvedEntryTime);
-    setExitTime(entry.exitTime || (isDynamicFlag ? 'Positional' : '15:15'));
+    setTimeframe(inst.timeframe || ''); 
+    setUnderlyingFrom(inst.underlyingFrom || inst.segment || '');
+    setQty(inst.qty !== undefined ? inst.qty : ''); 
+    setTransactionType(inst.transactionType || '');
+    setStrategyType(entry.strategyType || '');
+    setEntryTime(entry.entryTime || '');
+    setExitTime(entry.exitTime || '');
 
     setFromDate(dates.fromDate || '');
     setToDate(dates.toDate || '');
     
-    // Set robust global trail values
     setTrailMoveX(globalTrailX);
     setTrailPointY(globalTrailY);
 
@@ -196,19 +185,18 @@ export const useAppLogic = () => {
           const { name, indicator, ...rest } = ind;
           parsedSettings = Object.entries(rest).map(([k, v]) => `${k}: ${v}`).join(', ');
         }
-        return { id: Date.now() + idx, name: ind.name || ind.indicator || 'Unknown', settings: parsedSettings || 'Default Settings' };
+        return { id: Date.now() + idx, name: ind.name || ind.indicator || 'Unknown', settings: parsedSettings || '' };
       });
       setIndicators(mappedIndicators);
     } else {
       setIndicators([]);
     }
     
-    // 🚨 UPDATED: Map legs with priority finalTicker and handle expiry type & strike fields seamlessly
     if (data.legs && Array.isArray(data.legs)) {
       const mappedLegs = data.legs.map((leg, idx) => {
         
         let rawSlVal = leg.stopLoss ?? leg.stop_loss ?? '';
-        let extractedSlUnit = leg.slUnit || leg.sl_unit || leg.stopLossUnit || leg.stop_loss_unit || '%';
+        let extractedSlUnit = leg.slUnit || leg.sl_unit || leg.stopLossUnit || leg.stop_loss_unit || '';
         
         if (typeof rawSlVal === 'string') {
             if (rawSlVal.toLowerCase().includes('pt') || rawSlVal.toLowerCase().includes('point')) extractedSlUnit = 'Pts';
@@ -217,7 +205,7 @@ export const useAppLogic = () => {
         }
 
         let rawTargetVal = leg.target ?? '';
-        let extractedTargetUnit = leg.targetUnit || leg.target_unit || '%';
+        let extractedTargetUnit = leg.targetUnit || leg.target_unit || '';
         
         if (typeof rawTargetVal === 'string') {
             if (rawTargetVal.toLowerCase().includes('pt') || rawTargetVal.toLowerCase().includes('point')) extractedTargetUnit = 'Pts';
@@ -228,68 +216,69 @@ export const useAppLogic = () => {
         const trailSlObj = leg.trail_sl || {};
         
         let rawTrailX = leg.trailX ?? leg.trailMoveX ?? trailSlObj.x ?? trailSlObj.trailMoveX ?? leg.trail_x ?? leg.trailMove ?? leg.trail_move ?? leg.move ?? leg.trail_points ?? globalTrailX ?? '';
-        let extractedTrailUnitX = leg.trailUnitX ?? leg.trail_unit_x ?? leg.trailUnit ?? 'Pts';
+        let extractedTrailUnitX = leg.trailUnitX ?? leg.trail_unit_x ?? leg.trailUnit ?? '';
         if (typeof rawTrailX === 'string') {
             if (rawTrailX.includes('%')) extractedTrailUnitX = '%';
             else if (rawTrailX.toLowerCase().includes('pt') || rawTrailX.toLowerCase().includes('point')) extractedTrailUnitX = 'Pts';
-            rawTrailX = parseFloat(rawTrailX) || 0;
+            rawTrailX = parseFloat(rawTrailX) || '';
         }
 
         let rawTrailY = leg.trailY ?? leg.trailMoveY ?? leg.trailPointY ?? trailSlObj.y ?? trailSlObj.trailMoveY ?? trailSlObj.trailPointY ?? leg.trail_y ?? leg.stopLossMove ?? leg.stop_loss_move ?? leg.slMove ?? leg.sl_move ?? globalTrailY ?? '';
-        let extractedTrailUnitY = leg.trailUnitY ?? leg.trail_unit_y ?? leg.trailUnit ?? 'Pts';
+        let extractedTrailUnitY = leg.trailUnitY ?? leg.trail_unit_y ?? leg.trailUnit ?? '';
         if (typeof rawTrailY === 'string') {
             if (rawTrailY.includes('%')) extractedTrailUnitY = '%';
             else if (rawTrailY.toLowerCase().includes('pt') || rawTrailY.toLowerCase().includes('point')) extractedTrailUnitY = 'Pts';
-            rawTrailY = parseFloat(rawTrailY) || 0;
+            rawTrailY = parseFloat(rawTrailY) || '';
         }
 
-        console.log("🤖 AI JSON LEG DATA:", leg); 
+        let strictPosition = (leg.position || leg.action || '').toString().toUpperCase();
 
-        // 🚨 STRICT POSITION GUARDRAIL: Format Position to always be UPPERCASE to prevent Backend Fallback Bugs
-        let strictPosition = (leg.position || leg.action || 'BUY').toString().toUpperCase();
-        if (strictPosition !== 'BUY' && strictPosition !== 'SELL') {
-            strictPosition = 'BUY'; // Safe default for Options Buying
+        let resolvedExpiryType = leg.expiryType || leg.expiry_type || leg.expiry || '';
+        if (resolvedExpiryType) {
+            const expStr = resolvedExpiryType.toString().toUpperCase();
+            if (expStr.includes('NEXT') || expStr.includes('MONTH') || expStr.includes('FAR')) {
+              resolvedExpiryType = 'NEXT_WEEK';
+            } else if (expStr.includes('CURRENT')) {
+              resolvedExpiryType = 'CURRENT_WEEK';
+            }
         }
 
-        // 🚨 EXPIRY TYPE RESOLUTION (CURRENT_WEEK or NEXT_WEEK) 🚨
-        let resolvedExpiryType = leg.expiryType || leg.expiry_type || leg.expiry || 'CURRENT_WEEK';
-        const expStr = resolvedExpiryType.toString().toUpperCase();
-        if (expStr.includes('NEXT') || expStr.includes('MONTH') || expStr.includes('FAR')) {
-          resolvedExpiryType = 'NEXT_WEEK';
-        } else {
-          resolvedExpiryType = 'CURRENT_WEEK';
-        }
-
-        // 🚨 NEW UPDATE: Segment Validation for Nullifying Option Fields
-        const resolvedSegment = leg.segment || 'Options';
+        const resolvedSegment = leg.segment || inst.underlyingFrom || inst.segment || '';
         const isOptions = resolvedSegment.toUpperCase() === 'OPTIONS';
+
+        const currentAsset = finalTicker || leg.ticker || leg.asset || 'NIFTY';
+        const stepSize = INDEX_STEP_SIZES[currentAsset] || 50;
+
+        let resolvedDistance = leg.distance !== undefined ? leg.distance : (leg.strikeDistance !== undefined ? leg.strikeDistance : (leg.strike_distance !== undefined ? leg.strike_distance : '')); 
+        
+        if ((leg.strike_offset || leg.strikeOffset) && (resolvedDistance === '' || resolvedDistance === null)) {
+          resolvedDistance = Math.max(1, Math.round(Math.abs(leg.strike_offset || leg.strikeOffset) / stepSize));
+        } else if (resolvedDistance !== '' && resolvedDistance > 30) {
+          resolvedDistance = Math.max(1, Math.round(resolvedDistance / stepSize));
+        }
 
         return {
           id: leg.id || Date.now() + idx,
           ticker: finalTicker || leg.ticker || leg.asset || '', 
-          timeframe: leg.timeframe || inst.timeframe || '5m',
-          entryTime: leg.entryTime || leg.entry_time || resolvedEntryTime || '', 
-          exitTime: leg.exitTime || leg.exit_time || entry.exitTime || (isDynamicFlag ? 'Positional' : '15:15'),
+          timeframe: leg.timeframe || inst.timeframe || '',
+          entryTime: leg.entryTime || leg.entry_time || entry.entryTime || '', 
+          exitTime: leg.exitTime || leg.exit_time || entry.exitTime || '',
           
           segment: resolvedSegment,
           position: strictPosition,
+          lots: leg.lots !== undefined ? parseInt(leg.lots, 10) : '',
           
-          // 🚨 UPDATE: Parse Lots cleanly from AI / default
-          lots: parseInt(leg.lots, 10) || 1,
-          
-          // 🚨 FIXED: If Segment is NOT Options (e.g., Futures), don't set Option fields
-          optionType: isOptions ? (leg.optionType || leg.option_type || 'CE') : '', 
+          optionType: isOptions ? (leg.optionType || leg.option_type || '') : '', 
           expiry: isOptions ? resolvedExpiryType : '', 
           expiryType: isOptions ? resolvedExpiryType : '',
-          strikeCriteria: isOptions ? (leg.strikeCriteria || leg.strike_criteria || 'Strike Type') : '',
+          strikeCriteria: isOptions ? (leg.strikeCriteria || leg.strike_criteria || '') : '',
           targetPremium: isOptions ? (leg.targetPremium || leg.target_premium || leg.premium || '') : '',
           lowerPremium: isOptions ? (leg.lowerPremium || leg.lower_premium || '') : '',
           upperPremium: isOptions ? (leg.upperPremium || leg.upper_premium || '') : '',
-          strikeType: isOptions ? (leg.strikeType || leg.strike_type || 'ATM') : '',
           
-          // 🚨 UPDATE: Capture both strikeDistance and strike_offset perfectly
-          strikeDistance: isOptions ? (leg.strikeDistance || leg.strike_distance || leg.strike_offset || leg.strikeOffset || 0) : 0,
-          strike_offset: isOptions ? (leg.strike_offset || leg.strikeOffset || leg.strikeDistance || leg.strike_distance || 0) : 0,
+          strikeType: isOptions ? (leg.strikeType || leg.strike_type || '') : '',
+          strikeDistance: isOptions ? resolvedDistance : '',
+          strike_offset: 0, 
 
           stopLoss: rawSlVal, 
           target: rawTargetVal,
@@ -299,8 +288,8 @@ export const useAppLogic = () => {
           trailY: rawTrailY,
           trailUnitX: extractedTrailUnitX,
           trailUnitY: extractedTrailUnitY,
-          slReentry: leg.sl_reentry || leg.slReentry || 0,
-          targetReexecute: leg.target_reexecute || leg.targetReexecute || 0,
+          slReentry: leg.sl_reentry || leg.slReentry || '',
+          targetReexecute: leg.target_reexecute || leg.targetReexecute || '',
           waitForCandleClose: leg.wait_for_candle_close || leg.waitForCandleClose || false, 
           waitAndTrade: leg.wait_and_trade || leg.waitAndTrade || false,
           costToCost: leg.cost_to_cost || leg.costToCost || false,
@@ -319,7 +308,7 @@ export const useAppLogic = () => {
       id: Date.now(), ticker: ticker, timeframe: timeframe, entryTime: '', exitTime: '', 
       segment: 'Options', position: 'BUY', 
       lots: 1, optionType: 'CE', expiry: 'CURRENT_WEEK', expiryType: 'CURRENT_WEEK', strikeType: 'ATM', 
-      strikeDistance: 0, strike_offset: 0, // 🚨 Added strike_offset mapping here
+      strikeDistance: 0, strike_offset: 0, 
       stopLoss: '', target: '', slUnit: '%', targetUnit: '%', 
       trailX: 0, trailY: 0, trailUnitX: 'Pts', trailUnitY: 'Pts', 
       slReentry: 0, targetReexecute: 0, waitForCandleClose: false, waitAndTrade: false, costToCost: false, moveToStoploss: false 
@@ -377,18 +366,18 @@ export const useAppLogic = () => {
     setAiPrompt(data.aiPrompt || '');
     setAiExplanation(data.aiExplanation || 'Loaded from saved strategies.');
     setTicker(data.ticker || '');
-    setTimeframe(data.timeframe || '15m');
-    setUnderlyingFrom(data.underlyingFrom || 'Options');
-    setQty(data.qty || 150);
-    setTransactionType(data.transactionType || 'BUY');
-    setStrategyType(data.strategyType || 'Intraday');
-    setIsDynamic(data.isDynamic || false); // 🚨 NEW
-    setEntryTime(data.entryTime || '09:15');
-    setExitTime(data.exitTime || '15:15');
+    setTimeframe(data.timeframe || '');
+    setUnderlyingFrom(data.underlyingFrom || '');
+    setQty(data.qty || '');
+    setTransactionType(data.transactionType || '');
+    setStrategyType(data.strategyType || '');
+    setIsDynamic(data.isDynamic || false); 
+    setEntryTime(data.entryTime || '');
+    setExitTime(data.exitTime || '');
     setFromDate(data.fromDate || '');
     setToDate(data.toDate || '');
-    setTrailMoveX(data.trailMoveX || 0);
-    setTrailPointY(data.trailPointY || 0);
+    setTrailMoveX(data.trailMoveX || '');
+    setTrailPointY(data.trailPointY || '');
     setIndicators(data.indicators || []);
     setLegs(data.legs || []); 
 
@@ -419,7 +408,6 @@ export const useAppLogic = () => {
   const runBacktest = async () => {
     if (!isConfirmed) return; 
 
-    // ⚡ NEW: Fyers validation check before proceeding
     if (dataSource === 'fyers' && !isFyersConnected) {
       alert("⚠️ Fyers is not connected! Please click the 'Fyers Login' button at the top to connect your account before running live data backtests.");
       return;
@@ -454,17 +442,15 @@ export const useAppLogic = () => {
         entry_time: String(leg.entryTime).toLowerCase() === 'dynamic' ? 'dynamic' : leg.entryTime,
         exit_time: leg.exitTime,
         segment: leg.segment, 
-        position: (leg.position || leg.action || "BUY").toString().toUpperCase(), 
-        // 🚨 FIXED: Prevent passing Option Data for Futures payload to Backend
-        option_type: leg.segment.toUpperCase() === 'OPTIONS' ? (leg.option_type || leg.optionType || "CE").toString().toUpperCase() : '', 
-        strike_type: leg.segment.toUpperCase() === 'OPTIONS' ? (leg.strike_type || leg.strikeType || "ATM").toString().toUpperCase() : '', 
-        expiry: leg.segment.toUpperCase() === 'OPTIONS' ? (leg.expiry || leg.expiryType || 'CURRENT_WEEK') : '', 
-        expiry_type: leg.segment.toUpperCase() === 'OPTIONS' ? (leg.expiryType || leg.expiry || 'CURRENT_WEEK') : '', 
+        position: leg.position ? leg.position.toString().toUpperCase() : '', 
+        option_type: leg.segment && leg.segment.toUpperCase() === 'OPTIONS' ? (leg.option_type || leg.optionType || "").toString().toUpperCase() : '', 
+        strike_type: leg.segment && leg.segment.toUpperCase() === 'OPTIONS' ? (leg.strike_type || leg.strikeType || "").toString().toUpperCase() : '', 
+        expiry: leg.segment && leg.segment.toUpperCase() === 'OPTIONS' ? (leg.expiry || leg.expiryType || '') : '', 
+        expiry_type: leg.segment && leg.segment.toUpperCase() === 'OPTIONS' ? (leg.expiryType || leg.expiry || '') : '', 
         
-        // 🚨 UPDATE: Guarantee proper integer mapping for complex Dynamic Options Logic
         lots: parseInt(leg.lots, 10) || 1, 
-        strike_distance: leg.segment.toUpperCase() === 'OPTIONS' ? (parseInt(leg.strikeDistance || leg.strike_offset) || 0) : 0,
-        strike_offset: leg.segment.toUpperCase() === 'OPTIONS' ? (parseInt(leg.strike_offset || leg.strikeDistance || leg.strikeOffset) || 0) : 0,
+        strike_distance: leg.segment && leg.segment.toUpperCase() === 'OPTIONS' ? (parseInt(leg.strikeDistance || leg.strike_offset) || 0) : 0,
+        strike_offset: leg.segment && leg.segment.toUpperCase() === 'OPTIONS' ? (parseInt(leg.strike_offset || leg.strikeDistance || leg.strikeOffset) || 0) : 0,
         
         target: leg.target || 0, 
         target_unit: leg.target_unit || leg.targetUnit || '%', 
@@ -481,8 +467,8 @@ export const useAppLogic = () => {
 
     const payload = {
       user_id: user?.uid || "guest_123", 
-      data_source: dataSource,            // ⚡ NEW: Added data_source (s3 or fyers)
-      fyers_access_token: fyersToken,     // ⚡ NEW: Passed Fyers token to Backend Engine
+      data_source: dataSource,            
+      fyers_access_token: fyersToken,     
       strategy_text: aiPrompt, 
       is_dynamic: conditionBasedLoop, 
       timeframe: timeframe, 
@@ -501,7 +487,6 @@ export const useAppLogic = () => {
         body: JSON.stringify(payload),
       });
 
-      // 🔍 Detailed Error Debugging for Backend Response
       const responseText = await response.text();
       let data;
       try {
@@ -530,7 +515,6 @@ export const useAppLogic = () => {
     showStrategiesModal, setShowStrategiesModal, savedStrategies, isLoadingStrategies, modalTab, setModalTab,
     showPricingModal, setShowPricingModal, showProfileModal, setShowProfileModal,
     
-    // ⚡ NEW EXPORTS: Fyers & Data Source logic ⚡
     dataSource, setDataSource, isFyersConnected, setIsFyersConnected, handleFyersLogin,
 
     aiPrompt, setAiPrompt, isParsing, setIsParsing, aiMessage, setAiMessage,

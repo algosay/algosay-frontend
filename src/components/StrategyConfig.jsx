@@ -29,6 +29,16 @@ const normalizeSegment = (segment, optionType) => {
   return 'Options';
 };
 
+// 🎯 NEW: INDEX STEP SIZE LOOKUP FOR UI (Dynamic Points Calculation)
+const INDEX_STEP_SIZES = {
+  "NIFTY 50": 50,
+  "NIFTY": 50,
+  "BANKNIFTY": 100,
+  "FINNIFTY": 50,
+  "MIDCPNIFTY": 25,
+  "SENSEX": 100
+};
+
 const StrategyConfig = ({
   // ✨ SELLING CONFIGURATIONS
   sellTicker, setSellTicker, sellTimeframe, setSellTimeframe, sellUnderlyingFrom, setSellUnderlyingFrom,
@@ -218,6 +228,13 @@ const StrategyConfig = ({
               // 🚨 STANDARDIZED POSITION VALUE FOR DROPDOWN (UPPERCASE) 🚨
               const currentPosition = (leg.position || leg.action || 'BUY').toString().toUpperCase() === 'SELL' ? 'SELL' : 'BUY';
 
+              // 🎯 NEW: CALCULATE DYNAMIC POINTS FOR STRIKE DISTANCE
+              const currentAsset = leg.ticker || leg.asset || 'NIFTY';
+              const stepSize = INDEX_STEP_SIZES[currentAsset] || 50;
+              const currentDistance = leg.strikeDistance || leg.strike_distance || 1;
+              const calculatedPoints = currentDistance * stepSize;
+              const currentStrikeType = leg.strikeType || leg.strike_type || 'OTM';
+
               return (
                 <div key={leg.id || index} className="bg-[#121212] p-4 rounded-xl border border-[#333] relative hover:border-gray-800 transition-all flex flex-col justify-between shadow-inner">
                   <div>
@@ -232,7 +249,7 @@ const StrategyConfig = ({
                       <div className="col-span-2 grid grid-cols-2 gap-2 mb-2 pb-2 border-b border-[#222]">
                         <div>
                           <label className="block text-[9px] text-gray-500 uppercase tracking-wide mb-1">Asset</label>
-                          <select value={leg.ticker || leg.asset || 'NIFTY'} onChange={(e) => updateLeg(leg.id, 'ticker', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500">
+                          <select value={currentAsset} onChange={(e) => updateLeg(leg.id, 'ticker', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500">
                             <option value="NIFTY">NIFTY 50</option>
                             <option value="BANKNIFTY">BANKNIFTY</option>
                             <option value="FINNIFTY">FINNIFTY</option>
@@ -353,29 +370,37 @@ const StrategyConfig = ({
                                 </select>
                               </div>
 
-                              {/* Option 1: Legacy Strike Type & Distance */}
+                              {/* Option 1: Legacy Strike Type & Distance - 🚨 UPDATED DYNAMIC DISTANCE 1 TO 20 */}
                               {currentCriteria === 'Strike Type' && (
-                                <div className="w-full sm:w-1/2 flex gap-1">
+                                <div className="w-full sm:w-1/2 flex gap-1 items-start">
                                   <select 
-                                    value={leg.strikeType || leg.strike_type || 'ATM'} 
+                                    value={currentStrikeType} 
                                     onChange={(e) => updateLeg(leg.id, 'strikeType', e.target.value)} 
-                                    className={`${(leg.strikeType === 'OTM' || leg.strikeType === 'ITM') ? 'w-1/2' : 'w-full'} bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500`}
+                                    className={`${(currentStrikeType === 'OTM' || currentStrikeType === 'ITM') ? 'w-1/2' : 'w-full'} bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500`}
                                   >
                                     <option value="ATM">ATM</option>
                                     <option value="ITM">ITM</option>
                                     <option value="OTM">OTM</option>
                                   </select>
                                   
-                                  {(leg.strikeType === 'OTM' || leg.strikeType === 'ITM') && (
-                                    <select 
-                                      value={leg.strikeDistance || leg.strike_distance || 1} 
-                                      onChange={(e) => updateLeg(leg.id, 'strikeDistance', Number(e.target.value))} 
-                                      className="w-1/2 bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500"
-                                    >
-                                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
-                                        <option key={num} value={num}>{num}</option>
-                                      ))}
-                                    </select>
+                                  {(currentStrikeType === 'OTM' || currentStrikeType === 'ITM') && (
+                                    <div className="w-1/2 flex flex-col">
+                                      <select 
+                                        value={currentDistance} 
+                                        onChange={(e) => updateLeg(leg.id, 'strikeDistance', Number(e.target.value))} 
+                                        className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-[11px] text-gray-300 outline-none focus:border-blue-500"
+                                      >
+                                        {Array.from({ length: 20 }, (_, i) => i + 1).map((num) => (
+                                          <option key={num} value={num}>
+                                            {num} ({num * stepSize} Pts {currentStrikeType})
+                                          </option>
+                                        ))}
+                                      </select>
+                                      {/* 🎯 Dynamic Helper Text for Selected Strike */}
+                                      <span className="text-[9px] text-blue-400/80 font-medium mt-1 leading-tight block">
+                                        Target: ±{calculatedPoints} Pts from ATM
+                                      </span>
+                                    </div>
                                   )}
                                 </div>
                               )}
