@@ -345,10 +345,12 @@ const StrategyConfig = ({
                            <label className="flex text-[9px] text-gray-500 uppercase tracking-wide mb-2 items-center gap-1">
                               Select Strike Criteria <span className="text-gray-400 cursor-help" title="Select how to choose the strike price">ⓘ</span>
                             </label>
-                            <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
+                            
+                            {/* 🚨 UPDATED: PERFECTLY ALIGNED 3-BOX LAYOUT */}
+                            <div className="flex flex-col sm:flex-row gap-2 items-center w-full">
                               
-                              {/* Primary Selection Dropdown */}
-                              <div className="w-full sm:w-1/2">
+                              {/* Primary Selection Dropdown (Box 1) */}
+                              <div className="w-full flex-1">
                                 <select
                                   value={currentCriteria}
                                   onChange={(e) => {
@@ -370,44 +372,41 @@ const StrategyConfig = ({
                                 </select>
                               </div>
 
-                              {/* Option 1: Legacy Strike Type & Distance - 🚨 UPDATED DYNAMIC DISTANCE 1 TO 20 */}
+                              {/* Option 1: ATM/ITM/OTM Dropdown (Box 2) */}
                               {currentCriteria === 'Strike Type' && (
-                                <div className="w-full sm:w-1/2 flex gap-1 items-start">
+                                <div className="w-full flex-1">
                                   <select 
                                     value={currentStrikeType} 
                                     onChange={(e) => updateLeg(leg.id, 'strikeType', e.target.value)} 
-                                    className={`${(currentStrikeType === 'OTM' || currentStrikeType === 'ITM') ? 'w-1/2' : 'w-full'} bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500`}
+                                    className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500"
                                   >
                                     <option value="ATM">ATM</option>
                                     <option value="ITM">ITM</option>
                                     <option value="OTM">OTM</option>
                                   </select>
-                                  
-                                  {(currentStrikeType === 'OTM' || currentStrikeType === 'ITM') && (
-                                    <div className="w-1/2 flex flex-col">
-                                      <select 
-                                        value={currentDistance} 
-                                        onChange={(e) => updateLeg(leg.id, 'strikeDistance', Number(e.target.value))} 
-                                        className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-[11px] text-gray-300 outline-none focus:border-blue-500"
-                                      >
-                                        {Array.from({ length: 20 }, (_, i) => i + 1).map((num) => (
-                                          <option key={num} value={num}>
-                                            {num} ({num * stepSize} Pts {currentStrikeType})
-                                          </option>
-                                        ))}
-                                      </select>
-                                      {/* 🎯 Dynamic Helper Text for Selected Strike */}
-                                      <span className="text-[9px] text-blue-400/80 font-medium mt-1 leading-tight block">
-                                        Target: ±{calculatedPoints} Pts from ATM
-                                      </span>
-                                    </div>
-                                  )}
+                                </div>
+                              )}
+
+                              {/* Option 1: Distance Dropdown (Box 3 - Only visible for ITM/OTM) */}
+                              {currentCriteria === 'Strike Type' && (currentStrikeType === 'OTM' || currentStrikeType === 'ITM') && (
+                                <div className="w-full flex-1">
+                                  <select 
+                                    value={currentDistance} 
+                                    onChange={(e) => updateLeg(leg.id, 'strikeDistance', Number(e.target.value))} 
+                                    className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500"
+                                  >
+                                    {Array.from({ length: 20 }, (_, i) => i + 1).map((num) => (
+                                      <option key={num} value={num}>
+                                        {num} ({num * stepSize} Pts {currentStrikeType})
+                                      </option>
+                                    ))}
+                                  </select>
                                 </div>
                               )}
 
                               {/* Option 2: Closest Premium Target */}
                               {currentCriteria === 'Closest Premium' && (
-                                <div className="w-full sm:w-1/2 flex items-center gap-2">
+                                <div className="w-full flex-1 flex items-center gap-2">
                                   <label className="text-[10px] text-gray-400 font-medium">Premium</label>
                                   <input
                                     type="number"
@@ -425,7 +424,7 @@ const StrategyConfig = ({
 
                               {/* Option 3: Premium Range Match */}
                               {currentCriteria === 'Premium Range' && (
-                                <div className="w-full sm:w-1/2 flex items-center gap-2">
+                                <div className="w-full flex-1 flex items-center gap-2">
                                   <div className="flex items-center gap-1 w-1/2">
                                     <label className="text-[10px] text-gray-400 font-medium">Lower</label>
                                     <input
