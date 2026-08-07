@@ -36,7 +36,7 @@ const Icons = {
 };
 
 // Metadata Pill Component - Neon Glow Badges
-const MetadataPill = ({ text, color = 'blue' }) => {
+const MetadataPill = ({ text, color = 'orange' }) => {
   const colors = {
     blue: 'bg-blue-950/60 text-cyan-400 border border-cyan-500/40 shadow-[0_0_10px_rgba(6,182,212,0.2)]',
     green: 'bg-emerald-950/60 text-emerald-400 border border-emerald-500/40 shadow-[0_0_10px_rgba(16,185,129,0.2)]',
@@ -46,7 +46,7 @@ const MetadataPill = ({ text, color = 'blue' }) => {
     red: 'bg-rose-950/60 text-rose-400 border border-rose-500/40 shadow-[0_0_10px_rgba(244,63,94,0.2)]'
   };
   return (
-    <span className={`px-3 py-1 text-[11px] font-black rounded-full ${colors[color] || colors.blue} tracking-wider uppercase`}>
+    <span className={`px-3 py-1 text-[11px] font-black rounded-full ${colors[color] || colors.orange} tracking-wider uppercase whitespace-nowrap`}>
       {text}
     </span>
   );
@@ -471,10 +471,10 @@ const MyStrategiesModal = ({ isOpen, onClose, isLoading, strategies = [], onLoad
 
   const getPillColor = (tag) => {
     const colors = {
-      core_dir: 'green',
+      core_dir: 'orange',
       core_spreads: 'blue',
       core_ndir: 'purple',
-      core_adv: 'orange',
+      core_adv: 'yellow',
       time_dir: 'green',
       time_ndir: 'purple',
       ind_dir: 'blue',
@@ -482,7 +482,7 @@ const MyStrategiesModal = ({ isOpen, onClose, isLoading, strategies = [], onLoad
       pa: 'yellow',
       scalp: 'red'
     };
-    return colors[tag] || 'blue';
+    return colors[tag] || 'orange';
   };
 
   // Filter default strategies based on 10 segments
@@ -494,22 +494,22 @@ const MyStrategiesModal = ({ isOpen, onClose, isLoading, strategies = [], onLoad
   return (
     <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-[999] p-4 transition-all duration-300">
       
-      {/* Sleek Dark Neon Box Container */}
-      <div className="bg-[#05050a] border border-blue-500/20 rounded-3xl w-full max-w-5xl p-7 relative shadow-[0_0_50px_rgba(0,100,255,0.15)] animate-fade-in-up flex flex-col max-h-[90vh] mt-10">
+      {/* Sleek Dark Neon Box Container - Orange Theme */}
+      <div className="bg-[#05050a] border border-orange-500/20 rounded-3xl w-full max-w-6xl p-7 relative shadow-[0_0_50px_rgba(249,115,22,0.15)] animate-fade-in-up flex flex-col max-h-[90vh] mt-4">
         
         {/* Header - Neon Title */}
         <div className="flex justify-between items-center mb-5 pr-12 flex-shrink-0 border-b border-[#1e1e30] pb-4">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-[#0a0a14] rounded-2xl border border-blue-500/30 text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.3)]">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-[#0a0a14] rounded-2xl border border-orange-500/30 text-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.3)]">
               <Icons.Strategy />
             </div>
             <div>
               <h2 className="text-2xl font-black tracking-wide">
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-400 to-purple-500">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-amber-400 to-rose-500">
                   Trading Strategies & Segments
                 </span>
               </h2>
-              <p className="text-xs text-cyan-400/70 mt-1 font-semibold">
+              <p className="text-xs text-amber-400/70 mt-1 font-semibold">
                 Explore 50 Intraday Pure backtestable setups categorized across 10 distinct market segments.
               </p>
             </div>
@@ -523,14 +523,14 @@ const MyStrategiesModal = ({ isOpen, onClose, isLoading, strategies = [], onLoad
           </button>
         </div>
 
-        {/* Main Tabs - Glowing Neon Buttons */}
+        {/* Main Tabs - Glowing Neon Orange Buttons */}
         <div className="flex p-1.5 bg-[#0a0a14] rounded-xl border border-[#1e1e30] mb-5 flex-shrink-0 gap-2">
           <button 
             type="button"
             onClick={() => setActiveTab('my_strategies')}
             className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-xs font-black tracking-wider uppercase transition-all duration-300 cursor-pointer ${
               activeTab === 'my_strategies' 
-                ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-[0_0_20px_rgba(6,182,212,0.4)] border border-cyan-400' 
+                ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-[0_0_20px_rgba(249,115,22,0.4)] border border-amber-400' 
                 : 'text-gray-400 hover:text-white hover:bg-[#121222]'
             }`}
           >
@@ -542,7 +542,7 @@ const MyStrategiesModal = ({ isOpen, onClose, isLoading, strategies = [], onLoad
             onClick={() => setActiveTab('default_strategies')}
             className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-xs font-black tracking-wider uppercase transition-all duration-300 cursor-pointer ${
               activeTab === 'default_strategies' 
-                ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-[0_0_20px_rgba(6,182,212,0.4)] border border-cyan-400' 
+                ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-[0_0_20px_rgba(249,115,22,0.4)] border border-amber-400' 
                 : 'text-gray-400 hover:text-white hover:bg-[#121222]'
             }`}
           >
@@ -553,7 +553,7 @@ const MyStrategiesModal = ({ isOpen, onClose, isLoading, strategies = [], onLoad
 
         {/* 10 Sub-Segments (Only visible under Default Templates) */}
         {activeTab === 'default_strategies' && (
-          <div className="flex items-center gap-2 overflow-x-auto pb-3 mb-4 scrollbar-thin scrollbar-thumb-blue-600 flex-shrink-0">
+          <div className="flex items-center gap-2 overflow-x-auto pb-3 mb-4 scrollbar-thin scrollbar-thumb-orange-600 flex-shrink-0">
             {[
               { id: 'all', label: 'All (50)' },
               { id: 'core_dir', label: 'Core Directional' },
@@ -573,8 +573,8 @@ const MyStrategiesModal = ({ isOpen, onClose, isLoading, strategies = [], onLoad
                 onClick={() => setSegmentFilter(seg.id)}
                 className={`px-4 py-1.5 rounded-full text-xs font-black tracking-wider uppercase whitespace-nowrap transition-all cursor-pointer ${
                   segmentFilter === seg.id
-                    ? 'bg-cyan-500 text-black shadow-[0_0_15px_rgba(6,182,212,0.8)] font-bold'
-                    : 'bg-[#0c0c16] text-gray-400 border border-[#1e1e30] hover:border-cyan-500/50 hover:text-white'
+                    ? 'bg-amber-500 text-black shadow-[0_0_15px_rgba(245,158,11,0.8)] font-bold'
+                    : 'bg-[#0c0c16] text-gray-400 border border-[#1e1e30] hover:border-orange-500/50 hover:text-white'
                 }`}
               >
                 {seg.label}
@@ -583,19 +583,19 @@ const MyStrategiesModal = ({ isOpen, onClose, isLoading, strategies = [], onLoad
           </div>
         )}
         
-        {/* Content Area */}
-        <div className="overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-blue-600/40 flex-1">
+        {/* Content Area - Changed to Grid Layout for Square/Card look */}
+        <div className="overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-orange-600/40 flex-1">
           
           {activeTab === 'my_strategies' && (
             <>
               {isLoading ? (
                 <div className="text-center p-12 bg-[#0c0c16] rounded-2xl border border-[#1e1e30]">
-                  <div className="animate-spin h-10 w-10 border-4 border-cyan-400 border-t-transparent rounded-full mx-auto mb-4 shadow-[0_0_15px_rgba(6,182,212,0.6)]"></div>
-                  <p className="text-cyan-400/80 font-bold">Syncing with your database...</p>
+                  <div className="animate-spin h-10 w-10 border-4 border-orange-400 border-t-transparent rounded-full mx-auto mb-4 shadow-[0_0_15px_rgba(249,115,22,0.6)]"></div>
+                  <p className="text-orange-400/80 font-bold">Syncing with your database...</p>
                 </div>
               ) : !strategies || strategies.length === 0 ? (
                 <div className="text-center p-12 bg-[#0c0c16] rounded-2xl border border-[#1e1e30]">
-                  <div className="p-4 bg-[#121222] rounded-full border border-blue-500/30 text-cyan-400 inline-block mb-4 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+                  <div className="p-4 bg-[#121222] rounded-full border border-orange-500/30 text-orange-400 inline-block mb-4 shadow-[0_0_15px_rgba(249,115,22,0.2)]">
                     <Icons.Strategy />
                   </div>
                   <p className="text-gray-300 font-bold text-lg">No Strategies Found</p>
@@ -604,50 +604,54 @@ const MyStrategiesModal = ({ isOpen, onClose, isLoading, strategies = [], onLoad
                   </p>
                 </div>
               ) : (
-                <div className="space-y-4">
+                // 🚀 UPDATE: Changed to Grid layout (1 col mobile, 2 tablet, 3 laptop)
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                   {strategies.map(strat => (
+                    // 🚀 UPDATE: Changed to Flex Column to create Square Cards
                     <div 
                       key={strat.id} 
-                      className="bg-[#0c0c16] p-5 rounded-2xl flex justify-between items-start border border-[#1e1e30] hover:border-cyan-500 hover:shadow-[0_0_20px_rgba(6,182,212,0.25)] transition-all duration-300 group"
+                      className="bg-[#0c0c16] p-5 rounded-2xl flex flex-col h-full border border-[#1e1e30] hover:border-orange-500 hover:shadow-[0_0_25px_rgba(249,115,22,0.25)] hover:-translate-y-1 transition-all duration-300 group"
                     >
-                      <div className="flex-1 pr-4">
-                        <div className="flex items-center gap-3">
-                          <h3 className="font-extrabold text-lg text-white group-hover:text-cyan-300 transition-colors">
-                            {strat.name}
-                          </h3>
-                        </div>
-                        <p className="text-xs text-gray-400 mt-2 font-medium leading-relaxed bg-[#05050a] p-3 rounded-xl border border-[#1a1a2e]">
-                          {strat.prompt || strat.concept || strat.description || strat.text}
-                        </p>
-                        <div className="flex items-center gap-4 text-xs text-cyan-500/70 mt-3 font-semibold">
-                          <span className="flex items-center gap-1.5">
-                            <Icons.Calendar />
-                            Saved on: {strat.createdAt ? new Date((strat.createdAt.seconds || strat.createdAt) * 1000).toLocaleDateString() : 'Just now'}
-                          </span>
-                        </div>
+                      <div className="flex justify-between items-start mb-3">
+                        <h3 className="font-extrabold text-lg text-white group-hover:text-amber-400 transition-colors line-clamp-1">
+                          {strat.name}
+                        </h3>
+                      </div>
+                      
+                      {/* Text area grows to push buttons to the bottom */}
+                      <p className="text-xs text-gray-400 font-medium leading-relaxed bg-[#05050a] p-3 rounded-xl border border-[#1a1a2e] flex-1">
+                        <span className="line-clamp-4">{strat.prompt || strat.concept || strat.description || strat.text}</span>
+                      </p>
+                      
+                      <div className="flex items-center gap-2 text-[10px] text-amber-500/70 mt-3 mb-4 font-semibold">
+                        <Icons.Calendar />
+                        Saved on: {strat.createdAt ? new Date((strat.createdAt.seconds || strat.createdAt) * 1000).toLocaleDateString() : 'Just now'}
                       </div>
 
-                      <div className="flex items-center gap-2">
-                        <button 
-                          type="button"
-                          onClick={(e) => handleEditStrategy(e, strat)}
-                          className="p-2.5 rounded-xl text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 transition-all cursor-pointer shadow-[0_0_10px_rgba(245,158,11,0.2)]"
-                          title="Edit Strategy"
-                        >
-                          <Icons.Edit />
-                        </button>
-                        <button 
-                          type="button"
-                          onClick={(e) => handleDeleteStrategy(e, strat)}
-                          className="p-2.5 rounded-xl text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 transition-all cursor-pointer shadow-[0_0_10px_rgba(244,63,94,0.2)]"
-                          title="Delete Strategy"
-                        >
-                          <Icons.Delete />
-                        </button>
+                      {/* Buttons strictly at bottom */}
+                      <div className="mt-auto flex items-center justify-between gap-2 pt-2 border-t border-[#1e1e30]">
+                        <div className="flex gap-2">
+                          <button 
+                            type="button"
+                            onClick={(e) => handleEditStrategy(e, strat)}
+                            className="p-2.5 rounded-xl text-yellow-400 bg-yellow-500/10 hover:bg-yellow-500/20 border border-yellow-500/30 transition-all cursor-pointer shadow-[0_0_10px_rgba(234,179,8,0.2)]"
+                            title="Edit Strategy"
+                          >
+                            <Icons.Edit />
+                          </button>
+                          <button 
+                            type="button"
+                            onClick={(e) => handleDeleteStrategy(e, strat)}
+                            className="p-2.5 rounded-xl text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 transition-all cursor-pointer shadow-[0_0_10px_rgba(244,63,94,0.2)]"
+                            title="Delete Strategy"
+                          >
+                            <Icons.Delete />
+                          </button>
+                        </div>
                         <button 
                           type="button"
                           onClick={(e) => handleLoadStrategy(e, strat)} 
-                          className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-600 text-white text-xs font-black rounded-full transition-all hover:shadow-[0_0_20px_rgba(6,182,212,0.6)] active:scale-95 cursor-pointer uppercase tracking-wider"
+                          className="flex items-center justify-center flex-1 gap-2 py-2.5 bg-gradient-to-r from-orange-600 to-amber-500 text-white text-xs font-black rounded-xl transition-all hover:shadow-[0_0_20px_rgba(249,115,22,0.6)] active:scale-95 cursor-pointer uppercase tracking-wider"
                         >
                           <Icons.Load />
                           LOAD PLAN
@@ -661,22 +665,26 @@ const MyStrategiesModal = ({ isOpen, onClose, isLoading, strategies = [], onLoad
           )}
 
           {activeTab === 'default_strategies' && (
-            <div className="space-y-4">
+            // 🚀 UPDATE: Changed to Grid layout (1 col mobile, 2 tablet, 3 laptop)
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {filteredTemplates.length === 0 ? (
-                <div className="text-center p-12 bg-[#0c0c16] rounded-2xl border border-[#1e1e30]">
+                <div className="text-center p-12 bg-[#0c0c16] rounded-2xl border border-[#1e1e30] col-span-full">
                   <p className="text-gray-400 font-bold">No strategies found in this segment.</p>
                 </div>
               ) : (
                 filteredTemplates.map(strat => (
+                  // 🚀 UPDATE: Changed to Flex Column to create Square Cards
                   <div 
                     key={strat.id} 
-                    className="bg-[#0c0c16] p-5 rounded-2xl flex justify-between items-start border border-[#1e1e30] hover:border-emerald-500 hover:shadow-[0_0_20px_rgba(16,185,129,0.25)] transition-all duration-300 group"
+                    className="bg-[#0c0c16] p-5 rounded-2xl flex flex-col h-full border border-[#1e1e30] hover:border-amber-500 hover:shadow-[0_0_25px_rgba(245,158,11,0.25)] hover:-translate-y-1 transition-all duration-300 group"
                   >
-                    <div className="flex-1 pr-4">
-                      <div className="flex items-center gap-3">
-                        <h3 className="font-black text-lg text-white group-hover:text-emerald-400 transition-colors">
+                    <div className="flex flex-col gap-3 mb-3">
+                      <div className="flex justify-between items-start">
+                        <h3 className="font-black text-lg text-white group-hover:text-amber-400 transition-colors line-clamp-1 pr-2">
                           {strat.name}
                         </h3>
+                      </div>
+                      <div className="self-start">
                         <MetadataPill 
                           text={
                             strat.segmentTag === 'core_dir' ? 'CORE DIRECTIONAL' :
@@ -692,18 +700,19 @@ const MyStrategiesModal = ({ isOpen, onClose, isLoading, strategies = [], onLoad
                           color={getPillColor(strat.segmentTag)} 
                         />
                       </div>
-                      
-                      {/* Rich Detailed Strategy Prompt Text */}
-                      <p className="text-xs text-gray-300 mt-3 font-medium leading-relaxed bg-[#05050a] p-3 rounded-xl border border-[#1e1e30]">
-                        {strat.prompt}
-                      </p>
                     </div>
+                    
+                    {/* Rich Detailed Strategy Prompt Text - Flex 1 allows card to expand equally */}
+                    <p className="flex-1 text-xs text-gray-300 font-medium leading-relaxed bg-[#05050a] p-3 rounded-xl border border-[#1e1e30] mb-4">
+                      {strat.prompt}
+                    </p>
 
-                    <div className="flex items-center gap-2 pt-1">
+                    {/* Action Button rigidly at the bottom */}
+                    <div className="mt-auto pt-2 border-t border-[#1e1e30]">
                       <button 
                         type="button"
                         onClick={(e) => handleLoadStrategy(e, strat)} 
-                        className="flex items-center gap-2 px-5 py-2.5 bg-[#0a0a14] border border-emerald-500/50 text-emerald-400 hover:bg-emerald-500 hover:text-black text-xs font-black rounded-full transition-all hover:shadow-[0_0_20px_rgba(16,185,129,0.6)] active:scale-95 cursor-pointer uppercase tracking-wider"
+                        className="flex items-center justify-center w-full gap-2 py-3 bg-[#0a0a14] border border-amber-500/50 text-amber-500 hover:bg-amber-500 hover:text-black text-xs font-black rounded-xl transition-all hover:shadow-[0_0_20px_rgba(245,158,11,0.6)] active:scale-95 cursor-pointer uppercase tracking-wider"
                       >
                         <Icons.Load />
                         USE TEMPLATE
