@@ -654,7 +654,7 @@ const MyStrategiesModal = ({ isOpen, onClose, isLoading, strategies = [], onLoad
                         <button 
                           type="button"
                           onClick={(e) => handleLoadStrategy(e, strat)} 
-                          className="flex items-center justify-center flex-1 gap-2 py-3 px-4 bg-gradient-to-r from-orange-600 via-amber-500 to-orange-500 text-white text-xs font-black rounded-xl transition-all hover:shadow-[0_0_25px_rgba(249,115,22,0.6)] active:scale-95 cursor-pointer uppercase tracking-wider border border-amber-300/40"
+                          className="flex items-center justify-center flex-1 gap-2 py-3 px-4 bg-gradient-to-r from-blue-600 via-pink-500 to-blue-400 text-white text-xs font-black rounded-xl transition-all hover:shadow-[0_0_25px_rgba(249,115,22,0.6)] active:scale-95 cursor-pointer uppercase tracking-wider border border-amber-300/40"
                         >
                           <Icons.Load />
                           LOAD PLAN
