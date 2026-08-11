@@ -296,15 +296,11 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
     }
   };
 
-  // Safe fallback if the backtest is null or zero trades executed
+  // Safe fallback if the backtest is loading or no data is present
   if (!result || originalLedger.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 text-center bg-[#121212] border border-[#2d2d2d] rounded-lg mt-6 shadow-lg animate-fade-in w-full">
-        <div className="text-5xl mb-4">⚠️</div>
-        <h3 className="text-2xl font-bold text-gray-200 mb-2">No Trades Executed</h3>
-        <p className="text-gray-400 max-w-lg mx-auto leading-relaxed">
-          The backtest finished successfully, but zero trades were logged. This happens if market data files for the selected dates are missing, or if your specific entry conditions were never met. Check the AI logs for more details.
-        </p>
+      <div className="flex flex-col items-center justify-center p-12 mt-6 w-full animate-fade-in">
+        <DynamicTradeLoader />
       </div>
     );
   }
