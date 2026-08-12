@@ -391,7 +391,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
           </div>
         </div>
 
-        {/* RIGHT COLUMN: FRONT IMAGE + HORIZONTAL SCROLLING BOXES + CTA + STATS */}
+        {/* RIGHT COLUMN: FRONT IMAGE + CTA + STATS (Boxes removed from here) */}
         <div className="w-full lg:w-[54%] flex flex-col justify-between relative z-20 gap-4 h-full">
           
           {/* 💎 NEW PREMIUM IMAGE CONTAINER */}
@@ -423,51 +423,6 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
                </div>
             </div>
           </motion.div>
-
-          {/* 💎 NEW HORIZONTAL SCROLLING STEPS */}
-          <div className="relative w-full mt-2">
-            {/* Fade gradients for smooth scrolling visual effect */}
-            <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[#04060F] to-transparent z-20 pointer-events-none"></div>
-            <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#04060F] to-transparent z-20 pointer-events-none"></div>
-            
-            {/* Scroll Container */}
-            <motion.div 
-              variants={containerVariants} 
-              initial="hidden" 
-              whileInView="show" 
-              viewport={{ once: true, amount: 0.1 }} 
-              className="flex overflow-x-auto gap-4 pb-4 pt-1 px-4 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none'] cursor-grab active:cursor-grabbing relative z-10"
-            >
-              {stepsData.map((step, index) => (
-                <motion.div 
-                  key={index}
-                  variants={itemVariants} 
-                  whileHover={{ y: -6, scale: 1.02 }}
-                  className={`flex-none w-[260px] sm:w-[280px] snap-center relative overflow-hidden group flex flex-col p-5 rounded-2xl border transition-all duration-300 ${step.theme.cardBg} ${step.theme.borderHover}`}
-                >
-                  <div className={`absolute inset-0 bg-gradient-to-br to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none ${step.theme.gradientStart}`}></div>
-                  
-                  <div className="flex items-center justify-between mb-3 relative z-10">
-                    <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 border group-hover:scale-110 ${step.theme.iconText} ${step.theme.iconBorder} ${step.theme.hoverIconBg} bg-transparent`}>
-                      {React.cloneElement(step.icon, { size: 20 })}
-                    </div>
-                    <span className={`text-[10px] font-black tracking-[0.1em] ${step.theme.badgeText} bg-white/5 px-2.5 py-1 rounded-full border border-white/10 shadow-sm`}>
-                      STEP {step.num}
-                    </span>
-                  </div>
-                  
-                  <div className="relative z-10 flex flex-col flex-grow">
-                    <h4 className="text-[15px] font-bold text-white tracking-tight leading-tight group-hover:text-white transition-colors duration-300 mb-1.5">
-                      {step.title}
-                    </h4>
-                    <p className="text-[12px] text-slate-400 font-medium leading-[1.5] group-hover:text-slate-300 transition-colors duration-300 mt-auto">
-                      {step.desc}
-                    </p>
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
-          </div>
 
           {/* CTA CARD */}
           <motion.div 
@@ -534,6 +489,47 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
         </div>
       </div>
 
+      {/* 💎 INFINITE HORIZONTAL SCROLLING STEPS (Moved here & Animated smoothly) */}
+      <div className="relative w-full max-w-[1400px] mx-auto mt-24 overflow-hidden z-20 px-4">
+        {/* Gradients on the edges to fade out smoothly */}
+        <div className="absolute left-0 top-0 bottom-0 w-16 md:w-32 bg-gradient-to-r from-[#04060F] to-transparent z-20 pointer-events-none"></div>
+        <div className="absolute right-0 top-0 bottom-0 w-16 md:w-32 bg-gradient-to-l from-[#04060F] to-transparent z-20 pointer-events-none"></div>
+        
+        <motion.div 
+          className="flex gap-6 w-max"
+          animate={{ x: ["0%", "-50%"] }}
+          transition={{ ease: "linear", duration: 30, repeat: Infinity }}
+        >
+          {/* We duplicate the array to make the infinite scroll loop seamlessly without breaking */}
+          {[...stepsData, ...stepsData].map((step, index) => (
+            <div 
+              key={index}
+              className={`flex-none w-[300px] sm:w-[320px] relative overflow-hidden group flex flex-col p-5 rounded-2xl border transition-all duration-300 ${step.theme.cardBg} ${step.theme.borderHover}`}
+            >
+              <div className={`absolute inset-0 bg-gradient-to-br to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none ${step.theme.gradientStart}`}></div>
+              
+              <div className="flex items-center justify-between mb-3 relative z-10">
+                <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 border group-hover:scale-110 ${step.theme.iconText} ${step.theme.iconBorder} ${step.theme.hoverIconBg} bg-transparent`}>
+                  {React.cloneElement(step.icon, { size: 20 })}
+                </div>
+                <span className={`text-[10px] font-black tracking-[0.1em] ${step.theme.badgeText} bg-white/5 px-2.5 py-1 rounded-full border border-white/10 shadow-sm`}>
+                  STEP {step.num}
+                </span>
+              </div>
+              
+              <div className="relative z-10 flex flex-col flex-grow">
+                <h4 className="text-[15px] font-bold text-white tracking-tight leading-tight group-hover:text-white transition-colors duration-300 mb-1.5">
+                  {step.title}
+                </h4>
+                <p className="text-[12px] text-slate-400 font-medium leading-[1.5] group-hover:text-slate-300 transition-colors duration-300 mt-auto">
+                  {step.desc}
+                </p>
+              </div>
+            </div>
+          ))}
+        </motion.div>
+      </div>
+
       {/* 💎 ULTRA-PREMIUM MULTILINGUAL & AI DIAGNOSTICS INTERACTIVE SECTION (NEW) */}
       <motion.div 
         id="multilingual"
@@ -541,7 +537,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-100px" }}
         transition={{ duration: 0.7 }}
-        className="w-full max-w-[1400px] mx-auto mt-28 mb-16 relative z-20 scroll-mt-24"
+        className="w-full max-w-[1400px] mx-auto mt-12 mb-16 relative z-20 scroll-mt-24"
       >
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-[#00E5FF]/10 to-[#9D4EDD]/10 border border-[#00E5FF]/30 text-[#00E5FF] text-xs font-bold uppercase tracking-widest mb-4 shadow-[0_0_20px_rgba(0,229,255,0.2)]">
