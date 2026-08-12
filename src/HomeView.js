@@ -97,7 +97,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
       desc: "Explain your strategy in English, Tamil, Hindi, Malayalam, or Telugu. Our AI instantly translates your text into precision options legs, strikes, and execution rules.",
       icon: <Wand2 strokeWidth={2} size={24} />,
       theme: {
-        cardBg: "bg-[#0A0B14]/80 backdrop-blur-xl",
+        cardBg: "bg-[#0A0B14]/90 backdrop-blur-xl",
         borderHover: "border-[#1A2342] hover:border-[#0088FF] hover:shadow-[0_0_30px_rgba(0,136,255,0.2)]",
         iconText: "text-[#00BFFF]",
         iconBorder: "border-[#00BFFF]/30 shadow-[0_0_15px_rgba(0,191,255,0.4)]",
@@ -112,7 +112,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
       desc: "The moment your backtest completes, our AI analyzes turnover, hidden drawdown leaks & optimizes your trade sequence with multilingual support.",
       icon: <Activity strokeWidth={2} size={24} />,
       theme: {
-        cardBg: "bg-[#0A0B14]/80 backdrop-blur-xl",
+        cardBg: "bg-[#0A0B14]/90 backdrop-blur-xl",
         borderHover: "border-[#1A1A3A] hover:border-[#9D4EDD] hover:shadow-[0_0_30px_rgba(157,78,221,0.2)]",
         iconText: "text-[#B14EFF]",
         iconBorder: "border-[#B14EFF]/30 shadow-[0_0_15px_rgba(177,78,255,0.4)]",
@@ -127,7 +127,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
       desc: "Slice your data with precision using 0DTE & Day-wise filters. Includes detailed Ledger with PDF & CSV exports and AI Analyzer.",
       icon: <Filter strokeWidth={2} size={24} />,
       theme: {
-        cardBg: "bg-[#0A0B14]/80 backdrop-blur-xl",
+        cardBg: "bg-[#0A0B14]/90 backdrop-blur-xl",
         borderHover: "border-[#122A22] hover:border-[#00E676] hover:shadow-[0_0_30px_rgba(0,230,118,0.2)]",
         iconText: "text-[#00E676]",
         iconBorder: "border-[#00E676]/30 shadow-[0_0_15px_rgba(0,230,118,0.4)]",
@@ -142,7 +142,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
       desc: "Go beyond basic PnL. We provide Profit Factor, Sortino Ratio, Expectancy, Max Adverse Excursion, Edge Ratio, and 50+ advanced metrics.",
       icon: <BarChart3 strokeWidth={2} size={24} />,
       theme: {
-        cardBg: "bg-[#0A0B14]/80 backdrop-blur-xl",
+        cardBg: "bg-[#0A0B14]/90 backdrop-blur-xl",
         borderHover: "border-[#3A1818] hover:border-[#FF5252] hover:shadow-[0_0_30px_rgba(255,82,82,0.2)]",
         iconText: "text-[#FF5252]",
         iconBorder: "border-[#FF5252]/30 shadow-[0_0_15px_rgba(255,82,82,0.4)]",
@@ -308,9 +308,9 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
       </div>
 
       {/* MAIN CONTENT AREA (HERO) */}
-      <div id="hero" className="flex flex-col lg:flex-row justify-between items-stretch gap-12 lg:gap-20 flex-grow relative z-10 w-full max-w-[1400px] mx-auto min-h-min scroll-mt-24">
+      <div id="hero" className="flex flex-col lg:flex-row justify-between items-stretch gap-12 lg:gap-14 flex-grow relative z-10 w-full max-w-[1400px] mx-auto min-h-min scroll-mt-24">
         
-        <div className="w-full lg:w-[44%] flex flex-col pt-1 relative z-20">
+        <div className="w-full lg:w-[46%] flex flex-col pt-1 relative z-20">
           <h3 className="text-[12px] font-black text-transparent bg-clip-text bg-gradient-to-r from-[#4D7CFF] to-[#9D4EDD] uppercase tracking-[0.15em] mb-3 drop-shadow-sm">
             NEXT-GEN AI BACKTESTING FOR INDIAN TRADERS
           </h3>
@@ -391,38 +391,83 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
           </div>
         </div>
 
-        {/* RIGHT COLUMN: 4 NEON BOXES + UNIQUE CTA BUTTON + STATS */}
-        <div className="w-full lg:w-[50%] flex flex-col justify-between relative z-20 gap-4 h-full">
-          <motion.div variants={containerVariants} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.1 }} className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
-            {stepsData.map((step, index) => (
-              <motion.div 
-                key={index}
-                variants={itemVariants} 
-                whileHover={{ y: -4, scale: 1.02 }}
-                className={`relative overflow-hidden group flex flex-col p-5 rounded-2xl border transition-all duration-300 cursor-default h-full ${step.theme.cardBg} ${step.theme.borderHover}`}
-              >
-                <div className={`absolute inset-0 bg-gradient-to-br to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none ${step.theme.gradientStart}`}></div>
-                
-                <div className="flex items-center justify-between mb-3 relative z-10">
-                  <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 border group-hover:scale-110 ${step.theme.iconText} ${step.theme.iconBorder} ${step.theme.hoverIconBg} bg-transparent`}>
-                    {React.cloneElement(step.icon, { size: 20 })}
-                  </div>
-                  <span className={`text-[10px] font-black tracking-[0.1em] ${step.theme.badgeText} bg-white/5 px-2.5 py-1 rounded-full border border-white/10`}>
-                    STEP {step.num}
-                  </span>
-                </div>
-                
-                <div className="relative z-10 flex flex-col flex-grow">
-                  <h4 className="text-[16px] font-bold text-white tracking-tight leading-tight group-hover:text-white transition-colors duration-300 mb-1.5">
-                    {step.title}
-                  </h4>
-                  <p className="text-[12px] text-slate-400 font-medium leading-[1.5] group-hover:text-slate-300 transition-colors duration-300 mt-auto">
-                    {step.desc}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
+        {/* RIGHT COLUMN: FRONT IMAGE + HORIZONTAL SCROLLING BOXES + CTA + STATS */}
+        <div className="w-full lg:w-[54%] flex flex-col justify-between relative z-20 gap-4 h-full">
+          
+          {/* 💎 NEW PREMIUM IMAGE CONTAINER */}
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+            className="relative w-full rounded-3xl overflow-hidden shadow-[0_0_40px_rgba(0,136,255,0.15)] border border-white/10 group bg-[#0A0C14] mt-2"
+          >
+            <div className="absolute inset-0 bg-gradient-to-t from-[#04060F] via-transparent to-transparent z-10 pointer-events-none"></div>
+            
+            {/* Glow behind image to make it pop */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-[#00E5FF]/20 blur-[80px] rounded-full -z-0"></div>
+
+            <motion.img
+              whileHover={{ scale: 1.03 }}
+              transition={{ duration: 0.6 }}
+              src="/image/front-image.png" 
+              alt="Algosay Trader View"
+              className="w-full h-auto object-cover max-h-[300px] lg:max-h-[340px] rounded-3xl relative z-0"
+              onError={(e) => { e.target.src = "/image/Front Image.png" }}
+            />
+            
+            {/* Overlay Badges */}
+            <div className="absolute bottom-5 left-5 z-20 flex flex-col gap-2">
+               <div className="flex items-center gap-2 bg-black/70 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 w-fit shadow-lg">
+                 <span className="w-2.5 h-2.5 rounded-full bg-[#00E5FF] animate-pulse shadow-[0_0_10px_#00E5FF]"></span>
+                 <span className="text-[11px] font-black text-white tracking-widest uppercase">Live Workspace</span>
+               </div>
+            </div>
           </motion.div>
+
+          {/* 💎 NEW HORIZONTAL SCROLLING STEPS */}
+          <div className="relative w-full mt-2">
+            {/* Fade gradients for smooth scrolling visual effect */}
+            <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[#04060F] to-transparent z-20 pointer-events-none"></div>
+            <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#04060F] to-transparent z-20 pointer-events-none"></div>
+            
+            {/* Scroll Container */}
+            <motion.div 
+              variants={containerVariants} 
+              initial="hidden" 
+              whileInView="show" 
+              viewport={{ once: true, amount: 0.1 }} 
+              className="flex overflow-x-auto gap-4 pb-4 pt-1 px-4 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none'] cursor-grab active:cursor-grabbing relative z-10"
+            >
+              {stepsData.map((step, index) => (
+                <motion.div 
+                  key={index}
+                  variants={itemVariants} 
+                  whileHover={{ y: -6, scale: 1.02 }}
+                  className={`flex-none w-[260px] sm:w-[280px] snap-center relative overflow-hidden group flex flex-col p-5 rounded-2xl border transition-all duration-300 ${step.theme.cardBg} ${step.theme.borderHover}`}
+                >
+                  <div className={`absolute inset-0 bg-gradient-to-br to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none ${step.theme.gradientStart}`}></div>
+                  
+                  <div className="flex items-center justify-between mb-3 relative z-10">
+                    <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 border group-hover:scale-110 ${step.theme.iconText} ${step.theme.iconBorder} ${step.theme.hoverIconBg} bg-transparent`}>
+                      {React.cloneElement(step.icon, { size: 20 })}
+                    </div>
+                    <span className={`text-[10px] font-black tracking-[0.1em] ${step.theme.badgeText} bg-white/5 px-2.5 py-1 rounded-full border border-white/10 shadow-sm`}>
+                      STEP {step.num}
+                    </span>
+                  </div>
+                  
+                  <div className="relative z-10 flex flex-col flex-grow">
+                    <h4 className="text-[15px] font-bold text-white tracking-tight leading-tight group-hover:text-white transition-colors duration-300 mb-1.5">
+                      {step.title}
+                    </h4>
+                    <p className="text-[12px] text-slate-400 font-medium leading-[1.5] group-hover:text-slate-300 transition-colors duration-300 mt-auto">
+                      {step.desc}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
 
           {/* CTA CARD */}
           <motion.div 
@@ -430,7 +475,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.5 }}
             onClick={() => onNavigate(true)}
-            className="w-full relative group cursor-pointer overflow-hidden rounded-2xl p-[2px] mt-3 lg:mt-6 bg-gradient-to-r from-[#00E5FF] via-[#7928CA] to-[#FF007A] shadow-[0_0_30px_rgba(0,229,255,0.25)] hover:shadow-[0_0_50px_rgba(121,40,202,0.45)] transition-all duration-500 hover:-translate-y-1"
+            className="w-full relative group cursor-pointer overflow-hidden rounded-2xl p-[2px] mt-2 bg-gradient-to-r from-[#00E5FF] via-[#7928CA] to-[#FF007A] shadow-[0_0_30px_rgba(0,229,255,0.25)] hover:shadow-[0_0_50px_rgba(121,40,202,0.45)] transition-all duration-500 hover:-translate-y-1"
           >
             <div className="bg-[#0A0C14] hover:bg-[#0E111F] rounded-[14px] p-4 sm:p-5 flex items-center justify-between transition-colors duration-300 relative overflow-hidden">
               <div className="absolute -top-12 -right-12 w-36 h-36 bg-[#00E5FF]/20 rounded-full blur-2xl group-hover:bg-[#00E5FF]/35 transition-all duration-500"></div>
@@ -468,7 +513,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
           </motion.div>
 
           {/* STATS SECTION */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 w-full backdrop-blur-sm bg-black/10 p-4 rounded-2xl border border-white/5 mt-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 w-full backdrop-blur-sm bg-black/20 p-4 rounded-2xl border border-white/5 mt-auto">
              <div className="flex items-center gap-2.5">
                 <div className="p-1.5 rounded-lg bg-[#9D4EDD]/10 border border-[#9D4EDD]/30 text-[#9D4EDD] shadow-[0_0_15px_rgba(157,78,221,0.2)]"><Rocket size={20} /></div>
                 <div><h4 className="text-[17px] font-bold text-white tracking-tight leading-none mb-0.5">2.5M+</h4><p className="text-[9px] text-slate-400 uppercase tracking-wider font-semibold">Backtests Run</p></div>
