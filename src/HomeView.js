@@ -460,7 +460,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.7, ease: "easeOut" }}
-            className="relative w-full rounded-3xl overflow-hidden shadow-[0_0_40px_rgba(0,136,255,0.15)] border border-white/10 group bg-[#0A0C14] mt-2 md:mt-4 flex items-center justify-center flex-grow"
+            className="relative w-full rounded-3xl overflow-hidden shadow-[0_0_40px_rgba(0,136,255,0.15)] border border-white/10 group bg-[#0A0C14] mt-4 md:mt-6 flex items-center justify-center flex-grow"
           >
             <div className="absolute inset-0 bg-gradient-to-t from-[#04060F] via-transparent to-transparent z-10 pointer-events-none"></div>
             
@@ -471,7 +471,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
               transition={{ duration: 0.6 }}
               src="/image/front-image.png" 
               alt="Algosay Trader View"
-              className="w-full h-full object-contain max-h-[350px] relative z-0 p-4"
+              className="w-full h-full object-contain max-h-[380px] relative z-0 p-3"
               onError={(e) => { e.target.src = "/image/Front Image.png" }}
             />
             
@@ -479,7 +479,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
             <div className="absolute bottom-5 left-5 z-20 flex flex-col gap-2">
                <div className="flex items-center gap-2 bg-black/70 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 w-fit shadow-lg hover:border-[#00E5FF]/50 transition-colors">
                  <span className="w-2.5 h-2.5 rounded-full bg-[#00E5FF] animate-pulse shadow-[0_0_10px_#00E5FF]"></span>
-                 <span className="text-[11px] font-black text-white tracking-widest uppercase">Live Workspace</span>
+                 <span className="text-[11px] font-black text-white tracking-widest uppercase">Algosay Engine</span>
                </div>
             </div>
           </motion.div>
