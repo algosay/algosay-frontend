@@ -12,59 +12,6 @@ import DayWiseBreakup from './DayWiseBreakup';
 
 const allDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
-// ✨ PUDHU UPDATE: Dynamic Loading Component with all your Trading/Psychology/Market Facts
-const DynamicTradeLoader = () => {
-  const messages = [
-    "Your trades are currently running... Please wait, results will be displayed shortly! 🚀",
-    "The 90/90/90 Rule: 90% of new traders lose 90% of their money within 90 days due to poor emotional discipline.",
-    "Loss Aversion: The mental pain of losing $100 feels twice as intense as the joy of winning $100.",
-    "Patience is Key: Professional traders spend 80% of their time waiting for the right setup and only 20% actually executing trades.",
-    "Revenge Trading: Trying to quickly win back money right after a losing trade is the fastest way to blow up an account.",
-    "The FOMO Trap: Buying a stock solely because it is rapidly skyrocketing usually means buying right at the top.",
-    "Sitting on Hands: Taking zero trades on a high-volatility, chaotic day is often the most profitable decision you can make.",
-    "Banyan Tree Beginnings: India's stock trading started in 1875 under a Banyan tree in Mumbai with just five brokers.",
-    "World's Fastest: The Bombay Stock Exchange (BSE) executes trades in just 6 microseconds, making it the fastest exchange globally.",
-    "The BSE Bull: The iconic bronze bull standing outside the BSE building weighs over 1,500 kg.",
-    "Corporate Giants: Reliance Industries' market cap alone exceeds the entire GDP of several small nations.",
-    "Algorithm Dominated: Over 50% of the total daily trading volume on Indian exchanges is driven by automated trading bots.",
-    "Muhurat Trading: India is the only market in the world with a special 1-hour festive trading session during Diwali.",
-    "Zero Financial Risk: Test your ideas against 10 years of historical market data without risking a single rupee.",
-    "Unshakeable Confidence: Knowing your strategy worked 70% of the time in the past removes fear during live trading.",
-    "Emotion-Free Execution: Replaces guesswork and hope with exact rules backed by hard statistical probability.",
-    "Know Your Worst-Case: Reveals your maximum drawdown (worst loss streak) so market dips never surprise you.",
-    "Lightning Speed: Automated backtesting allows you to validate 5 years of trades in less than 5 minutes.",
-    "Strategy Optimization: Helps you tweak entry rules and stop-loss targets to maximize profits before placing real money."
-  ];
-
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  useEffect(() => {
-    // Change the message every 4 seconds
-    const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % messages.length);
-    }, 4000);
-
-    return () => clearInterval(interval);
-  }, [messages.length]);
-
-  return (
-    <div className="flex flex-col items-center justify-center p-6 bg-[#1a1a1a] border border-[#2d2d2d] shadow-2xl rounded-xl max-w-lg w-full">
-      {/* Simple Loading Spinner */}
-      <div className="mb-5">
-        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-      
-      {/* Dynamic Text with fade effect */}
-      <div className="h-20 flex items-center justify-center w-full">
-        <p className="text-gray-300 w-full text-center animate-pulse duration-1000 text-sm font-medium px-2 leading-relaxed">
-          {messages[currentIndex]}
-        </p>
-      </div>
-    </div>
-  );
-};
-
-
 const ResultsDashboard = ({ result, withTax, setWithTax }) => {
   const [aiAdvice, setAiAdvice] = useState(result?.ai_advice || null);
   const [isLoadingAI, setIsLoadingAI] = useState(false);
@@ -296,11 +243,15 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
     }
   };
 
-  // Safe fallback if the backtest is loading or no data is present
+  // Safe fallback if the backtest is null or zero trades executed
   if (!result || originalLedger.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 mt-6 w-full animate-fade-in">
-        <DynamicTradeLoader />
+      <div className="flex flex-col items-center justify-center p-12 text-center bg-[#121212] border border-[#2d2d2d] rounded-lg mt-6 shadow-lg animate-fade-in w-full">
+        <div className="text-5xl mb-4">⚠️</div>
+        <h3 className="text-2xl font-bold text-gray-200 mb-2">No Trades Executed</h3>
+        <p className="text-gray-400 max-w-lg mx-auto leading-relaxed">
+          The backtest finished successfully, but zero trades were logged. This happens if market data files for the selected dates are missing, or if your specific entry conditions were never met. Check the AI logs for more details.
+        </p>
       </div>
     );
   }
@@ -428,101 +379,89 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
         </div>
       </div>
 
-      {/* ✨ PUDHU UPDATE: Recalculating Dim Overlay and Dynamic Trade Loader Wrapping */}
-      <div className="relative">
-        
-        {/* Dynamic Trade Loader - Visually centered when recalculating */}
-        {isRecalculating && (
-          <div className="absolute inset-0 z-50 flex justify-center bg-[#121212]/60 backdrop-blur-sm rounded-lg pt-24" style={{ minHeight: '600px' }}>
-            <div className="sticky top-1/4">
-               <DynamicTradeLoader />
-            </div>
-          </div>
-        )}
+      {/* Recalculating Dim Overlay and Safe Data Binding */}
+      <div className={`transition-opacity duration-300 ${isRecalculating ? 'opacity-40 pointer-events-none' : 'opacity-100'}`}>
+        <PerformanceStats result={activeResult} withTax={withTax} />
+        <TaxBreakdown result={activeResult} />
 
-        <div className={`transition-opacity duration-300 ${isRecalculating ? 'opacity-20 pointer-events-none' : 'opacity-100'}`}>
-          <PerformanceStats result={activeResult} withTax={withTax} />
-          <TaxBreakdown result={activeResult} />
-
-          {/* ✨ UPDATED AI DIAGNOSTICS SECTION */}
-          <div className="mt-6 mb-6 p-5 bg-[#121212] border border-[#2d2d2d] rounded-lg shadow-lg">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
-              <h3 className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500 flex items-center gap-2">
-                <span className="text-xl">✨</span> AI Strategy Diagnostics
-              </h3>
-              
-              {/* Language Selector Tabs */}
-              <div className="flex items-center gap-2 bg-[#1e1e1e] p-1 rounded-lg border border-[#3d3d3d]" data-html2canvas-ignore="true">
-                {['English', 'Tamil', 'Hindi'].map(lang => (
-                  <button
-                    key={lang}
-                    onClick={() => setAiLanguage(lang)}
-                    className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${
-                      aiLanguage === lang 
-                        ? 'bg-purple-600/20 text-purple-400 border border-purple-500/50' 
-                        : 'text-gray-400 hover:text-gray-200 border border-transparent'
-                    }`}
-                  >
-                    {lang}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Custom Prompt Input Area */}
-            <div className="mb-4 bg-[#1e1e1e] p-3 rounded-lg border border-[#3d3d3d]" data-html2canvas-ignore="true">
-              <textarea
-                value={customPrompt}
-                onChange={(e) => setCustomPrompt(e.target.value)}
-                placeholder="Clicking the Ask AI button will instantly generate a comprehensive, detailed backtest analysis report with deep insights for your strategy"
-                className="w-full bg-transparent text-gray-300 text-sm focus:outline-none resize-none placeholder-gray-600 mb-2"
-                rows="2"
-              />
-              <div className="flex justify-end border-t border-[#2d2d2d] pt-2 mt-1">
-                <button 
-                  onClick={fetchAIInsights}
-                  disabled={isLoadingAI}
-                  className="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-md transition-colors shadow-lg disabled:opacity-50"
+        {/* ✨ UPDATED AI DIAGNOSTICS SECTION */}
+        <div className="mt-6 mb-6 p-5 bg-[#121212] border border-[#2d2d2d] rounded-lg shadow-lg">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
+            <h3 className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500 flex items-center gap-2">
+              <span className="text-xl">✨</span> AI Strategy Diagnostics
+            </h3>
+            
+            {/* Language Selector Tabs */}
+            <div className="flex items-center gap-2 bg-[#1e1e1e] p-1 rounded-lg border border-[#3d3d3d]" data-html2canvas-ignore="true">
+              {['English', 'Tamil', 'Hindi'].map(lang => (
+                <button
+                  key={lang}
+                  onClick={() => setAiLanguage(lang)}
+                  className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${
+                    aiLanguage === lang 
+                      ? 'bg-purple-600/20 text-purple-400 border border-purple-500/50' 
+                      : 'text-gray-400 hover:text-gray-200 border border-transparent'
+                  }`}
                 >
-                  {isLoadingAI ? '⏳ Analyzing Strategy...' : (aiAdvice ? '🔄 Regenerate Analysis' : '🧠 Ask AI')}
+                  {lang}
                 </button>
-              </div>
+              ))}
             </div>
-
-            {aiAdvice && (
-              <div className="p-5 bg-gradient-to-br from-[#1e1e1e] to-[#1a1a1a] border border-[#3d3d3d] rounded-lg text-gray-300 text-sm whitespace-pre-wrap leading-relaxed shadow-inner">
-                {aiAdvice}
-              </div>
-            )}
-            
-            {!aiAdvice && !isLoadingAI && (
-              <p className="text-gray-500 text-sm mt-2">
-                Type your specific queries above or simply click "Ask AI" to let our engine analyze your MFE, MAE, and historical sequences to suggest actionable improvements.
-              </p>
-            )}
           </div>
-          {/* ✨ END OF AI DIAGNOSTICS SECTION */}
 
-          <div className="space-y-6">
-            <EquityCurveChart result={activeResult} withTax={withTax} />
-            
-            {/* ✨ PUDHU UPDATE: DrawdownChart Added Here */}
-            <DrawdownChart result={activeResult} withTax={withTax} /> 
-
-            <DailyHeatmap result={activeResult} withTax={withTax} />
-            <MonthlyAnalytics result={activeResult} withTax={withTax} />
-            
-            <DayWiseBreakup 
-              ledger={activeResult.Trade_Ledger || activeResult.ledger} 
-              mode={withTax ? 'NET' : 'GROSS'} 
+          {/* Custom Prompt Input Area */}
+          <div className="mb-4 bg-[#1e1e1e] p-3 rounded-lg border border-[#3d3d3d]" data-html2canvas-ignore="true">
+            <textarea
+              value={customPrompt}
+              onChange={(e) => setCustomPrompt(e.target.value)}
+              placeholder="EClicking the Ask AI button will instantly generate a comprehensive, detailed backtest analysis report with deep insights for your strategy"
+              className="w-full bg-transparent text-gray-300 text-sm focus:outline-none resize-none placeholder-gray-600 mb-2"
+              rows="2"
             />
-            
-            {/* ⚡ PUDHU UPDATE: ExecutionLedger onFilterChange-ah catch panni puthu state-la podurathu */}
-            <ExecutionLedger 
-              result={activeResult} 
-              onFilterChange={setFilteredLedgerData} 
-            />
+            <div className="flex justify-end border-t border-[#2d2d2d] pt-2 mt-1">
+              <button 
+                onClick={fetchAIInsights}
+                disabled={isLoadingAI}
+                className="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-md transition-colors shadow-lg disabled:opacity-50"
+              >
+                {isLoadingAI ? '⏳ Analyzing Strategy...' : (aiAdvice ? '🔄 Regenerate Analysis' : '🧠 Ask AI')}
+              </button>
+            </div>
           </div>
+
+          {aiAdvice && (
+            <div className="p-5 bg-gradient-to-br from-[#1e1e1e] to-[#1a1a1a] border border-[#3d3d3d] rounded-lg text-gray-300 text-sm whitespace-pre-wrap leading-relaxed shadow-inner">
+              {aiAdvice}
+            </div>
+          )}
+          
+          {!aiAdvice && !isLoadingAI && (
+            <p className="text-gray-500 text-sm mt-2">
+              Type your specific queries above or simply click "Ask AI" to let our engine analyze your MFE, MAE, and historical sequences to suggest actionable improvements.
+            </p>
+          )}
+        </div>
+        {/* ✨ END OF AI DIAGNOSTICS SECTION */}
+
+        <div className="space-y-6">
+          <EquityCurveChart result={activeResult} withTax={withTax} />
+          
+          {/* ✨ PUDHU UPDATE: DrawdownChart Added Here */}
+          <DrawdownChart result={activeResult} withTax={withTax} /> 
+
+          <DailyHeatmap result={activeResult} withTax={withTax} />
+          <MonthlyAnalytics result={activeResult} withTax={withTax} />
+          
+          <DayWiseBreakup 
+            ledger={activeResult.Trade_Ledger || activeResult.ledger} 
+            mode={withTax ? 'NET' : 'GROSS'} 
+          />
+          
+          {/* ⚡ PUDHU UPDATE: ExecutionLedger onFilterChange-ah catch panni puthu state-la podurathu */}
+          <ExecutionLedger 
+            result={activeResult} 
+            onFilterChange={setFilteredLedgerData} 
+          />
         </div>
       </div>
     </div>

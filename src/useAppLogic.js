@@ -73,7 +73,6 @@ export const useAppLogic = () => {
   const [legs, setLegs] = useState([]); 
 
   const [loading, setLoading] = useState(false);
-  const [backtestProgress, setBacktestProgress] = useState(0); // 🌟 PUDHUSA ADD PANNAPATTA STATE
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const [withTax, setWithTax] = useState(false);
@@ -421,28 +420,13 @@ export const useAppLogic = () => {
       return;
     }
 
-    // 🌟 PROGRESS BAR UPDATE START 🌟
     setLoading(true); setError(''); setResult(null);
-    setBacktestProgress(10); 
-
-    const progressInterval = setInterval(() => {
-      setBacktestProgress((prev) => {
-        if (prev >= 99) {
-          clearInterval(progressInterval);
-          return 99; // 99% ல் நிற்கும்
-        }
-        return prev + 5; // ஒவ்வொரு முறையும் 5% ஏறும்
-      });
-    }, 300);
-    // 🌟 PROGRESS BAR UPDATE END 🌟
 
     if (!isSubscribed) {
       const deductionSuccess = await deductUserCredit(user?.uid);
       if (deductionSuccess) {
         setUserCredits(prev => prev - 1); 
       } else {
-        clearInterval(progressInterval); // 🌟 Added
-        setBacktestProgress(0); // 🌟 Added
         setError('Failed to process credits. Please check your connection and try again.');
         setLoading(false);
         return;
@@ -517,21 +501,11 @@ export const useAppLogic = () => {
       }
 
       setResult(data.results || data); 
-      
-      // 🌟 PROGRESS BAR SUCCESS UPDATE 🌟
-      clearInterval(progressInterval);
-      setBacktestProgress(100); 
-
     } catch (err) {
-      // 🌟 PROGRESS BAR ERROR UPDATE 🌟
-      clearInterval(progressInterval);
-      setBacktestProgress(0); 
-
       console.error("🚨 Backtest Catch Error:", err);
       setError(`Execution Error: ${err.message || 'Failed to retrieve backtest results from the engine.'}`);
     } finally {
       setLoading(false);
-      // setBacktestProgress(0); // இதை இங்கே போடவேண்டாம், 100% ஆனதை UI-ல் கொஞ்ச நேரம் காட்டலாம். Component-ல் close செய்யும்போதோ அல்லது அடுத்த முறை ரன் பண்ணும்போதோ reset ஆகிவிடும்.
     }
   };
 
@@ -550,7 +524,7 @@ export const useAppLogic = () => {
     isDynamic, setIsDynamic, 
     entryTime, setEntryTime, exitTime, setExitTime, fromDate, setFromDate, toDate, setToDate,
     trailMoveX, setTrailMoveX, trailPointY, setTrailPointY, indicators, legs,
-    loading, backtestProgress, setBacktestProgress, result, error, withTax, setWithTax, // 🌟 EXPORTED THE NEW STATES HERE
+    loading, result, error, withTax, setWithTax,
     handleParsedDataSuccess, addLeg, updateLeg, removeLeg, addIndicator, updateIndicator, removeIndicator,
     handleSaveStrategy, openStrategiesModal, loadStrategy, handleDeleteStrategy, runBacktest
   };

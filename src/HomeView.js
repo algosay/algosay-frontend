@@ -267,13 +267,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
             <button 
               onClick={() => scrollToSection('multilingual')} 
               className="px-4 py-1.5 text-[13px] font-bold text-white bg-gradient-to-r from-[#00E5FF] to-[#0088FF] rounded-lg shadow-[0_0_10px_rgba(0,229,255,0.3)] hover:shadow-[0_0_15px_rgba(0,136,255,0.5)] transition-all duration-300 hover:-translate-y-0.5"
-            >
-              Multilingual AI
-            </button>
-            <button 
-              onClick={() => scrollToSection('showcase')} 
-              className="px-4 py-1.5 text-[13px] font-bold text-white bg-gradient-to-r from-[#2B4CFF] to-[#6025F5] rounded-lg shadow-[0_0_10px_rgba(43,76,255,0.3)] hover:shadow-[0_0_15px_rgba(96,37,245,0.5)] transition-all duration-300 hover:-translate-y-0.5"
-            >
+                       >
               Workflow
             </button>
             <button 
