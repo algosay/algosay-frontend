@@ -471,7 +471,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
               transition={{ duration: 0.6 }}
               src="/image/front-image.png" 
               alt="Algosay Trader View"
-              className="w-full h-full object-contain max-h-[400px] relative z-0 p-3"
+              className="w-full h-full object-contain max-h-[380px] relative z-0 p-2"
               onError={(e) => { e.target.src = "/image/Front Image.png" }}
             />
             
