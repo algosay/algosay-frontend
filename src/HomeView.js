@@ -1,17 +1,16 @@
 import React, { useState } from 'react';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Star } from 'lucide-react'; // 💎 Star import added for reviews
 import { motion, AnimatePresence } from 'framer-motion';
 import { TypeAnimation } from 'react-type-animation';
 import AlgoSayLogo from './AlgoSayLogo'; 
 import { Wand2, Activity, Filter, BarChart3, Rocket, Users, Zap, Shield, ShieldCheck, PlayCircle, CheckCircle2, Languages, Globe } from 'lucide-react'; 
-import StrategyCapabilities from './components/StrategyCapabilities';
 
-// Puthusa piricha 2 components import pandrom
+// Keeping existing component imports intact
 import ResultsShowcase from './components/ResultsShowcase';
 import StrategyTemplates from './components/StrategyTemplates';
-
-// 💎 Footer Component Import
 import Footer from './components/Footer';
+
+// StrategyCapabilities is now built inline beautifully to support animated images and advanced UI
 
 const HomeView = ({ onNavigate, custom, viewVariants }) => {
   // 💎 Image Zoom State
@@ -20,7 +19,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
   // 💎 Cinematic Video State
   const [activeVideoIndex, setActiveVideoIndex] = useState(0);
 
-  // 💎 Multilingual Interactive State (Puthusa add pannathu)
+  // 💎 Multilingual Interactive State 
   const [activeLangIndex, setActiveLangIndex] = useState(0);
 
   const multilingualExamples = [
@@ -208,6 +207,74 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
     }
   ];
 
+  // 💎 6 Live Animated Custom Capabilities
+  const advancedCapabilities = [
+    {
+      title: "Option Spreads",
+      subtitle: "Intraday Directional & Non-Directional",
+      desc: "Sell ATM Straddles or Strangles at 9:20 AM while simultaneously buying OTM CE/PE for margin benefits. Flawlessly backtest Iron Condors, Iron Flies, and Butterfly Spreads.",
+      tags: ["#Iron Condor", "#Iron Fly", "#Butterfly Spread", "#Straddle"],
+      icon: "⚖️",
+      imgUrl: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&q=80&w=600",
+      theme: "from-blue-500/20 to-cyan-500/20"
+    },
+    {
+      title: "Advanced Execution",
+      subtitle: "Multi-Time Overlay Strategies",
+      desc: "Execute selling legs at a specific time (e.g., 9:20 AM) and hedging/buying legs at a completely different time (e.g., 9:45 AM) using our advanced Split Directional Mapping.",
+      tags: ["#Time Delay Legs", "#Split Entry", "#Dynamic Hedging"],
+      icon: "⏱️",
+      imgUrl: "https://images.unsplash.com/photo-1642543492481-44e81e3914a8?auto=format&fit=crop&q=80&w=600",
+      theme: "from-purple-500/20 to-pink-500/20"
+    },
+    {
+      title: "Hybrid Indicator Logic",
+      subtitle: "Dynamic Trend Following (Spot + Options)",
+      desc: "Trigger ATM option strikes or Spot Futures entries automatically when the underlying Spot chart breaks RSI 60 or executes a MACD crossover, complete with predefined Target/SL.",
+      tags: ["#Spot-to-Options", "#RSI Breakout", "#MACD Crossover"],
+      icon: "📈",
+      imgUrl: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?auto=format&fit=crop&q=80&w=600",
+      theme: "from-green-500/20 to-emerald-500/20"
+    },
+    {
+      title: "No-Indicator Pure PA",
+      subtitle: "Pure Price Action Breakouts",
+      desc: "Deploy strict trend breakout logic without any indicators. Trigger entries perfectly when the market breaks the High or Low of the first 15-minute Opening Range (ORB).",
+      tags: ["#15-Min ORB", "#High/Low Breakout", "#Strict Trend"],
+      icon: "🕯️",
+      imgUrl: "https://images.unsplash.com/photo-1535320903710-d993d3d77d29?auto=format&fit=crop&q=80&w=600",
+      theme: "from-orange-500/20 to-amber-500/20"
+    },
+    {
+      title: "Pro Risk Engine",
+      subtitle: "High-Friction Risk-Adjusted Management",
+      desc: "Implement pro-level risk engines: trail Stop Loss to Cost-to-Cost (C2C) when in profit, or configure advanced SL Re-entry logic if the market reverses back to your levels.",
+      tags: ["#Trailing SL (C2C)", "#SL Re-Entry", "#Risk Management"],
+      icon: "🛡️",
+      imgUrl: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=600",
+      theme: "from-red-500/20 to-rose-500/20"
+    },
+    {
+      title: "Infinite Customization",
+      subtitle: "Limitless Custom Strategy Builder",
+      desc: "If you can think it, you can backtest it. Combine any indicator, timeframe, multi-leg option logic, or custom condition to build strategies that defy traditional limits.",
+      tags: ["#Zero-Code Builder", "#Custom Logic", "#Limitless"],
+      icon: "🧩",
+      imgUrl: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=600",
+      theme: "from-indigo-500/20 to-violet-500/20"
+    }
+  ];
+
+  // 💎 Live Reviews Data (Indian Context)
+  const userReviews = [
+    { name: "Karthik R.", role: "Full-time Options Trader", img: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=150", text: "AlgoSay entirely changed how I test BankNifty strategies. The multilingual AI is flawlessly accurate when I type my logic in Tamil." },
+    { name: "Sneha Patel", role: "Retail Investor", img: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=150", text: "The advanced filtering and 0DTE logic testing is a game-changer. Clean, professional UI and absolutely zero coding required!" },
+    { name: "Amit Sharma", role: "Quantitative Analyst", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=150", text: "As a quant, the 'Pro Risk Engine' handles trailing SL (C2C) exactly how institutional algorithms do. Worth every penny." },
+    { name: "Priya Menon", role: "Part-time Trader", img: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&q=80&w=150", text: "I just type my strategy in pure English naturally, and the engine auto-maps it to precise Option Spreads instantly. Mind-blowing." },
+    { name: "Rajesh Kumar", role: "Swing Trader", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=150", text: "Finally an Indian platform that natively supports Hindi and gives me precise drawdown analytics and Sharpe Ratios." },
+    { name: "Divya T.", role: "Systematic Trader", img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150", text: "Tested my complex Iron Condor strategy for the past 3 years of data in seconds. The Institutional export reports are beautiful." }
+  ];
+
   const scrollToSection = (id) => {
     const element = document.getElementById(id);
     if (element) {
@@ -328,73 +395,77 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
           </h1>
           
          <p className="text-[16px] text-slate-300 font-medium mb-2 leading-relaxed max-w-xl backdrop-blur-md bg-slate-900/40 border border-slate-800/50 p-4 rounded-xl shadow-lg">
-  Breaking free from traditional logic. We empower retail traders to think{' '}
-  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00E5FF] to-blue-500 font-extrabold">
-    out-of-the-box
-  </span>{' '}
-  and backtest their own unique,{' '}
-  <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500 font-extrabold">
-    custom strategies
-  </span>. 
-  True profitability comes from thinking like an{' '}
-  <span className="text-amber-400 font-bold">
-    institutional trader
-  </span>.
-  
-  <span className="block mt-3 text-transparent bg-clip-text bg-gradient-to-r from-[#00E5FF] to-blue-500 font-extrabold text-lg tracking-wider">
-    JUST TYPE IT. WE TEST IT.
-  </span>
-</p>
-          {/* PRO TERMINAL ENGINE BOX */}
-          <div className="mb-5 lg:-mt-4 p-[1.5px] rounded-2xl bg-gradient-to-r from-[#FF007A] via-[#7928CA] to-[#00E5FF] shadow-[0_0_40px_rgba(121,40,202,0.3)] relative max-w-xl backdrop-blur-md z-30">
-            <motion.div className="rounded-2xl overflow-hidden bg-[#0A0C14]/95 flex flex-col w-full h-full relative">
-              <div className="bg-[#0A0C14] px-4 py-3 flex items-center justify-between border-b border-white/5 relative z-10">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-[#FF5F56] shadow-[0_0_10px_rgba(255,95,86,0.5)]"></div>
-                  <div className="w-3 h-3 rounded-full bg-[#FFBD2E] shadow-[0_0_10px_rgba(255,189,46,0.5)]"></div>
-                  <div className="w-3 h-3 rounded-full bg-[#27C93F] shadow-[0_0_10px_rgba(39,201,63,0.5)]"></div>
-                  <span className="text-slate-400 text-[12px] font-mono ml-4 tracking-wide">multilingual_engine.py</span>
-                </div>
-                <div className="flex items-center gap-1.5 bg-[#00E676]/10 px-3 py-1 rounded-full border border-[#00E676]/30 shadow-[0_0_15px_rgba(0,230,118,0.2)]">
-                  <span className="w-2 h-2 rounded-full bg-[#00E676] animate-pulse"></span>
-                  <span className="text-[10px] font-mono font-bold text-[#00E676] tracking-widest flex items-center gap-1.5">
-                    NEURAL TRANSLATOR v2.5
-                  </span>
-                </div>
-              </div>
-              <div className="p-5 font-mono text-[15px] flex items-start min-h-[100px] bg-transparent relative z-10">
-                <div className="text-slate-600 mr-4 select-none text-right font-medium text-sm pt-0.5">01</div>
-                <span className="text-[#00E676] mr-3 font-semibold shrink-0">Input &gt;</span>
-                <TypeAnimation
-                  sequence={[
-                    'BANKNIFTY 9:20 AM Straddle போட்டு 25% Stoploss வை...', 3000,
-                    'Nifty ATM Put खरीदो जब RSI 70 से ऊपर हो...', 3000,
-                    'Buy BankNifty ATM Put if RSI > 70 and MACD crosses |', 3000,
-                  ]}
-                  wrapper="span"
-                  speed={50}
-                  className="text-[#00E5FF] font-medium leading-relaxed tracking-wide drop-shadow-[0_0_8px_rgba(0,229,255,0.5)]"
-                  repeat={Infinity}
-                />
-              </div>
-            </motion.div>
-          </div>
+          Breaking free from traditional logic. We empower retail traders to think{' '}
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00E5FF] to-blue-500 font-extrabold">
+            out-of-the-box
+          </span>{' '}
+          and backtest their own unique,{' '}
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500 font-extrabold">
+            custom strategies
+          </span>. 
+          True profitability comes from thinking like an{' '}
+          <span className="text-amber-400 font-bold">
+            institutional trader
+          </span>.
+          
+          <span className="block mt-3 text-transparent bg-clip-text bg-gradient-to-r from-[#00E5FF] to-blue-500 font-extrabold text-lg tracking-wider">
+            JUST TYPE IT. WE TEST IT.
+          </span>
+        </p>
 
-          <div className="flex flex-col gap-3 max-w-xl relative mt-auto pb-1">
-            <div className="p-4 rounded-2xl bg-gradient-to-r from-[#00E5FF]/10 to-transparent border border-[#00E5FF]/20 flex items-center gap-4 backdrop-blur-md">
-              <div className="p-2.5 rounded-full bg-[#00E5FF]/10 border border-[#00E5FF]/30 text-[#00E5FF] shadow-[0_0_20px_rgba(0,229,255,0.3)]"><Shield size={24} /></div>
-              <div>
-                <h4 className="text-base font-bold text-[#00E5FF] tracking-wide mb-0.5">BUILT FOR PRECISION. DESIGNED FOR ALL LANGUAGES.</h4>
-                <p className="text-[13px] text-slate-400 font-medium">Multilingual AI • Lightning Fast • Institutional Grade</p>
+          {/* 💎 1. PERFECTLY ALIGNED 2 BOXES WITH UNIFORM WIDTH */}
+          <div className="flex flex-col gap-3 w-full max-w-xl relative mt-4">
+            {/* PRO TERMINAL ENGINE BOX */}
+            <div className="p-[1.5px] rounded-2xl bg-gradient-to-r from-[#FF007A] via-[#7928CA] to-[#00E5FF] shadow-[0_0_40px_rgba(121,40,202,0.3)] relative w-full backdrop-blur-md z-30">
+              <motion.div className="rounded-2xl overflow-hidden bg-[#0A0C14]/95 flex flex-col w-full h-full relative">
+                <div className="bg-[#0A0C14] px-4 py-3 flex items-center justify-between border-b border-white/5 relative z-10">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-[#FF5F56] shadow-[0_0_10px_rgba(255,95,86,0.5)]"></div>
+                    <div className="w-3 h-3 rounded-full bg-[#FFBD2E] shadow-[0_0_10px_rgba(255,189,46,0.5)]"></div>
+                    <div className="w-3 h-3 rounded-full bg-[#27C93F] shadow-[0_0_10px_rgba(39,201,63,0.5)]"></div>
+                    <span className="text-slate-400 text-[12px] font-mono ml-4 tracking-wide">multilingual_engine.py</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 bg-[#00E676]/10 px-3 py-1 rounded-full border border-[#00E676]/30 shadow-[0_0_15px_rgba(0,230,118,0.2)]">
+                    <span className="w-2 h-2 rounded-full bg-[#00E676] animate-pulse"></span>
+                    <span className="text-[10px] font-mono font-bold text-[#00E676] tracking-widest flex items-center gap-1.5">
+                      NEURAL TRANSLATOR v2.5
+                    </span>
+                  </div>
+                </div>
+                <div className="p-5 font-mono text-[15px] flex items-start min-h-[100px] bg-transparent relative z-10">
+                  <div className="text-slate-600 mr-4 select-none text-right font-medium text-sm pt-0.5">01</div>
+                  <span className="text-[#00E676] mr-3 font-semibold shrink-0">Input &gt;</span>
+                  <TypeAnimation
+                    sequence={[
+                      'BANKNIFTY 9:20 AM Straddle போட்டு 25% Stoploss வை...', 3000,
+                      'Nifty ATM Put खरीदो जब RSI 70 से ऊपर हो...', 3000,
+                      'Buy BankNifty ATM Put if RSI > 70 and MACD crosses |', 3000,
+                    ]}
+                    wrapper="span"
+                    speed={50}
+                    className="text-[#00E5FF] font-medium leading-relaxed tracking-wide drop-shadow-[0_0_8px_rgba(0,229,255,0.5)]"
+                    repeat={Infinity}
+                  />
+                </div>
+              </motion.div>
+            </div>
+
+            {/* PRECISION MULTILINGUAL AI BOX (ALIGNED TO MATCH) */}
+            <div className="w-full">
+              <div className="p-4 rounded-2xl bg-gradient-to-r from-[#00E5FF]/10 to-transparent border border-[#00E5FF]/20 flex items-center gap-4 backdrop-blur-md w-full">
+                <div className="p-2.5 rounded-full bg-[#00E5FF]/10 border border-[#00E5FF]/30 text-[#00E5FF] shadow-[0_0_20px_rgba(0,229,255,0.3)] shrink-0"><Shield size={24} /></div>
+                <div>
+                  <h4 className="text-[15px] sm:text-base font-bold text-[#00E5FF] tracking-wide mb-0.5">BUILT FOR PRECISION. DESIGNED FOR ALL LANGUAGES.</h4>
+                  <p className="text-[13px] text-slate-400 font-medium">Multilingual AI • Lightning Fast • Institutional Grade</p>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* RIGHT COLUMN: FRONT IMAGE + CTA + STATS (Boxes removed from here) */}
+        {/* RIGHT COLUMN: FRONT IMAGE + CTA + STATS */}
         <div className="w-full lg:w-[54%] flex flex-col justify-between relative z-20 gap-4 h-full">
           
-          {/* 💎 NEW PREMIUM IMAGE CONTAINER */}
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -489,9 +560,8 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
         </div>
       </div>
 
-      {/* 💎 INFINITE HORIZONTAL SCROLLING STEPS (Moved here & Animated smoothly) */}
+      {/* INFINITE HORIZONTAL SCROLLING STEPS */}
       <div className="relative w-full max-w-[1400px] mx-auto mt-24 overflow-hidden z-20 px-4">
-        {/* Gradients on the edges to fade out smoothly */}
         <div className="absolute left-0 top-0 bottom-0 w-16 md:w-32 bg-gradient-to-r from-[#04060F] to-transparent z-20 pointer-events-none"></div>
         <div className="absolute right-0 top-0 bottom-0 w-16 md:w-32 bg-gradient-to-l from-[#04060F] to-transparent z-20 pointer-events-none"></div>
         
@@ -500,7 +570,6 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
           animate={{ x: ["0%", "-50%"] }}
           transition={{ ease: "linear", duration: 30, repeat: Infinity }}
         >
-          {/* We duplicate the array to make the infinite scroll loop seamlessly without breaking */}
           {[...stepsData, ...stepsData].map((step, index) => (
             <div 
               key={index}
@@ -530,7 +599,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
         </motion.div>
       </div>
 
-      {/* 💎 ULTRA-PREMIUM MULTILINGUAL & AI DIAGNOSTICS INTERACTIVE SECTION (NEW) */}
+      {/* ULTRA-PREMIUM MULTILINGUAL & AI DIAGNOSTICS INTERACTIVE SECTION */}
       <motion.div 
         id="multilingual"
         initial={{ opacity: 0, y: 40 }}
@@ -551,12 +620,10 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
           </p>
         </div>
 
-        {/* Interactive Multilingual Selector & Simulator Card */}
         <div className="p-[2px] rounded-3xl bg-gradient-to-r from-[#00E5FF] via-[#7928CA] to-[#FF007A] shadow-[0_0_50px_rgba(121,40,202,0.3)]">
           <div className="bg-[#0A0C14] rounded-[22px] p-6 md:p-10 flex flex-col lg:flex-row gap-8 items-center justify-between relative overflow-hidden">
             <div className="absolute top-0 right-0 w-96 h-96 bg-[#00E5FF]/10 blur-3xl rounded-full -z-10 pointer-events-none"></div>
 
-            {/* Left Column: Language selector buttons */}
             <div className="w-full lg:w-[40%] flex flex-col gap-3">
               <h4 className="text-sm font-bold text-slate-300 uppercase tracking-widest mb-2 flex items-center gap-2">
                 <Languages size={18} className="text-[#00E5FF]" /> Select Your Language:
@@ -581,13 +648,11 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
               ))}
             </div>
 
-            {/* Right Column: Live Translation & AI Diagnostics Output Simulator */}
             <div className="w-full lg:w-[60%] flex flex-col gap-6 bg-[#050711] p-6 md:p-8 rounded-2xl border border-white/10 shadow-2xl relative">
               <div className="absolute -top-3 -right-3 bg-gradient-to-r from-[#00E5FF] to-[#7928CA] text-black font-black text-[10px] uppercase tracking-widest px-3 py-1 rounded-full shadow-lg">
                 Live AI Neural Translation
               </div>
 
-              {/* User Input Display */}
               <div className="flex flex-col gap-2">
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-[#FF007A]"></span> Your Native Input ({multilingualExamples[activeLangIndex].lang}):
@@ -597,14 +662,12 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
                 </div>
               </div>
 
-              {/* Arrow Connector */}
               <div className="flex justify-center -my-2">
                 <div className="p-2 rounded-full bg-white/5 border border-white/10 text-slate-400 animate-bounce">
                   ↓
                 </div>
               </div>
 
-              {/* AI Quant Standard Engine Translation */}
               <div className="flex flex-col gap-2">
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-[#00E5FF]"></span> Quant Engine Mapping (English Standard):
@@ -614,7 +677,6 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
                 </div>
               </div>
 
-              {/* AI Diagnostics Report Output in Native/English */}
               <div className="flex flex-col gap-2 mt-2">
                 <span className="text-xs font-bold text-[#00E676] uppercase tracking-wider flex items-center gap-1.5">
                   <Activity size={14} className="text-[#00E676] animate-pulse" /> AlgoSay AI Diagnostics Report:
@@ -624,12 +686,11 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
                 </div>
               </div>
             </div>
-
           </div>
         </div>
       </motion.div>
 
-      {/* 🎬 CINEMATIC VIDEO SHOWCASE SECTION */}
+      {/* CINEMATIC VIDEO SHOWCASE SECTION */}
       <motion.div 
         id="showcase"
         initial={{ opacity: 0, y: 40 }}
@@ -726,11 +787,9 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
               </motion.div>
             ))}
           </div>
-
         </div>
       </motion.div>
 
-      {/* COMPONENT RENDERS */}
       <div className="w-full scroll-mt-24">
         <ResultsShowcase setZoomedImage={setZoomedImage} />
 
@@ -738,9 +797,106 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
            <StrategyTemplates />
         </div>
 
-        <div id="capabilities" className="w-full relative z-20 mt-12 border-t border-white/5 pt-12 scroll-mt-24">
-          <StrategyCapabilities />
+        {/* 💎 2. FULLY ANIMATED 6 CAPABILITIES BOXES SECTION INLINE */}
+        <div id="capabilities" className="w-full max-w-[1400px] mx-auto relative z-20 mt-20 border-t border-white/5 pt-16 scroll-mt-24">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight mb-4">
+              Backtest the Most <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00E5FF] to-[#6025F5]">Ultra-Complex & Customized</span> Strategies
+            </h2>
+            <p className="text-slate-400 font-medium max-w-3xl mx-auto text-base">
+              Our architecture is engineered for limitless possibilities. Seamlessly merge Spot and Options data to execute intricate time-overlays, advanced risk-adjusted logic, and highly customized market conditions in just a few clicks.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 px-4 lg:px-0">
+            {advancedCapabilities.map((cap, index) => (
+              <motion.div
+                key={index}
+                whileHover={{ y: -10 }}
+                className="group relative flex flex-col rounded-[24px] overflow-hidden bg-[#0A0C14] border border-white/10 hover:border-[#00E5FF]/40 transition-all duration-500 shadow-xl hover:shadow-[0_0_40px_rgba(0,229,255,0.15)]"
+              >
+                {/* Image Section inside card */}
+                <div className="w-full h-48 overflow-hidden relative">
+                  <div className="absolute inset-0 bg-black/40 z-10 group-hover:bg-black/10 transition-colors duration-500"></div>
+                  <motion.img 
+                    whileHover={{ scale: 1.15 }}
+                    transition={{ duration: 0.8 }}
+                    src={cap.imgUrl} 
+                    alt={cap.title}
+                    className="w-full h-full object-cover"
+                  />
+                  {/* Floating Icon Over Image */}
+                  <div className={`absolute top-4 right-4 z-20 w-12 h-12 rounded-xl bg-gradient-to-br ${cap.theme} backdrop-blur-md border border-white/20 flex items-center justify-center text-2xl shadow-lg`}>
+                    {cap.icon}
+                  </div>
+                </div>
+
+                {/* Content Section */}
+                <div className="p-6 flex flex-col flex-grow">
+                  <h3 className="text-xl font-black text-white mb-1 group-hover:text-[#00E5FF] transition-colors">{cap.title}</h3>
+                  <h4 className="text-[13px] font-bold text-slate-400 mb-4 tracking-wide uppercase">{cap.subtitle}</h4>
+                  <p className="text-[14px] text-slate-300 font-medium leading-relaxed mb-6 flex-grow">
+                    {cap.desc}
+                  </p>
+                  
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-2 mt-auto">
+                    {cap.tags.map((tag, tagIndex) => (
+                      <span key={tagIndex} className="text-[11px] font-semibold text-[#00E5FF] bg-[#00E5FF]/10 px-2.5 py-1 rounded-md border border-[#00E5FF]/20">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
+
+        {/* 💎 3. PROFESSIONAL 6 REVIEWS SCROLLING SECTION WITH INDIAN USERS */}
+        <div id="reviews" className="w-full max-w-[1400px] mx-auto mt-24 mb-10 relative z-20 scroll-mt-24 overflow-hidden px-4">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight mb-2">
+              Trusted by 50,000+ Indian Traders
+            </h2>
+            <div className="flex items-center justify-center gap-1 text-amber-400 mb-2">
+              {[...Array(5)].map((_, i) => <Star key={i} size={20} fill="currentColor" />)}
+            </div>
+            <p className="text-slate-400 font-medium">Rated 4.9/5 by the Professional Trading Community</p>
+          </div>
+
+          <div className="relative w-full overflow-hidden flex items-center py-6">
+            <div className="absolute left-0 top-0 bottom-0 w-16 md:w-40 bg-gradient-to-r from-[#04060F] to-transparent z-20 pointer-events-none"></div>
+            <div className="absolute right-0 top-0 bottom-0 w-16 md:w-40 bg-gradient-to-l from-[#04060F] to-transparent z-20 pointer-events-none"></div>
+            
+            <motion.div 
+              className="flex gap-6 w-max"
+              animate={{ x: ["0%", "-50%"] }}
+              transition={{ ease: "linear", duration: 40, repeat: Infinity }}
+            >
+              {[...userReviews, ...userReviews].map((review, index) => (
+                <div 
+                  key={index}
+                  className="flex-none w-[340px] md:w-[380px] p-6 rounded-2xl bg-[#0A0C14] border border-white/5 hover:border-[#00E5FF]/30 transition-all duration-300 shadow-lg hover:shadow-[0_0_30px_rgba(0,229,255,0.1)] flex flex-col group"
+                >
+                  <div className="flex items-center gap-4 mb-4">
+                    <img src={review.img} alt={review.name} className="w-14 h-14 rounded-full object-cover border-2 border-[#00E5FF]/50 p-0.5 group-hover:scale-110 transition-transform duration-500" />
+                    <div>
+                      <h4 className="text-base font-bold text-white leading-tight">{review.name}</h4>
+                      <p className="text-[12px] text-[#00E5FF] font-medium">{review.role}</p>
+                    </div>
+                  </div>
+                  <p className="text-slate-300 text-[14px] leading-relaxed italic relative z-10">
+                    <span className="text-3xl text-white/10 absolute -top-2 -left-2 -z-10 font-serif">"</span>
+                    {review.text}
+                    <span className="text-3xl text-white/10 absolute -bottom-4 right-0 -z-10 font-serif">"</span>
+                  </p>
+                </div>
+              ))}
+            </motion.div>
+          </div>
+        </div>
+
       </div>
 
       {/* PRICING SECTION */}
