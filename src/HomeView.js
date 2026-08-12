@@ -471,7 +471,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
               transition={{ duration: 0.6 }}
               src="/image/front-image.png" 
               alt="Algosay Trader View"
-              className="w-full h-full object-contain max-h-[350px] relative z-0 p-4"
+              className="w-full h-full object-contain max-h-[450px] relative z-0 p-6"
               onError={(e) => { e.target.src = "/image/Front Image.png" }}
             />
             
@@ -479,7 +479,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
             <div className="absolute bottom-5 left-5 z-20 flex flex-col gap-2">
                <div className="flex items-center gap-2 bg-black/70 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 w-fit shadow-lg hover:border-[#00E5FF]/50 transition-colors">
                  <span className="w-2.5 h-2.5 rounded-full bg-[#00E5FF] animate-pulse shadow-[0_0_10px_#00E5FF]"></span>
-                 <span className="text-[11px] font-black text-white tracking-widest uppercase">Live Workspace</span>
+                 <span className="text-[11px] font-black text-white tracking-widest uppercase">Algosay Engine</span>
                </div>
             </div>
           </motion.div>
