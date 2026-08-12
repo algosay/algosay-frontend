@@ -1,25 +1,17 @@
 import React, { useState } from 'react';
-import { Sparkles, Star } from 'lucide-react'; // 💎 Star import added for reviews
+import { Sparkles, Star } from 'lucide-react'; 
 import { motion, AnimatePresence } from 'framer-motion';
 import { TypeAnimation } from 'react-type-animation';
 import AlgoSayLogo from './AlgoSayLogo'; 
 import { Wand2, Activity, Filter, BarChart3, Rocket, Users, Zap, Shield, ShieldCheck, PlayCircle, CheckCircle2, Languages, Globe } from 'lucide-react'; 
 
-// Keeping existing component imports intact
 import ResultsShowcase from './components/ResultsShowcase';
 import StrategyTemplates from './components/StrategyTemplates';
 import Footer from './components/Footer';
 
-// StrategyCapabilities is now built inline beautifully to support animated images and advanced UI
-
 const HomeView = ({ onNavigate, custom, viewVariants }) => {
-  // 💎 Image Zoom State
   const [zoomedImage, setZoomedImage] = useState(null);
-  
-  // 💎 Cinematic Video State
   const [activeVideoIndex, setActiveVideoIndex] = useState(0);
-
-  // 💎 Multilingual Interactive State 
   const [activeLangIndex, setActiveLangIndex] = useState(0);
 
   const multilingualExamples = [
@@ -69,7 +61,6 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
     { id: 6, src: "/video/ALGOSAY_Pan-India Native Support-6.mp4", title: "Pan-India Native Support", desc: "Multilingual AI in action" }
   ];
 
-  // 💎 Premium Spring Animations
   const containerVariants = {
     hidden: { opacity: 0 },
     show: {
@@ -88,7 +79,6 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
     }
   };
 
-  // 💎 4 PREMIUM NEON BOXES
   const stepsData = [
     {
       num: "01",
@@ -207,7 +197,6 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
     }
   ];
 
-  // 💎 6 Live Animated Custom Capabilities
   const advancedCapabilities = [
     {
       title: "Option Spreads",
@@ -224,7 +213,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
       desc: "Execute selling legs at a specific time (e.g., 9:20 AM) and hedging/buying legs at a completely different time (e.g., 9:45 AM) using our advanced Split Directional Mapping.",
       tags: ["#Time Delay Legs", "#Split Entry", "#Dynamic Hedging"],
       icon: "⏱️",
-      imgUrl: "https://images.unsplash.com/photo-1642543492481-44e81e3914a8?auto=format&fit=crop&q=80&w=600",
+      imgUrl: "https://images.unsplash.com/photo-1612178991541-b48cc8e92a4d?auto=format&fit=crop&q=80&w=600",
       theme: "from-purple-500/20 to-pink-500/20"
     },
     {
@@ -265,14 +254,13 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
     }
   ];
 
-  // 💎 Live Reviews Data (Indian Context)
   const userReviews = [
-    { name: "Karthik R.", role: "Full-time Options Trader", img: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=150", text: "AlgoSay entirely changed how I test BankNifty strategies. The multilingual AI is flawlessly accurate when I type my logic in Tamil." },
-    { name: "Sneha Patel", role: "Retail Investor", img: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=150", text: "The advanced filtering and 0DTE logic testing is a game-changer. Clean, professional UI and absolutely zero coding required!" },
-    { name: "Amit Sharma", role: "Quantitative Analyst", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=150", text: "As a quant, the 'Pro Risk Engine' handles trailing SL (C2C) exactly how institutional algorithms do. Worth every penny." },
-    { name: "Priya Menon", role: "Part-time Trader", img: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&q=80&w=150", text: "I just type my strategy in pure English naturally, and the engine auto-maps it to precise Option Spreads instantly. Mind-blowing." },
-    { name: "Rajesh Kumar", role: "Swing Trader", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=150", text: "Finally an Indian platform that natively supports Hindi and gives me precise drawdown analytics and Sharpe Ratios." },
-    { name: "Divya T.", role: "Systematic Trader", img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150", text: "Tested my complex Iron Condor strategy for the past 3 years of data in seconds. The Institutional export reports are beautiful." }
+    { name: "Karthik R.", role: "Full-time Options Trader", img: "https://images.unsplash.com/photo-1555952517-2e8e729e0b44?auto=format&fit=crop&q=80&w=150", text: "AlgoSay completely changed my trading game. Typing strategies in Tamil and seeing the AI map it to complex 0DTE options is magic. The execution is flawless!" },
+    { name: "Sneha Patel", role: "Retail Investor", img: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=150", text: "No more coding! I just typed 'BankNifty straddle at 9:20' in Hindi and it backtested 3 years of data in seconds. The Granular Filtering feature is absolutely mind-blowing." },
+    { name: "Amit Sharma", role: "Quantitative Analyst", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=150", text: "As a quant, I need precision. The 'Pro Risk Engine' handles trailing SL (C2C) and SL Re-entry exactly like institutional bots. The Profit Factor and Sortino metrics are spot on." },
+    { name: "Priya Menon", role: "Part-time Trader", img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=150", text: "The Hybrid Indicator logic is brilliant. I tested a strategy where Spot RSI triggers Option strikes. Never seen an Indian platform execute Spot-to-Options this smoothly." },
+    { name: "Rajesh Kumar", role: "Swing Trader", img: "https://images.unsplash.com/photo-1615109398623-88346a601842?auto=format&fit=crop&q=80&w=150", text: "Finally, a platform that natively supports multiple languages! The Multi-Time Overlay lets me set delay legs perfectly. Pure Price Action backtesting without indicators is epic." },
+    { name: "Divya T.", role: "Systematic Trader", img: "https://images.unsplash.com/photo-1589156280159-27698a70f29e?auto=format&fit=crop&q=80&w=150", text: "Tested my complex Iron Condor strategy. The AI Diagnostics automatically found the hidden drawdown leaks and optimized my exits. Institutional export reports look super professional!" }
   ];
 
   const scrollToSection = (id) => {
@@ -305,7 +293,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
         }}
       ></div>
 
-      {/* HEADER: Logo & Login/Signup Buttons with Nav Links */}
+      {/* HEADER */}
       <div className="flex items-center justify-between z-50 mb-6 w-full max-w-[1400px] mx-auto border-b border-white/5 pb-4">
         <div className="flex items-center gap-3 whitespace-nowrap cursor-pointer group" onClick={() => onNavigate(false)}>
           <div className="relative">
@@ -375,46 +363,48 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
       </div>
 
       {/* MAIN CONTENT AREA (HERO) */}
-      <div id="hero" className="flex flex-col lg:flex-row justify-between items-stretch gap-12 lg:gap-14 flex-grow relative z-10 w-full max-w-[1400px] mx-auto min-h-min scroll-mt-24">
+      <div id="hero" className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-14 w-full max-w-[1400px] mx-auto min-h-min scroll-mt-24 z-10 relative items-stretch">
         
-        <div className="w-full lg:w-[46%] flex flex-col pt-1 relative z-20">
-          <h3 className="text-[12px] font-black text-transparent bg-clip-text bg-gradient-to-r from-[#4D7CFF] to-[#9D4EDD] uppercase tracking-[0.15em] mb-3 drop-shadow-sm">
-            NEXT-GEN AI BACKTESTING FOR INDIAN TRADERS
-          </h3>
-          
-          <h1 className="font-black leading-[1.15] mb-4 tracking-tight flex flex-col drop-shadow-lg">
-            <span className="whitespace-nowrap text-[44px] lg:text-[54px] text-white mb-1">
-              India’s #1 
+        {/* LEFT COLUMN - Aligned to stretch with right */}
+        <div className="flex flex-col justify-between h-full w-full pt-1 relative z-20">
+          <div>
+            <h3 className="text-[12px] font-black text-transparent bg-clip-text bg-gradient-to-r from-[#4D7CFF] to-[#9D4EDD] uppercase tracking-[0.15em] mb-3 drop-shadow-sm">
+              NEXT-GEN AI BACKTESTING FOR INDIAN TRADERS
+            </h3>
+            
+            <h1 className="font-black leading-[1.15] mb-4 tracking-tight flex flex-col drop-shadow-lg">
+              <span className="whitespace-nowrap text-[44px] lg:text-[54px] text-white mb-1">
+                India’s #1 
+              </span>
+              <span className="whitespace-nowrap text-[44px] lg:text-[54px]">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00E5FF] to-[#6A00F4] drop-shadow-[0_0_30px_rgba(0,229,255,0.3)]">AI-Powered</span>
+              </span>
+              <span className="whitespace-nowrap text-[44px] lg:text-[54px] text-white">
+                Backtesting Engine
+              </span>
+            </h1>
+            
+            <p className="text-[16px] text-slate-300 font-medium mb-2 leading-relaxed max-w-xl backdrop-blur-md bg-slate-900/40 border border-slate-800/50 p-4 rounded-xl shadow-lg">
+            Breaking free from traditional logic. We empower retail traders to think{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00E5FF] to-blue-500 font-extrabold">
+              out-of-the-box
+            </span>{' '}
+            and backtest their own unique,{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500 font-extrabold">
+              custom strategies
+            </span>. 
+            True profitability comes from thinking like an{' '}
+            <span className="text-amber-400 font-bold">
+              institutional trader
+            </span>.
+            
+            <span className="block mt-3 text-transparent bg-clip-text bg-gradient-to-r from-[#00E5FF] to-blue-500 font-extrabold text-lg tracking-wider">
+              JUST TYPE IT. WE TEST IT.
             </span>
-            <span className="whitespace-nowrap text-[44px] lg:text-[54px]">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00E5FF] to-[#6A00F4] drop-shadow-[0_0_30px_rgba(0,229,255,0.3)]">AI-Powered</span>
-            </span>
-            <span className="whitespace-nowrap text-[44px] lg:text-[54px] text-white">
-              Backtesting Engine
-            </span>
-          </h1>
-          
-         <p className="text-[16px] text-slate-300 font-medium mb-2 leading-relaxed max-w-xl backdrop-blur-md bg-slate-900/40 border border-slate-800/50 p-4 rounded-xl shadow-lg">
-          Breaking free from traditional logic. We empower retail traders to think{' '}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00E5FF] to-blue-500 font-extrabold">
-            out-of-the-box
-          </span>{' '}
-          and backtest their own unique,{' '}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500 font-extrabold">
-            custom strategies
-          </span>. 
-          True profitability comes from thinking like an{' '}
-          <span className="text-amber-400 font-bold">
-            institutional trader
-          </span>.
-          
-          <span className="block mt-3 text-transparent bg-clip-text bg-gradient-to-r from-[#00E5FF] to-blue-500 font-extrabold text-lg tracking-wider">
-            JUST TYPE IT. WE TEST IT.
-          </span>
-        </p>
+            </p>
+          </div>
 
-          {/* 💎 1. PERFECTLY ALIGNED 2 BOXES WITH UNIFORM WIDTH */}
-          <div className="flex flex-col gap-3 w-full max-w-xl relative mt-4">
+          <div className="flex flex-col gap-3 w-full max-w-xl relative mt-auto">
             {/* PRO TERMINAL ENGINE BOX */}
             <div className="p-[1.5px] rounded-2xl bg-gradient-to-r from-[#FF007A] via-[#7928CA] to-[#00E5FF] shadow-[0_0_40px_rgba(121,40,202,0.3)] relative w-full backdrop-blur-md z-30">
               <motion.div className="rounded-2xl overflow-hidden bg-[#0A0C14]/95 flex flex-col w-full h-full relative">
@@ -463,18 +453,17 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
           </div>
         </div>
 
-        {/* RIGHT COLUMN: FRONT IMAGE + CTA + STATS */}
-        <div className="w-full lg:w-[54%] flex flex-col justify-between relative z-20 gap-4 h-full">
+        {/* RIGHT COLUMN - Image properly pushed down and matching left column height */}
+        <div className="flex flex-col justify-between h-full w-full relative z-20 gap-4">
           
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.7, ease: "easeOut" }}
-            className="relative w-full rounded-3xl overflow-hidden shadow-[0_0_40px_rgba(0,136,255,0.15)] border border-white/10 group bg-[#0A0C14] mt-2"
+            className="relative w-full rounded-3xl overflow-hidden shadow-[0_0_40px_rgba(0,136,255,0.15)] border border-white/10 group bg-[#0A0C14] mt-10 md:mt-14 flex items-center justify-center flex-grow"
           >
             <div className="absolute inset-0 bg-gradient-to-t from-[#04060F] via-transparent to-transparent z-10 pointer-events-none"></div>
             
-            {/* Glow behind image to make it pop */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-[#00E5FF]/20 blur-[80px] rounded-full -z-0"></div>
 
             <motion.img
@@ -482,13 +471,13 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
               transition={{ duration: 0.6 }}
               src="/image/front-image.png" 
               alt="Algosay Trader View"
-              className="w-full h-auto object-cover max-h-[300px] lg:max-h-[340px] rounded-3xl relative z-0"
+              className="w-full h-full object-contain max-h-[350px] relative z-0 p-4"
               onError={(e) => { e.target.src = "/image/Front Image.png" }}
             />
             
             {/* Overlay Badges */}
             <div className="absolute bottom-5 left-5 z-20 flex flex-col gap-2">
-               <div className="flex items-center gap-2 bg-black/70 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 w-fit shadow-lg">
+               <div className="flex items-center gap-2 bg-black/70 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 w-fit shadow-lg hover:border-[#00E5FF]/50 transition-colors">
                  <span className="w-2.5 h-2.5 rounded-full bg-[#00E5FF] animate-pulse shadow-[0_0_10px_#00E5FF]"></span>
                  <span className="text-[11px] font-black text-white tracking-widest uppercase">Live Workspace</span>
                </div>
@@ -501,7 +490,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.5 }}
             onClick={() => onNavigate(true)}
-            className="w-full relative group cursor-pointer overflow-hidden rounded-2xl p-[2px] mt-2 bg-gradient-to-r from-[#00E5FF] via-[#7928CA] to-[#FF007A] shadow-[0_0_30px_rgba(0,229,255,0.25)] hover:shadow-[0_0_50px_rgba(121,40,202,0.45)] transition-all duration-500 hover:-translate-y-1"
+            className="w-full relative group cursor-pointer overflow-hidden rounded-2xl p-[2px] mt-auto bg-gradient-to-r from-[#00E5FF] via-[#7928CA] to-[#FF007A] shadow-[0_0_30px_rgba(0,229,255,0.25)] hover:shadow-[0_0_50px_rgba(121,40,202,0.45)] transition-all duration-500 hover:-translate-y-1"
           >
             <div className="bg-[#0A0C14] hover:bg-[#0E111F] rounded-[14px] p-4 sm:p-5 flex items-center justify-between transition-colors duration-300 relative overflow-hidden">
               <div className="absolute -top-12 -right-12 w-36 h-36 bg-[#00E5FF]/20 rounded-full blur-2xl group-hover:bg-[#00E5FF]/35 transition-all duration-500"></div>
@@ -539,20 +528,20 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
           </motion.div>
 
           {/* STATS SECTION */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 w-full backdrop-blur-sm bg-black/20 p-4 rounded-2xl border border-white/5 mt-auto">
-             <div className="flex items-center gap-2.5">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 w-full backdrop-blur-sm bg-black/20 p-4 rounded-2xl border border-white/5 mt-3">
+             <div className="flex items-center gap-2.5 hover:scale-105 transition-transform duration-300 cursor-default">
                 <div className="p-1.5 rounded-lg bg-[#9D4EDD]/10 border border-[#9D4EDD]/30 text-[#9D4EDD] shadow-[0_0_15px_rgba(157,78,221,0.2)]"><Rocket size={20} /></div>
                 <div><h4 className="text-[17px] font-bold text-white tracking-tight leading-none mb-0.5">2.5M+</h4><p className="text-[9px] text-slate-400 uppercase tracking-wider font-semibold">Backtests Run</p></div>
              </div>
-             <div className="flex items-center gap-2.5">
+             <div className="flex items-center gap-2.5 hover:scale-105 transition-transform duration-300 cursor-default">
                 <div className="p-1.5 rounded-lg bg-[#00E5FF]/10 border border-[#00E5FF]/30 text-[#00E5FF] shadow-[0_0_15px_rgba(0,229,255,0.2)]"><Users size={20} /></div>
                 <div><h4 className="text-[17px] font-bold text-white tracking-tight leading-none mb-0.5">50K+</h4><p className="text-[9px] text-slate-400 uppercase tracking-wider font-semibold">Active Traders</p></div>
              </div>
-             <div className="flex items-center gap-2.5">
+             <div className="flex items-center gap-2.5 hover:scale-105 transition-transform duration-300 cursor-default">
                 <div className="p-1.5 rounded-lg bg-[#B14EFF]/10 border border-[#B14EFF]/30 text-[#B14EFF] shadow-[0_0_15px_rgba(177,78,255,0.2)]"><Zap size={20} /></div>
                 <div><h4 className="text-[17px] font-bold text-white tracking-tight leading-none mb-0.5">AI Engine</h4><p className="text-[9px] text-slate-400 uppercase tracking-wider font-semibold">Neural Powered</p></div>
              </div> 
-             <div className="flex items-center gap-2.5">
+             <div className="flex items-center gap-2.5 hover:scale-105 transition-transform duration-300 cursor-default">
                 <div className="p-1.5 rounded-lg bg-[#00E5FF]/10 border border-[#00E5FF]/30 text-[#00E5FF] shadow-[0_0_15px_rgba(0,229,255,0.2)]"><ShieldCheck size={20} /></div>
                 <div><h4 className="text-[17px] font-bold text-white tracking-tight leading-none mb-0.5">99.9%</h4><p className="text-[9px] text-slate-400 uppercase tracking-wider font-semibold">Uptime</p></div>
              </div>
@@ -561,24 +550,30 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
       </div>
 
       {/* INFINITE HORIZONTAL SCROLLING STEPS */}
-      <div className="relative w-full max-w-[1400px] mx-auto mt-24 overflow-hidden z-20 px-4">
+      <motion.div 
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8 }}
+        className="relative w-full max-w-[1400px] mx-auto mt-24 overflow-hidden z-20 px-4"
+      >
         <div className="absolute left-0 top-0 bottom-0 w-16 md:w-32 bg-gradient-to-r from-[#04060F] to-transparent z-20 pointer-events-none"></div>
         <div className="absolute right-0 top-0 bottom-0 w-16 md:w-32 bg-gradient-to-l from-[#04060F] to-transparent z-20 pointer-events-none"></div>
         
         <motion.div 
-          className="flex gap-6 w-max"
+          className="flex gap-6 w-max hover:[animation-play-state:paused]"
           animate={{ x: ["0%", "-50%"] }}
           transition={{ ease: "linear", duration: 30, repeat: Infinity }}
         >
           {[...stepsData, ...stepsData].map((step, index) => (
             <div 
               key={index}
-              className={`flex-none w-[300px] sm:w-[320px] relative overflow-hidden group flex flex-col p-5 rounded-2xl border transition-all duration-300 ${step.theme.cardBg} ${step.theme.borderHover}`}
+              className={`flex-none w-[300px] sm:w-[320px] relative overflow-hidden group flex flex-col p-5 rounded-2xl border transition-all duration-300 cursor-pointer ${step.theme.cardBg} ${step.theme.borderHover}`}
             >
               <div className={`absolute inset-0 bg-gradient-to-br to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none ${step.theme.gradientStart}`}></div>
               
               <div className="flex items-center justify-between mb-3 relative z-10">
-                <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 border group-hover:scale-110 ${step.theme.iconText} ${step.theme.iconBorder} ${step.theme.hoverIconBg} bg-transparent`}>
+                <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 border group-hover:scale-110 group-hover:animate-pulse ${step.theme.iconText} ${step.theme.iconBorder} ${step.theme.hoverIconBg} bg-transparent`}>
                   {React.cloneElement(step.icon, { size: 20 })}
                 </div>
                 <span className={`text-[10px] font-black tracking-[0.1em] ${step.theme.badgeText} bg-white/5 px-2.5 py-1 rounded-full border border-white/10 shadow-sm`}>
@@ -590,14 +585,14 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
                 <h4 className="text-[15px] font-bold text-white tracking-tight leading-tight group-hover:text-white transition-colors duration-300 mb-1.5">
                   {step.title}
                 </h4>
-                <p className="text-[12px] text-slate-400 font-medium leading-[1.5] group-hover:text-slate-300 transition-colors duration-300 mt-auto">
+                <p className="text-[12px] text-slate-400 font-medium leading-[1.5] group-hover:text-slate-200 transition-colors duration-300 mt-auto">
                   {step.desc}
                 </p>
               </div>
             </div>
           ))}
         </motion.div>
-      </div>
+      </motion.div>
 
       {/* ULTRA-PREMIUM MULTILINGUAL & AI DIAGNOSTICS INTERACTIVE SECTION */}
       <motion.div 
@@ -609,10 +604,13 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
         className="w-full max-w-[1400px] mx-auto mt-12 mb-16 relative z-20 scroll-mt-24"
       >
         <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-[#00E5FF]/10 to-[#9D4EDD]/10 border border-[#00E5FF]/30 text-[#00E5FF] text-xs font-bold uppercase tracking-widest mb-4 shadow-[0_0_20px_rgba(0,229,255,0.2)]">
+          <motion.div 
+            whileHover={{ scale: 1.05 }}
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-[#00E5FF]/10 to-[#9D4EDD]/10 border border-[#00E5FF]/30 text-[#00E5FF] text-xs font-bold uppercase tracking-widest mb-4 shadow-[0_0_20px_rgba(0,229,255,0.2)]"
+          >
             <Globe size={14} className="animate-spin" /> Pan-India Native Support
-          </div>
-          <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight mb-4">
+          </motion.div>
+          <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight mb-4 drop-shadow-lg">
             Type in <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00E5FF] via-[#9D4EDD] to-[#FF007A]">Your Mother Tongue</span>
           </h2>
           <p className="text-slate-400 font-medium max-w-2xl mx-auto text-base">
@@ -620,7 +618,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
           </p>
         </div>
 
-        <div className="p-[2px] rounded-3xl bg-gradient-to-r from-[#00E5FF] via-[#7928CA] to-[#FF007A] shadow-[0_0_50px_rgba(121,40,202,0.3)]">
+        <div className="p-[2px] rounded-3xl bg-gradient-to-r from-[#00E5FF] via-[#7928CA] to-[#FF007A] shadow-[0_0_50px_rgba(121,40,202,0.3)] hover:shadow-[0_0_80px_rgba(0,229,255,0.4)] transition-shadow duration-700">
           <div className="bg-[#0A0C14] rounded-[22px] p-6 md:p-10 flex flex-col lg:flex-row gap-8 items-center justify-between relative overflow-hidden">
             <div className="absolute top-0 right-0 w-96 h-96 bg-[#00E5FF]/10 blur-3xl rounded-full -z-10 pointer-events-none"></div>
 
@@ -637,7 +635,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
                   className={`flex items-center justify-between p-4 rounded-xl border transition-all duration-300 text-left cursor-pointer
                     ${activeLangIndex === idx 
                       ? 'bg-gradient-to-r from-[#00E5FF]/20 to-[#7928CA]/20 border-[#00E5FF] shadow-[0_0_25px_rgba(0,229,255,0.3)] text-white' 
-                      : 'bg-[#050711]/60 border-white/5 text-slate-400 hover:text-slate-200 hover:border-white/20'}`}
+                      : 'bg-[#050711]/60 border-white/5 text-slate-400 hover:text-slate-200 hover:border-white/20 hover:bg-white/5'}`}
                 >
                   <div className="flex items-center gap-3">
                     <span className="text-2xl">{item.flag}</span>
@@ -648,31 +646,31 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
               ))}
             </div>
 
-            <div className="w-full lg:w-[60%] flex flex-col gap-6 bg-[#050711] p-6 md:p-8 rounded-2xl border border-white/10 shadow-2xl relative">
-              <div className="absolute -top-3 -right-3 bg-gradient-to-r from-[#00E5FF] to-[#7928CA] text-black font-black text-[10px] uppercase tracking-widest px-3 py-1 rounded-full shadow-lg">
+            <div className="w-full lg:w-[60%] flex flex-col gap-6 bg-[#050711] p-6 md:p-8 rounded-2xl border border-white/10 shadow-2xl relative hover:border-[#00E5FF]/30 transition-colors duration-500">
+              <div className="absolute -top-3 -right-3 bg-gradient-to-r from-[#00E5FF] to-[#7928CA] text-white font-black text-[10px] uppercase tracking-widest px-3 py-1 rounded-full shadow-[0_0_15px_rgba(0,229,255,0.5)]">
                 Live AI Neural Translation
               </div>
 
               <div className="flex flex-col gap-2">
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-[#FF007A]"></span> Your Native Input ({multilingualExamples[activeLangIndex].lang}):
+                  <span className="w-2 h-2 rounded-full bg-[#FF007A] animate-pulse"></span> Your Native Input ({multilingualExamples[activeLangIndex].lang}):
                 </span>
-                <div className="p-4 rounded-xl bg-black/40 border border-white/10 font-mono text-base text-[#00E5FF] shadow-inner">
+                <div className="p-4 rounded-xl bg-black/40 border border-[#FF007A]/20 font-mono text-base text-[#00E5FF] shadow-inner transition-all duration-300">
                   "{multilingualExamples[activeLangIndex].input}"
                 </div>
               </div>
 
               <div className="flex justify-center -my-2">
-                <div className="p-2 rounded-full bg-white/5 border border-white/10 text-slate-400 animate-bounce">
+                <div className="p-2 rounded-full bg-gradient-to-b from-white/10 to-transparent border border-white/10 text-slate-400 animate-bounce shadow-[0_0_15px_rgba(255,255,255,0.1)]">
                   ↓
                 </div>
               </div>
 
               <div className="flex flex-col gap-2">
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-[#00E5FF]"></span> Quant Engine Mapping (English Standard):
+                  <span className="w-2 h-2 rounded-full bg-[#00E5FF] animate-pulse"></span> Quant Engine Mapping (English Standard):
                 </span>
-                <div className="p-4 rounded-xl bg-black/40 border border-white/10 font-mono text-sm text-white">
+                <div className="p-4 rounded-xl bg-black/40 border border-[#00E5FF]/30 font-mono text-sm text-white shadow-[0_0_10px_rgba(0,229,255,0.1)]">
                   {multilingualExamples[activeLangIndex].translated}
                 </div>
               </div>
@@ -681,7 +679,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
                 <span className="text-xs font-bold text-[#00E676] uppercase tracking-wider flex items-center gap-1.5">
                   <Activity size={14} className="text-[#00E676] animate-pulse" /> AlgoSay AI Diagnostics Report:
                 </span>
-                <div className="p-4 rounded-xl bg-[#00E676]/10 border border-[#00E676]/30 font-mono text-xs text-[#00E676] shadow-[0_0_20px_rgba(0,230,118,0.15)]">
+                <div className="p-4 rounded-xl bg-[#00E676]/10 border border-[#00E676]/40 font-mono text-xs text-[#00E676] shadow-[0_0_20px_rgba(0,230,118,0.2)]">
                   {multilingualExamples[activeLangIndex].report}
                 </div>
               </div>
@@ -700,7 +698,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
         className="w-full max-w-[1400px] mx-auto mt-20 mb-10 relative z-20 scroll-mt-24"
       >
         <div className="text-center mb-10">
-          <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight mb-3">
+          <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight mb-3 drop-shadow-md">
             Experience the <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00E5FF] to-[#6025F5]">AlgoSay Workflow</span>
           </h2>
           <p className="text-slate-400 font-medium max-w-2xl mx-auto">
@@ -710,8 +708,8 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
 
         <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 items-center justify-center">
           
-          <div className="w-full lg:w-[65%] relative group rounded-2xl p-[2px] bg-gradient-to-br from-[#00E5FF]/30 via-transparent to-[#7928CA]/30 shadow-[0_0_50px_rgba(0,229,255,0.1)]">
-            <div className="absolute inset-0 bg-[#00E5FF]/5 blur-3xl rounded-[30px] -z-10"></div>
+          <div className="w-full lg:w-[65%] relative group rounded-2xl p-[2px] bg-gradient-to-br from-[#00E5FF]/30 via-transparent to-[#7928CA]/30 shadow-[0_0_50px_rgba(0,229,255,0.2)] hover:shadow-[0_0_80px_rgba(121,40,202,0.3)] transition-shadow duration-700">
+            <div className="absolute inset-0 bg-[#00E5FF]/10 blur-3xl rounded-[30px] -z-10 group-hover:bg-[#00E5FF]/20 transition-all duration-700"></div>
             <div className="bg-[#050711] rounded-2xl overflow-hidden relative aspect-video shadow-2xl border border-white/10">
               <AnimatePresence mode='wait'>
                 <motion.video
@@ -731,7 +729,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
                 </motion.video>
               </AnimatePresence>
               
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none"></div>
               
               <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between z-10">
                 <div>
@@ -740,7 +738,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00E5FF] opacity-75"></span>
                       <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#00E5FF]"></span>
                     </span>
-                    <span className="text-xs font-bold text-[#00E5FF] uppercase tracking-widest bg-black/40 px-2 py-0.5 rounded backdrop-blur-md">
+                    <span className="text-xs font-bold text-[#00E5FF] uppercase tracking-widest bg-black/40 px-2 py-0.5 rounded backdrop-blur-md border border-[#00E5FF]/20">
                       Now Playing
                     </span>
                   </div>
@@ -748,7 +746,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
                     key={`title-${activeVideoIndex}`}
                     initial={{ y: 10, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
-                    className="text-2xl font-black text-white drop-shadow-lg"
+                    className="text-2xl font-black text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.4)]"
                   >
                     {showcaseVideos[activeVideoIndex].title}
                   </motion.h3>
@@ -765,8 +763,8 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
                 onClick={() => setActiveVideoIndex(index)}
                 className={`cursor-pointer p-4 rounded-xl border transition-all duration-300 relative overflow-hidden flex items-center gap-4
                   ${activeVideoIndex === index 
-                    ? 'bg-[#00E5FF]/10 border-[#00E5FF]/50 shadow-[0_0_20px_rgba(0,229,255,0.2)]' 
-                    : 'bg-[#0A0C14]/60 border-white/5 hover:border-white/20 hover:bg-[#121626]'
+                    ? 'bg-[#00E5FF]/10 border-[#00E5FF]/50 shadow-[0_0_20px_rgba(0,229,255,0.3)]' 
+                    : 'bg-[#0A0C14]/60 border-white/5 hover:border-[#00E5FF]/20 hover:bg-white/5'
                   }`}
               >
                 {activeVideoIndex === index && (
@@ -797,10 +795,17 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
            <StrategyTemplates />
         </div>
 
-        {/* 💎 2. FULLY ANIMATED 6 CAPABILITIES BOXES SECTION INLINE */}
-        <div id="capabilities" className="w-full max-w-[1400px] mx-auto relative z-20 mt-20 border-t border-white/5 pt-16 scroll-mt-24">
+        {/* FULLY ANIMATED 6 CAPABILITIES BOXES SECTION INLINE */}
+        <motion.div 
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          id="capabilities" 
+          className="w-full max-w-[1400px] mx-auto relative z-20 mt-20 border-t border-white/5 pt-16 scroll-mt-24"
+        >
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight mb-4">
+            <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight mb-4 drop-shadow-md">
               Backtest the Most <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00E5FF] to-[#6025F5]">Ultra-Complex & Customized</span> Strategies
             </h2>
             <p className="text-slate-400 font-medium max-w-3xl mx-auto text-base">
@@ -813,7 +818,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
               <motion.div
                 key={index}
                 whileHover={{ y: -10 }}
-                className="group relative flex flex-col rounded-[24px] overflow-hidden bg-[#0A0C14] border border-white/10 hover:border-[#00E5FF]/40 transition-all duration-500 shadow-xl hover:shadow-[0_0_40px_rgba(0,229,255,0.15)]"
+                className="group relative flex flex-col rounded-[24px] overflow-hidden bg-[#0A0C14] border border-white/10 hover:border-[#00E5FF]/40 transition-all duration-500 shadow-xl hover:shadow-[0_0_40px_rgba(0,229,255,0.2)]"
               >
                 {/* Image Section inside card */}
                 <div className="w-full h-48 overflow-hidden relative">
@@ -826,14 +831,14 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
                     className="w-full h-full object-cover"
                   />
                   {/* Floating Icon Over Image */}
-                  <div className={`absolute top-4 right-4 z-20 w-12 h-12 rounded-xl bg-gradient-to-br ${cap.theme} backdrop-blur-md border border-white/20 flex items-center justify-center text-2xl shadow-lg`}>
+                  <div className={`absolute top-4 right-4 z-20 w-12 h-12 rounded-xl bg-gradient-to-br ${cap.theme} backdrop-blur-md border border-white/20 flex items-center justify-center text-2xl shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                     {cap.icon}
                   </div>
                 </div>
 
                 {/* Content Section */}
-                <div className="p-6 flex flex-col flex-grow">
-                  <h3 className="text-xl font-black text-white mb-1 group-hover:text-[#00E5FF] transition-colors">{cap.title}</h3>
+                <div className="p-6 flex flex-col flex-grow bg-gradient-to-b from-[#0A0C14] to-[#04060F]">
+                  <h3 className="text-xl font-black text-white mb-1 group-hover:text-[#00E5FF] transition-colors drop-shadow-sm">{cap.title}</h3>
                   <h4 className="text-[13px] font-bold text-slate-400 mb-4 tracking-wide uppercase">{cap.subtitle}</h4>
                   <p className="text-[14px] text-slate-300 font-medium leading-relaxed mb-6 flex-grow">
                     {cap.desc}
@@ -842,7 +847,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
                   {/* Tags */}
                   <div className="flex flex-wrap gap-2 mt-auto">
                     {cap.tags.map((tag, tagIndex) => (
-                      <span key={tagIndex} className="text-[11px] font-semibold text-[#00E5FF] bg-[#00E5FF]/10 px-2.5 py-1 rounded-md border border-[#00E5FF]/20">
+                      <span key={tagIndex} className="text-[11px] font-semibold text-[#00E5FF] bg-[#00E5FF]/10 px-2.5 py-1 rounded-md border border-[#00E5FF]/30 group-hover:bg-[#00E5FF]/20 transition-colors">
                         {tag}
                       </span>
                     ))}
@@ -851,12 +856,19 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
               </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
 
-        {/* 💎 3. PROFESSIONAL 6 REVIEWS SCROLLING SECTION WITH INDIAN USERS */}
-        <div id="reviews" className="w-full max-w-[1400px] mx-auto mt-24 mb-10 relative z-20 scroll-mt-24 overflow-hidden px-4">
+        {/* PROFESSIONAL 6 REVIEWS SCROLLING SECTION WITH INDIAN USERS */}
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          id="reviews" 
+          className="w-full max-w-[1400px] mx-auto mt-24 mb-10 relative z-20 scroll-mt-24 overflow-hidden px-4"
+        >
           <div className="text-center mb-10">
-            <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight mb-2">
+            <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight mb-2 drop-shadow-sm">
               Trusted by 50,000+ Indian Traders
             </h2>
             <div className="flex items-center justify-center gap-1 text-amber-400 mb-2">
@@ -870,39 +882,46 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
             <div className="absolute right-0 top-0 bottom-0 w-16 md:w-40 bg-gradient-to-l from-[#04060F] to-transparent z-20 pointer-events-none"></div>
             
             <motion.div 
-              className="flex gap-6 w-max"
+              className="flex gap-6 w-max hover:[animation-play-state:paused]"
               animate={{ x: ["0%", "-50%"] }}
               transition={{ ease: "linear", duration: 40, repeat: Infinity }}
             >
               {[...userReviews, ...userReviews].map((review, index) => (
                 <div 
                   key={index}
-                  className="flex-none w-[340px] md:w-[380px] p-6 rounded-2xl bg-[#0A0C14] border border-white/5 hover:border-[#00E5FF]/30 transition-all duration-300 shadow-lg hover:shadow-[0_0_30px_rgba(0,229,255,0.1)] flex flex-col group"
+                  className="flex-none w-[340px] md:w-[380px] p-6 rounded-2xl bg-gradient-to-b from-[#0A0C14] to-[#04060F] border border-white/10 hover:border-[#00E5FF]/40 transition-all duration-300 shadow-lg hover:shadow-[0_0_40px_rgba(0,229,255,0.15)] flex flex-col group cursor-default"
                 >
                   <div className="flex items-center gap-4 mb-4">
-                    <img src={review.img} alt={review.name} className="w-14 h-14 rounded-full object-cover border-2 border-[#00E5FF]/50 p-0.5 group-hover:scale-110 transition-transform duration-500" />
+                    <img src={review.img} alt={review.name} className="w-14 h-14 rounded-full object-cover border-2 border-[#00E5FF]/50 p-0.5 group-hover:scale-110 group-hover:border-[#FF007A]/80 transition-all duration-500 shadow-[0_0_15px_rgba(0,229,255,0.3)]" />
                     <div>
-                      <h4 className="text-base font-bold text-white leading-tight">{review.name}</h4>
-                      <p className="text-[12px] text-[#00E5FF] font-medium">{review.role}</p>
+                      <h4 className="text-base font-bold text-white leading-tight group-hover:text-[#00E5FF] transition-colors">{review.name}</h4>
+                      <p className="text-[12px] text-slate-400 font-medium uppercase tracking-wider mt-0.5">{review.role}</p>
                     </div>
                   </div>
-                  <p className="text-slate-300 text-[14px] leading-relaxed italic relative z-10">
-                    <span className="text-3xl text-white/10 absolute -top-2 -left-2 -z-10 font-serif">"</span>
+                  <p className="text-slate-300 text-[14px] leading-relaxed italic relative z-10 group-hover:text-white transition-colors duration-300">
+                    <span className="text-4xl text-[#00E5FF]/20 absolute -top-3 -left-2 -z-10 font-serif">"</span>
                     {review.text}
-                    <span className="text-3xl text-white/10 absolute -bottom-4 right-0 -z-10 font-serif">"</span>
+                    <span className="text-4xl text-[#00E5FF]/20 absolute -bottom-5 right-0 -z-10 font-serif">"</span>
                   </p>
                 </div>
               ))}
             </motion.div>
           </div>
-        </div>
+        </motion.div>
 
       </div>
 
       {/* PRICING SECTION */}
-      <div id="pricing" className="w-full max-w-[1400px] mx-auto mt-24 mb-16 relative z-20 scroll-mt-24 border-t border-white/5 pt-16">
+      <motion.div 
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.7 }}
+        id="pricing" 
+        className="w-full max-w-[1400px] mx-auto mt-24 mb-16 relative z-20 scroll-mt-24 border-t border-white/5 pt-16"
+      >
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight mb-3">
+          <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight mb-3 drop-shadow-md">
             Simple, Transparent <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00E5FF] to-[#6025F5]">Pricing</span>
           </h2>
           <p className="text-slate-400 font-medium max-w-2xl mx-auto">
@@ -918,13 +937,13 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
               className={`relative flex flex-col p-[2px] rounded-3xl transition-all duration-500 bg-gradient-to-b ${plan.theme} ${plan.glow}`}
             >
               {plan.popular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#2B4CFF] to-[#00E5FF] text-white text-xs font-black uppercase tracking-widest py-1.5 px-4 rounded-full shadow-[0_0_15px_rgba(0,229,255,0.5)] z-20">
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#2B4CFF] to-[#00E5FF] text-white text-xs font-black uppercase tracking-widest py-1.5 px-4 rounded-full shadow-[0_0_20px_rgba(0,229,255,0.5)] z-20 border border-white/20">
                   Most Popular
                 </div>
               )}
               
-              <div className="bg-[#0A0C14] rounded-[22px] p-8 flex flex-col h-full relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 blur-3xl rounded-full -z-10"></div>
+              <div className="bg-[#0A0C14] rounded-[22px] p-8 flex flex-col h-full relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 blur-3xl rounded-full -z-10 group-hover:bg-white/10 transition-colors duration-500"></div>
                 
                 <h3 className="text-xl font-bold text-white mb-2">{plan.name}</h3>
                 <div className="flex items-baseline gap-1 mb-4">
@@ -937,7 +956,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
                   {plan.features.map((feature, i) => (
                     <div key={i} className="flex items-start gap-3">
                       <CheckCircle2 size={18} className={`shrink-0 mt-0.5 ${plan.accent}`} />
-                      <span className="text-sm text-slate-300 font-medium">{feature}</span>
+                      <span className="text-sm text-slate-300 font-medium group-hover:text-white transition-colors">{feature}</span>
                     </div>
                   ))}
                 </div>
@@ -946,8 +965,8 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
                   onClick={() => onNavigate(true)}
                   className={`w-full py-3.5 rounded-xl font-bold text-sm tracking-wide transition-all duration-300 flex items-center justify-center gap-2
                     ${plan.popular 
-                      ? 'bg-gradient-to-r from-[#2B4CFF] to-[#6025F5] text-white shadow-[0_0_20px_rgba(43,76,255,0.4)] hover:shadow-[0_0_30px_rgba(96,37,245,0.6)]' 
-                      : 'bg-white/5 border border-white/10 text-white hover:bg-white/10'}`}
+                      ? 'bg-gradient-to-r from-[#2B4CFF] to-[#6025F5] text-white shadow-[0_0_20px_rgba(43,76,255,0.4)] hover:shadow-[0_0_30px_rgba(96,37,245,0.6)] border border-white/10' 
+                      : 'bg-white/5 border border-white/10 text-white hover:bg-white/10 hover:border-white/30'}`}
                 >
                   {plan.buttonText}
                 </button>
@@ -958,7 +977,7 @@ const HomeView = ({ onNavigate, custom, viewVariants }) => {
             </motion.div>
           ))}
         </div>
-      </div>
+      </motion.div>
 
       {/* IMAGE ZOOM MODAL OVERLAY */}
       <AnimatePresence>
