@@ -183,13 +183,18 @@ export const useAppLogic = () => {
     setTrailPointY(globalTrailY);
 
     // 🟢 NEW UPDATE: AI response parse panni antha puthu states-a set pandrom
-    setOverallStrategyTarget(risk.overallStrategyTarget ?? risk.overall_target ?? '');
-    setOverallStrategySL(risk.overallStrategySL ?? risk.overall_sl ?? '');
+    setOverallStrategyTarget(risk.overallStrategyTarget ?? risk.overall_target ?? data.overallStrategyTarget ?? data.overall_target ?? '');
+    setOverallStrategySL(risk.overallStrategySL ?? risk.overall_sl ?? data.overallStrategySL ?? data.overall_sl ?? '');
     
-    // 🟢 DYNAMIC MAPPING UPDATE: Root level & Risk level check panni 'hasCombined' flag edukkurom
-    const valCombinedTarget = data.combinedPremiumTarget ?? data.combined_premium_target ?? risk.combinedPremiumTarget ?? risk.combined_premium_target ?? '';
-    const valCombinedSL = data.combinedPremiumSL ?? data.combined_premium_sl ?? risk.combinedPremiumSL ?? risk.combined_premium_sl ?? '';
-    const hasCombined = Boolean(valCombinedTarget || valCombinedSL);
+    // 🟢 HYPER DYNAMIC MAPPING UPDATE: AI epadi key anupunalum catch panra madhiri robust checking
+    let valCombinedTarget = data.combinedPremiumTarget ?? data.combined_premium_target ?? risk.combinedPremiumTarget ?? risk.combined_premium_target ?? risk.combinedTarget ?? data.combinedTarget ?? risk.combined_target ?? data.combined_target ?? '';
+    let valCombinedSL = data.combinedPremiumSL ?? data.combined_premium_sl ?? risk.combinedPremiumSL ?? risk.combined_premium_sl ?? risk.combinedSL ?? data.combinedSL ?? risk.combined_sl ?? data.combined_sl ?? '';
+
+    // Convert safety check: to handle "0" perfectly without failing falsy check
+    valCombinedTarget = (valCombinedTarget !== null && valCombinedTarget !== undefined && valCombinedTarget !== '') ? String(valCombinedTarget) : '';
+    valCombinedSL = (valCombinedSL !== null && valCombinedSL !== undefined && valCombinedSL !== '') ? String(valCombinedSL) : '';
+
+    const hasCombined = valCombinedTarget !== '' || valCombinedSL !== '';
 
     setCombinedPremiumTarget(valCombinedTarget);
     setCombinedPremiumSL(valCombinedSL);

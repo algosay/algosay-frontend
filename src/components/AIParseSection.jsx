@@ -16,6 +16,9 @@ const AIParseSection = ({
 
   // 🚨 State to hold and display parsed legs clearly before confirmation
   const [parsedLegs, setParsedLegs] = useState([]);
+  
+  // 🟢 NEW UPDATE: State to hold Risk Management (Combined SL/Target) for Dynamic UI Preview
+  const [parsedRisk, setParsedRisk] = useState(null);
 
   // Sync external prompt changes (e.g., if a template is loaded from parent) to local state
   useEffect(() => {
@@ -33,25 +36,25 @@ const AIParseSection = ({
   const handleAIParse = async () => {
     setIsParsing(true);
     
-    // Pazhaiya results-ah clear panrom
+    // Clear previous results
     if(setAiMessage) setAiMessage(null);
     if(setAiExplanation) setAiExplanation(null);
     if(setNeedsInfoQuestion) setNeedsInfoQuestion(null);
     setParsedLegs([]); 
+    setParsedRisk(null); // 🟢 Clear previous risk data
 
     try {
       const response = await axios.post("https://algosay-backend.onrender.com/parse_strategy", {
         prompt: localPrompt // using localPrompt here for safety
       });
       
-      const data = response.data; // Axios-la result 'data'-kulla thaan irukkum
+      const data = response.data;
 
       if (data.status === "success") {
-        // AI kudutha explanation-ah state-la set panrom (Ithuthaan UI-la theriyum)
         if(setAiExplanation) setAiExplanation(data.explanation);
         if(setAiMessage) setAiMessage("Strategy Auto-Mapped Successfully! ✨");
         
-        // 🚨 NEW UPDATE: SMART EXTRACTION LOGIC FOR PERFECT UI PREVIEW
+        // 🚨 SMART EXTRACTION LOGIC FOR UI PREVIEW
         if(data.legs && Array.isArray(data.legs)) {
           
           let extractedTicker = '';
@@ -106,10 +109,19 @@ const AIParseSection = ({
           setParsedLegs(enhancedLegs);
         }
 
-        // Parent component-ku AI extract panna exact data-va apdiye anuppuroom
+        // 🟢 DYNAMIC RISK MANAGEMENT EXTRACTION FOR PREVIEW UI
+        const riskObj = data.risk_management || {};
+        const extractedRisk = {
+            combinedPremiumTarget: data.combinedPremiumTarget ?? data.combined_premium_target ?? riskObj.combinedPremiumTarget ?? riskObj.combined_premium_target ?? '',
+            combinedPremiumSL: data.combinedPremiumSL ?? data.combined_premium_sl ?? riskObj.combinedPremiumSL ?? riskObj.combined_premium_sl ?? '',
+            overallTarget: riskObj.overallStrategyTarget ?? riskObj.overall_target ?? '',
+            overallSL: riskObj.overallStrategySL ?? riskObj.overall_sl ?? ''
+        };
+        setParsedRisk(extractedRisk);
+
         if(onParsedDataSuccess) onParsedDataSuccess(data);
+        
       } else {
-        // AI-ku innum details thevai patta
         if(setNeedsInfoQuestion) setNeedsInfoQuestion(data.message || "Can you specify the timeframe?");
       }
       
@@ -240,7 +252,7 @@ const AIParseSection = ({
               );
             })}
 
-            {/* 🚨 UPDATED: RENDERING WITH DYNAMIC displayTicker AND displayUnit & Previous Candle Condition Badge */}
+            {/* 🚨 RENDERING WITH DYNAMIC displayTicker AND displayUnit & Previous Candle Condition Badge */}
             {parsedLegs && parsedLegs.length > 0 && (
               <div className="mt-4 pt-4 border-t border-[#1f2030] flex flex-col gap-2">
                 <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Detected Strategy Legs:</span>
@@ -256,7 +268,7 @@ const AIParseSection = ({
                       ? 'text-green-400' 
                       : 'text-red-400';
 
-                    // 🟢 Extract condition info for UI badge preview
+                    // Extract condition info for UI badge preview
                     const conditionVal = (leg.condition || leg.trigger_condition || '').toUpperCase();
                     let conditionDisplay = null;
                     if (conditionVal.includes('GREEN')) {
@@ -278,7 +290,7 @@ const AIParseSection = ({
                           </span>
                         </div>
                         
-                        {/* 🟢 Render Dynamic Previous Candle Trigger Rule Badge if present */}
+                        {/* Render Dynamic Previous Candle Trigger Rule Badge if present */}
                         {conditionDisplay && (
                           <div className="bg-purple-950/40 border border-purple-500/30 text-purple-300 text-[11px] font-mono px-2.5 py-1 rounded flex items-center gap-1.5 shadow-sm">
                             <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse"></span>
@@ -305,6 +317,44 @@ const AIParseSection = ({
                       </div>
                     );
                   })}
+                </div>
+              </div>
+            )}
+
+            {/* 🟢 RENDER COMBINED/OVERALL RISK MANAGEMENT BADGES */}
+            {parsedRisk && (parsedRisk.combinedPremiumTarget || parsedRisk.combinedPremiumSL || parsedRisk.overallTarget || parsedRisk.overallSL) && (
+              <div className="mt-4 pt-4 border-t border-[#1f2030] flex flex-col gap-2">
+                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Detected Risk Management:</span>
+                <div className="flex flex-wrap gap-3">
+                  
+                  {parsedRisk.combinedPremiumTarget && (
+                    <div className="bg-green-900/20 border border-green-500/30 px-3 py-1.5 rounded-lg flex flex-col">
+                      <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Combined Target</span>
+                      <span className="text-sm font-bold text-green-400">{parsedRisk.combinedPremiumTarget} Pts</span>
+                    </div>
+                  )}
+
+                  {parsedRisk.combinedPremiumSL && (
+                    <div className="bg-red-900/20 border border-red-500/30 px-3 py-1.5 rounded-lg flex flex-col">
+                      <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Combined SL</span>
+                      <span className="text-sm font-bold text-red-400">{parsedRisk.combinedPremiumSL} Pts</span>
+                    </div>
+                  )}
+
+                  {parsedRisk.overallTarget && (
+                    <div className="bg-blue-900/20 border border-blue-500/30 px-3 py-1.5 rounded-lg flex flex-col">
+                      <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Overall Str. Target</span>
+                      <span className="text-sm font-bold text-blue-400">₹{parsedRisk.overallTarget}</span>
+                    </div>
+                  )}
+
+                  {parsedRisk.overallSL && (
+                    <div className="bg-orange-900/20 border border-orange-500/30 px-3 py-1.5 rounded-lg flex flex-col">
+                      <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Overall Str. SL</span>
+                      <span className="text-sm font-bold text-orange-400">₹{parsedRisk.overallSL}</span>
+                    </div>
+                  )}
+                  
                 </div>
               </div>
             )}
