@@ -182,20 +182,28 @@ export const useAppLogic = () => {
     setTrailMoveX(globalTrailX);
     setTrailPointY(globalTrailY);
 
-    // 🟢 NEW UPDATE: AI response parse panni antha puthu states-a set pandrom
-    setOverallStrategyTarget(risk.overallStrategyTarget ?? risk.overall_target ?? data.overallStrategyTarget ?? data.overall_target ?? '');
-    setOverallStrategySL(risk.overallStrategySL ?? risk.overall_sl ?? data.overallStrategySL ?? data.overall_sl ?? '');
-    
-    // 🟢 HYPER DYNAMIC MAPPING UPDATE: AI epadi key anupunalum catch panra madhiri robust checking
-    let valCombinedTarget = data.combinedPremiumTarget ?? data.combined_premium_target ?? risk.combinedPremiumTarget ?? risk.combined_premium_target ?? risk.combinedTarget ?? data.combinedTarget ?? risk.combined_target ?? data.combined_target ?? '';
-    let valCombinedSL = data.combinedPremiumSL ?? data.combined_premium_sl ?? risk.combinedPremiumSL ?? risk.combined_premium_sl ?? risk.combinedSL ?? data.combinedSL ?? risk.combined_sl ?? data.combined_sl ?? '';
+    // 🟢 EXTRACT RAW VALUES WITH MORE FALLBACKS (including 'StopLoss' spelling)
+    let rawOverallTarget = risk.overallStrategyTarget ?? risk.overall_target ?? data.overallStrategyTarget ?? data.overall_target ?? '';
+    let rawOverallSL = risk.overallStrategySL ?? risk.overall_sl ?? data.overallStrategySL ?? data.overall_sl ?? '';
 
-    // Convert safety check: to handle "0" perfectly without failing falsy check
-    valCombinedTarget = (valCombinedTarget !== null && valCombinedTarget !== undefined && valCombinedTarget !== '') ? String(valCombinedTarget) : '';
-    valCombinedSL = (valCombinedSL !== null && valCombinedSL !== undefined && valCombinedSL !== '') ? String(valCombinedSL) : '';
+    let rawCombinedTarget = data.combinedPremiumTarget ?? data.combined_premium_target ?? risk.combinedPremiumTarget ?? risk.combined_premium_target ?? risk.combinedTarget ?? data.combinedTarget ?? risk.combined_target ?? data.combined_target ?? '';
+    let rawCombinedSL = data.combinedPremiumSL ?? data.combined_premium_sl ?? risk.combinedPremiumSL ?? risk.combined_premium_sl ?? risk.combinedSL ?? data.combinedSL ?? risk.combined_sl ?? data.combined_sl ?? risk.combinedPremiumStopLoss ?? risk.combined_premium_stop_loss ?? risk.combinedStopLoss ?? risk.combined_stop_loss ?? data.combinedStopLoss ?? data.combined_stop_loss ?? '';
+
+    // 🟢 REGEX PURIFIER: Removes "Pts", "Points", or spaces and keeps only numbers
+    // Example: "100 Pts" -> "100" (Which HTML type="number" input can read perfectly)
+    const extractNumber = (val) => {
+        if (val === null || val === undefined || val === '') return '';
+        return String(val).replace(/[^0-9.]/g, ''); 
+    };
+
+    let valCombinedTarget = extractNumber(rawCombinedTarget);
+    let valCombinedSL = extractNumber(rawCombinedSL);
 
     const hasCombined = valCombinedTarget !== '' || valCombinedSL !== '';
 
+    // Updating State with purified values
+    setOverallStrategyTarget(extractNumber(rawOverallTarget));
+    setOverallStrategySL(extractNumber(rawOverallSL));
     setCombinedPremiumTarget(valCombinedTarget);
     setCombinedPremiumSL(valCombinedSL);
 
@@ -358,7 +366,6 @@ export const useAppLogic = () => {
     const name = window.prompt("Enter a name for this strategy (e.g., Nifty Iron Condor):");
     if (!name) return;
 
-    // 🟢 NEW UPDATE: Included new price targets into Save Data
     const strategyData = {
       aiPrompt, aiExplanation,
       ticker, timeframe, underlyingFrom, qty, transactionType,
@@ -411,7 +418,6 @@ export const useAppLogic = () => {
     setTrailMoveX(data.trailMoveX || '');
     setTrailPointY(data.trailPointY || '');
 
-    // 🟢 NEW UPDATE: Loading saved strategy target values
     setOverallStrategyTarget(data.overallStrategyTarget || '');
     setOverallStrategySL(data.overallStrategySL || '');
     setCombinedPremiumTarget(data.combinedPremiumTarget || '');
@@ -510,7 +516,6 @@ export const useAppLogic = () => {
         entry_on_open: leg.entry_on_open !== undefined ? leg.entry_on_open : (Boolean(leg.condition || leg.trigger_condition))
     }));
 
-    // 🟢 NEW UPDATE: Payload-la risk management ulla values-a mapping panni anupurom
     const payload = {
       user_id: user?.uid || "guest_123", 
       data_source: dataSource,            
@@ -562,7 +567,6 @@ export const useAppLogic = () => {
     }
   };
 
-  // 🟢 NEW UPDATE: Expose the new variables so frontend UI can bind to them
   return {
     user, setUser, loadingAuth, userCredits, isSubscribed, subscriptionPlan,
     userProfileData, setUserProfileData,
@@ -579,7 +583,6 @@ export const useAppLogic = () => {
     entryTime, setEntryTime, exitTime, setExitTime, fromDate, setFromDate, toDate, setToDate,
     trailMoveX, setTrailMoveX, trailPointY, setTrailPointY, 
 
-    // Return the new states for components to use
     overallStrategyTarget, setOverallStrategyTarget,
     overallStrategySL, setOverallStrategySL,
     combinedPremiumTarget, setCombinedPremiumTarget,
