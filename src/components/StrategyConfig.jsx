@@ -76,7 +76,7 @@ const StrategyConfig = ({
               type="number"
               className="bg-[#2a2a2a] text-white p-2 rounded border border-gray-600 focus:border-green-500 focus:outline-none text-sm transition-colors"
               placeholder="E.g., 5000"
-              value={overallStrategyTarget}
+              value={overallStrategyTarget || ""}
               onChange={(e) => handleConfigChange(setOverallStrategyTarget, e.target.value)}
             />
           </div>
@@ -88,7 +88,7 @@ const StrategyConfig = ({
               type="number"
               className="bg-[#2a2a2a] text-white p-2 rounded border border-gray-600 focus:border-red-500 focus:outline-none text-sm transition-colors"
               placeholder="E.g., 2000"
-              value={overallStrategySL}
+              value={overallStrategySL || ""}
               onChange={(e) => handleConfigChange(setOverallStrategySL, e.target.value)}
             />
           </div>
@@ -100,7 +100,7 @@ const StrategyConfig = ({
               type="number"
               className="bg-[#2a2a2a] text-white p-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none text-sm transition-colors"
               placeholder="E.g., 150"
-              value={combinedPremiumTarget}
+              value={combinedPremiumTarget || ""}
               onChange={(e) => handleConfigChange(setCombinedPremiumTarget, e.target.value)}
             />
           </div>
@@ -112,7 +112,7 @@ const StrategyConfig = ({
               type="number"
               className="bg-[#2a2a2a] text-white p-2 rounded border border-gray-600 focus:border-orange-500 focus:outline-none text-sm transition-colors"
               placeholder="E.g., 50"
-              value={combinedPremiumSL}
+              value={combinedPremiumSL || ""}
               onChange={(e) => handleConfigChange(setCombinedPremiumSL, e.target.value)}
             />
           </div>
