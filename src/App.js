@@ -98,7 +98,7 @@ const ProtectedDashboard = ({ logic }) => {
               qty={logic.qty} setQty={logic.setQty}
               transactionType={logic.transactionType} setTransactionType={logic.setTransactionType}
               fromDate={logic.fromDate} setFromDate={logic.setFromDate}
-              toDate={logic.toDate} setToDate={logic.setToData}
+              toDate={logic.toDate} setToDate={logic.setToDate} /* 🛠️ FIXED: setToData -> setToDate */
               entryTime={logic.entryTime} setEntryTime={logic.setEntryTime}
               exitTime={logic.exitTime} setExitTime={logic.setExitTime}
               trailMoveX={logic.trailMoveX} setTrailMoveX={logic.setTrailMoveX}
@@ -115,6 +115,12 @@ const ProtectedDashboard = ({ logic }) => {
               // ⚡ NEW: Data Source S3 vs Fyers Toggle Props injected ⚡
               dataSource={logic.dataSource}
               setDataSource={logic.setDataSource}
+              
+              // 🟢 PUDHUSA ADD PANNA 4 LINES (Combined Premium Target & SL) 👇
+              combinedPremiumTarget={logic.combinedPremiumTarget}
+              setCombinedPremiumTarget={logic.setCombinedPremiumTarget}
+              combinedPremiumSL={logic.combinedPremiumSL}
+              setCombinedPremiumSL={logic.setCombinedPremiumSL}
             />
 
             <div className="flex flex-col md:flex-row gap-4 mb-8">
@@ -150,7 +156,7 @@ const ProtectedDashboard = ({ logic }) => {
             <ResultsDashboard 
               result={logic.result} 
               withTax={logic.withTax} 
-              setWithTax={logic.setWithTest || logic.setWithTax} 
+              setWithTax={logic.setWithTax} /* 🛠️ FIXED: setWithTest removed */
             />
             
           </div>

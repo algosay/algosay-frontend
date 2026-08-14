@@ -134,6 +134,11 @@ const StrategyConfig = ({
         addLeg={addLeg} 
         updateLeg={updateLeg} 
         removeLeg={removeLeg} 
+        // 🟢 INTHA 4 PROPS-A LEGS PANEL-KU PASS PANNIRUKEN 👇
+        combinedPremiumTarget={combinedPremiumTarget}
+        setCombinedPremiumTarget={setCombinedPremiumTarget}
+        combinedPremiumSL={combinedPremiumSL}
+        setCombinedPremiumSL={setCombinedPremiumSL}
       />
 
       {/* Live Estimated Margin Card */}

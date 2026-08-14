@@ -72,6 +72,8 @@ export const useAppLogic = () => {
   // 🟢 NEW UPDATE: Price-based Global/Combined Targets & SL States 🟢
   const [overallStrategyTarget, setOverallStrategyTarget] = useState('');
   const [overallStrategySL, setOverallStrategySL] = useState('');
+  
+  // 🟢 A) STATE CREATION (Top Level) 🟢
   const [combinedPremiumTarget, setCombinedPremiumTarget] = useState('');
   const [combinedPremiumSL, setCombinedPremiumSL] = useState('');
 
@@ -182,7 +184,7 @@ export const useAppLogic = () => {
     setTrailMoveX(globalTrailX);
     setTrailPointY(globalTrailY);
 
-    // 🟢 EXTRACT RAW VALUES WITH MORE FALLBACKS (including 'StopLoss' spelling)
+    // 🟢 B) AI DATA RECEIVER (Combined Target & SL Update) 🟢
     let rawOverallTarget = risk.overallStrategyTarget ?? risk.overall_target ?? data.overallStrategyTarget ?? data.overall_target ?? '';
     let rawOverallSL = risk.overallStrategySL ?? risk.overall_sl ?? data.overallStrategySL ?? data.overall_sl ?? '';
 
@@ -190,7 +192,6 @@ export const useAppLogic = () => {
     let rawCombinedSL = data.combinedPremiumSL ?? data.combined_premium_sl ?? risk.combinedPremiumSL ?? risk.combined_premium_sl ?? risk.combinedSL ?? data.combinedSL ?? risk.combined_sl ?? data.combined_sl ?? risk.combinedPremiumStopLoss ?? risk.combined_premium_stop_loss ?? risk.combinedStopLoss ?? risk.combined_stop_loss ?? data.combinedStopLoss ?? data.combined_stop_loss ?? '';
 
     // 🟢 REGEX PURIFIER: Removes "Pts", "Points", or spaces and keeps only numbers
-    // Example: "100 Pts" -> "100" (Which HTML type="number" input can read perfectly)
     const extractNumber = (val) => {
         if (val === null || val === undefined || val === '') return '';
         return String(val).replace(/[^0-9.]/g, ''); 
@@ -585,6 +586,8 @@ export const useAppLogic = () => {
 
     overallStrategyTarget, setOverallStrategyTarget,
     overallStrategySL, setOverallStrategySL,
+    
+    // 🟢 C) EXPORT STATES (Bottom Level) 🟢
     combinedPremiumTarget, setCombinedPremiumTarget,
     combinedPremiumSL, setCombinedPremiumSL,
 
