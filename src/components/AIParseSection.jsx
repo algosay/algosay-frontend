@@ -156,7 +156,7 @@ const AIParseSection = ({
             
             <div>
               <h2 className="text-xl font-bold text-white tracking-wide">AI Neural Engine</h2>
-              <p className="text-sm text-gray-400 mt-0.5">Describe your trading logic in natural language. (Now supports "Current Week" & "Next Week" expiries)</p>
+              <p className="text-sm text-gray-400 mt-0.5">Describe your trading logic in natural language. (Now supports dynamic previous candle color triggers & open execution)</p>
             </div>
           </div>
 
@@ -181,7 +181,7 @@ const AIParseSection = ({
             ref={textareaRef}
             className="flex-grow w-full bg-[#0a0a0f] border border-purple-900/40 rounded-xl p-4 text-white focus:outline-none focus:border-purple-500/80 focus:ring-1 focus:ring-purple-500/50 text-sm placeholder:text-gray-600 transition-all resize-none shadow-inner custom-scrollbar"
             rows="3"
-            placeholder="e.g., Call Ratio Backspread. 1.Sell 1 ITM CE, 2. Buy 2 OTM  +50  3.buy OTM +100 CE. 30% both SL. Exit at 15:15, Current Week / Next Week Expiry. JUN 16 2025 JUN 17 2025 10 LOT  nifty 5 min time frame  9.45 am candle close exactly....buy future 10 lot at 10.00am target 1000 point stoploss 500 point  exit 3.15  SELL future 10 lot at 11.00am target 1000 point stoploss 500 point  exit 3.15"
+            placeholder="e.g., Sell sensex option CE and PE every 15 mins. If 9.15-9.30 candle is green sell PE at 9.30 open price. Target 65% stop loss 22% exit at 3.15 PM."
             value={localPrompt}
             onChange={handleTextChange}
           ></textarea>
@@ -240,7 +240,7 @@ const AIParseSection = ({
               );
             })}
 
-            {/* 🚨 UPDATED: RENDERING WITH DYNAMIC displayTicker AND displayUnit */}
+            {/* 🚨 UPDATED: RENDERING WITH DYNAMIC displayTicker AND displayUnit & Previous Candle Condition Badge */}
             {parsedLegs && parsedLegs.length > 0 && (
               <div className="mt-4 pt-4 border-t border-[#1f2030] flex flex-col gap-2">
                 <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Detected Strategy Legs:</span>
@@ -256,6 +256,17 @@ const AIParseSection = ({
                       ? 'text-green-400' 
                       : 'text-red-400';
 
+                    // 🟢 Extract condition info for UI badge preview
+                    const conditionVal = (leg.condition || leg.trigger_condition || '').toUpperCase();
+                    let conditionDisplay = null;
+                    if (conditionVal.includes('GREEN')) {
+                      conditionDisplay = `Entry Condition: Previous Candle = Green -> ${(leg.position || leg.action || 'BUY').toUpperCase()} ${(leg.optionType || leg.option_type || 'CE')} at Open`;
+                    } else if (conditionVal.includes('RED')) {
+                      conditionDisplay = `Entry Condition: Previous Candle = Red -> ${(leg.position || leg.action || 'BUY').toUpperCase()} ${(leg.optionType || leg.option_type || 'CE')} at Open`;
+                    } else if (conditionVal) {
+                      conditionDisplay = `Entry Condition: ${conditionVal}`;
+                    }
+
                     return (
                       <div key={idx} className={`p-3 rounded-lg border ${legTypeColor} flex flex-col gap-2`}>
                         <div className="flex justify-between items-center border-b border-white/10 pb-1.5">
@@ -267,6 +278,14 @@ const AIParseSection = ({
                           </span>
                         </div>
                         
+                        {/* 🟢 Render Dynamic Previous Candle Trigger Rule Badge if present */}
+                        {conditionDisplay && (
+                          <div className="bg-purple-950/40 border border-purple-500/30 text-purple-300 text-[11px] font-mono px-2.5 py-1 rounded flex items-center gap-1.5 shadow-sm">
+                            <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse"></span>
+                            <span>{conditionDisplay}</span>
+                          </div>
+                        )}
+
                         <div className="text-[11px] text-gray-300 flex flex-wrap gap-2 mt-1">
                           {isOptions ? (
                             <>

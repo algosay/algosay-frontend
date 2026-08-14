@@ -293,7 +293,14 @@ export const useAppLogic = () => {
           waitForCandleClose: leg.wait_for_candle_close || leg.waitForCandleClose || false, 
           waitAndTrade: leg.wait_and_trade || leg.waitAndTrade || false,
           costToCost: leg.cost_to_cost || leg.costToCost || false,
-          moveToStoploss: leg.move_to_stoploss || leg.moveToStoploss || false
+          moveToStoploss: leg.move_to_stoploss || leg.moveToStoploss || false,
+
+          // 🟢 NEW UPDATE: Capture previous candle color trigger condition parameters for frontend UI and state
+          condition: leg.condition || leg.trigger_condition || '',
+          trigger_condition: leg.trigger_condition || leg.condition || '',
+          is_recurring: leg.is_recurring !== undefined ? leg.is_recurring : (Boolean(leg.condition || leg.trigger_condition)),
+          cutoff_time: leg.cutoff_time || '14:00',
+          entry_on_open: leg.entry_on_open !== undefined ? leg.entry_on_open : (Boolean(leg.condition || leg.trigger_condition))
         };
       });
       setLegs(mappedLegs);
@@ -462,7 +469,14 @@ export const useAppLogic = () => {
         wait_for_candle_close: leg.waitForCandleClose || false, 
         wait_and_trade: leg.waitAndTrade || false, 
         cost_to_cost: leg.costToCost || false, 
-        move_to_stoploss: leg.moveToStoploss || false
+        move_to_stoploss: leg.moveToStoploss || false,
+
+        // 🟢 NEW UPDATE: Pass previous candle color condition parameters securely to backend API
+        condition: leg.condition || leg.trigger_condition || '',
+        trigger_condition: leg.trigger_condition || leg.condition || '',
+        is_recurring: leg.is_recurring !== undefined ? leg.is_recurring : (Boolean(leg.condition || leg.trigger_condition)),
+        cutoff_time: leg.cutoff_time || '14:00',
+        entry_on_open: leg.entry_on_open !== undefined ? leg.entry_on_open : (Boolean(leg.condition || leg.trigger_condition))
     }));
 
     const payload = {
