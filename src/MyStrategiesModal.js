@@ -71,10 +71,10 @@ const createDefaultObj = (id, name, concept, promptText, segmentTag) => ({
 const DEFAULT_STRATEGIES = [
   // --- TAB 1: CORE DIRECTIONAL (5) ---
   createDefaultObj(
-    'cd_1', 
-    'Long Call Breakout', 
-    'Directional Bullish - Catching high momentum upwards.', 
-    "I have mapped your NIFTY 50 Long Call strategy. Instrument: NIFTY 50 Options. Timeframe: 5-min candle. Execution: 09:30 AM on breaking previous day high. Action: Buy 10 LOT ATM CE Current Expiry. Target: 40% premium gain (approx 50 pts). Stoploss: 15% premium loss (Tight SL). Exit: Trail SL by 10% after 20% gain, or mandatory exit at 15:10 PM.", 
+  'cd_1', 
+    'NIFTY 50 Dual Breakout', 
+    'Directional Volatility - Catching momentum on breaking previous day high or low.', 
+    "Map a NIFTY 50 Options strategy on a 5-minute timeframe for the backtest period 05.08.2026 to 06.08.2026. Execution starts after 09:30 AM. Leg 1: Buy 10 lots of Current Week ATM CE if the price breaks above the Previous Day High (PDH). Leg 2: Buy 10 lots of Current Week ATM PE if the price breaks below the Previous Day Low (PDL). Trade whichever side breaks first, restricted to a maximum of 1 entry per day per side. Target: 40% premium gain. Stoploss: 15% premium loss. Exit: Trail the Stoploss by 10% for every 20% premium gain, with a mandatory square-off at 15:10 PM. Note for AI Code Generation: Calculate PDH and PDL strictly using the last available trading session and store them in the global state at the end of each day to prevent weekend or missing data lookback errors.", 
     'core_dir'
   ),
   createDefaultObj(

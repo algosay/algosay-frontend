@@ -182,11 +182,17 @@ export const useAppLogic = () => {
     setTrailMoveX(globalTrailX);
     setTrailPointY(globalTrailY);
 
-    // 🟢 NEW UPDATE: AI response parse panni antha puthu states-a set pandrom (if available)
+    // 🟢 NEW UPDATE: AI response parse panni antha puthu states-a set pandrom
     setOverallStrategyTarget(risk.overallStrategyTarget ?? risk.overall_target ?? '');
     setOverallStrategySL(risk.overallStrategySL ?? risk.overall_sl ?? '');
-    setCombinedPremiumTarget(risk.combinedPremiumTarget ?? risk.combined_premium_target ?? '');
-    setCombinedPremiumSL(risk.combinedPremiumSL ?? risk.combined_premium_sl ?? '');
+    
+    // 🟢 DYNAMIC MAPPING UPDATE: Root level & Risk level check panni 'hasCombined' flag edukkurom
+    const valCombinedTarget = data.combinedPremiumTarget ?? data.combined_premium_target ?? risk.combinedPremiumTarget ?? risk.combined_premium_target ?? '';
+    const valCombinedSL = data.combinedPremiumSL ?? data.combined_premium_sl ?? risk.combinedPremiumSL ?? risk.combined_premium_sl ?? '';
+    const hasCombined = Boolean(valCombinedTarget || valCombinedSL);
+
+    setCombinedPremiumTarget(valCombinedTarget);
+    setCombinedPremiumSL(valCombinedSL);
 
     if (data.indicators && Array.isArray(data.indicators)) {
       const mappedIndicators = data.indicators.map((ind, idx) => {
@@ -292,8 +298,10 @@ export const useAppLogic = () => {
           strikeDistance: isOptions ? resolvedDistance : '',
           strike_offset: 0, 
 
-          stopLoss: rawSlVal, 
-          target: rawTargetVal,
+          // 🟢 DYNAMIC LOGIC: Combined Premium iruntha Individual Leg ah empty aakku. Illana old logic (raw value) use pannu.
+          stopLoss: hasCombined ? "" : rawSlVal, 
+          target: hasCombined ? "" : rawTargetVal,
+          
           slUnit: extractedSlUnit,
           targetUnit: extractedTargetUnit,
           trailX: rawTrailX,
