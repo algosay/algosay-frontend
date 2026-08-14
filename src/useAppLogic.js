@@ -3,7 +3,7 @@ import { auth, db, getUserCredits, deductUserCredit, saveUserStrategy, getUserSt
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore'; 
 
-// 🎯 INDEX STEP SIZE LOOKUP FOR DYNAMIC DISTANCE CALCULATION
+// 🎯 INDEX STEP SIZE LOOKUP FOR DYNAMIC DISTANCE CALCULATIONS
 const INDEX_STEP_SIZES = {
   "NIFTY 50": 50,
   "NIFTY": 50,
