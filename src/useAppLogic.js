@@ -69,6 +69,12 @@ export const useAppLogic = () => {
   const [trailMoveX, setTrailMoveX] = useState('');
   const [trailPointY, setTrailPointY] = useState('');
 
+  // 🟢 NEW UPDATE: Price-based Global/Combined Targets & SL States 🟢
+  const [overallStrategyTarget, setOverallStrategyTarget] = useState('');
+  const [overallStrategySL, setOverallStrategySL] = useState('');
+  const [combinedPremiumTarget, setCombinedPremiumTarget] = useState('');
+  const [combinedPremiumSL, setCombinedPremiumSL] = useState('');
+
   const [indicators, setIndicators] = useState([]);
   const [legs, setLegs] = useState([]); 
 
@@ -175,6 +181,12 @@ export const useAppLogic = () => {
     
     setTrailMoveX(globalTrailX);
     setTrailPointY(globalTrailY);
+
+    // 🟢 NEW UPDATE: AI response parse panni antha puthu states-a set pandrom (if available)
+    setOverallStrategyTarget(risk.overallStrategyTarget ?? risk.overall_target ?? '');
+    setOverallStrategySL(risk.overallStrategySL ?? risk.overall_sl ?? '');
+    setCombinedPremiumTarget(risk.combinedPremiumTarget ?? risk.combined_premium_target ?? '');
+    setCombinedPremiumSL(risk.combinedPremiumSL ?? risk.combined_premium_sl ?? '');
 
     if (data.indicators && Array.isArray(data.indicators)) {
       const mappedIndicators = data.indicators.map((ind, idx) => {
@@ -295,7 +307,6 @@ export const useAppLogic = () => {
           costToCost: leg.cost_to_cost || leg.costToCost || false,
           moveToStoploss: leg.move_to_stoploss || leg.moveToStoploss || false,
 
-          // 🟢 NEW UPDATE: Capture previous candle color trigger condition parameters for frontend UI and state
           condition: leg.condition || leg.trigger_condition || '',
           trigger_condition: leg.trigger_condition || leg.condition || '',
           is_recurring: leg.is_recurring !== undefined ? leg.is_recurring : (Boolean(leg.condition || leg.trigger_condition)),
@@ -334,11 +345,12 @@ export const useAppLogic = () => {
     const name = window.prompt("Enter a name for this strategy (e.g., Nifty Iron Condor):");
     if (!name) return;
 
+    // 🟢 NEW UPDATE: Included new price targets into Save Data
     const strategyData = {
       aiPrompt, aiExplanation,
       ticker, timeframe, underlyingFrom, qty, transactionType,
       strategyType, isDynamic, entryTime, exitTime, fromDate, toDate,
-      trailMoveX, trailPointY, indicators, legs
+      trailMoveX, trailPointY, overallStrategyTarget, overallStrategySL, combinedPremiumTarget, combinedPremiumSL, indicators, legs
     };
 
     const res = await saveUserStrategy(user.uid, name, strategyData);
@@ -385,6 +397,13 @@ export const useAppLogic = () => {
     setToDate(data.toDate || '');
     setTrailMoveX(data.trailMoveX || '');
     setTrailPointY(data.trailPointY || '');
+
+    // 🟢 NEW UPDATE: Loading saved strategy target values
+    setOverallStrategyTarget(data.overallStrategyTarget || '');
+    setOverallStrategySL(data.overallStrategySL || '');
+    setCombinedPremiumTarget(data.combinedPremiumTarget || '');
+    setCombinedPremiumSL(data.combinedPremiumSL || '');
+
     setIndicators(data.indicators || []);
     setLegs(data.legs || []); 
 
@@ -471,7 +490,6 @@ export const useAppLogic = () => {
         cost_to_cost: leg.costToCost || false, 
         move_to_stoploss: leg.moveToStoploss || false,
 
-        // 🟢 NEW UPDATE: Pass previous candle color condition parameters securely to backend API
         condition: leg.condition || leg.trigger_condition || '',
         trigger_condition: leg.trigger_condition || leg.condition || '',
         is_recurring: leg.is_recurring !== undefined ? leg.is_recurring : (Boolean(leg.condition || leg.trigger_condition)),
@@ -479,6 +497,7 @@ export const useAppLogic = () => {
         entry_on_open: leg.entry_on_open !== undefined ? leg.entry_on_open : (Boolean(leg.condition || leg.trigger_condition))
     }));
 
+    // 🟢 NEW UPDATE: Payload-la risk management ulla values-a mapping panni anupurom
     const payload = {
       user_id: user?.uid || "guest_123", 
       data_source: dataSource,            
@@ -489,7 +508,14 @@ export const useAppLogic = () => {
       instrument_settings: { ticker, timeframe, underlyingFrom, qty, transactionType },
       date_settings: { fromDate, toDate },
       entry_settings: { strategyType, timeframe, entryTime, exitTime },
-      risk_management: { trailMoveX, trailPointY }, 
+      risk_management: { 
+        trailMoveX, 
+        trailPointY,
+        overall_strategy_target: overallStrategyTarget ? parseFloat(overallStrategyTarget) : null,
+        overall_strategy_sl: overallStrategySL ? parseFloat(overallStrategySL) : null,
+        combined_premium_target: combinedPremiumTarget ? parseFloat(combinedPremiumTarget) : null,
+        combined_premium_sl: combinedPremiumSL ? parseFloat(combinedPremiumSL) : null
+      }, 
       indicators: indicators.map(i => ({ name: i.name, settings: i.settings })), 
       legs: formattedLegs 
     };
@@ -523,6 +549,7 @@ export const useAppLogic = () => {
     }
   };
 
+  // 🟢 NEW UPDATE: Expose the new variables so frontend UI can bind to them
   return {
     user, setUser, loadingAuth, userCredits, isSubscribed, subscriptionPlan,
     userProfileData, setUserProfileData,
@@ -537,7 +564,15 @@ export const useAppLogic = () => {
     qty, setQty, transactionType, setTransactionType, strategyType, setStrategyType,
     isDynamic, setIsDynamic, 
     entryTime, setEntryTime, exitTime, setExitTime, fromDate, setFromDate, toDate, setToDate,
-    trailMoveX, setTrailMoveX, trailPointY, setTrailPointY, indicators, legs,
+    trailMoveX, setTrailMoveX, trailPointY, setTrailPointY, 
+
+    // Return the new states for components to use
+    overallStrategyTarget, setOverallStrategyTarget,
+    overallStrategySL, setOverallStrategySL,
+    combinedPremiumTarget, setCombinedPremiumTarget,
+    combinedPremiumSL, setCombinedPremiumSL,
+
+    indicators, legs,
     loading, result, error, withTax, setWithTax,
     handleParsedDataSuccess, addLeg, updateLeg, removeLeg, addIndicator, updateIndicator, removeIndicator,
     handleSaveStrategy, openStrategiesModal, loadStrategy, handleDeleteStrategy, runBacktest

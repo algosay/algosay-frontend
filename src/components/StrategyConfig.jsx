@@ -30,7 +30,13 @@ const StrategyConfig = ({
   overallTarget, setOverallTarget, targetUnit, setTargetUnit,
 
   // ⚡ NEW PROPS: Data Source Selection (Fyers vs S3)
-  dataSource, setDataSource
+  dataSource, setDataSource,
+
+  // 🟢 NEW UPDATE: Price-based Global/Combined Targets & SL Props
+  overallStrategyTarget, setOverallStrategyTarget,
+  overallStrategySL, setOverallStrategySL,
+  combinedPremiumTarget, setCombinedPremiumTarget,
+  combinedPremiumSL, setCombinedPremiumSL
 }) => {
   
   const handleConfigChange = (setter, value) => {
@@ -55,6 +61,64 @@ const StrategyConfig = ({
         setToDate={setToDate} 
         handleConfigChange={handleConfigChange} 
       />
+
+      {/* 🛡️ NEW UPDATE: OVERALL RISK MANAGEMENT PANEL */}
+      <div className="mb-4 p-4 bg-[#1e1e1e] border border-gray-700/50 rounded-lg shadow-sm">
+        <h3 className="text-sm font-bold text-gray-300 mb-3 uppercase tracking-wider flex items-center gap-2">
+          🛡️ Overall Risk Management (Price Based)
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          
+          {/* Overall Strategy Target */}
+          <div className="flex flex-col">
+            <label className="text-xs text-gray-400 mb-1">Overall Target (₹/Pts)</label>
+            <input
+              type="number"
+              className="bg-[#2a2a2a] text-white p-2 rounded border border-gray-600 focus:border-green-500 focus:outline-none text-sm transition-colors"
+              placeholder="E.g., 5000"
+              value={overallStrategyTarget}
+              onChange={(e) => handleConfigChange(setOverallStrategyTarget, e.target.value)}
+            />
+          </div>
+
+          {/* Overall Strategy SL */}
+          <div className="flex flex-col">
+            <label className="text-xs text-gray-400 mb-1">Overall SL (₹/Pts)</label>
+            <input
+              type="number"
+              className="bg-[#2a2a2a] text-white p-2 rounded border border-gray-600 focus:border-red-500 focus:outline-none text-sm transition-colors"
+              placeholder="E.g., 2000"
+              value={overallStrategySL}
+              onChange={(e) => handleConfigChange(setOverallStrategySL, e.target.value)}
+            />
+          </div>
+
+          {/* Combined Premium Target */}
+          <div className="flex flex-col">
+            <label className="text-xs text-gray-400 mb-1">Combined Premium Target</label>
+            <input
+              type="number"
+              className="bg-[#2a2a2a] text-white p-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none text-sm transition-colors"
+              placeholder="E.g., 150"
+              value={combinedPremiumTarget}
+              onChange={(e) => handleConfigChange(setCombinedPremiumTarget, e.target.value)}
+            />
+          </div>
+
+          {/* Combined Premium SL */}
+          <div className="flex flex-col">
+            <label className="text-xs text-gray-400 mb-1">Combined Premium SL</label>
+            <input
+              type="number"
+              className="bg-[#2a2a2a] text-white p-2 rounded border border-gray-600 focus:border-orange-500 focus:outline-none text-sm transition-colors"
+              placeholder="E.g., 50"
+              value={combinedPremiumSL}
+              onChange={(e) => handleConfigChange(setCombinedPremiumSL, e.target.value)}
+            />
+          </div>
+
+        </div>
+      </div>
 
       {/* 📊 INDICATORS PANEL */}
       <IndicatorsPanel 

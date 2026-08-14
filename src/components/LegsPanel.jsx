@@ -1,7 +1,12 @@
 import React from 'react';
 import { normalizeCriteria, normalizeUnit, normalizeSegment, INDEX_STEP_SIZES } from './utils';
 
-const LegsPanel = ({ legs, addLeg, updateLeg, removeLeg }) => {
+const LegsPanel = ({ 
+  legs, addLeg, updateLeg, removeLeg,
+  // 🟢 NEW UPDATE: Combined Premium Props added to LegsPanel
+  combinedPremiumTarget, setCombinedPremiumTarget,
+  combinedPremiumSL, setCombinedPremiumSL
+}) => {
   return (
     <div className="bg-[#1e1e1e] p-5 rounded-xl border border-[#2d2d2d] mb-6 w-full flex flex-col">
       <div className="flex justify-between items-center mb-4 border-b border-[#2d2d2d] pb-2">
@@ -10,6 +15,7 @@ const LegsPanel = ({ legs, addLeg, updateLeg, removeLeg }) => {
         </h3>
         <button onClick={addLeg} className="text-[10px] bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1.5 rounded transition-colors shadow-md shadow-blue-950/20">+ Add New Leg</button>
       </div>
+      
       {legs.length === 0 ? (
         <div className="text-center py-10 text-xs text-gray-500 bg-[#121212] rounded-xl border border-dashed border-[#333]">
           No trading legs configured. Prompt the AI assistant or click "+ Add New Leg" to populate setup parameters.
@@ -380,6 +386,36 @@ const LegsPanel = ({ legs, addLeg, updateLeg, removeLeg }) => {
           })}
         </div>
       )}
+
+      {/* 🛡️ COMBINED PREMIUM RISK SECTION (NEW UPDATE) */}
+      <div className="mt-5 pt-4 border-t border-[#2d2d2d] bg-[#1a1a1a] p-4 rounded-lg">
+        <h4 className="text-xs font-bold text-blue-400 mb-3 uppercase tracking-wider flex items-center gap-2">
+          🔗 Combined Premium Target & Stoploss
+        </h4>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="flex flex-col">
+            <label className="text-[10px] text-gray-400 mb-1 uppercase tracking-wide">Combined Premium Target</label>
+            <input
+              type="number"
+              value={combinedPremiumTarget || ''}
+              onChange={(e) => setCombinedPremiumTarget && setCombinedPremiumTarget(e.target.value)}
+              className="bg-[#121212] text-white p-2 rounded border border-[#333] focus:border-blue-500 focus:outline-none text-xs transition-colors"
+              placeholder="e.g. 150"
+            />
+          </div>
+          <div className="flex flex-col">
+            <label className="text-[10px] text-gray-400 mb-1 uppercase tracking-wide">Combined Premium Stop Loss</label>
+            <input
+              type="number"
+              value={combinedPremiumSL || ''}
+              onChange={(e) => setCombinedPremiumSL && setCombinedPremiumSL(e.target.value)}
+              className="bg-[#121212] text-white p-2 rounded border border-[#333] focus:border-orange-500 focus:outline-none text-xs transition-colors"
+              placeholder="e.g. 50"
+            />
+          </div>
+        </div>
+      </div>
+
     </div>
   );
 };
