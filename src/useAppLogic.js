@@ -69,13 +69,19 @@ export const useAppLogic = () => {
   const [trailMoveX, setTrailMoveX] = useState('');
   const [trailPointY, setTrailPointY] = useState('');
 
-  // 🟢 NEW UPDATE: Price-based Global/Combined Targets & SL States 🟢
+  // 🟢 NEW UPDATE: Price-based Global/Combined Targets & SL States with Units 🟢
   const [overallStrategyTarget, setOverallStrategyTarget] = useState('');
+  const [overallStrategyTargetUnit, setOverallStrategyTargetUnit] = useState('Pts'); // NEW UNIT STATE
+
   const [overallStrategySL, setOverallStrategySL] = useState('');
+  const [overallStrategySLUnit, setOverallStrategySLUnit] = useState('Pts'); // NEW UNIT STATE
   
-  // 🟢 A) STATE CREATION (Top Level) 🟢
+  // 🟢 A) STATE CREATION (Top Level) with Units 🟢
   const [combinedPremiumTarget, setCombinedPremiumTarget] = useState('');
+  const [combinedPremiumTargetUnit, setCombinedPremiumTargetUnit] = useState('Pts'); // NEW UNIT STATE
+
   const [combinedPremiumSL, setCombinedPremiumSL] = useState('');
+  const [combinedPremiumSLUnit, setCombinedPremiumSLUnit] = useState('Pts'); // NEW UNIT STATE
 
   const [indicators, setIndicators] = useState([]);
   const [legs, setLegs] = useState([]); 
@@ -185,11 +191,28 @@ export const useAppLogic = () => {
     setTrailPointY(globalTrailY);
 
     // 🟢 B) AI DATA RECEIVER (Combined Target & SL Update) 🟢
+    
+    // NEW: Unit extraction helper to find %, Pts, or Rs from string
+    const extractUnit = (val, defaultUnit = 'Pts') => {
+        if (val === null || val === undefined || val === '') return defaultUnit;
+        const strVal = String(val).toLowerCase();
+        if (strVal.includes('%') || strVal.includes('percent')) return '%';
+        if (strVal.includes('rs') || strVal.includes('rupee') || strVal.includes('inr')) return 'Rs';
+        if (strVal.includes('pt') || strVal.includes('point')) return 'Pts';
+        return defaultUnit;
+    };
+
     let rawOverallTarget = risk.overallStrategyTarget ?? risk.overall_target ?? data.overallStrategyTarget ?? data.overall_target ?? '';
     let rawOverallSL = risk.overallStrategySL ?? risk.overall_sl ?? data.overallStrategySL ?? data.overall_sl ?? '';
 
     let rawCombinedTarget = data.combinedPremiumTarget ?? data.combined_premium_target ?? risk.combinedPremiumTarget ?? risk.combined_premium_target ?? risk.combinedTarget ?? data.combinedTarget ?? risk.combined_target ?? data.combined_target ?? '';
     let rawCombinedSL = data.combinedPremiumSL ?? data.combined_premium_sl ?? risk.combinedPremiumSL ?? risk.combined_premium_sl ?? risk.combinedSL ?? data.combinedSL ?? risk.combined_sl ?? data.combined_sl ?? risk.combinedPremiumStopLoss ?? risk.combined_premium_stop_loss ?? risk.combinedStopLoss ?? risk.combined_stop_loss ?? data.combinedStopLoss ?? data.combined_stop_loss ?? '';
+
+    // Extracting Units before purifying the numbers
+    const overallTargetUnitVal = risk.overallStrategyTargetUnit ?? risk.overall_target_unit ?? extractUnit(rawOverallTarget, 'Pts');
+    const overallSLUnitVal = risk.overallStrategySLUnit ?? risk.overall_sl_unit ?? extractUnit(rawOverallSL, 'Pts');
+    const combinedTargetUnitVal = risk.combinedPremiumTargetUnit ?? risk.combined_premium_target_unit ?? extractUnit(rawCombinedTarget, 'Pts');
+    const combinedSLUnitVal = risk.combinedPremiumSLUnit ?? risk.combined_premium_sl_unit ?? extractUnit(rawCombinedSL, 'Pts');
 
     // 🟢 REGEX PURIFIER: Removes "Pts", "Points", or spaces and keeps only numbers
     const extractNumber = (val) => {
@@ -202,11 +225,18 @@ export const useAppLogic = () => {
 
     const hasCombined = valCombinedTarget !== '' || valCombinedSL !== '';
 
-    // Updating State with purified values
+    // Updating State with purified values and their extracted units
     setOverallStrategyTarget(extractNumber(rawOverallTarget));
+    setOverallStrategyTargetUnit(overallTargetUnitVal);
+
     setOverallStrategySL(extractNumber(rawOverallSL));
+    setOverallStrategySLUnit(overallSLUnitVal);
+
     setCombinedPremiumTarget(valCombinedTarget);
+    setCombinedPremiumTargetUnit(combinedTargetUnitVal);
+
     setCombinedPremiumSL(valCombinedSL);
+    setCombinedPremiumSLUnit(combinedSLUnitVal);
 
     if (data.indicators && Array.isArray(data.indicators)) {
       const mappedIndicators = data.indicators.map((ind, idx) => {
@@ -371,7 +401,12 @@ export const useAppLogic = () => {
       aiPrompt, aiExplanation,
       ticker, timeframe, underlyingFrom, qty, transactionType,
       strategyType, isDynamic, entryTime, exitTime, fromDate, toDate,
-      trailMoveX, trailPointY, overallStrategyTarget, overallStrategySL, combinedPremiumTarget, combinedPremiumSL, indicators, legs
+      trailMoveX, trailPointY, 
+      overallStrategyTarget, overallStrategyTargetUnit, 
+      overallStrategySL, overallStrategySLUnit, 
+      combinedPremiumTarget, combinedPremiumTargetUnit, 
+      combinedPremiumSL, combinedPremiumSLUnit, 
+      indicators, legs
     };
 
     const res = await saveUserStrategy(user.uid, name, strategyData);
@@ -420,9 +455,14 @@ export const useAppLogic = () => {
     setTrailPointY(data.trailPointY || '');
 
     setOverallStrategyTarget(data.overallStrategyTarget || '');
+    setOverallStrategyTargetUnit(data.overallStrategyTargetUnit || 'Pts');
     setOverallStrategySL(data.overallStrategySL || '');
+    setOverallStrategySLUnit(data.overallStrategySLUnit || 'Pts');
+
     setCombinedPremiumTarget(data.combinedPremiumTarget || '');
+    setCombinedPremiumTargetUnit(data.combinedPremiumTargetUnit || 'Pts');
     setCombinedPremiumSL(data.combinedPremiumSL || '');
+    setCombinedPremiumSLUnit(data.combinedPremiumSLUnit || 'Pts');
 
     setIndicators(data.indicators || []);
     setLegs(data.legs || []); 
@@ -531,9 +571,13 @@ export const useAppLogic = () => {
         trailMoveX, 
         trailPointY,
         overall_strategy_target: overallStrategyTarget ? parseFloat(overallStrategyTarget) : null,
+        overall_strategy_target_unit: overallStrategyTargetUnit,
         overall_strategy_sl: overallStrategySL ? parseFloat(overallStrategySL) : null,
+        overall_strategy_sl_unit: overallStrategySLUnit,
         combined_premium_target: combinedPremiumTarget ? parseFloat(combinedPremiumTarget) : null,
-        combined_premium_sl: combinedPremiumSL ? parseFloat(combinedPremiumSL) : null
+        combined_premium_target_unit: combinedPremiumTargetUnit,
+        combined_premium_sl: combinedPremiumSL ? parseFloat(combinedPremiumSL) : null,
+        combined_premium_sl_unit: combinedPremiumSLUnit
       }, 
       indicators: indicators.map(i => ({ name: i.name, settings: i.settings })), 
       legs: formattedLegs 
@@ -585,11 +629,15 @@ export const useAppLogic = () => {
     trailMoveX, setTrailMoveX, trailPointY, setTrailPointY, 
 
     overallStrategyTarget, setOverallStrategyTarget,
+    overallStrategyTargetUnit, setOverallStrategyTargetUnit,
     overallStrategySL, setOverallStrategySL,
+    overallStrategySLUnit, setOverallStrategySLUnit,
     
     // 🟢 C) EXPORT STATES (Bottom Level) 🟢
     combinedPremiumTarget, setCombinedPremiumTarget,
+    combinedPremiumTargetUnit, setCombinedPremiumTargetUnit,
     combinedPremiumSL, setCombinedPremiumSL,
+    combinedPremiumSLUnit, setCombinedPremiumSLUnit,
 
     indicators, legs,
     loading, result, error, withTax, setWithTax,

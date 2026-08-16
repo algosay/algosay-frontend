@@ -49,6 +49,7 @@ const AIParseSection = ({
       });
       
       const data = response.data;
+      const promptText = (localPrompt || '').toUpperCase(); // 🚀 Declared early for global use
 
       if (data.status === "success") {
         if(setAiExplanation) setAiExplanation(data.explanation);
@@ -58,7 +59,6 @@ const AIParseSection = ({
         if(data.legs && Array.isArray(data.legs)) {
           
           let extractedTicker = '';
-          const promptText = (localPrompt || '').toUpperCase();
           
           // Identify EXACT asset from User Prompt dynamically
           if (promptText.includes('MIDCPNIFTY') || promptText.includes('MIDCAP')) extractedTicker = 'MIDCPNIFTY';
@@ -78,6 +78,7 @@ const AIParseSection = ({
             if (typeof rawSlVal === 'string') {
               if (rawSlVal.toLowerCase().includes('pt') || rawSlVal.toLowerCase().includes('point')) slUnit = 'Pts';
               else if (rawSlVal.includes('%')) slUnit = '%';
+              else if (rawSlVal.toLowerCase().includes('rs') || rawSlVal.toLowerCase().includes('rupee')) slUnit = 'Rs';
               rawSlVal = parseFloat(rawSlVal) || rawSlVal;
             }
 
@@ -87,6 +88,7 @@ const AIParseSection = ({
             if (typeof rawTargetVal === 'string') {
               if (rawTargetVal.toLowerCase().includes('pt') || rawTargetVal.toLowerCase().includes('point')) targetUnit = 'Pts';
               else if (rawTargetVal.includes('%')) targetUnit = '%';
+              else if (rawTargetVal.toLowerCase().includes('rs') || rawTargetVal.toLowerCase().includes('rupee')) targetUnit = 'Rs';
               rawTargetVal = parseFloat(rawTargetVal) || rawTargetVal;
             }
 
@@ -109,11 +111,45 @@ const AIParseSection = ({
           setParsedLegs(enhancedLegs);
         }
 
-        // 🟢 DYNAMIC RISK MANAGEMENT EXTRACTION FOR PREVIEW UI
+        // 🟢 DYNAMIC RISK MANAGEMENT EXTRACTION FOR PREVIEW UI (UPDATED WITH DYNAMIC UNITS)
         const riskObj = data.risk_management || {};
+        
+        // 🚀 SMART EXTRACTION FOR COMBINED TARGET & UNIT
+        let rawCombTarget = data.combinedPremiumTarget ?? data.combined_premium_target ?? riskObj.combinedPremiumTarget ?? riskObj.combined_premium_target ?? '';
+        let combTargetUnit = data.combinedPremiumTargetUnit ?? data.combined_premium_target_unit ?? riskObj.combinedPremiumTargetUnit ?? riskObj.combined_premium_target_unit ?? 'Pts';
+        
+        if (typeof rawCombTarget === 'string') {
+          if (rawCombTarget.includes('%')) combTargetUnit = '%';
+          else if (rawCombTarget.toLowerCase().includes('pt') || rawCombTarget.toLowerCase().includes('point')) combTargetUnit = 'Pts';
+          else if (rawCombTarget.toLowerCase().includes('rs') || rawCombTarget.toLowerCase().includes('rupee')) combTargetUnit = 'Rs';
+          rawCombTarget = parseFloat(rawCombTarget) || rawCombTarget;
+        }
+
+        // 🚀 SMART EXTRACTION FOR COMBINED SL & UNIT
+        let rawCombSL = data.combinedPremiumSL ?? data.combined_premium_sl ?? riskObj.combinedPremiumSL ?? riskObj.combined_premium_sl ?? '';
+        let combSLUnit = data.combinedPremiumSLUnit ?? data.combined_premium_sl_unit ?? riskObj.combinedPremiumSLUnit ?? riskObj.combined_premium_sl_unit ?? 'Pts';
+        
+        if (typeof rawCombSL === 'string') {
+          if (rawCombSL.includes('%')) combSLUnit = '%';
+          else if (rawCombSL.toLowerCase().includes('pt') || rawCombSL.toLowerCase().includes('point')) combSLUnit = 'Pts';
+          else if (rawCombSL.toLowerCase().includes('rs') || rawCombSL.toLowerCase().includes('rupee')) combSLUnit = 'Rs';
+          rawCombSL = parseFloat(rawCombSL) || rawCombSL;
+        }
+
+        // 🚀 Fallback Unit check based on user prompt for Combined Premium
+        if (promptText.includes('%') || promptText.includes('PERCENT')) {
+           if (!data.combined_premium_target_unit && typeof (data.combined_premium_target) !== 'string' && rawCombTarget) combTargetUnit = '%';
+           if (!data.combined_premium_sl_unit && typeof (data.combined_premium_sl) !== 'string' && rawCombSL) combSLUnit = '%';
+        } else if (promptText.includes('RS') || promptText.includes('RUPEE')) {
+           if (!data.combined_premium_target_unit && typeof (data.combined_premium_target) !== 'string' && rawCombTarget) combTargetUnit = 'Rs';
+           if (!data.combined_premium_sl_unit && typeof (data.combined_premium_sl) !== 'string' && rawCombSL) combSLUnit = 'Rs';
+        }
+
         const extractedRisk = {
-            combinedPremiumTarget: data.combinedPremiumTarget ?? data.combined_premium_target ?? riskObj.combinedPremiumTarget ?? riskObj.combined_premium_target ?? '',
-            combinedPremiumSL: data.combinedPremiumSL ?? data.combined_premium_sl ?? riskObj.combinedPremiumSL ?? riskObj.combined_premium_sl ?? '',
+            combinedPremiumTarget: rawCombTarget,
+            combinedPremiumTargetUnit: combTargetUnit,
+            combinedPremiumSL: rawCombSL,
+            combinedPremiumSLUnit: combSLUnit,
             overallTarget: riskObj.overallStrategyTarget ?? riskObj.overall_target ?? '',
             overallSL: riskObj.overallStrategySL ?? riskObj.overall_sl ?? ''
         };
@@ -330,14 +366,18 @@ const AIParseSection = ({
                   {parsedRisk.combinedPremiumTarget && (
                     <div className="bg-green-900/20 border border-green-500/30 px-3 py-1.5 rounded-lg flex flex-col">
                       <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Combined Target</span>
-                      <span className="text-sm font-bold text-green-400">{parsedRisk.combinedPremiumTarget} Pts</span>
+                      <span className="text-sm font-bold text-green-400">
+                        {parsedRisk.combinedPremiumTarget} {parsedRisk.combinedPremiumTargetUnit} {/* 🚀 DYNAMIC UNIT ADDED */}
+                      </span>
                     </div>
                   )}
 
                   {parsedRisk.combinedPremiumSL && (
                     <div className="bg-red-900/20 border border-red-500/30 px-3 py-1.5 rounded-lg flex flex-col">
                       <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Combined SL</span>
-                      <span className="text-sm font-bold text-red-400">{parsedRisk.combinedPremiumSL} Pts</span>
+                      <span className="text-sm font-bold text-red-400">
+                        {parsedRisk.combinedPremiumSL} {parsedRisk.combinedPremiumSLUnit} {/* 🚀 DYNAMIC UNIT ADDED */}
+                      </span>
                     </div>
                   )}
 

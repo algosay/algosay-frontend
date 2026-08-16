@@ -3,9 +3,11 @@ import { normalizeCriteria, normalizeUnit, normalizeSegment, INDEX_STEP_SIZES } 
 
 const LegsPanel = ({ 
   legs, addLeg, updateLeg, removeLeg,
-  // 🟢 NEW UPDATE: Combined Premium Props added to LegsPanel
+  // 🟢 NEW UPDATE: Combined Premium Props added to LegsPanel (WITH UNITS)
   combinedPremiumTarget, setCombinedPremiumTarget,
-  combinedPremiumSL, setCombinedPremiumSL
+  combinedPremiumTargetUnit, setCombinedPremiumTargetUnit, // 🚀 NEW
+  combinedPremiumSL, setCombinedPremiumSL,
+  combinedPremiumSLUnit, setCombinedPremiumSLUnit // 🚀 NEW
 }) => {
   return (
     <div className="bg-[#1e1e1e] p-5 rounded-xl border border-[#2d2d2d] mb-6 w-full flex flex-col">
@@ -393,26 +395,51 @@ const LegsPanel = ({
           🔗 Combined Premium Target & Stoploss
         </h4>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          
           <div className="flex flex-col">
             <label className="text-[10px] text-gray-400 mb-1 uppercase tracking-wide">Combined Premium Target</label>
-            <input
-              type="number"
-              value={combinedPremiumTarget || ''}
-              onChange={(e) => setCombinedPremiumTarget && setCombinedPremiumTarget(e.target.value)}
-              className="bg-[#121212] text-white p-2 rounded border border-[#333] focus:border-blue-500 focus:outline-none text-xs transition-colors"
-              placeholder="e.g. 150"
-            />
+            <div className="flex gap-2">
+              <input
+                type="number"
+                value={combinedPremiumTarget || ''}
+                onChange={(e) => setCombinedPremiumTarget && setCombinedPremiumTarget(e.target.value)}
+                className="w-full bg-[#121212] text-white p-2 rounded border border-[#333] focus:border-blue-500 focus:outline-none text-xs transition-colors"
+                placeholder="e.g. 150"
+              />
+              <select
+                value={combinedPremiumTargetUnit || 'Pts'}
+                onChange={(e) => setCombinedPremiumTargetUnit && setCombinedPremiumTargetUnit(e.target.value)}
+                className="bg-[#121212] text-white p-2 rounded border border-[#333] focus:border-blue-500 focus:outline-none text-xs transition-colors cursor-pointer"
+              >
+                <option value="Pts">Pts</option>
+                <option value="%">%</option>
+                <option value="Rs">Rs</option>
+              </select>
+            </div>
           </div>
+          
           <div className="flex flex-col">
             <label className="text-[10px] text-gray-400 mb-1 uppercase tracking-wide">Combined Premium Stop Loss</label>
-            <input
-              type="number"
-              value={combinedPremiumSL || ''}
-              onChange={(e) => setCombinedPremiumSL && setCombinedPremiumSL(e.target.value)}
-              className="bg-[#121212] text-white p-2 rounded border border-[#333] focus:border-orange-500 focus:outline-none text-xs transition-colors"
-              placeholder="e.g. 50"
-            />
+            <div className="flex gap-2">
+              <input
+                type="number"
+                value={combinedPremiumSL || ''}
+                onChange={(e) => setCombinedPremiumSL && setCombinedPremiumSL(e.target.value)}
+                className="w-full bg-[#121212] text-white p-2 rounded border border-[#333] focus:border-orange-500 focus:outline-none text-xs transition-colors"
+                placeholder="e.g. 50"
+              />
+              <select
+                value={combinedPremiumSLUnit || 'Pts'}
+                onChange={(e) => setCombinedPremiumSLUnit && setCombinedPremiumSLUnit(e.target.value)}
+                className="bg-[#121212] text-white p-2 rounded border border-[#333] focus:border-orange-500 focus:outline-none text-xs transition-colors cursor-pointer"
+              >
+                <option value="Pts">Pts</option>
+                <option value="%">%</option>
+                <option value="Rs">Rs</option>
+              </select>
+            </div>
           </div>
+
         </div>
       </div>
 

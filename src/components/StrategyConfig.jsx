@@ -32,11 +32,13 @@ const StrategyConfig = ({
   // ⚡ NEW PROPS: Data Source Selection (Fyers vs S3)
   dataSource, setDataSource,
 
-  // 🟢 NEW UPDATE: Price-based Global/Combined Targets & SL Props
+  // 🟢 NEW UPDATE: Price-based Global/Combined Targets & SL Props (WITH UNITS)
   overallStrategyTarget, setOverallStrategyTarget,
   overallStrategySL, setOverallStrategySL,
   combinedPremiumTarget, setCombinedPremiumTarget,
-  combinedPremiumSL, setCombinedPremiumSL
+  combinedPremiumTargetUnit, setCombinedPremiumTargetUnit, // 🚀 NEW: TARGET UNIT
+  combinedPremiumSL, setCombinedPremiumSL,
+  combinedPremiumSLUnit, setCombinedPremiumSLUnit // 🚀 NEW: SL UNIT
 }) => {
   
   const handleConfigChange = (setter, value) => {
@@ -93,28 +95,50 @@ const StrategyConfig = ({
             />
           </div>
 
-          {/* Combined Premium Target */}
+          {/* Combined Premium Target & Unit (🚀 UPDATED WITH DYNAMIC DROPDOWN) */}
           <div className="flex flex-col">
             <label className="text-xs text-gray-400 mb-1">Combined Premium Target</label>
-            <input
-              type="number"
-              className="bg-[#2a2a2a] text-white p-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none text-sm transition-colors"
-              placeholder="E.g., 150"
-              value={combinedPremiumTarget || ""}
-              onChange={(e) => handleConfigChange(setCombinedPremiumTarget, e.target.value)}
-            />
+            <div className="flex gap-2">
+              <input
+                type="number"
+                className="bg-[#2a2a2a] w-full text-white p-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none text-sm transition-colors"
+                placeholder="E.g., 150"
+                value={combinedPremiumTarget || ""}
+                onChange={(e) => handleConfigChange(setCombinedPremiumTarget, e.target.value)}
+              />
+              <select
+                className="bg-[#2a2a2a] text-white p-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none text-sm transition-colors cursor-pointer"
+                value={combinedPremiumTargetUnit || "Pts"}
+                onChange={(e) => handleConfigChange(setCombinedPremiumTargetUnit, e.target.value)}
+              >
+                <option value="Pts">Pts</option>
+                <option value="%">%</option>
+                <option value="Rs">Rs</option>
+              </select>
+            </div>
           </div>
 
-          {/* Combined Premium SL */}
+          {/* Combined Premium SL & Unit (🚀 UPDATED WITH DYNAMIC DROPDOWN) */}
           <div className="flex flex-col">
             <label className="text-xs text-gray-400 mb-1">Combined Premium SL</label>
-            <input
-              type="number"
-              className="bg-[#2a2a2a] text-white p-2 rounded border border-gray-600 focus:border-orange-500 focus:outline-none text-sm transition-colors"
-              placeholder="E.g., 50"
-              value={combinedPremiumSL || ""}
-              onChange={(e) => handleConfigChange(setCombinedPremiumSL, e.target.value)}
-            />
+            <div className="flex gap-2">
+              <input
+                type="number"
+                className="bg-[#2a2a2a] w-full text-white p-2 rounded border border-gray-600 focus:border-orange-500 focus:outline-none text-sm transition-colors"
+                placeholder="E.g., 50"
+                value={combinedPremiumSL || ""}
+                onChange={(e) => handleConfigChange(setCombinedPremiumSL, e.target.value)}
+              />
+              <select
+                className="bg-[#2a2a2a] text-white p-2 rounded border border-gray-600 focus:border-orange-500 focus:outline-none text-sm transition-colors cursor-pointer"
+                value={combinedPremiumSLUnit || "Pts"}
+                onChange={(e) => handleConfigChange(setCombinedPremiumSLUnit, e.target.value)}
+              >
+                <option value="Pts">Pts</option>
+                <option value="%">%</option>
+                <option value="Rs">Rs</option>
+              </select>
+            </div>
           </div>
 
         </div>
@@ -134,11 +158,15 @@ const StrategyConfig = ({
         addLeg={addLeg} 
         updateLeg={updateLeg} 
         removeLeg={removeLeg} 
-        // 🟢 INTHA 4 PROPS-A LEGS PANEL-KU PASS PANNIRUKEN 👇
+        // 🟢 INTHA PROPS-A LEGS PANEL-KU PASS PANNIRUKEN 👇
         combinedPremiumTarget={combinedPremiumTarget}
         setCombinedPremiumTarget={setCombinedPremiumTarget}
+        combinedPremiumTargetUnit={combinedPremiumTargetUnit} // 🚀 NEW
+        setCombinedPremiumTargetUnit={setCombinedPremiumTargetUnit} // 🚀 NEW
         combinedPremiumSL={combinedPremiumSL}
         setCombinedPremiumSL={setCombinedPremiumSL}
+        combinedPremiumSLUnit={combinedPremiumSLUnit} // 🚀 NEW
+        setCombinedPremiumSLUnit={setCombinedPremiumSLUnit} // 🚀 NEW
       />
 
       {/* Live Estimated Margin Card */}
