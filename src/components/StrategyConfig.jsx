@@ -4,6 +4,15 @@ import IndicatorsPanel from './IndicatorsPanel';
 import LegsPanel from './LegsPanel';
 import { calculateLiveMargin } from './utils';
 
+// 🚀 NEW UPDATE: Helper function to dynamically normalize any unit format requested by the user/AI
+const normalizeUnit = (unit) => {
+  if (!unit) return "Pts";
+  const u = String(unit).toLowerCase();
+  if (u.includes("%") || u.includes("percent") || u.includes("per")) return "%";
+  if (u.includes("rs") || u.includes("rupee") || u.includes("₹") || u.includes("inr")) return "Rs";
+  return "Pts"; // Default fallback
+};
+
 const StrategyConfig = ({
   // ✨ SELLING CONFIGURATIONS
   sellTicker, setSellTicker, sellTimeframe, setSellTimeframe, sellUnderlyingFrom, setSellUnderlyingFrom,
@@ -108,7 +117,7 @@ const StrategyConfig = ({
               />
               <select
                 className="bg-[#2a2a2a] text-white p-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none text-sm transition-colors cursor-pointer"
-                value={combinedPremiumTargetUnit || "Pts"}
+                value={normalizeUnit(combinedPremiumTargetUnit)}
                 onChange={(e) => handleConfigChange(setCombinedPremiumTargetUnit, e.target.value)}
               >
                 <option value="Pts">Pts</option>
@@ -131,7 +140,7 @@ const StrategyConfig = ({
               />
               <select
                 className="bg-[#2a2a2a] text-white p-2 rounded border border-gray-600 focus:border-orange-500 focus:outline-none text-sm transition-colors cursor-pointer"
-                value={combinedPremiumSLUnit || "Pts"}
+                value={normalizeUnit(combinedPremiumSLUnit)}
                 onChange={(e) => handleConfigChange(setCombinedPremiumSLUnit, e.target.value)}
               >
                 <option value="Pts">Pts</option>
