@@ -116,11 +116,17 @@ const ProtectedDashboard = ({ logic }) => {
               dataSource={logic.dataSource}
               setDataSource={logic.setDataSource}
               
-              // 🟢 PUDHUSA ADD PANNA 4 LINES (Combined Premium Target & SL) 👇
+              // 🟢 COMBINED PREMIUM TARGET & SL (VALUES)
               combinedPremiumTarget={logic.combinedPremiumTarget}
               setCombinedPremiumTarget={logic.setCombinedPremiumTarget}
               combinedPremiumSL={logic.combinedPremiumSL}
               setCombinedPremiumSL={logic.setCombinedPremiumSL}
+
+              // 🚀 PUDHUSA INGA UNITS-A ADD PANNUNGA 👇
+              combinedPremiumTargetUnit={logic.combinedPremiumTargetUnit}
+              setCombinedPremiumTargetUnit={logic.setCombinedPremiumTargetUnit}
+              combinedPremiumSLUnit={logic.combinedPremiumSLUnit}
+              setCombinedPremiumSLUnit={logic.setCombinedPremiumSLUnit}
             />
 
             <div className="flex flex-col md:flex-row gap-4 mb-8">
@@ -175,7 +181,7 @@ function App() {
         
         {/* Main Content Area */}
         <div className="flex-grow">
-          {/* 🚦 ROUTING SYSTEM 🚦 */}
+          {/* 🚦 ROUTING SYSTEM rt 🚦 */}
           <Routes>
             
             {/* PUBLIC PAGES */}

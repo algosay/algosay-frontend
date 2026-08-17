@@ -211,8 +211,10 @@ export const useAppLogic = () => {
     // Extracting Units before purifying the numbers
     const overallTargetUnitVal = risk.overallStrategyTargetUnit ?? risk.overall_target_unit ?? extractUnit(rawOverallTarget, 'Pts');
     const overallSLUnitVal = risk.overallStrategySLUnit ?? risk.overall_sl_unit ?? extractUnit(rawOverallSL, 'Pts');
-    const combinedTargetUnitVal = risk.combinedPremiumTargetUnit ?? risk.combined_premium_target_unit ?? extractUnit(rawCombinedTarget, 'Pts');
-    const combinedSLUnitVal = risk.combinedPremiumSLUnit ?? risk.combined_premium_sl_unit ?? extractUnit(rawCombinedSL, 'Pts');
+    
+    // 🟢 NEW UPDATE: AI response-la irunthu varra units-a state-la set panrathu (snake_case & camelCase rendaiyume handle panrom)
+    const combinedTargetUnitVal = data.combinedPremiumTargetUnit || data.combined_premium_target_unit || risk.combinedPremiumTargetUnit || risk.combined_premium_target_unit || extractUnit(rawCombinedTarget, 'Pts');
+    const combinedSLUnitVal = data.combinedPremiumSLUnit || data.combined_premium_sl_unit || risk.combinedPremiumSLUnit || risk.combined_premium_sl_unit || extractUnit(rawCombinedSL, 'Pts');
 
     // 🟢 REGEX PURIFIER: Removes "Pts", "Points", or spaces and keeps only numbers
     const extractNumber = (val) => {
