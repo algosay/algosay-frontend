@@ -389,7 +389,7 @@ const LegsPanel = ({
         </div>
       )}
 
-      {/* 🛡️ COMBINED PREMIUM RISK SECTION (NEW UPDATE) */}
+    {/* 🛡️ COMBINED PREMIUM RISK SECTION (NEW UPDATE) */}
       <div className="mt-5 pt-4 border-t border-[#2d2d2d] bg-[#1a1a1a] p-4 rounded-lg">
         <h4 className="text-xs font-bold text-blue-400 mb-3 uppercase tracking-wider flex items-center gap-2">
           🔗 Combined Premium Target & Stoploss
@@ -407,9 +407,33 @@ const LegsPanel = ({
                 placeholder="e.g. 150"
               />
               <select
-                value={combinedPremiumTargetUnit || 'Pts'}
+                // 🚀 FIXED: Wrapped with normalizeUnit
+                value={normalizeUnit(combinedPremiumTargetUnit)}
                 onChange={(e) => setCombinedPremiumTargetUnit && setCombinedPremiumTargetUnit(e.target.value)}
                 className="bg-[#121212] text-white p-2 rounded border border-[#333] focus:border-blue-500 focus:outline-none text-xs transition-colors cursor-pointer"
+              >
+                <option value="Pts">Pts</option>
+                <option value="%">%</option>
+                <option value="Rs">Rs</option>
+              </select>
+            </div>
+          </div>
+          
+          <div className="flex flex-col">
+            <label className="text-[10px] text-gray-400 mb-1 uppercase tracking-wide">Combined Premium Stop Loss</label>
+            <div className="flex gap-2">
+              <input
+                type="number"
+                value={combinedPremiumSL || ''}
+                onChange={(e) => setCombinedPremiumSL && setCombinedPremiumSL(e.target.value)}
+                className="w-full bg-[#121212] text-white p-2 rounded border border-[#333] focus:border-orange-500 focus:outline-none text-xs transition-colors"
+                placeholder="e.g. 50"
+              />
+              <select
+                // 🚀 FIXED: Wrapped with normalizeUnit
+                value={normalizeUnit(combinedPremiumSLUnit)}
+                onChange={(e) => setCombinedPremiumSLUnit && setCombinedPremiumSLUnit(e.target.value)}
+                className="bg-[#121212] text-white p-2 rounded border border-[#333] focus:border-orange-500 focus:outline-none text-xs transition-colors cursor-pointer"
               >
                 <option value="Pts">Pts</option>
                 <option value="%">%</option>

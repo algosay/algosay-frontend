@@ -116,34 +116,56 @@ const AIParseSection = ({
         
         // 🚀 SMART EXTRACTION FOR COMBINED TARGET & UNIT
         let rawCombTarget = data.combinedPremiumTarget ?? data.combined_premium_target ?? riskObj.combinedPremiumTarget ?? riskObj.combined_premium_target ?? '';
-        let combTargetUnit = data.combinedPremiumTargetUnit ?? data.combined_premium_target_unit ?? riskObj.combinedPremiumTargetUnit ?? riskObj.combined_premium_target_unit ?? 'Pts';
+        let combTargetUnit = data.combinedPremiumTargetUnit ?? data.combined_premium_target_unit ?? riskObj.combinedPremiumTargetUnit ?? riskObj.combined_premium_target_unit ?? '';
         
+        // Check inside string if backend sends value + unit together (e.g., "50 pts")
         if (typeof rawCombTarget === 'string') {
-          if (rawCombTarget.includes('%')) combTargetUnit = '%';
-          else if (rawCombTarget.toLowerCase().includes('pt') || rawCombTarget.toLowerCase().includes('point')) combTargetUnit = 'Pts';
-          else if (rawCombTarget.toLowerCase().includes('rs') || rawCombTarget.toLowerCase().includes('rupee')) combTargetUnit = 'Rs';
+          const lowerTarget = rawCombTarget.toLowerCase();
+          if (lowerTarget.includes('%')) combTargetUnit = '%';
+          else if (lowerTarget.includes('pt') || lowerTarget.includes('point')) combTargetUnit = 'Pts';
+          else if (lowerTarget.includes('rs') || lowerTarget.includes('rupee')) combTargetUnit = 'Rs';
           rawCombTarget = parseFloat(rawCombTarget) || rawCombTarget;
         }
 
         // 🚀 SMART EXTRACTION FOR COMBINED SL & UNIT
         let rawCombSL = data.combinedPremiumSL ?? data.combined_premium_sl ?? riskObj.combinedPremiumSL ?? riskObj.combined_premium_sl ?? '';
-        let combSLUnit = data.combinedPremiumSLUnit ?? data.combined_premium_sl_unit ?? riskObj.combinedPremiumSLUnit ?? riskObj.combined_premium_sl_unit ?? 'Pts';
+        let combSLUnit = data.combinedPremiumSLUnit ?? data.combined_premium_sl_unit ?? riskObj.combinedPremiumSLUnit ?? riskObj.combined_premium_sl_unit ?? '';
         
+        // Check inside string if backend sends value + unit together (e.g., "20 %")
         if (typeof rawCombSL === 'string') {
-          if (rawCombSL.includes('%')) combSLUnit = '%';
-          else if (rawCombSL.toLowerCase().includes('pt') || rawCombSL.toLowerCase().includes('point')) combSLUnit = 'Pts';
-          else if (rawCombSL.toLowerCase().includes('rs') || rawCombSL.toLowerCase().includes('rupee')) combSLUnit = 'Rs';
+          const lowerSL = rawCombSL.toLowerCase();
+          if (lowerSL.includes('%')) combSLUnit = '%';
+          else if (lowerSL.includes('pt') || lowerSL.includes('point')) combSLUnit = 'Pts';
+          else if (lowerSL.includes('rs') || lowerSL.includes('rupee')) combSLUnit = 'Rs';
           rawCombSL = parseFloat(rawCombSL) || rawCombSL;
         }
 
-        // 🚀 Fallback Unit check based on user prompt for Combined Premium
-        if (promptText.includes('%') || promptText.includes('PERCENT')) {
-           if (!data.combined_premium_target_unit && typeof (data.combined_premium_target) !== 'string' && rawCombTarget) combTargetUnit = '%';
-           if (!data.combined_premium_sl_unit && typeof (data.combined_premium_sl) !== 'string' && rawCombSL) combSLUnit = '%';
-        } else if (promptText.includes('RS') || promptText.includes('RUPEE')) {
-           if (!data.combined_premium_target_unit && typeof (data.combined_premium_target) !== 'string' && rawCombTarget) combTargetUnit = 'Rs';
-           if (!data.combined_premium_sl_unit && typeof (data.combined_premium_sl) !== 'string' && rawCombSL) combSLUnit = 'Rs';
+        // 🚀 SMART FALLBACK: Only if unit is STILL EMPTY, apply default. 
+        // We avoid globally checking promptText.includes('%') because it ruins points if a user has % elsewhere.
+        if (!combTargetUnit && rawCombTarget) {
+            if (promptText.includes('COMBINED TARGET') || promptText.includes('COMBINED PREMIUM TARGET')) {
+                // Check immediate context or default to Pts
+                if (promptText.includes('RS') || promptText.includes('RUPEE')) combTargetUnit = 'Rs';
+                else if (promptText.includes('%') || promptText.includes('PERCENT')) combTargetUnit = '%';
+                else combTargetUnit = 'Pts';
+            } else {
+                combTargetUnit = 'Pts'; // Default
+            }
         }
+        
+        if (!combSLUnit && rawCombSL) {
+            if (promptText.includes('COMBINED SL') || promptText.includes('COMBINED STOPLOSS') || promptText.includes('COMBINED STOP LOSS')) {
+                if (promptText.includes('RS') || promptText.includes('RUPEE')) combSLUnit = 'Rs';
+                else if (promptText.includes('%') || promptText.includes('PERCENT')) combSLUnit = '%';
+                else combSLUnit = 'Pts';
+            } else {
+                combSLUnit = 'Pts'; // Default
+            }
+        }
+
+        // Final safety fallback
+        combTargetUnit = combTargetUnit || 'Pts';
+        combSLUnit = combSLUnit || 'Pts';
 
         const extractedRisk = {
             combinedPremiumTarget: rawCombTarget,

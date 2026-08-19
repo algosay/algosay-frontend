@@ -7,12 +7,16 @@ import { calculateLiveMargin } from './utils';
 // 🚀 NEW UPDATE: Helper function to dynamically normalize any unit format requested by the user/AI
 const normalizeUnit = (unit) => {
   if (!unit) return "Pts";
-  const u = String(unit).toLowerCase();
-  if (u.includes("%") || u.includes("percent") || u.includes("per")) return "%";
-  if (u.includes("rs") || u.includes("rupee") || u.includes("₹") || u.includes("inr")) return "Rs";
-  return "Pts"; // Default fallback
+  
+  const u = String(unit).toLowerCase().trim();
+  
+  // 'per' in includes is dangerous (e.g., 'premium' has 'per'). So we check strictly.
+  if (u.includes("%") || u.includes("percent") || u === "per" || u === "pct") return "%";
+  
+  if (u === "rs" || u.includes("rupee") || u.includes("₹") || u.includes("inr")) return "Rs";
+  
+  return "Pts"; // Default fallback for everything else (including Points, Pts)
 };
-
 const StrategyConfig = ({
   // ✨ SELLING CONFIGURATIONS
   sellTicker, setSellTicker, sellTimeframe, setSellTimeframe, sellUnderlyingFrom, setSellUnderlyingFrom,
