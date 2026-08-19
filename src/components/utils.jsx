@@ -10,7 +10,12 @@ export const normalizeCriteria = (criteria) => {
 export const normalizeUnit = (unit) => {
   if (!unit) return '%';
   const u = unit.toString().toLowerCase().trim();
+  
   if (u.includes('pt') || u.includes('point') || u === 'pts') return 'Pts';
+  
+  // 🚀 புதிதாக சேர்க்கப்பட்ட வரி: "Rs" என்பதை கண்டுபிடிக்க
+  if (u === 'rs' || u.includes('rupee') || u === 'inr') return 'Rs';
+  
   return '%';
 };
 
