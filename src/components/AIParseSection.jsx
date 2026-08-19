@@ -93,8 +93,9 @@ const AIParseSection = ({
               rawTargetVal = parseFloat(rawTargetVal) || rawTargetVal;
             }
 
-            // Fallback: If user types "point" in prompt, force Pts if AI misses it
-            if (promptText.includes('PT') || promptText.includes('POINT')) {
+            // Fallback: Exact word matching for Pts in Legs
+            const hasPtsLeg = /\b(PT|PTS|POINT|POINTS)\b/.test(promptText);
+            if (hasPtsLeg) {
               if (!leg.target_unit && !leg.targetUnit && typeof leg.target !== 'string') targetUnit = 'Pts';
               if (!leg.sl_unit && !leg.slUnit && typeof (leg.stopLoss ?? leg.stop_loss) !== 'string') slUnit = 'Pts';
             }
@@ -112,7 +113,7 @@ const AIParseSection = ({
           setParsedLegs(enhancedLegs);
         }
 
-        // 🟢 DYNAMIC RISK MANAGEMENT EXTRACTION FOR PREVIEW UI (UPDATED WITH FORCE OVERRIDE & DYNAMIC UNITS)
+        // 🟢 DYNAMIC RISK MANAGEMENT EXTRACTION FOR PREVIEW UI 
         const riskObj = data.risk_management || {};
         
         // 🚀 SMART EXTRACTION FOR COMBINED TARGET & UNIT
@@ -141,21 +142,18 @@ const AIParseSection = ({
           rawCombSL = parseFloat(rawCombSL) || rawCombSL;
         }
 
-        // 🧠 AI HALLUCINATION FIXER: FORCE OVERRIDE
-        // User prompt-ல் "PTS" இருந்து "%" இல்லை என்றால், AI என்ன தப்பாக அனுப்பினாலும் Pts என Force செய்!
-        if (promptText.includes('PT') || promptText.includes('POINT') || promptText.includes('PTS')) {
-          if (!promptText.includes('%') && !promptText.includes('PERCENT')) {
-            if (rawCombTarget) combTargetUnit = 'Pts';
-            if (rawCombSL) combSLUnit = 'Pts';
-          }
-        }
-        
-        // User prompt-ல் "RS" அல்லது "RUPEE" இருந்து "%" இல்லை என்றால், Rs என Force செய்!
-        if (promptText.includes('RS') || promptText.includes('RUPEE')) {
-          if (!promptText.includes('%') && !promptText.includes('PERCENT')) {
-            if (rawCombTarget) combTargetUnit = 'Rs';
-            if (rawCombSL) combSLUnit = 'Rs';
-          }
+        // 🧠 AI HALLUCINATION FIXER: FORCE OVERRIDE (🚀 EXACT WORD MATCH FIX)
+        // \b (Word Boundary) செக் செய்வதால் "UniveRSal" அல்லது "oPTions" என்ற வார்த்தைகளுக்குள் உள்ள RS, PT-ஐ எடுக்காது.
+        const hasPts = /\b(PT|PTS|POINT|POINTS)\b/.test(promptText);
+        const hasRs = /\b(RS|RUPEE|RUPEES)\b/.test(promptText);
+        const hasPercent = /(%|\bPERCENT\b)/.test(promptText);
+
+        if (hasPts && !hasPercent) {
+          if (rawCombTarget) combTargetUnit = 'Pts';
+          if (rawCombSL) combSLUnit = 'Pts';
+        } else if (hasRs && !hasPercent) {
+          if (rawCombTarget) combTargetUnit = 'Rs';
+          if (rawCombSL) combSLUnit = 'Rs';
         }
 
         // Final safety fallback
@@ -173,7 +171,6 @@ const AIParseSection = ({
         setParsedRisk(extractedRisk);
 
         // 🚨 CRITICAL FIX: INJECT FIXED UNITS BACK INTO `data` BEFORE PASSING TO PARENT!
-        // Parent component (Dropdowns)-க்கு சரியான Format-ல் Data போக இதைக் கட்டாயம் Update செய்கிறோம்
         data.combined_premium_target = rawCombTarget;
         data.combined_premium_target_unit = combTargetUnit;
         data.combinedPremiumTarget = rawCombTarget;
