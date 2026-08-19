@@ -56,6 +56,7 @@ const AIParseSection = ({
         if(setAiMessage) setAiMessage("Strategy Auto-Mapped Successfully! ✨");
         
         // 🚨 SMART EXTRACTION LOGIC FOR UI PREVIEW
+        let enhancedLegs = [];
         if(data.legs && Array.isArray(data.legs)) {
           
           let extractedTicker = '';
@@ -68,7 +69,7 @@ const AIParseSection = ({
           else if (promptText.includes('SENSEX')) extractedTicker = 'SENSEX';
           else if (promptText.includes('NIFTY')) extractedTicker = 'NIFTY';
 
-          const enhancedLegs = data.legs.map(leg => {
+          enhancedLegs = data.legs.map(leg => {
             // Force the exact ticker user asked for
             const finalTicker = extractedTicker || leg.ticker || leg.asset || 'NIFTY';
             
@@ -111,7 +112,7 @@ const AIParseSection = ({
           setParsedLegs(enhancedLegs);
         }
 
-        // 🟢 DYNAMIC RISK MANAGEMENT EXTRACTION FOR PREVIEW UI (UPDATED WITH DYNAMIC UNITS)
+        // 🟢 DYNAMIC RISK MANAGEMENT EXTRACTION FOR PREVIEW UI (UPDATED WITH FORCE OVERRIDE & DYNAMIC UNITS)
         const riskObj = data.risk_management || {};
         
         // 🚀 SMART EXTRACTION FOR COMBINED TARGET & UNIT
@@ -140,27 +141,21 @@ const AIParseSection = ({
           rawCombSL = parseFloat(rawCombSL) || rawCombSL;
         }
 
-        // 🚀 SMART FALLBACK: Only if unit is STILL EMPTY, apply default. 
-        // We avoid globally checking promptText.includes('%') because it ruins points if a user has % elsewhere.
-        if (!combTargetUnit && rawCombTarget) {
-            if (promptText.includes('COMBINED TARGET') || promptText.includes('COMBINED PREMIUM TARGET')) {
-                // Check immediate context or default to Pts
-                if (promptText.includes('RS') || promptText.includes('RUPEE')) combTargetUnit = 'Rs';
-                else if (promptText.includes('%') || promptText.includes('PERCENT')) combTargetUnit = '%';
-                else combTargetUnit = 'Pts';
-            } else {
-                combTargetUnit = 'Pts'; // Default
-            }
+        // 🧠 AI HALLUCINATION FIXER: FORCE OVERRIDE
+        // User prompt-ல் "PTS" இருந்து "%" இல்லை என்றால், AI என்ன தப்பாக அனுப்பினாலும் Pts என Force செய்!
+        if (promptText.includes('PT') || promptText.includes('POINT') || promptText.includes('PTS')) {
+          if (!promptText.includes('%') && !promptText.includes('PERCENT')) {
+            if (rawCombTarget) combTargetUnit = 'Pts';
+            if (rawCombSL) combSLUnit = 'Pts';
+          }
         }
         
-        if (!combSLUnit && rawCombSL) {
-            if (promptText.includes('COMBINED SL') || promptText.includes('COMBINED STOPLOSS') || promptText.includes('COMBINED STOP LOSS')) {
-                if (promptText.includes('RS') || promptText.includes('RUPEE')) combSLUnit = 'Rs';
-                else if (promptText.includes('%') || promptText.includes('PERCENT')) combSLUnit = '%';
-                else combSLUnit = 'Pts';
-            } else {
-                combSLUnit = 'Pts'; // Default
-            }
+        // User prompt-ல் "RS" அல்லது "RUPEE" இருந்து "%" இல்லை என்றால், Rs என Force செய்!
+        if (promptText.includes('RS') || promptText.includes('RUPEE')) {
+          if (!promptText.includes('%') && !promptText.includes('PERCENT')) {
+            if (rawCombTarget) combTargetUnit = 'Rs';
+            if (rawCombSL) combSLUnit = 'Rs';
+          }
         }
 
         // Final safety fallback
@@ -168,14 +163,42 @@ const AIParseSection = ({
         combSLUnit = combSLUnit || 'Pts';
 
         const extractedRisk = {
-            combinedPremiumTarget: rawCombTarget,
-            combinedPremiumTargetUnit: combTargetUnit,
-            combinedPremiumSL: rawCombSL,
-            combinedPremiumSLUnit: combSLUnit,
-            overallTarget: riskObj.overallStrategyTarget ?? riskObj.overall_target ?? '',
-            overallSL: riskObj.overallStrategySL ?? riskObj.overall_sl ?? ''
+          combinedPremiumTarget: rawCombTarget,
+          combinedPremiumTargetUnit: combTargetUnit,
+          combinedPremiumSL: rawCombSL,
+          combinedPremiumSLUnit: combSLUnit,
+          overallTarget: riskObj.overallStrategyTarget ?? riskObj.overall_target ?? '',
+          overallSL: riskObj.overallStrategySL ?? riskObj.overall_sl ?? ''
         };
         setParsedRisk(extractedRisk);
+
+        // 🚨 CRITICAL FIX: INJECT FIXED UNITS BACK INTO `data` BEFORE PASSING TO PARENT!
+        // Parent component (Dropdowns)-க்கு சரியான Format-ல் Data போக இதைக் கட்டாயம் Update செய்கிறோம்
+        data.combined_premium_target = rawCombTarget;
+        data.combined_premium_target_unit = combTargetUnit;
+        data.combinedPremiumTarget = rawCombTarget;
+        data.combinedPremiumTargetUnit = combTargetUnit;
+
+        data.combined_premium_sl = rawCombSL;
+        data.combined_premium_sl_unit = combSLUnit;
+        data.combinedPremiumSL = rawCombSL;
+        data.combinedPremiumSLUnit = combSLUnit;
+        
+        if (!data.risk_management) data.risk_management = {};
+        data.risk_management.combined_premium_target = rawCombTarget;
+        data.risk_management.combined_premium_target_unit = combTargetUnit;
+        data.risk_management.combinedPremiumTarget = rawCombTarget;
+        data.risk_management.combinedPremiumTargetUnit = combTargetUnit;
+
+        data.risk_management.combined_premium_sl = rawCombSL;
+        data.risk_management.combined_premium_sl_unit = combSLUnit;
+        data.risk_management.combinedPremiumSL = rawCombSL;
+        data.risk_management.combinedPremiumSLUnit = combSLUnit;
+
+        // Enhanced Legs details passed back to parent
+        if (enhancedLegs.length > 0) {
+          data.legs = enhancedLegs;
+        }
 
         if(onParsedDataSuccess) onParsedDataSuccess(data);
         
@@ -389,7 +412,7 @@ const AIParseSection = ({
                     <div className="bg-green-900/20 border border-green-500/30 px-3 py-1.5 rounded-lg flex flex-col">
                       <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Combined Target</span>
                       <span className="text-sm font-bold text-green-400">
-                        {parsedRisk.combinedPremiumTarget} {parsedRisk.combinedPremiumTargetUnit} {/* 🚀 DYNAMIC UNIT ADDED */}
+                        {parsedRisk.combinedPremiumTarget} {parsedRisk.combinedPremiumTargetUnit}
                       </span>
                     </div>
                   )}
@@ -398,7 +421,7 @@ const AIParseSection = ({
                     <div className="bg-red-900/20 border border-red-500/30 px-3 py-1.5 rounded-lg flex flex-col">
                       <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Combined SL</span>
                       <span className="text-sm font-bold text-red-400">
-                        {parsedRisk.combinedPremiumSL} {parsedRisk.combinedPremiumSLUnit} {/* 🚀 DYNAMIC UNIT ADDED */}
+                        {parsedRisk.combinedPremiumSL} {parsedRisk.combinedPremiumSLUnit}
                       </span>
                     </div>
                   )}
