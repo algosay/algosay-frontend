@@ -144,7 +144,7 @@ const Careers = () => {
 
                 <div className="pt-4 border-t border-gray-800/60 flex items-center justify-between">
                   <a 
-                    href={`mailto:careers@algosay.com?subject=Application for ${encodeURIComponent(job.title)}`}
+                    href={`mailto:support@algosay.com?subject=Application for ${encodeURIComponent(job.title)}`}
                     className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-sm shadow-[0_0_15px_rgba(34,211,238,0.2)] transition-all"
                   >
                     Apply for this Role
@@ -167,10 +167,10 @@ const Careers = () => {
           </p>
           <div>
             <a 
-              href="mailto:careers@algosay.com?subject=General Application - AlgoSay Core Team"
+              href="mailto:support@algosay.com?subject=General Application - AlgoSay Core Team"
               className="inline-block px-8 py-3.5 rounded-xl bg-gray-800 hover:bg-gray-700 border border-gray-700 text-cyan-400 font-bold transition-all"
             >
-              Email Resume to careers@algosay.com
+              Email Resume to support@algosay.com
             </a>
           </div>
         </div>

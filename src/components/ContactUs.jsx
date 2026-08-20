@@ -15,20 +15,46 @@ const ContactUs = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus('submitting');
 
-    // TODO: Connect this to your FastAPI backend or Firebase Firestore here.
-    // Example: await axios.post('/api/contact', formData);
-    
-    setTimeout(() => {
-      setStatus('success');
-      setFormData({ name: '', email: '', subject: '', message: '' });
+    const formPayload = {
+      // இங்கே எந்த கொட்டேஷனும் (' ' அல்லது " ") இல்லாமல் இப்படி கொடுக்க வேண்டும்:
+      access_key: process.env.REACT_APP_WEB3FORMS_KEY, 
       
-      // Reset status after a few seconds
-      setTimeout(() => setStatus('idle'), 3000);
-    }, 1500);
+      name: formData.name,
+      email: formData.email,
+      subject: formData.subject,
+      message: formData.message,
+    };
+    try {
+      // Web3Forms API-க்கு தகவலை அனுப்புதல் (Fetch Request)
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(formPayload),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setStatus('success');
+        setFormData({ name: '', email: '', subject: '', message: '' }); // Form-ஐ clear செய்கிறோம்
+      } else {
+        console.error("Error", result);
+        setStatus('error');
+      }
+    } catch (error) {
+      console.error("Fetch error", error);
+      setStatus('error');
+    }
+
+    // 3 வினாடிகளுக்குப் பிறகு பட்டனை பழைய நிலைக்கு மாற்றுகிறோம்
+    setTimeout(() => setStatus('idle'), 3000);
   };
 
   return (
@@ -44,7 +70,7 @@ const ContactUs = () => {
               Contact Us
             </h1>
             <p className="text-lg text-gray-400 max-w-2xl mx-auto">
-              Have questions about your algorithmic backtests, billing, or API integration? Our support team is here to help you navigate the markets.
+              Have questions about your algorithmic backtests, billing, or Any other inquiries? Our support team is here to help you navigate the markets.
             </p>
           </div>
 
@@ -85,7 +111,7 @@ const ContactUs = () => {
                     </div>
                     <div>
                       <h4 className="text-gray-300 font-semibold mb-1">Office Location</h4>
-                      <p className="text-gray-500 text-sm">AlgoSay Tech Hub<br/>Cyberabad, India</p>
+                      <p className="text-gray-500 text-sm">AlgoSay<br/>Chennai, India</p>
                     </div>
                   </div>
                 </div>
@@ -162,13 +188,17 @@ const ContactUs = () => {
                       ? 'bg-gray-700 cursor-not-allowed' 
                       : status === 'success'
                         ? 'bg-emerald-600 hover:bg-emerald-500'
-                        : 'bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 hover:shadow-[0_0_20px_rgba(34,211,238,0.4)]'
+                        : status === 'error'
+                          ? 'bg-red-600 hover:bg-red-500'
+                          : 'bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 hover:shadow-[0_0_20px_rgba(34,211,238,0.4)]'
                     }`}
                 >
                   {status === 'submitting' ? (
                     <span className="animate-pulse">Sending...</span>
                   ) : status === 'success' ? (
                     <span>Message Sent Successfully!</span>
+                  ) : status === 'error' ? (
+                    <span>Failed to Send. Try Again!</span>
                   ) : (
                     <>
                       Send Message
