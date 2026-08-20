@@ -3,6 +3,21 @@ import React, { useState } from 'react';
 import { auth, db } from '../firebase'; // Update path if needed
 import { doc, updateDoc, increment } from 'firebase/firestore';
 
+// 🟢 PUTHU UPDATE: Razorpay Script-ஐ பாதுகாப்பாக லோட் செய்வதற்கான Function
+const loadRazorpayScript = () => {
+  return new Promise((resolve) => {
+    if (window.Razorpay) {
+      resolve(true); // ஏற்கனவே லோட் ஆகியிருந்தால் விட்டுவிடலாம்
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
+
 const PricingModal = ({ isOpen, onClose }) => {
   const [activeTab, setActiveTab] = useState('payg'); // 'payg' or 'unlimited'
   const [selectedPlan, setSelectedPlan] = useState(null);
@@ -36,6 +51,13 @@ const PricingModal = ({ isOpen, onClose }) => {
   const handlePayment = async () => {
       if (!selectedPlan || !auth.currentUser) {
           alert("Please login and select a plan!");
+          return;
+      }
+
+      // 🟢 PUTHU UPDATE: பேமெண்ட் ஆரம்பிக்கும் முன் Razorpay ஸ்கிரிப்ட் லோட் ஆகியுள்ளதா என செக் செய்கிறோம்
+      const isRazorpayLoaded = await loadRazorpayScript();
+      if (!isRazorpayLoaded) {
+          alert("Failed to load Razorpay payment gateway. Please check your internet connection.");
           return;
       }
 
@@ -80,7 +102,7 @@ const PricingModal = ({ isOpen, onClose }) => {
 
           // 2. Razorpay Checkout Options set pandrom
           const options = {
-              key: orderData.key, 
+              key: orderData.key, // Backend-லிருந்து வரும் Live Key ID இங்கு வந்துவிடும்
               amount: orderData.amount,
               currency: orderData.currency,
               name: "AlgoSay Pro",
