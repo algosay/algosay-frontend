@@ -18,6 +18,9 @@ const ContactUs = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus('submitting');
+    
+    // Key-ஐ Console-ல் செக் செய்வதற்கான வரி சேர்க்கப்பட்டுள்ளது
+    console.log("My Key is:", process.env.REACT_APP_WEB3FORMS_KEY);
 
     const formPayload = {
       // இங்கே எந்த கொட்டேஷனும் (' ' அல்லது " ") இல்லாமல் இப்படி கொடுக்க வேண்டும்:
