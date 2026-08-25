@@ -581,7 +581,50 @@ export const useAppLogic = () => {
         combined_premium_sl: combinedPremiumSL ? parseFloat(combinedPremiumSL) : null,
         combined_premium_sl_unit: combinedPremiumSLUnit
       }, 
-      indicators: indicators.map(i => ({ name: i.name, settings: i.settings })), 
+      // 🚀 NEW UPDATE: Indicators string to Object Parsing & Data Type Casting
+      indicators: indicators.map(i => {
+        let parsedSettings = {};
+        
+        if (typeof i.settings === 'string' && i.settings.trim() !== '') {
+          // 'Period: 14, Multiplier: 2' என்ற String-ஐ Object-ஆக மாற்றும் பகுதி
+          i.settings.split(',').forEach(pair => {
+            const [key, val] = pair.split(':').map(s => s.trim());
+            if (key && val !== undefined && val !== '') {
+              const keyLower = key.toLowerCase();
+              let finalVal = val;
+              
+              // Integer & Float Type Casting
+              if (['period', 'window', 'fast', 'slow', 'signal', 'length'].some(k => keyLower.includes(k))) {
+                finalVal = parseInt(val, 10);
+              } else if (['multiplier', 'std', 'deviation'].some(k => keyLower.includes(k))) {
+                finalVal = parseFloat(val);
+              } else if (!isNaN(val)) {
+                finalVal = Number(val);
+              }
+              
+              parsedSettings[key] = finalVal;
+            }
+          });
+        } else if (typeof i.settings === 'object' && i.settings !== null) {
+          // ஏற்கனவே Object-ஆக இருந்தால் அதை டைப் காஸ்டிங் மட்டும் செய்யும் பகுதி
+          parsedSettings = { ...i.settings };
+          Object.keys(parsedSettings).forEach(key => {
+            const val = parsedSettings[key];
+            const keyLower = key.toLowerCase();
+            if (['period', 'window', 'fast', 'slow', 'signal', 'length'].some(k => keyLower.includes(k))) {
+              parsedSettings[key] = parseInt(val, 10);
+            } else if (['multiplier', 'std', 'deviation'].some(k => keyLower.includes(k))) {
+              parsedSettings[key] = parseFloat(val);
+            }
+          });
+        }
+
+        return { 
+          name: i.name, 
+          // 🚀 Now sending properly structured & Type Casted Object instead of a raw String
+          settings: Object.keys(parsedSettings).length > 0 ? parsedSettings : i.settings 
+        };
+      }), 
       legs: formattedLegs 
     };
 

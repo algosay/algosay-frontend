@@ -17,8 +17,24 @@ const IndicatorsPanel = ({ indicators, addIndicator, updateIndicator, removeIndi
             {indicators.map((ind) => (
               <div key={ind.id} className="bg-[#121212] p-2 rounded border border-[#333] relative group">
                 <button onClick={() => removeIndicator(ind.id)} className="absolute top-1.5 right-1.5 text-gray-500 hover:text-red-400 text-xs">✕</button>
-                <input type="text" value={ind.name} onChange={(e) => updateIndicator(ind.id, 'name', e.target.value)} className="w-[80%] bg-transparent border-b border-[#333] text-xs text-blue-400 font-semibold focus:outline-none focus:border-blue-500 mb-1" placeholder="Name" />
-                <input type="text" value={ind.settings} onChange={(e) => updateIndicator(ind.id, 'settings', e.target.value)} className="w-full bg-transparent border-b border-[#333] text-[11px] text-gray-400 focus:outline-none focus:border-gray-500" placeholder="Settings" />
+                
+                {/* 🚀 UPDATE: Added fallback || '' to avoid uncontrolled input warning */}
+                <input 
+                  type="text" 
+                  value={ind.name || ''} 
+                  onChange={(e) => updateIndicator(ind.id, 'name', e.target.value)} 
+                  className="w-[80%] bg-transparent border-b border-[#333] text-xs text-blue-400 font-semibold focus:outline-none focus:border-blue-500 mb-1" 
+                  placeholder="Name" 
+                />
+                
+                {/* 🚀 UPDATE: Safely handle object to string conversion so form state always works perfectly */}
+                <input 
+                  type="text" 
+                  value={typeof ind.settings === 'object' && ind.settings !== null ? Object.entries(ind.settings).map(([k, v]) => `${k}: ${v}`).join(', ') : ind.settings || ''} 
+                  onChange={(e) => updateIndicator(ind.id, 'settings', e.target.value)} 
+                  className="w-full bg-transparent border-b border-[#333] text-[11px] text-gray-400 focus:outline-none focus:border-gray-500" 
+                  placeholder="Settings (e.g., Period: 14, Multiplier: 2)" 
+                />
               </div>
             ))}
           </div>

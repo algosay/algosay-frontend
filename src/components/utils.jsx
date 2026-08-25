@@ -32,6 +32,37 @@ export const normalizeSegment = (segment, optionType) => {
   return 'Options';
 };
 
+// 🎯 NEW: INDICATOR PARAMETER SANITIZER (Data Type Casting)
+// Ensures settings going to backend are properly casted to Int/Float
+export const sanitizeIndicatorSettings = (indicators) => {
+  if (!indicators || !Array.isArray(indicators)) return [];
+  
+  return indicators.map(indicator => {
+    let sanitized = { ...indicator };
+    
+    // Support both flat structure and nested 'params' object
+    let targetObj = sanitized.params ? sanitized.params : sanitized;
+
+    Object.keys(targetObj).forEach(key => {
+      const val = targetObj[key];
+      if (val === null || val === undefined || val === '') return;
+
+      const keyLower = key.toLowerCase();
+      
+      // Integer conversion for Window, Period, Fast, Slow, Signal etc.
+      if (['period', 'window', 'fast', 'slow', 'signal', 'length'].some(k => keyLower.includes(k))) {
+        targetObj[key] = parseInt(val, 10);
+      } 
+      // Float conversion for Multiplier, StdDev, etc.
+      else if (['multiplier', 'std', 'deviation'].some(k => keyLower.includes(k))) {
+        targetObj[key] = parseFloat(val);
+      }
+    });
+
+    return sanitized;
+  });
+};
+
 // 🎯 NEW: INDEX STEP SIZE LOOKUP FOR UI (Dynamic Points Calculation)
 export const INDEX_STEP_SIZES = {
   "NIFTY 50": 50,
