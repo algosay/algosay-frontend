@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 
-// Bespoke SVG Icons - Pure Cyber Neon & Modern Glassmorphism Styling
+// Bespoke SVG Icons - Pure Premium Cyber-Neon Styling
 const Icons = {
   Strategy: () => (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M4 6h16M4 12h16m-7 6h7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   ),
@@ -24,28 +24,22 @@ const Icons = {
     </svg>
   ),
   Load: () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-  ),
-  Sparkles: () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M12 3v3m0 12v3M3 12h3m12 0h3m-4.5-6.5l-2 2m-7 7l-2 2m0-11l2 2m7 7l2 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
     </svg>
   )
 };
 
-// Metadata Pill Component with Neon Badges
-const MetadataPill = ({ text, type = 'cyan' }) => {
-  const styles = {
-    cyan: 'bg-[#00FFFF]/10 text-[#00FFFF] border border-[#00FFFF]/40 shadow-[0_0_12px_rgba(0,255,255,0.25)]',
-    purple: 'bg-[#D500F9]/10 text-[#D500F9] border border-[#D500F9]/40 shadow-[0_0_12px_rgba(213,0,249,0.25)]',
-    green: 'bg-[#00E676]/10 text-[#00E676] border border-[#00E676]/40 shadow-[0_0_12px_rgba(0,230,118,0.25)]',
-    orange: 'bg-[#FF9100]/10 text-[#FF9100] border border-[#FF9100]/40 shadow-[0_0_12px_rgba(255,145,0,0.25)]',
-    pink: 'bg-[#FF007F]/10 text-[#FF007F] border border-[#FF007F]/40 shadow-[0_0_12px_rgba(255,0,127,0.25)]',
+// Metadata Pill Component - Cyberpunk Tag Styling
+const MetadataPill = ({ text, color = 'cyan' }) => {
+  const colors = {
+    cyan: 'bg-[#00FFFF]/10 text-[#00FFFF] border border-[#00FFFF]/50 shadow-[0_0_10px_rgba(0,255,255,0.3)]',
+    purple: 'bg-[#D500F9]/10 text-[#D500F9] border border-[#D500F9]/50 shadow-[0_0_10px_rgba(213,0,249,0.3)]',
+    green: 'bg-[#00E676]/10 text-[#00E676] border border-[#00E676]/50 shadow-[0_0_10px_rgba(0,230,118,0.3)]',
+    orange: 'bg-[#FF9100]/10 text-[#FF9100] border border-[#FF9100]/50 shadow-[0_0_10px_rgba(255,145,0,0.3)]',
   };
   return (
-    <span className={`px-3 py-1 text-[10px] font-extrabold rounded-lg tracking-wider uppercase backdrop-blur-md ${styles[type] || styles.cyan}`}>
+    <span className={`px-3 py-1.5 text-[10px] font-black rounded-lg ${colors[color] || colors.cyan} tracking-widest uppercase backdrop-blur-md`}>
       {text}
     </span>
   );
@@ -66,7 +60,7 @@ const createDefaultObj = (id, name, concept, promptText, segmentTag) => ({
   createdAt: { seconds: Math.floor(Date.now() / 1000) }
 });
 
-// All 14 Strategies Translated into 100% Pure Professional English
+// 14 Updated Strategies mapped exactly to user requirements (Translated Fully to English)
 const DEFAULT_STRATEGIES = [
   createDefaultObj(
     's_1', 
@@ -77,14 +71,14 @@ const DEFAULT_STRATEGIES = [
   ),
   createDefaultObj(
     's_2', 
-    'Multi-Timeframe Candle Color Trend Short Strategy (15M)', 
+    'Multi-Timeframe Candle Color Trend Short (15M)', 
     'Trend & Momentum - Shorting based on previous candle color.', 
     "Asset & Timeframe: Sensex | 15 Minutes Timeframe | 1 Lot (CE & PE Short)\nEntry Rule: Dynamic Loop. Starts checking from 09:30 AM onwards.\nLeg 1 (PE): Check previous 15-min candle color. If Green, short ATM PE at current candle open price.\nLeg 2 (CE): Check previous 15-min candle color. If Red, short ATM CE at current candle open price.\nRecurring checks run every candle close until 14:00 (2:00 PM) cutoff.\nRisk Management: 22% Stop Loss & 65% Target calculated per individual leg.\nExit Rule: Universal square-off for all open positions automatically at 15:15 PM (3:15 PM).\nPeriod: Aug 06.08.2026 to Aug 06.08.2026", 
     'trend'
   ),
   createDefaultObj(
     's_3', 
-    'Multi-Timeframe Candle Colour Reverse Short Strategy (15M)', 
+    'Multi-Timeframe Candle Colour Reverse Short (15M)', 
     'Trend & Momentum - Reverse shorting based on previous candle.', 
     "Asset & Timeframe: Sensex | 15 Minutes Timeframe | 1 Lot (CE & PE Short)\nEntry Rule: Dynamic Loop. Starts checking from 09:30 AM onwards.\nLeg 1 (PE): Check previous 15-min candle color. If RED, short ATM PE at the open price of the current candle.\nLeg 2 (CE): Check previous 15-min candle color. If GREEN, short ATM CE at the open price of the current candle.\nRecurring checks run on every candle close until the 14:00 (2:00 PM) cutoff.\nRisk Management: 22% Stop Loss & 65% Target calculated per individual leg.\nExit Rule: Universal square-off for all open positions automatically at 15:15 PM (3:15 PM).\nPeriod: Aug 06.08.2026 to Aug 06.08.2026", 
     'trend'
@@ -135,41 +129,45 @@ const DEFAULT_STRATEGIES = [
     's_10', 
     'First-Hour ORB Mean Reversion (15M)', 
     'Time-Based Dir - Mean reversion on 1st hour breakout.', 
-    "Asset & Timeframe: Sensex | 15 Minutes Timeframe | 1 Lot (ATM Options Short)\nEntry Rule: Dynamic Loop (Starts monitoring from 10:15 AM onwards till 14:00 PM)\nStep 1: Define First-Hour High and Low using the first four 15-min candles (09:15 AM to 10:15 AM).\nStep 2 (Close Confirmation - T-1): CE Short Signal: If T-1 candle breaches First-Hour High but closes as a RED candle. PE Short Signal: If T-1 candle breaches First-Hour Low but closes as a GREEN candle.\nStep 3 (Entry Execution - T Open): On CE Short Signal - Short ATM CE at current candle (T) Open Price. On PE Short Signal - Short ATM PE at current candle (T) Open Price.\nRisk Management: 25% Stop Loss & 70% Target calculated per individual leg.\nExit Rule: Universal square-off for all open positions automatically at 15:15 PM (3:15 PM).\nPeriod: Aug 13.08.2026 to Aug 13.08.2026", 
+    "Asset & Timeframe: Sensex | 15 Minutes Timeframe | 1 Lot (ATM Options Short)\nEntry Rule: Dynamic Loop (Starts monitoring from 10:15 AM onwards till 14:00 PM)\nStep 1: Define First-Hour High and Low using the first four 15-min candles (09:15 AM to 10:15 AM).\nStep 2 (Close Confirmation - T-1): CE Short Signal: If T-1 candle breaches First-Hour High but closes as a RED candle. PE Short Signal: If T-1 candle breaches First-Hour Low but closes as a GREEN candle.\nStep 3 (Entry Execution - T Open): On CE Short Signal - Short ATM CE at current candle (T) Open Price. On PE Short Signal - Short ATM PE at current candle (T) Open Price.\nRisk Management: 25% Stop Loss & 70% Target calculated per individual leg.\nExit Rule: Universal square-off for all open positions automatically at 15:15 PM (3:15 PM).\nPeriod: Aug 13.8.2026 to Aug 13.08.2026", 
     'time_dir'
   ),
   createDefaultObj(
     's_11', 
-    'Sensex 5-Min Supertrend Intraday Strategy', 
+    'Sensex 5-Min Super trend Intraday Strategy', 
     'Indicators - Supertrend (10,3) strategy.', 
-    "Asset & Timeframe: BSE Sensex | 5-Minute Chart | 10 Lots\nIndicator: Supertrend (ATR Period: 10, Multiplier: 3.0)\nEntry Rule: ATM Options\nPE Entry (PE Option SELL): On 5-minute candle close when Supertrend gives a Green signal, immediately sell 10 Lots PE at the open price of the next candle. (Maximum 3 PE trades per day).\nCE Entry (CE Option SELL): On 5-minute candle close when Supertrend gives a Red signal, immediately sell 10 Lots CE at the open price of the next candle. (Maximum 3 CE trades per day).\nRisk Management: Stop Loss (SL): 100 Points from entry price. Capital Protection: Maximum daily limit is strictly 1 CE Trade and 1 PE Trade to avoid over-trading in sideways markets.\nExit Rule: Target Exit: Complete exit when target of 200 Points profit from entry price is hit. Stop Loss Exit: Complete exit when 100 Points loss from entry price is hit.\nPeriod: Aug 17.08.2026 to Aug 21.08.2026", 
+    "Asset & Timeframe: BSE Sensex | 5-Minute Chart | 10 Lots\nIndicator: Supertrend (ATR Period: 10, Multiplier: 3.0)\nEntry Rule: ATM Options\nPE Entry (PE Option SELL): When the 5-minute candle closes and Supertrend gives a Green signal, immediately SELL 10 Lots of PE at the next candle's open price. (Maximum 3 PE trades per day).\nCE Entry (CE Option SELL): When the 5-minute candle closes and Supertrend gives a Red signal, immediately SELL 10 Lots of CE at the next candle's open price. (Maximum 3 CE trades per day).\nRisk Management: Stoploss (SL): 100 Points from entry price. Capital Protection: Maximum daily limit is strictly 1 CE Trade and 1 PE Trade to avoid over-trading in sideways markets.\nExit Rule: Target Exit: 200 Points profit from entry price triggers complete exit. Stoploss Exit: 100 Points loss triggers complete exit.\nPeriod: Aug 17.08.2026 to Aug 21.08.2026", 
     'ind_dir'
   ),
   createDefaultObj(
     's_12', 
     'Sensex 5-Min MACD Crossover Intraday Strategy', 
     'Indicators - MACD (12,26,9) crossover strategy.', 
-    "Asset & Timeframe: BSE Sensex | 5-Minute Chart | 10 Lots\nIndicator: MACD (Fast EMA: 12, Slow EMA: 26, Signal Line: 9)\nEntry Rule: ATM Options\nPE Entry (PE Option SELL - Bullish Signal): On 5-minute candle close when the MACD Line crosses above the Signal Line from below, immediately sell 10 Lots PE at the open price of the next candle. (Maximum 1 PE trade per day).\nCE Entry (CE Option SELL - Bearish Signal): On 5-minute candle close when the MACD Line crosses below the Signal Line from above, immediately sell 10 Lots CE at the open price of the next candle. (Maximum 1 CE trade per day).\nRisk Management: Stop Loss (SL): 100 Points from entry price. Capital Protection: Maximum daily limit is strictly 1 CE Trade and 1 PE Trade.\nExit Rule: Target Exit: Complete exit upon achieving 200 Points profit from entry price. Stop Loss Exit: Complete exit upon hitting 100 Points loss from entry price.\nPeriod: Aug 17.08.2026 to Aug 21.08.2026", 
+    "Asset & Timeframe: BSE Sensex | 5-Minute Chart | 10 Lots\nIndicator: MACD (Fast EMA: 12, Slow EMA: 26, Signal Line: 9)\nEntry Rule: ATM Options\nPE Entry (PE Option SELL - Bullish Signal): When the 5-minute candle closes and the MACD Line crosses above the Signal Line from below, immediately SELL 10 Lots of PE at the next candle's open price. (Max 1 PE trade per day).\nCE Entry (CE Option SELL - Bearish Signal): When the 5-minute candle closes and the MACD Line crosses below the Signal Line from above, immediately SELL 10 Lots of CE at the next candle's open price. (Max 1 CE trade per day).\nRisk Management: Stoploss (SL): 100 Points from entry price. Capital Protection: Maximum daily limit is strictly 1 CE Trade and 1 PE Trade.\nExit Rule: Target Exit: 200 Points profit triggers complete exit. Stoploss Exit: 100 Points loss triggers complete exit.\nPeriod: Aug 17.08.2026 to Aug 21.08.2026", 
     'ind_dir'
   ),
   createDefaultObj(
     's_13', 
     'Sensex 5-Min EMA Crossover Intraday Strategy', 
     'Indicators - 9/21 EMA crossover strategy.', 
-    "Asset & Timeframe: BSE Sensex | 5-Minute Chart | 10 Lots\nIndicators: Fast EMA: 9, Slow EMA: 21\nEntry Rule (ATM Options): Dynamic Loop (Starts monitoring from 09:20 AM onwards till 15:00 PM)\nPE Entry (PE Option SELL - Bullish Signal): On 5-minute candle close when Fast EMA (9) crosses above Slow EMA (21) from below, immediately sell 10 Lots PE at the open price of the next candle.\nCE Entry (CE Option SELL - Bearish Signal): On 5-minute candle close when Fast EMA (9) crosses below Slow EMA (21) from above, immediately sell 10 Lots CE at the open price of the next candle.\nExit Rule: Target Exit: Complete exit upon hitting 200 Points profit from entry price. Stop Loss Exit: Complete exit upon hitting 100 Points loss from entry price.\nPeriod: Aug 20.08.2026 to Aug 21.08.2026", 
+    "Asset & Timeframe: BSE Sensex | 5-Minute Chart | 10 Lots\nIndicators: Fast EMA: 9, Slow EMA: 21\nEntry Rule (ATM Options): Dynamic Loop (Starts monitoring from 9:20 AM onwards till 15:00 PM)\nPE Entry (PE Option SELL - Bullish Signal): When the 5-minute candle closes and Fast EMA (9) crosses above Slow EMA (21) from below, immediately SELL 10 Lots of PE at the next candle's open price.\nCE Entry (CE Option SELL - Bearish Signal): When the 5-minute candle closes and Fast EMA (9) crosses below Slow EMA (21) from above, immediately SELL 10 Lots of CE at the next candle's open price.\nExit Rule: Target Exit: 200 Points profit triggers complete exit. Stoploss Exit: 100 Points loss triggers complete exit.\nPeriod: Aug 20, 2026 to Aug 21, 2026", 
     'ind_dir'
   ),
   createDefaultObj(
     's_14', 
     'Sensex 5-Min RSI Crossover Intraday Strategy', 
     'Indicators - RSI 14 overbought/oversold reversal.', 
-    "Asset & Timeframe: BSE Sensex | 5-Minute Chart | 10 Lots\nIndicator: RSI (Period: 14, OB Level: 70, OS Level: 30)\nEntry Rule: ATM Options\nCE Entry (CE Option SELL - Bullish Signal): On 5-minute candle close when RSI crosses above 30 from below, immediately sell 10 Lots PE at the open price of the next candle. (Maximum 2 CE trades per day).\nPE Entry (PE Option SELL - Bearish Signal): On 5-minute candle close when RSI crosses below 70 from above, immediately sell 10 Lots PE at the open price of the next candle. (Maximum 2 PE trades per day).\nRisk Management: Stop Loss (SL): 100 Points from entry price. Capital Protection: Maximum daily limit is strictly 1 CE Trade and 1 PE Trade to avoid over-trading in sideways markets.\nExit Rule: Target Exit: Complete exit upon achieving 200 Points profit from entry price. Stop Loss Exit: Complete exit upon hitting 100 Points loss from entry price.\nPeriod: Aug 17.08.2026 to Aug 21.08.2026", 
+    "Asset & Timeframe: BSE Sensex | 5-Minute Chart | 10 Lots\nIndicator: RSI (Period: 14, OB Level: 70, OS Level: 30)\nEntry Rule: ATM Options\nCE Entry (CE Option SELL - Bullish Signal): When the 5-minute candle closes and the RSI value crosses above 30 from below, immediately SELL 10 Lots of PE at the next candle's open price. (Max 2 CE trades per day).\nPE Entry (PE Option SELL - Bearish Signal): When the 5-minute candle closes and the RSI value crosses below 70 from above, immediately SELL 10 Lots of PE at the next candle's open price. (Max 2 PE trades per day).\nRisk Management: Stoploss (SL): 100 Points from entry price. Capital Protection: Maximum daily limit is strictly 1 CE Trade and 1 PE Trade to avoid over-trading in sideways markets.\nExit Rule: Target Exit: 200 Points profit triggers complete exit. Stoploss Exit: 100 Points loss triggers complete exit.\nPeriod: Aug 17.08.2026 to Aug 21.08.2026", 
     'ind_dir'
   )
 ];
 
 const MyStrategiesModal = ({ isOpen, onClose, isLoading, strategies = [], onLoad, onEdit, onDelete }) => {
+  
   if (!isOpen) return null;
+
+  // Combine User Saved Strategies and Default Templates into one unified list
+  const allDisplayStrategies = [...(strategies || []), ...DEFAULT_STRATEGIES];
 
   const handleLoadStrategy = (e, strat) => {
     e.stopPropagation();
@@ -187,125 +185,132 @@ const MyStrategiesModal = ({ isOpen, onClose, isLoading, strategies = [], onLoad
     if (onDelete) onDelete(strat);
   };
 
-  const getPillType = (tag) => {
-    const types = {
-      core_dir: 'orange',
-      core_spreads: 'cyan',
-      core_ndir: 'purple',
-      core_adv: 'pink',
-      time_dir: 'green',
+  const getPillColor = (tag) => {
+    const colors = {
+      core_dir: 'cyan',
+      core_spreads: 'purple',
+      core_ndir: 'green',
+      core_adv: 'orange',
+      time_dir: 'cyan',
       time_ndir: 'purple',
-      ind_dir: 'cyan',
-      trend: 'green',
-      pa: 'orange',
-      scalp: 'pink'
+      ind_dir: 'green',
+      trend: 'orange',
+      pa: 'cyan',
+      scalp: 'purple'
     };
-    return types[tag] || 'cyan';
-  };
-
-  const getSegmentLabel = (tag) => {
-    const labels = {
-      core_dir: 'CORE DIRECTIONAL',
-      core_spreads: 'CORE SPREADS',
-      core_ndir: 'CORE NON-DIR',
-      core_adv: 'CORE ADVANCED',
-      time_dir: 'TIME-BASED DIR',
-      time_ndir: 'TIME-BASED NEUTRAL',
-      ind_dir: 'INDICATOR STRATEGY',
-      trend: 'TREND & MOMENTUM',
-      pa: 'PRICE ACTION',
-      scalp: 'SCALPING'
-    };
-    return labels[tag] || 'QUANT SETUP';
+    return colors[tag] || 'cyan';
   };
 
   return (
-    <div className="fixed inset-0 bg-[#090A0F] z-[9999] p-4 md:p-8 overflow-hidden flex flex-col font-sans select-none">
+    <div className="fixed inset-0 bg-[#090A0F] z-[999] overflow-y-auto overflow-x-hidden animate-fade-in transition-all duration-500">
       
-      {/* Subtle Background Grid & Ambient Neon Glowing Orbs */}
-      <div className="absolute inset-0 bg-[radial-gradient(#00E5FF_1px,transparent_1px)] [background-size:32px_32px] opacity-10 pointer-events-none"></div>
-      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-[#D500F9]/10 rounded-full blur-[140px] pointer-events-none"></div>
-      <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-[#00FFFF]/10 rounded-full blur-[140px] pointer-events-none"></div>
+      {/* Deep Dark Navy Background with Light Subtle Grid Lines */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none"></div>
 
-      {/* Full-Screen Cyber Neon Header */}
-      <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center pb-6 border-b border-[#00FFFF]/20 flex-shrink-0 gap-4">
-        <div className="flex items-center gap-4">
-          <div className="p-3.5 bg-gradient-to-br from-[#00FFFF]/20 to-[#D500F9]/20 rounded-2xl border border-[#00FFFF]/50 text-[#00FFFF] shadow-[0_0_25px_rgba(0,255,255,0.4)]">
-            <Icons.Strategy />
-          </div>
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl md:text-4xl font-black text-white tracking-wide">
-                QUANT STRATEGY <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00FFFF] via-[#D500F9] to-[#FF007F]">HUB</span>
-              </h1>
-              <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#D500F9]/20 border border-[#D500F9]/50 text-[#D500F9] text-xs font-bold shadow-[0_0_15px_rgba(213,0,249,0.4)]">
-                <Icons.Sparkles /> AI-POWERED
-              </span>
+      {/* Floating Ambient Glowing Orbs */}
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#00FFFF]/10 rounded-full blur-[100px] pointer-events-none"></div>
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#D500F9]/10 rounded-full blur-[100px] pointer-events-none"></div>
+
+      <div className="relative min-h-screen p-4 md:p-10 flex flex-col z-10 max-w-[1600px] mx-auto">
+        
+        {/* Header - Full Width Royal Neon Title */}
+        <div className="flex justify-between items-center mb-10 pb-6 border-b border-[#00FFFF]/20 sticky top-0 bg-[#090A0F]/80 backdrop-blur-xl z-50 rounded-b-3xl px-4 md:px-8 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+          <div className="flex items-center gap-5 pt-4">
+            <div className="p-4 bg-gradient-to-br from-[#00FFFF]/20 to-[#D500F9]/20 rounded-2xl border border-[#00FFFF]/50 text-[#00FFFF] shadow-[0_0_20px_rgba(0,255,255,0.4)]">
+              <Icons.Strategy />
             </div>
-            <p className="text-xs md:text-sm text-[#A0AEC0] mt-1 font-medium">
-              Real-time automated execution presets with strict risk parameters & high-probability intraday setups.
-            </p>
+            <div>
+              <h1 className="text-3xl md:text-5xl font-black tracking-wide text-[#FFFFFF]">
+                AI-Powered <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00FFFF] to-[#D500F9] drop-shadow-[0_0_15px_rgba(213,0,249,0.5)]">Strategies</span>
+              </h1>
+              <p className="text-sm md:text-base text-gray-400 mt-2 font-medium tracking-wider">
+                Explore Intraday pure backtestable setups & your private saved collections.
+              </p>
+            </div>
           </div>
-        </div>
-
-        {/* Action Controls & Fullscreen Exit Button */}
-        <div className="flex items-center gap-4 self-end md:self-center">
+          
           <button 
             type="button"
             onClick={onClose} 
-            className="px-6 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest text-[#FF007F] bg-[#FF007F]/10 border border-[#FF007F]/40 hover:bg-[#FF007F] hover:text-white hover:shadow-[0_0_25px_rgba(255,0,127,0.6)] transition-all duration-300 cursor-pointer"
+            className="p-3 md:p-4 rounded-full text-white bg-[#D500F9]/10 border border-[#D500F9]/30 hover:bg-[#D500F9]/30 hover:border-[#D500F9] hover:shadow-[0_0_25px_rgba(213,0,249,0.6)] transition-all duration-300 cursor-pointer"
           >
-            Close Terminal ✕
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 6L6 18M6 6l12 12"/>
+            </svg>
           </button>
         </div>
-      </div>
 
-      {/* Full-Screen Scrollable Grid Area */}
-      <div className="flex-1 overflow-y-auto mt-6 pr-2 scrollbar-thin scrollbar-thumb-[#00FFFF]/40 scrollbar-track-[#090A0F] relative z-10">
-        
-        {/* User Saved Custom Strategies Section */}
-        {strategies && strategies.length > 0 && (
-          <div className="mb-10">
-            <div className="flex items-center gap-3 mb-6">
-              <span className="h-3 w-3 rounded-full bg-[#00E676] animate-pulse shadow-[0_0_10px_#00E676]"></span>
-              <h2 className="text-xl font-extrabold text-white uppercase tracking-wider">
-                My Saved Strategies ({strategies.length})
-              </h2>
-            </div>
+        {/* Strategies Grid Loading State */}
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center flex-1 py-32">
+            <div className="animate-spin h-16 w-16 border-4 border-[#00FFFF] border-t-transparent rounded-full shadow-[0_0_30px_rgba(0,255,255,0.8)] mb-6"></div>
+            <p className="text-[#00FFFF] font-black text-xl tracking-widest uppercase">Initializing Database...</p>
+          </div>
+        ) : allDisplayStrategies.length === 0 ? (
+          <div className="flex flex-col items-center justify-center flex-1 py-32 bg-[#00FFFF]/5 rounded-3xl border border-[#00FFFF]/20 backdrop-blur-sm">
+            <p className="text-white font-black text-2xl">No Strategies Found</p>
+            <p className="text-gray-400 mt-3 text-lg">Your master library is currently empty.</p>
+          </div>
+        ) : (
+          /* Full Screen Responsive Grid Layout */
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 pb-20">
+            {allDisplayStrategies.map(strat => (
+              
+              /* Terminal Style Animated Box for each strategy */
+              <div 
+                key={strat.id} 
+                className="bg-[#0D0F18]/90 backdrop-blur-xl rounded-2xl flex flex-col h-[500px] border border-[#00FFFF]/20 hover:border-[#00FFFF]/80 hover:shadow-[0_0_40px_rgba(0,229,255,0.25)] hover:-translate-y-3 transition-all duration-500 group relative overflow-hidden"
+              >
+                {/* Terminal Header (Red, Yellow, Green dots) */}
+                <div className="flex items-center gap-2 px-5 py-3.5 bg-[#05060A] border-b border-[#00FFFF]/10 group-hover:bg-[#00FFFF]/5 transition-colors duration-500">
+                  <div className="w-3 h-3 rounded-full bg-[#FF007F] shadow-[0_0_8px_rgba(255,0,127,0.5)]"></div>
+                  <div className="w-3 h-3 rounded-full bg-[#FF9100] shadow-[0_0_8px_rgba(255,145,0,0.5)]"></div>
+                  <div className="w-3 h-3 rounded-full bg-[#00E676] shadow-[0_0_8px_rgba(0,230,118,0.5)]"></div>
+                  <span className="ml-auto text-[10px] text-gray-500 font-mono tracking-widest uppercase">
+                    ID: {strat.id.substring(0, 6)}
+                  </span>
+                </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {strategies.map(strat => (
-                <div 
-                  key={strat.id} 
-                  className="bg-[#0D0E17]/90 backdrop-blur-xl p-6 rounded-2xl flex flex-col justify-between border border-[#00E676]/40 hover:border-[#00E676] shadow-[0_0_20px_rgba(0,230,118,0.15)] hover:shadow-[0_0_35px_rgba(0,230,118,0.35)] hover:-translate-y-1.5 transition-all duration-300 group relative overflow-hidden"
-                >
-                  {/* Top Glowing Accent Line */}
-                  <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#00E676] to-transparent opacity-70 group-hover:opacity-100 transition-opacity"></div>
+                {/* Card Body */}
+                <div className="p-5 flex flex-col flex-1 gap-4 overflow-hidden">
                   
-                  <div>
-                    <div className="flex justify-between items-center mb-4">
-                      <h3 className="font-extrabold text-lg text-white group-hover:text-[#00E676] transition-colors line-clamp-1">
-                        {strat.name}
-                      </h3>
-                      <MetadataPill text="USER SAVED" type="green" />
-                    </div>
-
-                    <p className="text-xs text-[#A0AEC0] font-mono leading-relaxed bg-[#05060A] p-4 rounded-xl border border-[#00E676]/20 shadow-[inset_0_2px_8px_rgba(0,0,0,0.8)] mb-4">
-                      <span className="line-clamp-5 text-[#00E676]/90">{strat.prompt || strat.concept || strat.description || strat.text}</span>
-                    </p>
-
-                    <div className="flex items-center gap-2 text-[11px] text-[#A0AEC0] mb-6 font-semibold">
-                      <Icons.Calendar />
-                      Created: {strat.createdAt ? new Date((strat.createdAt.seconds || strat.createdAt) * 1000).toLocaleDateString() : 'Recent'}
+                  {/* Strategy Name & Tags */}
+                  <div className="flex flex-col gap-3 shrink-0">
+                    <h3 className="font-black text-xl text-white group-hover:text-[#00FFFF] transition-colors line-clamp-2 leading-tight">
+                      {strat.name}
+                    </h3>
+                    <div className="self-start">
+                      <MetadataPill 
+                        text={strat.isDefault ? (strat.segmentTag || 'TEMPLATE') : 'CUSTOM BUILD'} 
+                        color={getPillColor(strat.segmentTag)} 
+                      />
                     </div>
                   </div>
+                  
+                  {/* Neon Green Terminal Code Block (Scrollable) */}
+                  <div className="flex-1 bg-[#020205] p-4 rounded-xl border border-[#00E676]/20 shadow-[inset_0_0_15px_rgba(0,0,0,0.8)] overflow-y-auto scrollbar-thin scrollbar-thumb-[#00E676]/40 scrollbar-track-transparent">
+                    <pre className="text-xs text-[#00E676] font-mono whitespace-pre-wrap leading-relaxed">
+                      {strat.prompt || strat.concept || strat.text}
+                    </pre>
+                  </div>
 
-                  <div className="flex items-center justify-between gap-3 pt-4 border-t border-[#00E676]/20">
+                  {/* Metadata (Date) */}
+                  <div className="flex items-center gap-2 text-[11px] text-[#00FFFF]/70 font-bold tracking-widest uppercase shrink-0">
+                    <Icons.Calendar />
+                    Logged: {strat.createdAt ? new Date((strat.createdAt.seconds || strat.createdAt) * 1000).toLocaleDateString() : 'Active'}
+                  </div>
+                </div>
+
+                {/* Footer Buttons Action Area */}
+                <div className="p-4 bg-[#05060A] border-t border-[#00FFFF]/10 flex items-center gap-3 shrink-0">
+                  
+                  {/* Only show Edit/Delete if it is a user's custom strategy */}
+                  {!strat.isDefault && (
                     <div className="flex gap-2">
                       <button 
                         type="button"
                         onClick={(e) => handleEditStrategy(e, strat)}
-                        className="p-3 rounded-xl text-[#FF9100] bg-[#FF9100]/10 hover:bg-[#FF9100] hover:text-black border border-[#FF9100]/40 transition-all cursor-pointer shadow-[0_0_12px_rgba(255,145,0,0.2)]"
+                        className="p-3 rounded-xl text-[#00FFFF] bg-[#00FFFF]/5 border border-[#00FFFF]/30 hover:bg-[#00FFFF]/20 hover:border-[#00FFFF] transition-all cursor-pointer shadow-[0_0_10px_rgba(0,255,255,0.1)] hover:scale-105"
                         title="Edit Strategy"
                       >
                         <Icons.Edit />
@@ -313,86 +318,31 @@ const MyStrategiesModal = ({ isOpen, onClose, isLoading, strategies = [], onLoad
                       <button 
                         type="button"
                         onClick={(e) => handleDeleteStrategy(e, strat)}
-                        className="p-3 rounded-xl text-[#FF007F] bg-[#FF007F]/10 hover:bg-[#FF007F] hover:text-white border border-[#FF007F]/40 transition-all cursor-pointer shadow-[0_0_12px_rgba(255,0,127,0.2)]"
+                        className="p-3 rounded-xl text-[#FF007F] bg-[#FF007F]/5 border border-[#FF007F]/30 hover:bg-[#FF007F]/20 hover:border-[#FF007F] transition-all cursor-pointer shadow-[0_0_10px_rgba(255,0,127,0.1)] hover:scale-105"
                         title="Delete Strategy"
                       >
                         <Icons.Delete />
                       </button>
                     </div>
+                  )}
 
-                    <button 
-                      type="button"
-                      onClick={(e) => handleLoadStrategy(e, strat)} 
-                      className="flex-1 flex items-center justify-center gap-2 py-3 px-4 bg-gradient-to-r from-[#00E676] to-[#00FFFF] text-black text-xs font-black rounded-xl transition-all hover:shadow-[0_0_25px_rgba(0,230,118,0.6)] active:scale-95 cursor-pointer uppercase tracking-wider"
-                    >
-                      <Icons.Load />
-                      EXECUTE PLAN
-                    </button>
-                  </div>
+                  {/* Universal Execute / Load Button */}
+                  <button 
+                    type="button"
+                    onClick={(e) => handleLoadStrategy(e, strat)} 
+                    className="flex items-center justify-center flex-1 gap-2 py-3.5 px-4 bg-gradient-to-r from-[#D500F9] to-[#FF007F] text-white text-[13px] font-black rounded-xl transition-all hover:shadow-[0_0_30px_rgba(213,0,249,0.6)] hover:scale-[1.02] active:scale-95 cursor-pointer uppercase tracking-widest border border-white/20"
+                  >
+                    <Icons.Load />
+                    {strat.isDefault ? 'Deploy Template' : 'Execute Plan'}
+                  </button>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
 
-        {/* Loading Indicator */}
-        {isLoading && (
-          <div className="text-center p-16 bg-[#0D0E17]/80 backdrop-blur-md rounded-2xl border border-[#00FFFF]/30 shadow-[0_0_30px_rgba(0,255,255,0.1)] mb-10">
-            <div className="animate-spin h-10 w-10 border-4 border-[#00FFFF] border-t-transparent rounded-full mx-auto mb-4 shadow-[0_0_20px_#00FFFF]"></div>
-            <p className="text-[#00FFFF] font-extrabold text-sm tracking-widest uppercase">Syncing Cloud Database Strategy Vault...</p>
-          </div>
-        )}
-
-        {/* Default Master Templates Section Header */}
-        <div className="flex items-center gap-3 mb-6">
-          <span className="h-3 w-3 rounded-full bg-[#00FFFF] animate-pulse shadow-[0_0_10px_#00FFFF]"></span>
-          <h2 className="text-xl font-extrabold text-white uppercase tracking-wider">
-            Standard Algorithmic Strategies ({DEFAULT_STRATEGIES.length})
-          </h2>
-        </div>
-
-        {/* Master Preset Grid of Animated Neon Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-12">
-          {DEFAULT_STRATEGIES.map((strat) => (
-            <div 
-              key={strat.id} 
-              className="bg-[#0D0E17]/90 backdrop-blur-xl p-6 rounded-2xl flex flex-col justify-between border border-[#00FFFF]/30 hover:border-[#00FFFF] shadow-[0_0_20px_rgba(0,255,255,0.1)] hover:shadow-[0_0_35px_rgba(0,255,255,0.35)] hover:-translate-y-1.5 transition-all duration-300 group relative overflow-hidden"
-            >
-              {/* Card Terminal Header Accent Dots */}
-              <div className="flex justify-between items-center mb-4">
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#FF007F]"></span>
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#FF9100]"></span>
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#00E676]"></span>
-                </div>
-                <MetadataPill text={getSegmentLabel(strat.segmentTag)} type={getPillType(strat.segmentTag)} />
               </div>
-
-              {/* Title */}
-              <h3 className="font-extrabold text-lg text-white group-hover:text-[#00FFFF] transition-colors mb-3 line-clamp-1">
-                {strat.name}
-              </h3>
-
-              {/* Strategy Parameters Display */}
-              <p className="flex-1 text-xs text-[#A0AEC0] font-mono leading-relaxed bg-[#05060A] p-4 rounded-xl border border-[#00FFFF]/20 shadow-[inset_0_2px_8px_rgba(0,0,0,0.8)] mb-6 whitespace-pre-wrap">
-                {strat.prompt}
-              </p>
-
-              {/* Load Action Button */}
-              <button 
-                type="button"
-                onClick={(e) => handleLoadStrategy(e, strat)} 
-                className="w-full flex items-center justify-center gap-2 py-3.5 bg-gradient-to-r from-[#D500F9] via-[#FF007F] to-[#D500F9] text-white text-xs font-black rounded-xl transition-all hover:shadow-[0_0_25px_rgba(213,0,249,0.7)] active:scale-95 cursor-pointer uppercase tracking-wider border border-white/20"
-              >
-                <Icons.Load />
-                LOAD TEMPLATE
-              </button>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
       </div>
-
     </div>
   );
 };
