@@ -208,11 +208,7 @@ const LegsPanel = ({
                               <div className="w-full flex-1">
                                 <select 
                                   value={currentDistance} 
-                                  onChange={(e) => {
-                                    const val = Number(e.target.value);
-                                    updateLeg(leg.id, 'strikeDistance', val);
-                                    updateLeg(leg.id, 'strike_distance', val); // Added for JSON payload match
-                                  }} 
+                                  onChange={(e) => updateLeg(leg.id, 'strikeDistance', Number(e.target.value))} 
                                   className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500"
                                 >
                                   {Array.from({ length: 20 }, (_, i) => i + 1).map((num) => (
@@ -280,44 +276,17 @@ const LegsPanel = ({
                     {/* 🎚️ STOP LOSS & TARGET WITH SMART UNIT DETECTOR */}
                     <div className="col-span-2 grid grid-cols-2 gap-2 mt-2 border-t border-[#222] pt-2">
                       <div>
-                        <div className="flex items-center justify-between mb-1">
-                          <label className="block text-[9px] text-red-400 uppercase tracking-wide">Stop Loss</label>
-                          <label className="flex items-center gap-1 cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={leg.stopLoss === null || leg.stopLoss === false}
-                              onChange={(e) => {
-                                const isNoSL = e.target.checked;
-                                updateLeg(leg.id, 'stopLoss', isNoSL ? null : '');
-                                updateLeg(leg.id, 'stop_loss', isNoSL ? null : '');
-                              }}
-                              className="rounded text-red-500 w-2.5 h-2.5 bg-[#111] border-[#333] cursor-pointer"
-                            />
-                            <span className="text-[8px] text-gray-400 uppercase tracking-wider">No SL</span>
-                          </label>
-                        </div>
+                        <label className="block text-[9px] text-red-400 uppercase tracking-wide mb-1">Stop Loss</label>
                         <div className="flex gap-1">
-                          <input 
-                            type="number" 
-                            disabled={leg.stopLoss === null || leg.stopLoss === false}
-                            value={(leg.stopLoss === null || leg.stopLoss === false) ? '' : (leg.stopLoss ?? leg.stop_loss ?? '')} 
-                            onChange={(e) => {
-                              const val = Number(e.target.value);
-                              updateLeg(leg.id, 'stopLoss', val);
-                              updateLeg(leg.id, 'stop_loss', val);
-                            }} 
-                            className={`w-2/3 bg-[#1e1e1e] border border-red-900/30 focus:border-red-500 rounded p-1.5 text-xs text-gray-300 outline-none ${leg.stopLoss === null || leg.stopLoss === false ? 'opacity-50 cursor-not-allowed' : ''}`} 
-                            placeholder={leg.stopLoss === null || leg.stopLoss === false ? "None" : "0"} 
-                          />
+                          <input type="number" value={leg.stopLoss ?? leg.stop_loss ?? ''} onChange={(e) => updateLeg(leg.id, 'stopLoss', Number(e.target.value))} className="w-2/3 bg-[#1e1e1e] border border-red-900/30 focus:border-red-500 rounded p-1.5 text-xs text-gray-300 outline-none" placeholder="0" />
                           <select 
                             value={currentSlUnit} 
-                            disabled={leg.stopLoss === null || leg.stopLoss === false}
                             onChange={(e) => {
                               const val = e.target.value;
                               updateLeg(leg.id, 'slUnit', val);
                               updateLeg(leg.id, 'sl_unit', val);
                             }} 
-                            className={`w-1/3 bg-[#1e1e1e] border border-red-900/30 focus:border-red-500 rounded p-1 text-[10px] text-gray-300 outline-none ${leg.stopLoss === null || leg.stopLoss === false ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            className="w-1/3 bg-[#1e1e1e] border border-red-900/30 focus:border-red-500 rounded p-1 text-[10px] text-gray-300 outline-none"
                           >
                             <option value="%">%</option>
                             <option value="Pts">Pts</option>
