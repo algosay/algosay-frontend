@@ -73,43 +73,107 @@ export const INDEX_STEP_SIZES = {
   "SENSEX": 100
 };
 
+// =========================================================================
+// 🚀 DYNAMIC MARGIN & LOT SIZE CALCULATOR LOGIC START
+// =========================================================================
+
+const LOT_SIZES = {
+  "NIFTY": 65, "BANKNIFTY": 30, "FINNIFTY": 60,
+  "MIDCPNIFTY": 120, "MIDCAPNIFTY": 120, "SENSEX": 20, "BANKEX": 30
+};
+
+const NAKED_MARGIN = {
+  "NIFTY": 176042.0, "BANKNIFTY": 165000.0, "FINNIFTY": 135000.0,
+  "MIDCPNIFTY": 110000.0, "MIDCAPNIFTY": 110000.0, "SENSEX": 185000.0, "BANKEX": 175000.0
+};
+
+const HEDGED_MARGIN = {
+  "NIFTY": 207238.0, "BANKNIFTY": 195000.0, "FINNIFTY": 155000.0,
+  "MIDCPNIFTY": 130000.0, "MIDCAPNIFTY": 130000.0, "SENSEX": 215000.0, "BANKEX": 200000.0
+};
+
+const BUY_MARGIN = {
+  "NIFTY": 5000.0, "BANKNIFTY": 4500.0, "FINNIFTY": 4000.0,
+  "MIDCPNIFTY": 3500.0, "MIDCAPNIFTY": 3500.0, "SENSEX": 5000.0, "BANKEX": 4500.0
+};
+
+export const getLotSize = (ticker) => {
+  if (!ticker) return 65;
+  const cleanTicker = String(ticker).trim().toUpperCase();
+  
+  if (LOT_SIZES[cleanTicker]) return LOT_SIZES[cleanTicker];
+  
+  for (const [key, lot] of Object.entries(LOT_SIZES)) {
+      if (cleanTicker.includes(key)) return lot;
+  }
+  return 65; 
+};
+
 export const calculateLiveMargin = (currentLegs) => {
-  if (!currentLegs || currentLegs.length === 0) return { totalMargin: 0, ceQty: 0, peQty: 0 };
+  if (!currentLegs || !Array.isArray(currentLegs) || currentLegs.length === 0) {
+      return { totalMargin: 0, ceQty: 0, peQty: 0 };
+  }
 
-  let ce_sell = 0;
-  let pe_sell = 0;
-  let ce_buy = 0;
-  let pe_buy = 0;
-  let buy_margin = 0;
+  let totalMargin = 0;
+  let ceTotalQty = 0; 
+  let peTotalQty = 0;
 
+  // Group legs by Ticker to handle multi-index strategies dynamically
+  let legsByTicker = {};
   currentLegs.forEach(leg => {
-      const position = (leg.action || leg.position || "BUY").toUpperCase();
-      const optType = (leg.optionType || leg.option_type || leg.type || "CE").toUpperCase();
-      
-      let rawQty = parseInt(leg.lots || leg.qty || 1);
-      let lots = rawQty >= 65 ? Math.floor(rawQty / 65) : rawQty;
-
-      if (position === "SELL" || position === "SHORT") {
-          if (optType.includes("CE")) { ce_sell += lots; }
-          else if (optType.includes("PE")) { pe_sell += lots; }
-          else { ce_sell += lots; }
-      } else {
-          if (optType.includes("CE")) { ce_buy += lots; }
-          else if (optType.includes("PE")) { pe_buy += lots; }
-          else { ce_buy += lots; }
-          
-          buy_margin += (lots * 5000);
-      }
+      const ticker = String(leg.symbol || leg.Symbol || leg.asset || leg.ticker || leg.Ticker || leg.instrument || "NIFTY").trim().toUpperCase();
+      if (!legsByTicker[ticker]) legsByTicker[ticker] = [];
+      legsByTicker[ticker].push(leg);
   });
 
-  const ceQty = (ce_sell + ce_buy) * 65;
-  const peQty = (pe_sell + pe_buy) * 65;
+  for (const [ticker, tickerLegs] of Object.entries(legsByTicker)) {
+      const lotSize = getLotSize(ticker);
+      const nakedMarginVal = NAKED_MARGIN[ticker] || 176042.0;
+      const hedgedPairVal = HEDGED_MARGIN[ticker] || 207238.0;
+      const buyMarginVal = BUY_MARGIN[ticker] || 5000.0;
 
-  const hedged_pairs = Math.min(ce_sell, pe_sell);
-  const naked_ce = ce_sell - hedged_pairs;
-  const naked_pe = pe_sell - hedged_pairs;
+      let ceSellLots = 0;
+      let peSellLots = 0;
+      let buyMargin = 0;
 
-  const totalMargin = (hedged_pairs * 207238) + (naked_ce * 176042) + (naked_pe * 176042) + buy_margin;
-  
-  return { totalMargin, ceQty, peQty };
+      tickerLegs.forEach(leg => {
+          const position = String(leg.action || leg.position || "BUY").toUpperCase();
+          const optType = String(leg.optionType || leg.option_type || leg.type || "CE").toUpperCase();
+          
+          let rawQty = parseInt(leg.lots || leg.qty || leg.quantity || 1, 10);
+          let lots = rawQty >= lotSize ? Math.floor(rawQty / lotSize) : rawQty;
+          let actualQty = lots * lotSize; 
+
+          if (optType.includes("CE") || optType.includes("CALL")) {
+              ceTotalQty += actualQty;
+          } else if (optType.includes("PE") || optType.includes("PUT")) {
+              peTotalQty += actualQty;
+          } else {
+              ceTotalQty += actualQty; // fallback
+          }
+
+          if (position === "SELL" || position === "SHORT") {
+              if (optType.includes("CE") || optType.includes("CALL")) {
+                  ceSellLots += lots;
+              } else if (optType.includes("PE") || optType.includes("PUT")) {
+                  peSellLots += lots;
+              } else {
+                  totalMargin += (lots * nakedMarginVal);
+              }
+          } else {
+              buyMargin += (lots * buyMarginVal);
+          }
+      });
+
+      const hedgedPairs = Math.min(ceSellLots, peSellLots);
+      const nakedCe = ceSellLots - hedgedPairs;
+      const nakedPe = peSellLots - hedgedPairs;
+
+      totalMargin += (hedgedPairs * hedgedPairVal);
+      totalMargin += (nakedCe * nakedMarginVal);
+      totalMargin += (nakedPe * nakedMarginVal);
+      totalMargin += buyMargin;
+  }
+
+  return { totalMargin, ceQty: ceTotalQty, peQty: peTotalQty };
 };
