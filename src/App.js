@@ -127,12 +127,6 @@ const ProtectedDashboard = ({ logic }) => {
               setCombinedPremiumTargetUnit={logic.setCombinedPremiumTargetUnit}
               combinedPremiumSLUnit={logic.combinedPremiumSLUnit}
               setCombinedPremiumSLUnit={logic.setCombinedPremiumSLUnit}
-
-              // 💼 NEW UPDATE: PORTFOLIO RISK MANAGEMENT PROPS INJECTED 👇
-              portfolioTarget={logic.portfolioTarget}
-              setPortfolioTarget={logic.setPortfolioTarget}
-              portfolioSL={logic.portfolioSL}
-              setPortfolioSL={logic.setPortfolioSL}
             />
 
             <div className="flex flex-col md:flex-row gap-4 mb-8">

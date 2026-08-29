@@ -69,23 +69,19 @@ export const useAppLogic = () => {
   const [trailMoveX, setTrailMoveX] = useState('');
   const [trailPointY, setTrailPointY] = useState('');
 
-  // 💼 NEW: Portfolio Risk Management States (Absolute Rupees)
-  const [portfolioTarget, setPortfolioTarget] = useState('');
-  const [portfolioSL, setPortfolioSL] = useState('');
-
-  // 🟢 Price-based Global/Combined Targets & SL States with Units 🟢
+  // 🟢 NEW UPDATE: Price-based Global/Combined Targets & SL States with Units 🟢
   const [overallStrategyTarget, setOverallStrategyTarget] = useState('');
-  const [overallStrategyTargetUnit, setOverallStrategyTargetUnit] = useState('Pts'); 
+  const [overallStrategyTargetUnit, setOverallStrategyTargetUnit] = useState('Pts'); // NEW UNIT STATE
 
   const [overallStrategySL, setOverallStrategySL] = useState('');
-  const [overallStrategySLUnit, setOverallStrategySLUnit] = useState('Pts'); 
+  const [overallStrategySLUnit, setOverallStrategySLUnit] = useState('Pts'); // NEW UNIT STATE
   
   // 🟢 A) STATE CREATION (Top Level) with Units 🟢
   const [combinedPremiumTarget, setCombinedPremiumTarget] = useState('');
-  const [combinedPremiumTargetUnit, setCombinedPremiumTargetUnit] = useState('Pts'); 
+  const [combinedPremiumTargetUnit, setCombinedPremiumTargetUnit] = useState('Pts'); // NEW UNIT STATE
 
   const [combinedPremiumSL, setCombinedPremiumSL] = useState('');
-  const [combinedPremiumSLUnit, setCombinedPremiumSLUnit] = useState('Pts'); 
+  const [combinedPremiumSLUnit, setCombinedPremiumSLUnit] = useState('Pts'); // NEW UNIT STATE
 
   const [indicators, setIndicators] = useState([]);
   const [legs, setLegs] = useState([]); 
@@ -194,19 +190,6 @@ export const useAppLogic = () => {
     setTrailMoveX(globalTrailX);
     setTrailPointY(globalTrailY);
 
-    // 💼 NEW UPDATE: Portfolio Target & SL mapping from JSON directly
-    if (data.overall_mtm_target !== undefined && data.overall_mtm_target !== null) {
-      setPortfolioTarget(data.overall_mtm_target);
-    } else {
-      setPortfolioTarget(""); 
-    }
-
-    if (data.overall_mtm_sl !== undefined && data.overall_mtm_sl !== null) {
-      setPortfolioSL(data.overall_mtm_sl);
-    } else {
-      setPortfolioSL(""); 
-    }
-
     // 🟢 B) AI DATA RECEIVER (Combined Target & SL Update) 🟢
     
     // NEW: Unit extraction helper to find %, Pts, or Rs from string
@@ -219,9 +202,8 @@ export const useAppLogic = () => {
         return defaultUnit;
     };
 
-    // 🛠️ NEW UPDATE: Added overall_mtm_target and overall_mtm_sl parsing to strictly capture portfolio limits
-    let rawOverallTarget = risk.overall_mtm_target ?? data.overall_mtm_target ?? risk.overallStrategyTarget ?? risk.overall_target ?? data.overallStrategyTarget ?? data.overall_target ?? '';
-    let rawOverallSL = risk.overall_mtm_sl ?? data.overall_mtm_sl ?? risk.overallStrategySL ?? risk.overall_sl ?? data.overallStrategySL ?? data.overall_sl ?? '';
+    let rawOverallTarget = risk.overallStrategyTarget ?? risk.overall_target ?? data.overallStrategyTarget ?? data.overall_target ?? '';
+    let rawOverallSL = risk.overallStrategySL ?? risk.overall_sl ?? data.overallStrategySL ?? data.overall_sl ?? '';
 
     let rawCombinedTarget = data.combinedPremiumTarget ?? data.combined_premium_target ?? risk.combinedPremiumTarget ?? risk.combined_premium_target ?? risk.combinedTarget ?? data.combinedTarget ?? risk.combined_target ?? data.combined_target ?? '';
     let rawCombinedSL = data.combinedPremiumSL ?? data.combined_premium_sl ?? risk.combinedPremiumSL ?? risk.combined_premium_sl ?? risk.combinedSL ?? data.combinedSL ?? risk.combined_sl ?? data.combined_sl ?? risk.combinedPremiumStopLoss ?? risk.combined_premium_stop_loss ?? risk.combinedStopLoss ?? risk.combined_stop_loss ?? data.combinedStopLoss ?? data.combined_stop_loss ?? '';
@@ -422,8 +404,6 @@ export const useAppLogic = () => {
       ticker, timeframe, underlyingFrom, qty, transactionType,
       strategyType, isDynamic, entryTime, exitTime, fromDate, toDate,
       trailMoveX, trailPointY, 
-      // 💼 NEW UPDATE: Saving portfolio parameters to Firebase
-      portfolioTarget, portfolioSL,
       overallStrategyTarget, overallStrategyTargetUnit, 
       overallStrategySL, overallStrategySLUnit, 
       combinedPremiumTarget, combinedPremiumTargetUnit, 
@@ -475,10 +455,6 @@ export const useAppLogic = () => {
     setToDate(data.toDate || '');
     setTrailMoveX(data.trailMoveX || '');
     setTrailPointY(data.trailPointY || '');
-
-    // 💼 NEW UPDATE: Loading portfolio parameters (Backward compatibility maintained)
-    setPortfolioTarget(data.portfolioTarget || data.overall_mtm_target || '');
-    setPortfolioSL(data.portfolioSL || data.overall_mtm_sl || '');
 
     setOverallStrategyTarget(data.overallStrategyTarget || '');
     setOverallStrategyTargetUnit(data.overallStrategyTargetUnit || 'Pts');
@@ -596,9 +572,6 @@ export const useAppLogic = () => {
       risk_management: { 
         trailMoveX, 
         trailPointY,
-        // 🛠️ NEW UPDATE: Priority for Portfolio (Absolute Rs) over old overallStrategy keys
-        overall_mtm_target: portfolioTarget ? parseFloat(portfolioTarget) : (overallStrategyTarget ? parseFloat(overallStrategyTarget) : null),
-        overall_mtm_sl: portfolioSL ? parseFloat(portfolioSL) : (overallStrategySL ? parseFloat(overallStrategySL) : null),
         overall_strategy_target: overallStrategyTarget ? parseFloat(overallStrategyTarget) : null,
         overall_strategy_target_unit: overallStrategyTargetUnit,
         overall_strategy_sl: overallStrategySL ? parseFloat(overallStrategySL) : null,
@@ -699,10 +672,6 @@ export const useAppLogic = () => {
     isDynamic, setIsDynamic, 
     entryTime, setEntryTime, exitTime, setExitTime, fromDate, setFromDate, toDate, setToDate,
     trailMoveX, setTrailMoveX, trailPointY, setTrailPointY, 
-
-    // 💼 NEW: Exporting Portfolio variables explicitly
-    portfolioTarget, setPortfolioTarget,
-    portfolioSL, setPortfolioSL,
 
     overallStrategyTarget, setOverallStrategyTarget,
     overallStrategyTargetUnit, setOverallStrategyTargetUnit,

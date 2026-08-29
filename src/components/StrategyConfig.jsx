@@ -17,7 +17,6 @@ const normalizeUnit = (unit) => {
   
   return "Pts"; // Default fallback for everything else (including Points, Pts)
 };
-
 const StrategyConfig = ({
   // ✨ SELLING CONFIGURATIONS
   sellTicker, setSellTicker, sellTimeframe, setSellTimeframe, sellUnderlyingFrom, setSellUnderlyingFrom,
@@ -52,11 +51,7 @@ const StrategyConfig = ({
   combinedPremiumTarget, setCombinedPremiumTarget,
   combinedPremiumTargetUnit, setCombinedPremiumTargetUnit, // 🚀 NEW: TARGET UNIT
   combinedPremiumSL, setCombinedPremiumSL,
-  combinedPremiumSLUnit, setCombinedPremiumSLUnit, // 🚀 NEW: SL UNIT
-
-  // 💼 NEW UPDATE: Portfolio Risk Management Props
-  portfolioTarget, setPortfolioTarget,
-  portfolioSL, setPortfolioSL
+  combinedPremiumSLUnit, setCombinedPremiumSLUnit // 🚀 NEW: SL UNIT
 }) => {
   
   const handleConfigChange = (setter, value) => {
@@ -81,40 +76,6 @@ const StrategyConfig = ({
         setToDate={setToDate} 
         handleConfigChange={handleConfigChange} 
       />
-
-      {/* 💼 NEW UPDATE: PORTFOLIO RISK MANAGEMENT SECTION */}
-      <div className="mb-4 p-4 bg-[#1e1e1e] border border-purple-700/50 rounded-lg shadow-sm">
-        <h3 className="text-sm font-bold text-gray-300 mb-3 uppercase tracking-wider flex items-center gap-2">
-          💼 Portfolio Risk Management
-        </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          
-          {/* Portfolio Target in ₹ */}
-          <div className="flex flex-col">
-            <label className="text-xs text-gray-400 mb-1">Overall Target in ₹</label>
-            <input
-              type="number"
-              className="bg-[#2a2a2a] text-white p-2 rounded border border-gray-600 focus:border-green-500 focus:outline-none text-sm transition-colors"
-              placeholder="E.g., 5000 (Leave empty for default)"
-              value={portfolioTarget || ""}
-              onChange={(e) => handleConfigChange(setPortfolioTarget, e.target.value)}
-            />
-          </div>
-
-          {/* Portfolio Stoploss in ₹ */}
-          <div className="flex flex-col">
-            <label className="text-xs text-gray-400 mb-1">Overall Stoploss in ₹</label>
-            <input
-              type="number"
-              className="bg-[#2a2a2a] text-white p-2 rounded border border-gray-600 focus:border-red-500 focus:outline-none text-sm transition-colors"
-              placeholder="E.g., 2000 (Leave empty for default)"
-              value={portfolioSL || ""}
-              onChange={(e) => handleConfigChange(setPortfolioSL, e.target.value)}
-            />
-          </div>
-
-        </div>
-      </div>
 
       {/* 🛡️ NEW UPDATE: OVERALL RISK MANAGEMENT PANEL */}
       <div className="mb-4 p-4 bg-[#1e1e1e] border border-gray-700/50 rounded-lg shadow-sm">
