@@ -60,7 +60,7 @@ const createDefaultObj = (id, name, concept, promptText, segmentTag) => ({
   createdAt: { seconds: Math.floor(Date.now() / 1000) }
 });
 
-// 14 Updated Strategies mapped exactly to user requirements (Translated Fully to English)
+// 16 Complete Strategies mapped exactly to user requirements
 const DEFAULT_STRATEGIES = [
   createDefaultObj(
     's_1', 
@@ -159,6 +159,20 @@ const DEFAULT_STRATEGIES = [
     'Indicators - RSI 14 overbought/oversold reversal.', 
     "Asset & Timeframe: BSE Sensex | 5-Minute Chart | 10 Lots\nIndicator: RSI (Period: 14, OB Level: 70, OS Level: 30)\nEntry Rule: ATM Options\nCE Entry (CE Option SELL - Bullish Signal): When the 5-minute candle closes and the RSI value crosses above 30 from below, immediately SELL 10 Lots of PE at the next candle's open price. (Max 2 CE trades per day).\nPE Entry (PE Option SELL - Bearish Signal): When the 5-minute candle closes and the RSI value crosses below 70 from above, immediately SELL 10 Lots of PE at the next candle's open price. (Max 2 PE trades per day).\nRisk Management: Stoploss (SL): 100 Points from entry price. Capital Protection: Maximum daily limit is strictly 1 CE Trade and 1 PE Trade to avoid over-trading in sideways markets.\nExit Rule: Target Exit: 200 Points profit triggers complete exit. Stoploss Exit: 100 Points loss triggers complete exit.\nPeriod: Aug 17.08.2026 to Aug 21.08.2026", 
     'ind_dir'
+  ),
+  createDefaultObj(
+    's_15', 
+    'OTM & ITM Multi-Leg Combination Strategy (15M)', 
+    'Time-Based Neutral - Dual OTM & ITM option sell combo.', 
+    "Asset & Timeframe: Sensex | 15 Mins Timeframe | 1 Lot\nEntry Rule: Entry starts at 09:30 AM and repeats every 15 minutes till 15:15 PM (Dynamic Loop).\nLeg 1: Short 1 Lot CE & PE OTM with 100% Stop Loss & 80% Target.\nLeg 2: Short 1 Lot CE & PE ITM (ITM 1) with 20% Stop Loss & 80% Target.\nExit Rule: Universal square-off for all open positions at 15:15 PM.\nPeriod: Aug 06.08.2026 to Aug 06.08.2026", 
+    'time_ndir'
+  ),
+  createDefaultObj(
+    's_16', 
+    '7-Candle Sequence Momentum Short Strategy (15M)', 
+    'Trend & Momentum - 7-candle sequence breakout shorting.', 
+    "Asset & Timeframe: Sensex | 15 Mins Timeframe | 1 Lot\nEntry Rule: The strategy executes based on a 7-candle sequence on a 15-minute timeframe.\nLeg 1 (PE Short): Enters an ATM PE sell when a 7-candle sequence ending in a Green candle is followed by the 8th candle open.\nLeg 2 (CE Short): Enters an ATM CE sell when a 7-candle sequence ending in a Red candle is followed by the 8th candle open.\nRisk Management: 25% Stop Loss & 80% Target calculated per individual leg.\nExit Rule: Universal square-off for all open positions at 15:15 PM.\nPeriod: Aug 14.08.2026 to Aug 14.08.2026", 
+    'trend'
   )
 ];
 
