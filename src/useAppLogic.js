@@ -69,19 +69,19 @@ export const useAppLogic = () => {
   const [trailMoveX, setTrailMoveX] = useState('');
   const [trailPointY, setTrailPointY] = useState('');
 
-  // 🟢 NEW UPDATE: Price-based Global/Combined Targets & SL States with Units 🟢
+  // 🟢 Price-based Global/Combined Targets & SL States with Units 🟢
   const [overallStrategyTarget, setOverallStrategyTarget] = useState('');
-  const [overallStrategyTargetUnit, setOverallStrategyTargetUnit] = useState('Pts'); // NEW UNIT STATE
+  const [overallStrategyTargetUnit, setOverallStrategyTargetUnit] = useState('Pts'); 
 
   const [overallStrategySL, setOverallStrategySL] = useState('');
-  const [overallStrategySLUnit, setOverallStrategySLUnit] = useState('Pts'); // NEW UNIT STATE
+  const [overallStrategySLUnit, setOverallStrategySLUnit] = useState('Pts'); 
   
   // 🟢 A) STATE CREATION (Top Level) with Units 🟢
   const [combinedPremiumTarget, setCombinedPremiumTarget] = useState('');
-  const [combinedPremiumTargetUnit, setCombinedPremiumTargetUnit] = useState('Pts'); // NEW UNIT STATE
+  const [combinedPremiumTargetUnit, setCombinedPremiumTargetUnit] = useState('Pts'); 
 
   const [combinedPremiumSL, setCombinedPremiumSL] = useState('');
-  const [combinedPremiumSLUnit, setCombinedPremiumSLUnit] = useState('Pts'); // NEW UNIT STATE
+  const [combinedPremiumSLUnit, setCombinedPremiumSLUnit] = useState('Pts'); 
 
   const [indicators, setIndicators] = useState([]);
   const [legs, setLegs] = useState([]); 
@@ -202,8 +202,9 @@ export const useAppLogic = () => {
         return defaultUnit;
     };
 
-    let rawOverallTarget = risk.overallStrategyTarget ?? risk.overall_target ?? data.overallStrategyTarget ?? data.overall_target ?? '';
-    let rawOverallSL = risk.overallStrategySL ?? risk.overall_sl ?? data.overallStrategySL ?? data.overall_sl ?? '';
+    // 🛠️ NEW UPDATE: Added overall_mtm_target and overall_mtm_sl parsing to strictly capture portfolio limits
+    let rawOverallTarget = risk.overall_mtm_target ?? data.overall_mtm_target ?? risk.overallStrategyTarget ?? risk.overall_target ?? data.overallStrategyTarget ?? data.overall_target ?? '';
+    let rawOverallSL = risk.overall_mtm_sl ?? data.overall_mtm_sl ?? risk.overallStrategySL ?? risk.overall_sl ?? data.overallStrategySL ?? data.overall_sl ?? '';
 
     let rawCombinedTarget = data.combinedPremiumTarget ?? data.combined_premium_target ?? risk.combinedPremiumTarget ?? risk.combined_premium_target ?? risk.combinedTarget ?? data.combinedTarget ?? risk.combined_target ?? data.combined_target ?? '';
     let rawCombinedSL = data.combinedPremiumSL ?? data.combined_premium_sl ?? risk.combinedPremiumSL ?? risk.combined_premium_sl ?? risk.combinedSL ?? data.combinedSL ?? risk.combined_sl ?? data.combined_sl ?? risk.combinedPremiumStopLoss ?? risk.combined_premium_stop_loss ?? risk.combinedStopLoss ?? risk.combined_stop_loss ?? data.combinedStopLoss ?? data.combined_stop_loss ?? '';
@@ -572,6 +573,9 @@ export const useAppLogic = () => {
       risk_management: { 
         trailMoveX, 
         trailPointY,
+        // 🛠️ NEW UPDATE: Added MTM Keys specific to backend parsing needs while retaining old keys for safety
+        overall_mtm_target: overallStrategyTarget ? parseFloat(overallStrategyTarget) : null,
+        overall_mtm_sl: overallStrategySL ? parseFloat(overallStrategySL) : null,
         overall_strategy_target: overallStrategyTarget ? parseFloat(overallStrategyTarget) : null,
         overall_strategy_target_unit: overallStrategyTargetUnit,
         overall_strategy_sl: overallStrategySL ? parseFloat(overallStrategySL) : null,

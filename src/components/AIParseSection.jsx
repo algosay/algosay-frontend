@@ -17,7 +17,7 @@ const AIParseSection = ({
   // 🚨 State to hold and display parsed legs clearly before confirmation
   const [parsedLegs, setParsedLegs] = useState([]);
   
-  // 🟢 NEW UPDATE: State to hold Risk Management (Combined SL/Target) for Dynamic UI Preview
+  // 🟢 NEW UPDATE: State to hold Risk Management (Combined SL/Target & Portfolio Risk) for Dynamic UI Preview
   const [parsedRisk, setParsedRisk] = useState(null);
 
   // Sync external prompt changes (e.g., if a template is loaded from parent) to local state
@@ -142,8 +142,20 @@ const AIParseSection = ({
           rawCombSL = parseFloat(rawCombSL) || rawCombSL;
         }
 
+        // 💼 SMART EXTRACTION FOR PORTFOLIO / OVERALL RISK IN ₹ (UPDATED)
+        let rawPortfolioTarget = data.portfolioTarget ?? data.portfolio_target ?? riskObj.portfolioTarget ?? riskObj.portfolio_target ?? riskObj.overallStrategyTarget ?? riskObj.overall_target ?? '';
+        let rawPortfolioSL = data.portfolioSL ?? data.portfolio_sl ?? riskObj.portfolioSL ?? riskObj.portfolio_sl ?? riskObj.overallStrategySL ?? riskObj.overall_sl ?? '';
+
+        if (typeof rawPortfolioTarget === 'string') {
+          const cleanVal = parseFloat(rawPortfolioTarget.replace(/[^0-9.]/g, ''));
+          if (!isNaN(cleanVal)) rawPortfolioTarget = cleanVal;
+        }
+        if (typeof rawPortfolioSL === 'string') {
+          const cleanVal = parseFloat(rawPortfolioSL.replace(/[^0-9.]/g, ''));
+          if (!isNaN(cleanVal)) rawPortfolioSL = cleanVal;
+        }
+
         // 🧠 AI HALLUCINATION FIXER: FORCE OVERRIDE (🚀 EXACT WORD MATCH FIX)
-        // \b (Word Boundary) செக் செய்வதால் "UniveRSal" அல்லது "oPTions" என்ற வார்த்தைகளுக்குள் உள்ள RS, PT-ஐ எடுக்காது.
         const hasPts = /\b(PT|PTS|POINT|POINTS)\b/.test(promptText);
         const hasRs = /\b(RS|RUPEE|RUPEES)\b/.test(promptText);
         const hasPercent = /(%|\bPERCENT\b)/.test(promptText);
@@ -166,11 +178,13 @@ const AIParseSection = ({
           combinedPremiumSL: rawCombSL,
           combinedPremiumSLUnit: combSLUnit,
           overallTarget: riskObj.overallStrategyTarget ?? riskObj.overall_target ?? '',
-          overallSL: riskObj.overallStrategySL ?? riskObj.overall_sl ?? ''
+          overallSL: riskObj.overallStrategySL ?? riskObj.overall_sl ?? '',
+          portfolioTarget: rawPortfolioTarget,
+          portfolioSL: rawPortfolioSL
         };
         setParsedRisk(extractedRisk);
 
-        // 🚨 CRITICAL FIX: INJECT FIXED UNITS BACK INTO `data` BEFORE PASSING TO PARENT!
+        // 🚨 CRITICAL FIX: INJECT FIXED UNITS & PORTFOLIO RISK VALUES BACK INTO `data` BEFORE PASSING TO PARENT!
         data.combined_premium_target = rawCombTarget;
         data.combined_premium_target_unit = combTargetUnit;
         data.combinedPremiumTarget = rawCombTarget;
@@ -180,6 +194,12 @@ const AIParseSection = ({
         data.combined_premium_sl_unit = combSLUnit;
         data.combinedPremiumSL = rawCombSL;
         data.combinedPremiumSLUnit = combSLUnit;
+
+        // 💼 Inject Portfolio Risk values back into data root & risk_management
+        data.portfolioTarget = rawPortfolioTarget;
+        data.portfolio_target = rawPortfolioTarget;
+        data.portfolioSL = rawPortfolioSL;
+        data.portfolio_sl = rawPortfolioSL;
         
         if (!data.risk_management) data.risk_management = {};
         data.risk_management.combined_premium_target = rawCombTarget;
@@ -191,6 +211,11 @@ const AIParseSection = ({
         data.risk_management.combined_premium_sl_unit = combSLUnit;
         data.risk_management.combinedPremiumSL = rawCombSL;
         data.risk_management.combinedPremiumSLUnit = combSLUnit;
+
+        data.risk_management.portfolioTarget = rawPortfolioTarget;
+        data.risk_management.portfolio_target = rawPortfolioTarget;
+        data.risk_management.portfolioSL = rawPortfolioSL;
+        data.risk_management.portfolio_sl = rawPortfolioSL;
 
         // Enhanced Legs details passed back to parent
         if (enhancedLegs.length > 0) {
@@ -399,8 +424,8 @@ const AIParseSection = ({
               </div>
             )}
 
-            {/* 🟢 RENDER COMBINED/OVERALL RISK MANAGEMENT BADGES */}
-            {parsedRisk && (parsedRisk.combinedPremiumTarget || parsedRisk.combinedPremiumSL || parsedRisk.overallTarget || parsedRisk.overallSL) && (
+            {/* 🟢 RENDER COMBINED/OVERALL/PORTFOLIO RISK MANAGEMENT BADGES */}
+            {parsedRisk && (parsedRisk.combinedPremiumTarget || parsedRisk.combinedPremiumSL || parsedRisk.overallTarget || parsedRisk.overallSL || parsedRisk.portfolioTarget || parsedRisk.portfolioSL) && (
               <div className="mt-4 pt-4 border-t border-[#1f2030] flex flex-col gap-2">
                 <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Detected Risk Management:</span>
                 <div className="flex flex-wrap gap-3">
@@ -434,6 +459,21 @@ const AIParseSection = ({
                     <div className="bg-orange-900/20 border border-orange-500/30 px-3 py-1.5 rounded-lg flex flex-col">
                       <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Overall Str. SL</span>
                       <span className="text-sm font-bold text-orange-400">₹{parsedRisk.overallSL}</span>
+                    </div>
+                  )}
+
+                  {/* 💼 NEW VISUAL BADGES: PORTFOLIO TARGET & SL IN ₹ FOR USER CONFIRMATION */}
+                  {parsedRisk.portfolioTarget && (
+                    <div className="bg-purple-900/20 border border-purple-500/30 px-3 py-1.5 rounded-lg flex flex-col">
+                      <span className="text-[10px] text-purple-300 font-bold uppercase tracking-wider">💼 Portfolio Target</span>
+                      <span className="text-sm font-bold text-purple-400">₹{parsedRisk.portfolioTarget}</span>
+                    </div>
+                  )}
+
+                  {parsedRisk.portfolioSL && (
+                    <div className="bg-pink-900/20 border border-pink-500/30 px-3 py-1.5 rounded-lg flex flex-col">
+                      <span className="text-[10px] text-pink-300 font-bold uppercase tracking-wider">💼 Portfolio SL</span>
+                      <span className="text-sm font-bold text-pink-400">₹{parsedRisk.portfolioSL}</span>
                     </div>
                   )}
                   
