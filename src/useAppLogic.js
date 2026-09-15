@@ -192,7 +192,6 @@ export const useAppLogic = () => {
 
     // 🟢 B) AI DATA RECEIVER (Combined Target & SL Update) 🟢
     
-    // NEW: Unit extraction helper to find %, Pts, or Rs from string
     const extractUnit = (val, defaultUnit = 'Pts') => {
         if (val === null || val === undefined || val === '') return defaultUnit;
         const strVal = String(val).toLowerCase();
@@ -208,15 +207,12 @@ export const useAppLogic = () => {
     let rawCombinedTarget = data.combinedPremiumTarget ?? data.combined_premium_target ?? risk.combinedPremiumTarget ?? risk.combined_premium_target ?? risk.combinedTarget ?? data.combinedTarget ?? risk.combined_target ?? data.combined_target ?? '';
     let rawCombinedSL = data.combinedPremiumSL ?? data.combined_premium_sl ?? risk.combinedPremiumSL ?? risk.combined_premium_sl ?? risk.combinedSL ?? data.combinedSL ?? risk.combined_sl ?? data.combined_sl ?? risk.combinedPremiumStopLoss ?? risk.combined_premium_stop_loss ?? risk.combinedStopLoss ?? risk.combined_stop_loss ?? data.combinedStopLoss ?? data.combined_stop_loss ?? '';
 
-    // Extracting Units before purifying the numbers
     const overallTargetUnitVal = risk.overallStrategyTargetUnit ?? risk.overall_target_unit ?? extractUnit(rawOverallTarget, 'Pts');
     const overallSLUnitVal = risk.overallStrategySLUnit ?? risk.overall_sl_unit ?? extractUnit(rawOverallSL, 'Pts');
     
-    // 🟢 NEW UPDATE: AI response-la irunthu varra units-a state-la set panrathu (snake_case & camelCase rendaiyume handle panrom)
     const combinedTargetUnitVal = data.combinedPremiumTargetUnit || data.combined_premium_target_unit || risk.combinedPremiumTargetUnit || risk.combined_premium_target_unit || extractUnit(rawCombinedTarget, 'Pts');
     const combinedSLUnitVal = data.combinedPremiumSLUnit || data.combined_premium_sl_unit || risk.combinedPremiumSLUnit || risk.combined_premium_sl_unit || extractUnit(rawCombinedSL, 'Pts');
 
-    // 🟢 REGEX PURIFIER: Removes "Pts", "Points", or spaces and keeps only numbers
     const extractNumber = (val) => {
         if (val === null || val === undefined || val === '') return '';
         return String(val).replace(/[^0-9.]/g, ''); 
@@ -225,9 +221,11 @@ export const useAppLogic = () => {
     let valCombinedTarget = extractNumber(rawCombinedTarget);
     let valCombinedSL = extractNumber(rawCombinedSL);
 
-    const hasCombined = valCombinedTarget !== '' || valCombinedSL !== '';
+    // 🚨 BUG FIX: Ensure it strictly checks if the extracted number is GREATER THAN 0
+    // Prevent "0" from wiping out individual leg targets
+    const hasCombined = (valCombinedTarget !== '' && parseFloat(valCombinedTarget) > 0) || 
+                        (valCombinedSL !== '' && parseFloat(valCombinedSL) > 0);
 
-    // Updating State with purified values and their extracted units
     setOverallStrategyTarget(extractNumber(rawOverallTarget));
     setOverallStrategyTargetUnit(overallTargetUnitVal);
 
@@ -344,7 +342,7 @@ export const useAppLogic = () => {
           strikeDistance: isOptions ? resolvedDistance : '',
           strike_offset: 0, 
 
-          // 🟢 DYNAMIC LOGIC: Combined Premium iruntha Individual Leg ah empty aakku. Illana old logic (raw value) use pannu.
+          // 🟢 FIXED: Only empty these out if a valid > 0 Combined Target/SL was detected
           stopLoss: hasCombined ? "" : rawSlVal, 
           target: hasCombined ? "" : rawTargetVal,
           
@@ -355,7 +353,6 @@ export const useAppLogic = () => {
           trailUnitX: extractedTrailUnitX,
           trailUnitY: extractedTrailUnitY,
           
-          // 🚨 CORRECTED: Added support for both formats inside state setup
           sl_reentry_count: leg.sl_reentry_count ?? leg.sl_reentry ?? leg.slReentry ?? 0,
           target_reexecute: leg.target_reexecute ?? leg.target_reentry ?? leg.targetReexecute ?? 0,
           slReentry: leg.sl_reentry_count ?? leg.sl_reentry ?? leg.slReentry ?? 0,
@@ -388,10 +385,7 @@ export const useAppLogic = () => {
       strikeDistance: 0, strike_offset: 0, 
       stopLoss: '', target: '', slUnit: '%', targetUnit: '%', 
       trailX: 0, trailY: 0, trailUnitX: 'Pts', trailUnitY: 'Pts', 
-      
-      // 🚨 CORRECTED: Default setup for new legs
       sl_reentry_count: 0, target_reexecute: 0, slReentry: 0, targetReexecute: 0, 
-      
       waitForCandleClose: false, waitAndTrade: false, costToCost: false, moveToStoploss: false 
     }]); 
     setIsConfirmed(false); 
@@ -555,7 +549,6 @@ export const useAppLogic = () => {
         sl_unit: leg.sl_unit || leg.slUnit || '%',
         trail_sl: { x: leg.trailX || 0, y: leg.trailY || 0, unit_x: leg.trailUnitX || 'Pts', unit_y: leg.trailUnitY || 'Pts' }, 
         
-        // 🚨 CORRECTED: The Exact Requested API Payload Mapping
         sl_reentry_count: parseInt(leg.sl_reentry_count || leg.sl_reentry || leg.slReentry || 0, 10),
         target_reexecute: parseInt(leg.target_reexecute || leg.targetReexecute || leg.target_reentry || 0, 10),
         
@@ -593,19 +586,16 @@ export const useAppLogic = () => {
         combined_premium_sl: combinedPremiumSL ? parseFloat(combinedPremiumSL) : null,
         combined_premium_sl_unit: combinedPremiumSLUnit
       }, 
-      // 🚀 NEW UPDATE: Indicators string to Object Parsing & Data Type Casting
       indicators: indicators.map(i => {
         let parsedSettings = {};
         
         if (typeof i.settings === 'string' && i.settings.trim() !== '') {
-          // 'Period: 14, Multiplier: 2' என்ற String-ஐ Object-ஆக மாற்றும் பகுதி
           i.settings.split(',').forEach(pair => {
             const [key, val] = pair.split(':').map(s => s.trim());
             if (key && val !== undefined && val !== '') {
               const keyLower = key.toLowerCase();
               let finalVal = val;
               
-              // Integer & Float Type Casting
               if (['period', 'window', 'fast', 'slow', 'signal', 'length'].some(k => keyLower.includes(k))) {
                 finalVal = parseInt(val, 10);
               } else if (['multiplier', 'std', 'deviation'].some(k => keyLower.includes(k))) {
@@ -618,7 +608,6 @@ export const useAppLogic = () => {
             }
           });
         } else if (typeof i.settings === 'object' && i.settings !== null) {
-          // ஏற்கனவே Object-ஆக இருந்தால் அதை டைப் காஸ்டிங் மட்டும் செய்யும் பகுதி
           parsedSettings = { ...i.settings };
           Object.keys(parsedSettings).forEach(key => {
             const val = parsedSettings[key];
@@ -633,7 +622,6 @@ export const useAppLogic = () => {
 
         return { 
           name: i.name, 
-          // 🚀 Now sending properly structured & Type Casted Object instead of a raw String
           settings: Object.keys(parsedSettings).length > 0 ? parsedSettings : i.settings 
         };
       }), 
@@ -690,7 +678,6 @@ export const useAppLogic = () => {
     overallStrategySL, setOverallStrategySL,
     overallStrategySLUnit, setOverallStrategySLUnit,
     
-    // 🟢 C) EXPORT STATES (Bottom Level) 🟢
     combinedPremiumTarget, setCombinedPremiumTarget,
     combinedPremiumTargetUnit, setCombinedPremiumTargetUnit,
     combinedPremiumSL, setCombinedPremiumSL,
