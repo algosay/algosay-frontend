@@ -354,8 +354,13 @@ export const useAppLogic = () => {
           trailY: rawTrailY,
           trailUnitX: extractedTrailUnitX,
           trailUnitY: extractedTrailUnitY,
-          slReentry: leg.sl_reentry || leg.slReentry || '',
-          targetReexecute: leg.target_reexecute || leg.targetReexecute || '',
+          
+          // 🚨 CORRECTED: Added support for both formats inside state setup
+          sl_reentry_count: leg.sl_reentry_count ?? leg.sl_reentry ?? leg.slReentry ?? 0,
+          target_reexecute: leg.target_reexecute ?? leg.target_reentry ?? leg.targetReexecute ?? 0,
+          slReentry: leg.sl_reentry_count ?? leg.sl_reentry ?? leg.slReentry ?? 0,
+          targetReexecute: leg.target_reexecute ?? leg.target_reentry ?? leg.targetReexecute ?? 0,
+          
           waitForCandleClose: leg.wait_for_candle_close || leg.waitForCandleClose || false, 
           waitAndTrade: leg.wait_and_trade || leg.waitAndTrade || false,
           costToCost: leg.cost_to_cost || leg.costToCost || false,
@@ -383,7 +388,11 @@ export const useAppLogic = () => {
       strikeDistance: 0, strike_offset: 0, 
       stopLoss: '', target: '', slUnit: '%', targetUnit: '%', 
       trailX: 0, trailY: 0, trailUnitX: 'Pts', trailUnitY: 'Pts', 
-      slReentry: 0, targetReexecute: 0, waitForCandleClose: false, waitAndTrade: false, costToCost: false, moveToStoploss: false 
+      
+      // 🚨 CORRECTED: Default setup for new legs
+      sl_reentry_count: 0, target_reexecute: 0, slReentry: 0, targetReexecute: 0, 
+      
+      waitForCandleClose: false, waitAndTrade: false, costToCost: false, moveToStoploss: false 
     }]); 
     setIsConfirmed(false); 
   };
@@ -545,8 +554,11 @@ export const useAppLogic = () => {
         stop_loss: leg.stopLoss || 0, 
         sl_unit: leg.sl_unit || leg.slUnit || '%',
         trail_sl: { x: leg.trailX || 0, y: leg.trailY || 0, unit_x: leg.trailUnitX || 'Pts', unit_y: leg.trailUnitY || 'Pts' }, 
-        sl_reentry: leg.slReentry || 0, 
-        target_reexecute: leg.targetReexecute || 0, 
+        
+        // 🚨 CORRECTED: The Exact Requested API Payload Mapping
+        sl_reentry_count: parseInt(leg.sl_reentry_count || leg.sl_reentry || leg.slReentry || 0, 10),
+        target_reexecute: parseInt(leg.target_reexecute || leg.targetReexecute || leg.target_reentry || 0, 10),
+        
         wait_for_candle_close: leg.waitForCandleClose || false, 
         wait_and_trade: leg.waitAndTrade || false, 
         cost_to_cost: leg.costToCost || false, 

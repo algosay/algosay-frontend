@@ -5,9 +5,9 @@ const LegsPanel = ({
   legs, addLeg, updateLeg, removeLeg,
   // 🟢 NEW UPDATE: Combined Premium Props added to LegsPanel (WITH UNITS)
   combinedPremiumTarget, setCombinedPremiumTarget,
-  combinedPremiumTargetUnit, setCombinedPremiumTargetUnit, // 🚀 NEW
+  combinedPremiumTargetUnit, setCombinedPremiumTargetUnit, 
   combinedPremiumSL, setCombinedPremiumSL,
-  combinedPremiumSLUnit, setCombinedPremiumSLUnit // 🚀 NEW
+  combinedPremiumSLUnit, setCombinedPremiumSLUnit 
 }) => {
   return (
     <div className="bg-[#1e1e1e] p-5 rounded-xl border border-[#2d2d2d] mb-6 w-full flex flex-col">
@@ -346,14 +346,18 @@ const LegsPanel = ({
                       </div>
                     </div>
 
-                    {/* 🚨 UPDATED: Re-entry & Re-execute with Smart Fallback Bindings */}
+                    {/* 🚨 CORRECTED: SL Re-entry & Target Re-execute (Perfectly synced with AI JSON keys) */}
                     <div className="col-span-2 grid grid-cols-2 gap-2 mt-1.5">
                       <div>
                         <label className="block text-[9px] text-amber-500 uppercase tracking-wide mb-1">SL Re-entry Count</label>
                         <input 
                           type="number" 
-                          value={leg.slReentry ?? leg.sl_reentry ?? leg.sl_reentry_count ?? 0} 
-                          onChange={(e) => updateLeg(leg.id, 'slReentry', Number(e.target.value))} 
+                          value={leg.sl_reentry_count ?? leg.sl_reentry ?? leg.slReentry ?? 0} 
+                          onChange={(e) => {
+                            const val = Number(e.target.value);
+                            updateLeg(leg.id, 'sl_reentry_count', val); // Strictly updating JSON Key
+                            updateLeg(leg.id, 'slReentry', val); // State Fallback
+                          }} 
                           className="w-full bg-[#1e1e1e] border border-[#222] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-amber-500" 
                           placeholder="0" 
                         />
@@ -362,8 +366,12 @@ const LegsPanel = ({
                         <label className="block text-[9px] text-emerald-500 uppercase tracking-wide mb-1">Target Re-execute</label>
                         <input 
                           type="number" 
-                          value={leg.targetReexecute ?? leg.target_reexecute ?? leg.target_reentry ?? 0} 
-                          onChange={(e) => updateLeg(leg.id, 'targetReexecute', Number(e.target.value))} 
+                          value={leg.target_reexecute ?? leg.targetReexecute ?? leg.target_reentry ?? 0} 
+                          onChange={(e) => {
+                            const val = Number(e.target.value);
+                            updateLeg(leg.id, 'target_reexecute', val); // Strictly updating JSON Key
+                            updateLeg(leg.id, 'targetReexecute', val); // State Fallback
+                          }} 
                           className="w-full bg-[#1e1e1e] border border-[#222] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-emerald-500" 
                           placeholder="0" 
                         />
