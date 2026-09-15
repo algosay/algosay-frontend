@@ -346,39 +346,28 @@ const LegsPanel = ({
                       </div>
                     </div>
 
-                    {/* Re-entry & Re-execute */}
+                    {/* 🚨 UPDATED: Re-entry & Re-execute with Smart Fallback Bindings */}
                     <div className="col-span-2 grid grid-cols-2 gap-2 mt-1.5">
                       <div>
                         <label className="block text-[9px] text-amber-500 uppercase tracking-wide mb-1">SL Re-entry Count</label>
-                        <input type="number" value={leg.slReentry || 0} onChange={(e) => updateLeg(leg.id, 'slReentry', Number(e.target.value))} className="w-full bg-[#1e1e1e] border border-[#222] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-amber-500" placeholder="0" />
+                        <input 
+                          type="number" 
+                          value={leg.slReentry ?? leg.sl_reentry ?? leg.sl_reentry_count ?? 0} 
+                          onChange={(e) => updateLeg(leg.id, 'slReentry', Number(e.target.value))} 
+                          className="w-full bg-[#1e1e1e] border border-[#222] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-amber-500" 
+                          placeholder="0" 
+                        />
                       </div>
                       <div>
                         <label className="block text-[9px] text-emerald-500 uppercase tracking-wide mb-1">Target Re-execute</label>
-                        <input type="number" value={leg.targetReexecute || 0} onChange={(e) => updateLeg(leg.id, 'targetReexecute', Number(e.target.value))} className="w-full bg-[#1e1e1e] border border-[#222] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-emerald-500" placeholder="0" />
+                        <input 
+                          type="number" 
+                          value={leg.targetReexecute ?? leg.target_reexecute ?? leg.target_reentry ?? 0} 
+                          onChange={(e) => updateLeg(leg.id, 'targetReexecute', Number(e.target.value))} 
+                          className="w-full bg-[#1e1e1e] border border-[#222] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-emerald-500" 
+                          placeholder="0" 
+                        />
                       </div>
-                    </div>
-
-                    {/* Leg Toggles */}
-                    <div className="col-span-2 grid grid-cols-2 sm:grid-cols-4 gap-1.5 mt-3 pt-2.5 border-t border-[#222]">
-                      <label className="flex flex-col items-center justify-center p-1 bg-[#161616] border border-[#252525] rounded cursor-pointer select-none hover:bg-[#1a1a1a] transition-colors">
-                        <span className="text-[8px] text-gray-400 font-medium mb-1">Wait Candle Close</span>
-                        <input type="checkbox" checked={leg.waitForCandleClose || false} onChange={(e) => updateLeg(leg.id, 'waitForCandleClose', e.target.checked)} className="rounded text-blue-500 w-3 h-3 bg-[#111] border-[#333]" />
-                      </label>
-                      
-                      <label className="flex flex-col items-center justify-center p-1 bg-[#161616] border border-[#252525] rounded cursor-pointer select-none hover:bg-[#1a1a1a] transition-colors">
-                        <span className="text-[8px] text-gray-400 font-medium mb-1">Wait & Trade</span>
-                        <input type="checkbox" checked={leg.waitAndTrade || false} onChange={(e) => updateLeg(leg.id, 'waitAndTrade', e.target.checked)} className="rounded text-blue-500 w-3 h-3 bg-[#111] border-[#333]" />
-                      </label>
-                      
-                      <label className="flex flex-col items-center justify-center p-1 bg-[#161616] border border-[#252525] rounded cursor-pointer select-none hover:bg-[#1a1a1a] transition-colors">
-                        <span className="text-[8px] text-gray-400 font-medium mb-1">Move to SL</span>
-                        <input type="checkbox" checked={leg.moveToStoploss || false} onChange={(e) => updateLeg(leg.id, 'moveToStoploss', e.target.checked)} className="rounded text-blue-500 w-3 h-3 bg-[#111] border-[#333]" />
-                      </label>
-
-                      <label className="flex flex-col items-center justify-center p-1 bg-[#161616] border border-[#252525] rounded cursor-pointer select-none hover:bg-[#1a1a1a] transition-colors">
-                        <span className="text-[8px] text-gray-400 font-medium mb-1">Cost-to-Cost</span>
-                        <input type="checkbox" checked={leg.costToCost || false} onChange={(e) => updateLeg(leg.id, 'costToCost', e.target.checked)} className="rounded text-blue-500 w-3 h-3 bg-[#111] border-[#333]" />
-                      </label>
                     </div>
 
                   </div>
