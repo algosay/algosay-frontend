@@ -15,17 +15,18 @@ const ExecutionLedger = ({ result, onFilterChange }) => {
     const keys = Object.keys(result?.Trade_Ledger?.[0] || {});
     
     const tradeNumKey = keys.find(k => k === 'Trade_Num' || k === 'Trade Num');
+    const tradeTypeKey = keys.find(k => k === 'Trade_Type' || k === 'Trade Type'); // ⚡ NEW: Trade Type Key detection
     const dateKey = keys.find(k => k.toLowerCase() === 'date');
     const entryTimeKey = keys.find(k => k === 'Entry Time' || k === 'Entry_Time');
     const tickerKey = keys.find(k => k.toLowerCase() === 'ticker' || k === 'Symbol');
 
-    // 1. Prepare front keys (Trade Num and Date)
+    // 1. Prepare front keys (Trade Num, Trade Type, and Date)
     const frontKeys = [];
     if (tradeNumKey) frontKeys.push(tradeNumKey);
+    if (tradeTypeKey) frontKeys.push(tradeTypeKey); // ⚡ NEW: Place Trade Type near the front
     if (dateKey) {
       frontKeys.push(dateKey);
     } else if (!dateKey && entryTimeKey) {
-      // Fallback just in case 'Date' doesn't exist but old code expected Entry Time at front
       frontKeys.push(entryTimeKey);
     }
 
@@ -40,7 +41,6 @@ const ExecutionLedger = ({ result, onFilterChange }) => {
       if (entryIndex !== -1) {
         otherKeys.splice(entryIndex, 0, tickerKey);
       } else {
-        // If Entry time isn't found, place Ticker right after the front keys
         otherKeys.unshift(tickerKey);
       }
     }
@@ -56,7 +56,7 @@ const ExecutionLedger = ({ result, onFilterChange }) => {
       const matchDay = filterDay === 'All' || trade.Day === filterDay;
       const matchDTE = filterDTE === 'All' || String(trade.DTE) === String(filterDTE);
       const matchResult = filterResult === 'All' || trade.Result === filterResult;
-      const matchSegment = filterSegment === 'All' || trade.Segment === filterSegment; // ⚡ NEW: Segment Matching Logic
+      const matchSegment = filterSegment === 'All' || trade.Segment === filterSegment;
       
       return matchDirection && matchDay && matchDTE && matchResult && matchSegment;
     });
@@ -74,7 +74,7 @@ const ExecutionLedger = ({ result, onFilterChange }) => {
 
   // Extract unique values for dynamic dropdowns (Safe to run now because result.Trade_Ledger exists)
   const uniqueDays = [...new Set(result.Trade_Ledger.map(t => t.Day).filter(Boolean))];
-  const uniqueSegments = [...new Set(result.Trade_Ledger.map(t => t.Segment).filter(Boolean))]; // ⚡ NEW: Extract unique Segments
+  const uniqueSegments = [...new Set(result.Trade_Ledger.map(t => t.Segment).filter(Boolean))];
 
   // ⚡ FIX: Adjusted Sorting logic to safely handle 'N/A' strings coming from Futures/Spot trades
   const uniqueDTEs = [...new Set(result.Trade_Ledger.map(t => t.DTE).filter(val => val !== undefined && val !== null && val !== ''))].sort((a, b) => {
@@ -101,7 +101,6 @@ const ExecutionLedger = ({ result, onFilterChange }) => {
           <div className="p-3 bg-[#252525] border-b border-[#333] flex flex-wrap gap-4 items-center">
             <span className="text-xs text-gray-400 font-semibold uppercase tracking-wider">Filters:</span>
             
-            {/* ⚡ NEW: Segment Dropdown added for filtering Options vs Futures */}
             {uniqueSegments.length > 0 && (
               <select 
                 className="bg-[#1a1a1a] text-xs text-gray-300 border border-[#444] rounded px-2 py-1 outline-none focus:border-blue-500"
@@ -155,7 +154,7 @@ const ExecutionLedger = ({ result, onFilterChange }) => {
 
             <button 
               onClick={() => {
-                setFilterSegment('All'); // ⚡ NEW: Reset Segment filter on clear
+                setFilterSegment('All');
                 setFilterDirection('All');
                 setFilterDay('All');
                 setFilterDTE('All');
@@ -185,6 +184,28 @@ const ExecutionLedger = ({ result, onFilterChange }) => {
                     <tr key={idx} className={`border-b border-[#333] hover:bg-[#252525] ${idx % 2 === 0 ? 'bg-[#1a1a1a]' : 'bg-[#1e1e1e]'}`}>
                       {orderedKeys.map((key, i) => {
                         const val = trade[key];
+
+                        // ⚡ NEW: TRADE TYPE COLOR FORMATTING (Badges)
+                        if (key === 'Trade_Type' || key === 'Trade Type') {
+                          const valStr = val ? String(val) : 'Initial Trade';
+                          let badgeColor = 'bg-[#333] text-gray-300 border-[#444]'; // Default Initial Trade
+
+                          if (valStr.includes('SL Re-entry')) {
+                            badgeColor = 'bg-amber-950/60 text-amber-400 border-amber-800/60';
+                          } else if (valStr.includes('Target Re-execute')) {
+                            badgeColor = 'bg-emerald-950/60 text-emerald-400 border-emerald-800/60';
+                          } else if (valStr.includes('Target Re-entry')) {
+                            badgeColor = 'bg-cyan-950/60 text-cyan-400 border-cyan-800/60';
+                          }
+
+                          return (
+                            <td key={i} className="p-3 whitespace-nowrap">
+                              <span className={`text-[10px] px-2 py-0.5 rounded border font-medium ${badgeColor}`}>
+                                {valStr}
+                              </span>
+                            </td>
+                          );
+                        }
 
                         // DIRECTION COLOR FORMATTING
                         if (key === 'Direction') {
