@@ -8,7 +8,17 @@ const ExecutionLedger = ({ result, onFilterChange }) => {
   const [filterDay, setFilterDay] = useState('All');
   const [filterDTE, setFilterDTE] = useState('All');
   const [filterResult, setFilterResult] = useState('All');
-  const [filterSegment, setFilterSegment] = useState('All'); // ⚡ NEW: Segment Filter State
+  const [filterSegment, setFilterSegment] = useState('All');
+
+  // Helper to extract PnL
+  const getPnl = (trade) => {
+    let pnlValue = 0;
+    const pnlKey = Object.keys(trade).find(k => k.includes('PnL') || k === 'Net Real');
+    if (pnlKey && trade[pnlKey] !== undefined) {
+        pnlValue = parseFloat(trade[pnlKey]) || 0;
+    }
+    return pnlValue;
+  };
 
   // Hook 1: orderedKeys (Unconditional - Always runs first)
   const orderedKeys = useMemo(() => {
@@ -34,8 +44,8 @@ const ExecutionLedger = ({ result, onFilterChange }) => {
     let otherKeys = keys.filter(k => 
       !frontKeys.includes(k) && 
       k !== tickerKey && 
-      !k.toUpperCase().includes('MFE') && // 🚀 Removes all MFE columns
-      !k.toUpperCase().includes('MAE')    // 🚀 Removes all MAE columns
+      !k.toUpperCase().includes('MFE') && 
+      !k.toUpperCase().includes('MAE')    
     );
 
     // 3. Find Entry Time in the remaining keys
@@ -67,38 +77,73 @@ const ExecutionLedger = ({ result, onFilterChange }) => {
     });
   }, [result?.Trade_Ledger, filterDirection, filterDay, filterDTE, filterResult, filterSegment]);
 
-  // Hook 2.5: Group Trades by Strike / Symbol for Single-Line View
+  // 🚀 NEW UPDATE: Sequential Grouping - Initial Trades on New Rows, Re-entries on the side!
   const groupedLedger = useMemo(() => {
-    const groupedObj = filteredLedger.reduce((acc, trade) => {
-      const key = trade.Symbol || trade.symbol || trade.Ticker || 'Unknown_Strike';
-      
-      let pnlValue = 0;
-      const pnlKey = Object.keys(trade).find(k => k.includes('PnL') || k === 'Net Real');
-      if (pnlKey && trade[pnlKey] !== undefined) {
-          pnlValue = parseFloat(trade[pnlKey]) || 0;
-      }
+    const groupedList = [];
+    
+    filteredLedger.forEach(trade => {
+      const tradeType = String(trade.Trade_Type || trade['Trade Type'] || '').toLowerCase();
+      // Identify if it's a re-entry or re-execute
+      const isReentry = tradeType.includes('re-entry') || tradeType.includes('re-execute') || tradeType.includes('reentry');
+      const pnlValue = getPnl(trade);
+      const dateStr = trade.Date || trade.date || trade.Day || 'Unknown Date';
 
-      if (!acc[key]) {
-        // Create parent (First trade of this strike)
-        acc[key] = {
-          firstTrade: trade, 
+      if (!isReentry) {
+        // Create a new independent row for EVERY Initial Trade (Kila Kila varum)
+        groupedList.push({
+          firstTrade: trade,
           reentries: [],
           totalPnl: pnlValue,
-          totalTrades: 1
-        };
+          totalTrades: 1,
+          dateStr: dateStr
+        });
       } else {
-        // Append re-entries to the same strike row
-        acc[key].reentries.push(trade);
-        acc[key].totalPnl += pnlValue;
-        acc[key].totalTrades += 1;
+        // It's a re-entry. Find its parent Initial Trade from the same ticker moving backwards.
+        const ticker = trade.Symbol || trade.symbol || trade.Ticker;
+        let foundParent = false;
+        
+        for (let i = groupedList.length - 1; i >= 0; i--) {
+          const parentTrade = groupedList[i].firstTrade;
+          const parentTicker = parentTrade.Symbol || parentTrade.symbol || parentTrade.Ticker;
+          
+          if (parentTicker === ticker) {
+            groupedList[i].reentries.push(trade);
+            groupedList[i].totalPnl += pnlValue;
+            groupedList[i].totalTrades += 1;
+            foundParent = true;
+            break;
+          }
+        }
+        
+        // Fallback: If no parent found (rare data issue), make it its own row
+        if (!foundParent) {
+          groupedList.push({
+            firstTrade: trade,
+            reentries: [],
+            totalPnl: pnlValue,
+            totalTrades: 1,
+            dateStr: dateStr
+          });
+        }
       }
-      return acc;
-    }, {});
+    });
     
-    return Object.values(groupedObj);
+    return groupedList;
   }, [filteredLedger]);
 
-  // 🚀 NEW UPDATE: Check if there are ANY re-entries in the entire ledger to conditionally show/hide columns
+  // 🚀 NEW UPDATE: Pre-calculate the combined total PnL for each specific Date
+  const dailyPnLs = useMemo(() => {
+    const totals = {};
+    filteredLedger.forEach(trade => {
+        const dateStr = trade.Date || trade.date || trade.Day || 'Unknown Date';
+        const pnlValue = getPnl(trade);
+        if (!totals[dateStr]) totals[dateStr] = 0;
+        totals[dateStr] += pnlValue;
+    });
+    return totals;
+  }, [filteredLedger]);
+
+  // Check if there are ANY re-entries in the entire ledger to conditionally show/hide columns
   const hasAnyReentries = useMemo(() => {
     return groupedLedger.some(group => group.reentries.length > 0);
   }, [groupedLedger]);
@@ -110,19 +155,21 @@ const ExecutionLedger = ({ result, onFilterChange }) => {
     }
   }, [filteredLedger, onFilterChange]);
 
-  // ⚡ FIX: All hooks are declared safely above. Now we can early-return safely!
+  // Early return if no data
   if (!result || !result.Trade_Ledger || result.Trade_Ledger.length === 0) return null;
 
   // Extract unique values for dynamic dropdowns
   const uniqueDays = [...new Set(result.Trade_Ledger.map(t => t.Day).filter(Boolean))];
   const uniqueSegments = [...new Set(result.Trade_Ledger.map(t => t.Segment).filter(Boolean))];
 
-  // Adjusted Sorting logic to safely handle 'N/A' strings coming from Futures/Spot trades
+  // Adjusted Sorting logic to safely handle 'N/A'
   const uniqueDTEs = [...new Set(result.Trade_Ledger.map(t => t.DTE).filter(val => val !== undefined && val !== null && val !== ''))].sort((a, b) => {
     if (a === 'N/A') return 1;
     if (b === 'N/A') return -1;
     return a - b;
   });
+
+  const totalColumnsCount = orderedKeys.length + (hasAnyReentries ? 2 : 0);
 
   return (
     <div className="bg-[#1e1e1e] border border-[#2d2d2d] rounded-xl overflow-hidden flex flex-col mt-4">
@@ -217,7 +264,7 @@ const ExecutionLedger = ({ result, onFilterChange }) => {
                       {header.replace(/_/g, ' ')}
                     </th>
                   ))}
-                  {/* 🚀 Dynamic Headers: Visible ONLY if re-entries exist */}
+                  {/* Dynamic Headers: Visible ONLY if re-entries exist */}
                   {hasAnyReentries && <th className="p-3 text-indigo-400 font-semibold uppercase whitespace-nowrap bg-[#2a2a2a]">Re-entries Details</th>}
                   {hasAnyReentries && <th className="p-3 text-emerald-400 font-semibold uppercase whitespace-nowrap bg-[#2a2a2a]">Combined PnL</th>}
                 </tr>
@@ -226,166 +273,183 @@ const ExecutionLedger = ({ result, onFilterChange }) => {
                 {groupedLedger.length > 0 ? (
                   groupedLedger.map((group, idx) => {
                     const trade = group.firstTrade;
+                    const currentTradeDate = group.dateStr;
                     
+                    // 🚀 LOGIC: Identify if this row is the first trade of a New Date to show the Combined Day Summary
+                    const isFirstOfDate = idx === 0 || groupedLedger[idx - 1].dateStr !== currentTradeDate;
+
                     return (
-                    <tr key={idx} className={`border-b border-[#333] hover:bg-[#252525] ${idx % 2 === 0 ? 'bg-[#1a1a1a]' : 'bg-[#1e1e1e]'}`}>
-                      {/* Render Standard Base Columns for the Initial Trade */}
-                      {orderedKeys.map((key, i) => {
-                        const val = trade[key];
-
-                        // TRADE TYPE COLOR FORMATTING
-                        if (key === 'Trade_Type' || key === 'Trade Type') {
-                          const valStr = val ? String(val) : 'Initial Trade';
-                          let badgeColor = 'bg-[#333] text-gray-300 border-[#444]'; 
-
-                          if (valStr.includes('SL Re-entry')) {
-                            badgeColor = 'bg-amber-950/60 text-amber-400 border-amber-800/60';
-                          } else if (valStr.includes('Target Re-execute')) {
-                            badgeColor = 'bg-emerald-950/60 text-emerald-400 border-emerald-800/60';
-                          } else if (valStr.includes('Target Re-entry')) {
-                            badgeColor = 'bg-cyan-950/60 text-cyan-400 border-cyan-800/60';
-                          }
-
-                          return (
-                            <td key={i} className="p-3 whitespace-nowrap">
-                              <span className={`text-[10px] px-2 py-0.5 rounded border font-medium ${badgeColor}`}>
-                                {valStr}
-                              </span>
-                            </td>
-                          );
-                        }
-
-                        // DIRECTION COLOR FORMATTING
-                        if (key === 'Direction') {
-                          const valStr = val ? String(val) : '';
-                          const colorClass = valStr.toLowerCase().includes('long') || valStr.toLowerCase().includes('buy')
-                            ? 'text-green-500 font-bold'
-                            : 'text-red-500 font-bold';
-
-                          return (
-                            <td key={i} className="p-3 whitespace-nowrap">
-                              <span className={colorClass}>
-                                {val ? valStr : '-'}
-                              </span>
-                            </td>
-                          );
-                        }
-
-                        if (key === 'Exit_Reason' || key === 'Reason') {
-                          return (
-                            <td key={i} className="p-3 whitespace-nowrap">
-                              <span className="text-[10px] text-gray-400 bg-[#333] px-2 py-0.5 rounded">{val || '-'}</span>
-                            </td>
-                          );
-                        }
-                        if (key === 'Result') {
-                          return (
-                            <td key={i} className={`p-3 whitespace-nowrap font-bold ${val === 'Win' ? 'text-green-400' : val === 'Loss' ? 'text-red-400' : 'text-gray-400'}`}>
-                              {val || '-'}
-                            </td>
-                          );
-                        }
-                        
-                        // SPOT CHANGE FORMATTING
-                        if (key === 'Spot Change') {
-                          const valStr = String(val || '');
-                          const isPositive = valStr.includes('(+');
-                          const isNegative = valStr.includes('(-') || (valStr.includes('(') && valStr.includes('-'));
-                          
-                          return (
-                            <td key={i} className="p-3 whitespace-nowrap">
-                               <span className={`font-semibold ${isPositive ? 'text-green-400' : isNegative ? 'text-red-400' : 'text-gray-300'}`}>
-                                  {val !== undefined ? val : '-'}
-                               </span>
-                            </td>
-                          );
-                        }
-
-                        // PNL & OTHER NUMBER FORMATTING
-                        if (key.includes('PnL') || key === 'Net Real' || key === 'Gap Value') {
-                            const numVal = parseFloat(val);
-                            const formattedVal = isNaN(numVal) ? val : numVal.toLocaleString('en-IN', { maximumFractionDigits: 2 });
-                            return (
-                              <td key={i} className="p-3 whitespace-nowrap">
-                                 <span className={`font-semibold ${numVal > 0 ? 'text-green-400' : numVal < 0 ? 'text-red-400' : 'text-gray-300'}`}>
-                                    {key.includes('PnL') || key === 'Net Real' ? '₹' : ''}{formattedVal !== undefined ? formattedVal : '-'}
+                      <React.Fragment key={idx}>
+                        {/* 🚀 NEW UPDATE: Day Combined Profit Row */}
+                        {isFirstOfDate && currentTradeDate !== 'Unknown Date' && (
+                           <tr className="bg-[#111] border-b border-[#444]">
+                              <td colSpan={totalColumnsCount} className="p-2 text-center text-xs text-gray-400 tracking-wide uppercase">
+                                 Date: <span className="font-bold text-gray-200 mr-4 ml-1">{currentTradeDate}</span>
+                                 | Day Combined PnL: 
+                                 <span className={`font-bold ml-2 text-sm ${dailyPnLs[currentTradeDate] >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                                    {dailyPnLs[currentTradeDate] >= 0 ? '+' : ''}₹{dailyPnLs[currentTradeDate].toLocaleString('en-IN', { maximumFractionDigits: 2 })}
                                  </span>
                               </td>
-                            )
-                        }
-                        return <td key={i} className="p-3 whitespace-nowrap text-gray-300">{val !== undefined ? val : '-'}</td>;
-                      })}
+                           </tr>
+                        )}
 
-                      {/* 🚀 Dynamic Column: Inline Re-entries */}
-                      {hasAnyReentries && (
-                        <td className="p-3 whitespace-nowrap">
-                          {group.reentries.length > 0 ? (
-                            <div className="flex flex-col gap-1.5">
-                              {group.reentries.map((re, rIdx) => {
-                                const rType = re.Trade_Type || re['Trade Type'] || 'Re-entry';
-                                const rReason = re.Exit_Reason || re.Reason || 'Exit';
-                                
-                                // Price Formatting
-                                const formatPrice = (val) => !isNaN(parseFloat(val)) ? parseFloat(val).toFixed(2) : (val || '-');
-                                const rEntryPrice = formatPrice(re.Entry_Price || re['Entry Price']);
-                                const rExitPrice = formatPrice(re.Exit_Price || re['Exit Price']);
+                        <tr className={`border-b border-[#333] hover:bg-[#252525] ${idx % 2 === 0 ? 'bg-[#1a1a1a]' : 'bg-[#1e1e1e]'}`}>
+                          {/* Render Standard Base Columns for the Initial Trade */}
+                          {orderedKeys.map((key, i) => {
+                            const val = trade[key];
 
-                                let rPnl = 0;
-                                const pnlKey = Object.keys(re).find(k => k.includes('PnL') || k === 'Net Real');
-                                if (pnlKey) rPnl = parseFloat(re[pnlKey]) || 0;
-                                
-                                let rBadgeColor = 'bg-[#333] text-gray-300 border-[#444]';
-                                if (rType.includes('SL Re-entry')) {
-                                  rBadgeColor = 'bg-amber-950/60 text-amber-400 border-amber-800/60';
-                                } else if (rType.includes('Target Re-execute')) {
-                                  rBadgeColor = 'bg-emerald-950/60 text-emerald-400 border-emerald-800/60';
-                                } else if (rType.includes('Target Re-entry')) {
-                                  rBadgeColor = 'bg-cyan-950/60 text-cyan-400 border-cyan-800/60';
-                                }
+                            // TRADE TYPE COLOR FORMATTING
+                            if (key === 'Trade_Type' || key === 'Trade Type') {
+                              const valStr = val ? String(val) : 'Initial Trade';
+                              let badgeColor = 'bg-[#333] text-gray-300 border-[#444]'; 
 
+                              if (valStr.includes('SL Re-entry')) {
+                                badgeColor = 'bg-amber-950/60 text-amber-400 border-amber-800/60';
+                              } else if (valStr.includes('Target Re-execute')) {
+                                badgeColor = 'bg-emerald-950/60 text-emerald-400 border-emerald-800/60';
+                              } else if (valStr.includes('Target Re-entry')) {
+                                badgeColor = 'bg-cyan-950/60 text-cyan-400 border-cyan-800/60';
+                              }
+
+                              return (
+                                <td key={i} className="p-3 whitespace-nowrap">
+                                  <span className={`text-[10px] px-2 py-0.5 rounded border font-medium ${badgeColor}`}>
+                                    {valStr}
+                                  </span>
+                                </td>
+                              );
+                            }
+
+                            // DIRECTION COLOR FORMATTING
+                            if (key === 'Direction') {
+                              const valStr = val ? String(val) : '';
+                              const colorClass = valStr.toLowerCase().includes('long') || valStr.toLowerCase().includes('buy')
+                                ? 'text-green-500 font-bold'
+                                : 'text-red-500 font-bold';
+
+                              return (
+                                <td key={i} className="p-3 whitespace-nowrap">
+                                  <span className={colorClass}>
+                                    {val ? valStr : '-'}
+                                  </span>
+                                </td>
+                              );
+                            }
+
+                            if (key === 'Exit_Reason' || key === 'Reason') {
+                              return (
+                                <td key={i} className="p-3 whitespace-nowrap">
+                                  <span className="text-[10px] text-gray-400 bg-[#333] px-2 py-0.5 rounded">{val || '-'}</span>
+                                </td>
+                              );
+                            }
+                            if (key === 'Result') {
+                              return (
+                                <td key={i} className={`p-3 whitespace-nowrap font-bold ${val === 'Win' ? 'text-green-400' : val === 'Loss' ? 'text-red-400' : 'text-gray-400'}`}>
+                                  {val || '-'}
+                                </td>
+                              );
+                            }
+                            
+                            // SPOT CHANGE FORMATTING
+                            if (key === 'Spot Change') {
+                              const valStr = String(val || '');
+                              const isPositive = valStr.includes('(+');
+                              const isNegative = valStr.includes('(-') || (valStr.includes('(') && valStr.includes('-'));
+                              
+                              return (
+                                <td key={i} className="p-3 whitespace-nowrap">
+                                   <span className={`font-semibold ${isPositive ? 'text-green-400' : isNegative ? 'text-red-400' : 'text-gray-300'}`}>
+                                      {val !== undefined ? val : '-'}
+                                   </span>
+                                </td>
+                              );
+                            }
+
+                            // PNL & OTHER NUMBER FORMATTING
+                            if (key.includes('PnL') || key === 'Net Real' || key === 'Gap Value') {
+                                const numVal = parseFloat(val);
+                                const formattedVal = isNaN(numVal) ? val : numVal.toLocaleString('en-IN', { maximumFractionDigits: 2 });
                                 return (
-                                  <div key={rIdx} className="flex items-center gap-2">
-                                    <span className={`text-[9px] px-1.5 py-0.5 rounded border font-medium min-w-[45px] text-center ${rBadgeColor}`}>
-                                      {rType.replace('Re-entry', 'RE').replace('Re-execute', 'RX')}
-                                    </span>
-                                    <span className="text-[10px] text-gray-400">
-                                      {re.Entry_Time || re['Entry Time']} ➔ {re.Exit_Time || re['Exit Time']}
-                                    </span>
-                                    {/* 🚀 Added Entry Price -> Exit Price */}
-                                    <span className="text-[10px] text-gray-300 font-mono tracking-tight bg-[#222] px-1.5 py-0.5 rounded border border-[#333]">
-                                      ₹{rEntryPrice} ➔ ₹{rExitPrice}
-                                    </span>
-                                    <span className="text-[9px] bg-[#333] px-1.5 py-0.5 rounded text-gray-300">
-                                      {rReason}
-                                    </span>
-                                    <span className={`text-[10px] font-bold ${rPnl > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                                      {rPnl > 0 ? '+' : ''}₹{rPnl.toFixed(2)}
-                                    </span>
-                                  </div>
+                                  <td key={i} className="p-3 whitespace-nowrap">
+                                     <span className={`font-semibold ${numVal > 0 ? 'text-green-400' : numVal < 0 ? 'text-red-400' : 'text-gray-300'}`}>
+                                        {key.includes('PnL') || key === 'Net Real' ? '₹' : ''}{formattedVal !== undefined ? formattedVal : '-'}
+                                     </span>
+                                  </td>
                                 )
-                              })}
-                            </div>
-                          ) : (
-                            <span className="text-gray-600 text-[10px] italic">No Re-entries</span>
-                          )}
-                        </td>
-                      )}
+                            }
+                            return <td key={i} className="p-3 whitespace-nowrap text-gray-300">{val !== undefined ? val : '-'}</td>;
+                          })}
 
-                      {/* 🚀 Dynamic Column: Combined PnL */}
-                      {hasAnyReentries && (
-                        <td className={`p-3 whitespace-nowrap font-bold text-sm ${group.totalPnl > 0 ? 'text-green-500' : group.totalPnl < 0 ? 'text-red-500' : 'text-gray-400'}`}>
-                          ₹{group.totalPnl.toFixed(2)}
-                          {group.totalTrades > 1 && (
-                            <span className="block text-[9px] font-normal text-gray-400 mt-0.5">({group.totalTrades} Trades)</span>
-                          )}
-                        </td>
-                      )}
+                          {/* Dynamic Column: Inline Re-entries */}
+                          {hasAnyReentries && (
+                            <td className="p-3 whitespace-nowrap">
+                              {group.reentries.length > 0 ? (
+                                <div className="flex flex-col gap-1.5">
+                                  {group.reentries.map((re, rIdx) => {
+                                    const rType = re.Trade_Type || re['Trade Type'] || 'Re-entry';
+                                    const rReason = re.Exit_Reason || re.Reason || 'Exit';
+                                    
+                                    // Price Formatting
+                                    const formatPrice = (val) => !isNaN(parseFloat(val)) ? parseFloat(val).toFixed(2) : (val || '-');
+                                    const rEntryPrice = formatPrice(re.Entry_Price || re['Entry Price']);
+                                    const rExitPrice = formatPrice(re.Exit_Price || re['Exit Price']);
 
-                    </tr>
-                  )})
+                                    const rPnl = getPnl(re);
+                                    
+                                    let rBadgeColor = 'bg-[#333] text-gray-300 border-[#444]';
+                                    if (rType.includes('SL Re-entry')) {
+                                      rBadgeColor = 'bg-amber-950/60 text-amber-400 border-amber-800/60';
+                                    } else if (rType.includes('Target Re-execute')) {
+                                      rBadgeColor = 'bg-emerald-950/60 text-emerald-400 border-emerald-800/60';
+                                    } else if (rType.includes('Target Re-entry')) {
+                                      rBadgeColor = 'bg-cyan-950/60 text-cyan-400 border-cyan-800/60';
+                                    }
+
+                                    return (
+                                      <div key={rIdx} className="flex items-center gap-2">
+                                        <span className={`text-[9px] px-1.5 py-0.5 rounded border font-medium min-w-[45px] text-center ${rBadgeColor}`}>
+                                          {rType.replace('Re-entry', 'RE').replace('Re-execute', 'RX')}
+                                        </span>
+                                        <span className="text-[10px] text-gray-400">
+                                          {re.Entry_Time || re['Entry Time']} ➔ {re.Exit_Time || re['Exit Time']}
+                                        </span>
+                                        <span className="text-[10px] text-gray-300 font-mono tracking-tight bg-[#222] px-1.5 py-0.5 rounded border border-[#333]">
+                                          ₹{rEntryPrice} ➔ ₹{rExitPrice}
+                                        </span>
+                                        <span className="text-[9px] bg-[#333] px-1.5 py-0.5 rounded text-gray-300">
+                                          {rReason}
+                                        </span>
+                                        <span className={`text-[10px] font-bold ${rPnl > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                          {rPnl > 0 ? '+' : ''}₹{rPnl.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+                                        </span>
+                                      </div>
+                                    )
+                                  })}
+                                </div>
+                              ) : (
+                                <span className="text-gray-600 text-[10px] italic">No Re-entries</span>
+                              )}
+                            </td>
+                          )}
+
+                          {/* Dynamic Column: Combined PnL */}
+                          {hasAnyReentries && (
+                            <td className={`p-3 whitespace-nowrap font-bold text-sm ${group.totalPnl > 0 ? 'text-green-500' : group.totalPnl < 0 ? 'text-red-500' : 'text-gray-400'}`}>
+                              ₹{group.totalPnl.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+                              {group.totalTrades > 1 && (
+                                <span className="block text-[9px] font-normal text-gray-400 mt-0.5">({group.totalTrades} Trades)</span>
+                              )}
+                            </td>
+                          )}
+
+                        </tr>
+                      </React.Fragment>
+                    )
+                  })
                 ) : (
                   <tr>
-                    <td colSpan={orderedKeys.length + (hasAnyReentries ? 2 : 0)} className="p-6 text-center text-gray-500">
+                    <td colSpan={totalColumnsCount} className="p-6 text-center text-gray-500">
                       No trades match the selected filters.
                     </td>
                   </tr>
