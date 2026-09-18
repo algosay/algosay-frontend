@@ -15,7 +15,7 @@ const ExecutionLedger = ({ result, onFilterChange }) => {
     const keys = Object.keys(result?.Trade_Ledger?.[0] || {});
     
     const tradeNumKey = keys.find(k => k === 'Trade_Num' || k === 'Trade Num');
-    const tradeTypeKey = keys.find(k => k === 'Trade_Type' || k === 'Trade Type'); // ⚡ NEW: Trade Type Key detection
+    const tradeTypeKey = keys.find(k => k === 'Trade_Type' || k === 'Trade Type'); 
     const dateKey = keys.find(k => k.toLowerCase() === 'date');
     const entryTimeKey = keys.find(k => k === 'Entry Time' || k === 'Entry_Time');
     const tickerKey = keys.find(k => k.toLowerCase() === 'ticker' || k === 'Symbol');
@@ -23,15 +23,20 @@ const ExecutionLedger = ({ result, onFilterChange }) => {
     // 1. Prepare front keys (Trade Num, Trade Type, and Date)
     const frontKeys = [];
     if (tradeNumKey) frontKeys.push(tradeNumKey);
-    if (tradeTypeKey) frontKeys.push(tradeTypeKey); // ⚡ NEW: Place Trade Type near the front
+    if (tradeTypeKey) frontKeys.push(tradeTypeKey); 
     if (dateKey) {
       frontKeys.push(dateKey);
     } else if (!dateKey && entryTimeKey) {
       frontKeys.push(entryTimeKey);
     }
 
-    // 2. Prepare remaining keys by excluding front keys and Ticker
-    let otherKeys = keys.filter(k => !frontKeys.includes(k) && k !== tickerKey);
+    // 2. Prepare remaining keys by excluding front keys, Ticker, AND removing MFE/MAE
+    let otherKeys = keys.filter(k => 
+      !frontKeys.includes(k) && 
+      k !== tickerKey && 
+      !k.toUpperCase().includes('MFE') && // 🚀 PUDHU UPDATE: Removes all MFE columns
+      !k.toUpperCase().includes('MAE')    // 🚀 PUDHU UPDATE: Removes all MAE columns
+    );
 
     // 3. Find Entry Time in the remaining keys
     const entryIndex = otherKeys.findIndex(k => k === entryTimeKey);
@@ -62,10 +67,42 @@ const ExecutionLedger = ({ result, onFilterChange }) => {
     });
   }, [result?.Trade_Ledger, filterDirection, filterDay, filterDTE, filterResult, filterSegment]);
 
+  // 🚀 PUDHU UPDATE: Hook 2.5: Group Trades by Strike / Symbol for Single-Line View
+  const groupedLedger = useMemo(() => {
+    const groupedObj = filteredLedger.reduce((acc, trade) => {
+      const key = trade.Symbol || trade.symbol || trade.Ticker || 'Unknown_Strike';
+      
+      let pnlValue = 0;
+      const pnlKey = Object.keys(trade).find(k => k.includes('PnL') || k === 'Net Real');
+      if (pnlKey && trade[pnlKey] !== undefined) {
+          pnlValue = parseFloat(trade[pnlKey]) || 0;
+      }
+
+      if (!acc[key]) {
+        // Create parent (First trade of this strike)
+        acc[key] = {
+          firstTrade: trade, 
+          reentries: [],
+          totalPnl: pnlValue,
+          totalTrades: 1
+        };
+      } else {
+        // Append re-entries to the same strike row
+        acc[key].reentries.push(trade);
+        acc[key].totalPnl += pnlValue;
+        acc[key].totalTrades += 1;
+      }
+      return acc;
+    }, {});
+    
+    return Object.values(groupedObj);
+  }, [filteredLedger]);
+
   // Hook 3: Pass filtered data back to parent component (Moved ABOVE the early return)
   useEffect(() => {
     if (onFilterChange) {
-      onFilterChange(filteredLedger);
+      // Pass the raw filtered ledger to maintain parent compatibility (charts, etc.)
+      onFilterChange(filteredLedger); 
     }
   }, [filteredLedger, onFilterChange]);
 
@@ -176,16 +213,23 @@ const ExecutionLedger = ({ result, onFilterChange }) => {
                       {header.replace(/_/g, ' ')}
                     </th>
                   ))}
+                  {/* 🚀 PUDHU UPDATE: Headers for Inline Re-entry Details */}
+                  <th className="p-3 text-indigo-400 font-semibold uppercase whitespace-nowrap bg-[#2a2a2a]">Re-entries Details</th>
+                  <th className="p-3 text-emerald-400 font-semibold uppercase whitespace-nowrap bg-[#2a2a2a]">Combined PnL</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredLedger.length > 0 ? (
-                  filteredLedger.map((trade, idx) => (
+                {groupedLedger.length > 0 ? (
+                  groupedLedger.map((group, idx) => {
+                    const trade = group.firstTrade;
+                    
+                    return (
                     <tr key={idx} className={`border-b border-[#333] hover:bg-[#252525] ${idx % 2 === 0 ? 'bg-[#1a1a1a]' : 'bg-[#1e1e1e]'}`}>
+                      {/* Render Standard Base Columns for the Initial Trade */}
                       {orderedKeys.map((key, i) => {
                         const val = trade[key];
 
-                        // ⚡ NEW: TRADE TYPE COLOR FORMATTING (Badges)
+                        // TRADE TYPE COLOR FORMATTING (Badges)
                         if (key === 'Trade_Type' || key === 'Trade Type') {
                           const valStr = val ? String(val) : 'Initial Trade';
                           let badgeColor = 'bg-[#333] text-gray-300 border-[#444]'; // Default Initial Trade
@@ -267,11 +311,59 @@ const ExecutionLedger = ({ result, onFilterChange }) => {
                         }
                         return <td key={i} className="p-3 whitespace-nowrap text-gray-300">{val !== undefined ? val : '-'}</td>;
                       })}
+
+                      {/* 🚀 PUDHU UPDATE: Inline Re-entries Column */}
+                      <td className="p-3 whitespace-nowrap">
+                        {group.reentries.length > 0 ? (
+                          <div className="flex flex-col gap-1">
+                            {group.reentries.map((re, rIdx) => {
+                              const rType = re.Trade_Type || re['Trade Type'] || 'Re-entry';
+                              const rReason = re.Exit_Reason || re.Reason || 'Exit';
+                              let rPnl = 0;
+                              const pnlKey = Object.keys(re).find(k => k.includes('PnL') || k === 'Net Real');
+                              if (pnlKey) rPnl = parseFloat(re[pnlKey]) || 0;
+                              
+                              let rBadgeColor = 'bg-[#333] text-gray-300 border-[#444]';
+                              if (rType.includes('SL Re-entry')) {
+                                rBadgeColor = 'bg-amber-950/60 text-amber-400 border-amber-800/60';
+                              } else if (rType.includes('Target Re-execute')) {
+                                rBadgeColor = 'bg-emerald-950/60 text-emerald-400 border-emerald-800/60';
+                              } else if (rType.includes('Target Re-entry')) {
+                                rBadgeColor = 'bg-cyan-950/60 text-cyan-400 border-cyan-800/60';
+                              }
+
+                              return (
+                                <div key={rIdx} className="flex items-center gap-2">
+                                  <span className={`text-[9px] px-1.5 py-0.5 rounded border font-medium ${rBadgeColor}`}>
+                                    {rType.replace('Re-entry', 'RE').replace('Re-execute', 'RX')}
+                                  </span>
+                                  <span className="text-[10px] text-gray-400">{re.Entry_Time || re['Entry Time']} ➔ {re.Exit_Time || re['Exit Time']}</span>
+                                  <span className="text-[9px] bg-[#333] px-1 rounded text-gray-300">{rReason}</span>
+                                  <span className={`text-[10px] font-bold ${rPnl > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                    {rPnl > 0 ? '+' : ''}₹{rPnl.toFixed(2)}
+                                  </span>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        ) : (
+                          <span className="text-gray-600 text-[10px] italic">No Re-entries</span>
+                        )}
+                      </td>
+
+                      {/* 🚀 PUDHU UPDATE: Combined PnL Column */}
+                      <td className={`p-3 whitespace-nowrap font-bold text-sm ${group.totalPnl > 0 ? 'text-green-500' : group.totalPnl < 0 ? 'text-red-500' : 'text-gray-400'}`}>
+                        ₹{group.totalPnl.toFixed(2)}
+                        {group.totalTrades > 1 && (
+                          <span className="block text-[9px] font-normal text-gray-400 mt-0.5">({group.totalTrades} Trades)</span>
+                        )}
+                      </td>
+
                     </tr>
-                  ))
+                  )})
                 ) : (
                   <tr>
-                    <td colSpan={orderedKeys.length} className="p-6 text-center text-gray-500">
+                    <td colSpan={orderedKeys.length + 2} className="p-6 text-center text-gray-500">
                       No trades match the selected filters.
                     </td>
                   </tr>
