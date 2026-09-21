@@ -81,6 +81,25 @@ const StrategyConfig = ({
         handleConfigChange={handleConfigChange} 
       />
 
+      {/* 🔄 NEW UPDATE: DYNAMIC LOOP SETTINGS */}
+      <div className="mb-4 p-4 bg-[#1e1e1e] border border-purple-700/50 rounded-lg shadow-sm">
+        <h3 className="text-sm font-bold text-gray-300 mb-3 uppercase tracking-wider flex items-center gap-2">
+          🔄 Dynamic Execution Settings
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="flex flex-col">
+            <label className="text-xs text-gray-400 mb-1">Max Loop Limit (Multiplier)</label>
+            <input
+              type="number"
+              className="bg-[#2a2a2a] text-white p-2 rounded border border-gray-600 focus:border-purple-500 focus:outline-none text-sm transition-colors"
+              placeholder="E.g., 10"
+              value={timeLoopLimit || 1}
+              onChange={(e) => setTimeLoopLimit(Number(e.target.value))}
+            />
+          </div>
+        </div>
+      </div>
+
       {/* 🛡️ NEW UPDATE: OVERALL RISK MANAGEMENT PANEL */}
       <div className="mb-4 p-4 bg-[#1e1e1e] border border-gray-700/50 rounded-lg shadow-sm">
         <h3 className="text-sm font-bold text-gray-300 mb-3 uppercase tracking-wider flex items-center gap-2">

@@ -69,6 +69,9 @@ export const useAppLogic = () => {
   const [trailMoveX, setTrailMoveX] = useState('');
   const [trailPointY, setTrailPointY] = useState('');
 
+  // 🚀 NEW: TIME LOOP LIMIT STATE FOR MARGIN & ROI CALCULATION
+  const [timeLoopLimit, setTimeLoopLimit] = useState(1);
+
   // 🟢 NEW UPDATE: Price-based Global/Combined Targets & SL States with Units 🟢
   const [overallStrategyTarget, setOverallStrategyTarget] = useState('');
   const [overallStrategyTargetUnit, setOverallStrategyTargetUnit] = useState('Pts'); // NEW UNIT STATE
@@ -173,6 +176,10 @@ export const useAppLogic = () => {
 
     const globalTrailX = risk.trailMoveX ?? risk.trail_x ?? risk.trailX ?? data.trailMoveX ?? data.trailX ?? data.trail_x ?? '';
     const globalTrailY = risk.trailPointY ?? risk.trailMoveY ?? risk.trail_y ?? risk.trailY ?? data.trailMoveY ?? data.trailPointY ?? data.trailY ?? data.trail_y ?? '';
+
+    // 🚀 NEW: Parse time_loop_limit
+    const parsedTimeLoopLimit = risk.timeLoopLimit ?? risk.time_loop_limit ?? data.timeLoopLimit ?? data.time_loop_limit ?? 1;
+    setTimeLoopLimit(parsedTimeLoopLimit);
 
     // 🎯 NO DEFAULTS HERE - STRICTLY TAKING WHAT AI PROVIDES 🎯
     setTicker(finalTicker);
@@ -406,7 +413,7 @@ export const useAppLogic = () => {
       aiPrompt, aiExplanation,
       ticker, timeframe, underlyingFrom, qty, transactionType,
       strategyType, isDynamic, entryTime, exitTime, fromDate, toDate,
-      trailMoveX, trailPointY, 
+      trailMoveX, trailPointY, timeLoopLimit,
       overallStrategyTarget, overallStrategyTargetUnit, 
       overallStrategySL, overallStrategySLUnit, 
       combinedPremiumTarget, combinedPremiumTargetUnit, 
@@ -458,6 +465,7 @@ export const useAppLogic = () => {
     setToDate(data.toDate || '');
     setTrailMoveX(data.trailMoveX || '');
     setTrailPointY(data.trailPointY || '');
+    setTimeLoopLimit(data.timeLoopLimit || 1);
 
     setOverallStrategyTarget(data.overallStrategyTarget || '');
     setOverallStrategyTargetUnit(data.overallStrategyTargetUnit || 'Pts');
@@ -577,6 +585,7 @@ export const useAppLogic = () => {
       risk_management: { 
         trailMoveX, 
         trailPointY,
+        time_loop_limit: timeLoopLimit ? Number(timeLoopLimit) : 1,
         overall_strategy_target: overallStrategyTarget ? parseFloat(overallStrategyTarget) : null,
         overall_strategy_target_unit: overallStrategyTargetUnit,
         overall_strategy_sl: overallStrategySL ? parseFloat(overallStrategySL) : null,
@@ -671,7 +680,7 @@ export const useAppLogic = () => {
     qty, setQty, transactionType, setTransactionType, strategyType, setStrategyType,
     isDynamic, setIsDynamic, 
     entryTime, setEntryTime, exitTime, setExitTime, fromDate, setFromDate, toDate, setToDate,
-    trailMoveX, setTrailMoveX, trailPointY, setTrailPointY, 
+    trailMoveX, setTrailMoveX, trailPointY, setTrailPointY, timeLoopLimit, setTimeLoopLimit,
 
     overallStrategyTarget, setOverallStrategyTarget,
     overallStrategyTargetUnit, setOverallStrategyTargetUnit,

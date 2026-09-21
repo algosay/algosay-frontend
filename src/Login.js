@@ -41,45 +41,69 @@ const Login = ({ onLoginSuccess }) => {
       {/* 🔥 LIVE FOMO TICKER (Always at Top) 🔥 */}
       <div className="absolute top-0 left-0 w-full h-8 bg-slate-900 text-white flex items-center overflow-hidden z-50 shadow-md">
         <motion.div
-          initial={{ x: "100%" }}
-          animate={{ x: "-100%" }}
-          transition={{ repeat: Infinity, duration: 50, ease: "linear" }}
+          initial={{ x: "0%" }}
+          animate={{ x: "-50%" }} // Move halfway since content is duplicated
+          transition={{ repeat: Infinity, duration: 75, ease: "linear" }} // Slower duration
           className="whitespace-nowrap flex gap-12 text-xs font-semibold tracking-wide px-4"
         >
-          {/* PREMIUM ALGOSAY TICKER MESSAGES BASED ON YOUR 17 STRATEGIES */}
+          {/* FIRST SET OF PREMIUM MESSAGES */}
           <span className="flex items-center gap-2">
             <span className="text-yellow-400">⚡</span> 
             <span className="text-yellow-300 font-bold">FIRST TIME IN INDIA:</span> Algosay combines Price Action, Time-Based, Indicator & Custom Strategies on ONE unified platform!
           </span>
-
           <span className="flex items-center gap-2">
             <span className="text-orange-500">🔥</span> 
             <span className="text-orange-400 font-bold">PRICE ACTION ENGINE:</span> Backtest Inside Bar Crushes, Doji Breakouts & Candle Reversals with institutional precision.
           </span>
-
           <span className="flex items-center gap-2">
             <span className="text-blue-400">💎</span> 
-            <span className="text-blue-300 font-bold">INDICATOR MATRIX:</span> Run Supertrend (10,3), MACD (12,26,9), 9/21 EMA & RSI Reversal strategies seamlessly on Sensex.
+            <span className="text-blue-300 font-bold">INDICATOR MATRIX:</span> Run Supertrend (10,3), MACD (12,26,9), 9/21 EMA & RSI Reversal strategies seamlessly on Sensex & Nifty.
           </span>
-
           <span className="flex items-center gap-2">
             <span className="text-green-400">🚀</span> 
             <span className="text-green-300 font-bold">TIME-BASED & MULTI-LEG:</span> Deploy 15M Short Straddles, First-Hour ORB & Dual OTM/ITM Option Combos instantly.
           </span>
-
           <span className="flex items-center gap-2">
             <span className="text-purple-400">✨</span> 
             <span className="text-purple-300 font-bold">CANDLE SEQUENCE MOMENTUM:</span> Master 3-Candle, 5-Candle & 7-Candle Trend Breakout algorithms with zero coding.
           </span>
-
           <span className="flex items-center gap-2">
             <span className="text-cyan-400">🎯</span> 
             <span className="text-cyan-300 font-bold">ADVANCED RISK CONTROL:</span> Built-in Combined Premium SL, Leg-level Targets & Automated 15:15 PM Square-off.
           </span>
-
           <span className="flex items-center gap-2">
             <span className="text-pink-400">📈</span> 
-            <span className="text-pink-300 font-bold">ALGOSAY PRO:</span> India's most powerful backtesting engine for high-probability Sensex & Index strategies.
+            <span className="text-pink-300 font-bold">ALGOSAY PRO:</span> India's most powerful backtesting engine for high-probability Sensex & Nifty strategies.
+          </span>
+
+          {/* DUPLICATE SET FOR CONTINUOUS SEAMLESS LOOP */}
+          <span className="flex items-center gap-2">
+            <span className="text-yellow-400">⚡</span> 
+            <span className="text-yellow-300 font-bold">FIRST TIME IN INDIA:</span> Algosay combines Price Action, Time-Based, Indicator & Custom Strategies on ONE unified platform!
+          </span>
+          <span className="flex items-center gap-2">
+            <span className="text-orange-500">🔥</span> 
+            <span className="text-orange-400 font-bold">PRICE ACTION ENGINE:</span> Backtest Inside Bar Crushes, Doji Breakouts & Candle Reversals with institutional precision.
+          </span>
+          <span className="flex items-center gap-2">
+            <span className="text-blue-400">💎</span> 
+            <span className="text-blue-300 font-bold">INDICATOR MATRIX:</span> Run Supertrend (10,3), MACD (12,26,9), 9/21 EMA & RSI Reversal strategies seamlessly on Sensex & Nifty.
+          </span>
+          <span className="flex items-center gap-2">
+            <span className="text-green-400">🚀</span> 
+            <span className="text-green-300 font-bold">TIME-BASED & MULTI-LEG:</span> Deploy 15M Short Straddles, First-Hour ORB & Dual OTM/ITM Option Combos instantly.
+          </span>
+          <span className="flex items-center gap-2">
+            <span className="text-purple-400">✨</span> 
+            <span className="text-purple-300 font-bold">CANDLE SEQUENCE MOMENTUM:</span> Master 3-Candle, 5-Candle & 7-Candle Trend Breakout algorithms with zero coding.
+          </span>
+          <span className="flex items-center gap-2">
+            <span className="text-cyan-400">🎯</span> 
+            <span className="text-cyan-300 font-bold">ADVANCED RISK CONTROL:</span> Built-in Combined Premium SL, Leg-level Targets & Automated 15:15 PM Square-off.
+          </span>
+          <span className="flex items-center gap-2">
+            <span className="text-pink-400">📈</span> 
+            <span className="text-pink-300 font-bold">ALGOSAY PRO:</span> India's most powerful backtesting engine for high-probability Sensex & Nifty strategies.
           </span>
         </motion.div>
       </div>

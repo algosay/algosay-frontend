@@ -13,7 +13,7 @@ export const normalizeUnit = (unit) => {
   
   if (u.includes('pt') || u.includes('point') || u === 'pts') return 'Pts';
   
-  // 🚀 புதிதாக சேர்க்கப்பட்ட வரி: "Rs" என்பதை கண்டுபிடிக்க
+  // 🚀 "Rs" என்பதை கண்டுபிடிக்க
   if (u === 'rs' || u.includes('rupee') || u === 'inr') return 'Rs';
   
   return '%';
@@ -109,7 +109,7 @@ export const getLotSize = (ticker) => {
   return 65; 
 };
 
-// --- NEW: Added optional riskManagement param for dynamic loop parsing ---
+// --- OPTIMIZED: Supports object OR direct number for loop limit ---
 export const calculateLiveMargin = (currentLegs, riskManagement = null) => {
   if (!currentLegs || !Array.isArray(currentLegs) || currentLegs.length === 0) {
       return { totalMargin: 0, ceQty: 0, peQty: 0 };
@@ -119,15 +119,18 @@ export const calculateLiveMargin = (currentLegs, riskManagement = null) => {
   let ceTotalQty = 0; 
   let peTotalQty = 0;
 
-  // --- NEW: Extract dynamic global loop multiplier START ---
+  // --- Extract dynamic global loop multiplier ---
   let globalLoopMultiplier = 1;
   if (riskManagement) {
-      const timeLoopLimit = riskManagement.time_loop_limit || riskManagement.timeLoopLimit || 1;
-      if (parseInt(timeLoopLimit, 10) > 1) {
-          globalLoopMultiplier = parseInt(timeLoopLimit, 10);
+      const limitVal = typeof riskManagement === 'number' 
+        ? riskManagement 
+        : (riskManagement.time_loop_limit || riskManagement.timeLoopLimit || 1);
+      
+      const parsed = parseInt(limitVal, 10);
+      if (!isNaN(parsed) && parsed > 1) {
+          globalLoopMultiplier = parsed;
       }
   }
-  // --- NEW: Extract dynamic global loop multiplier END ---
 
   // Group legs by Ticker to handle multi-index strategies dynamically
   let legsByTicker = {};
@@ -155,7 +158,7 @@ export const calculateLiveMargin = (currentLegs, riskManagement = null) => {
           let lots = rawQty >= lotSize ? Math.floor(rawQty / lotSize) : rawQty;
           let actualQty = lots * lotSize; 
 
-          // --- NEW: Apply leg-level re-entry or global loop multiplier START ---
+          // --- Apply leg-level re-entry or global loop multiplier ---
           let legReEntry = parseInt(leg.re_entry_count || leg.reEntryCount || leg.re_entry || 0, 10);
           if (isNaN(legReEntry)) legReEntry = 0;
           
@@ -165,16 +168,17 @@ export const calculateLiveMargin = (currentLegs, riskManagement = null) => {
               legMultiplier = 1 + legReEntry;
           }
           
-          // Scale the lots by the worst-case multiplier
+          // Scale lots and actual quantities by multiplier
           let worstCaseLots = lots * legMultiplier;
-          // --- NEW: Apply leg-level re-entry or global loop multiplier END ---
+          let worstCaseQty = actualQty * legMultiplier;
 
+          // 🚀 FIX: Apply worstCaseQty to total CE/PE quantities
           if (optType.includes("CE") || optType.includes("CALL")) {
-              ceTotalQty += actualQty;
+              ceTotalQty += worstCaseQty;
           } else if (optType.includes("PE") || optType.includes("PUT")) {
-              peTotalQty += actualQty;
+              peTotalQty += worstCaseQty;
           } else {
-              ceTotalQty += actualQty; // fallback
+              ceTotalQty += worstCaseQty; // fallback
           }
 
           if (position === "SELL" || position === "SHORT") {
