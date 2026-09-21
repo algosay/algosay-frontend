@@ -51,7 +51,10 @@ const StrategyConfig = ({
   combinedPremiumTarget, setCombinedPremiumTarget,
   combinedPremiumTargetUnit, setCombinedPremiumTargetUnit, // 🚀 NEW: TARGET UNIT
   combinedPremiumSL, setCombinedPremiumSL,
-  combinedPremiumSLUnit, setCombinedPremiumSLUnit // 🚀 NEW: SL UNIT
+  combinedPremiumSLUnit, setCombinedPremiumSLUnit, // 🚀 NEW: SL UNIT
+  
+  // 🔄 NEW UPDATE: Global Loop limits to calculate worst-case live margin!
+  timeLoopLimit, setTimeLoopLimit
 }) => {
   
   const handleConfigChange = (setter, value) => {
@@ -61,7 +64,8 @@ const StrategyConfig = ({
     setIsConfirmed(false);
   };
 
-  const { totalMargin, ceQty, peQty } = calculateLiveMargin(legs);
+  // 🚀 NEW UPDATE: Passing timeLoopLimit inside riskManagement object for dynamic worst-case margin UI update!
+  const { totalMargin, ceQty, peQty } = calculateLiveMargin(legs, { timeLoopLimit });
 
   return (
     <div className="w-full animate-fade-in">

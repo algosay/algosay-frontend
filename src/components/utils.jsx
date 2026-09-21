@@ -109,7 +109,8 @@ export const getLotSize = (ticker) => {
   return 65; 
 };
 
-export const calculateLiveMargin = (currentLegs) => {
+// --- NEW: Added optional riskManagement param for dynamic loop parsing ---
+export const calculateLiveMargin = (currentLegs, riskManagement = null) => {
   if (!currentLegs || !Array.isArray(currentLegs) || currentLegs.length === 0) {
       return { totalMargin: 0, ceQty: 0, peQty: 0 };
   }
@@ -117,6 +118,16 @@ export const calculateLiveMargin = (currentLegs) => {
   let totalMargin = 0;
   let ceTotalQty = 0; 
   let peTotalQty = 0;
+
+  // --- NEW: Extract dynamic global loop multiplier START ---
+  let globalLoopMultiplier = 1;
+  if (riskManagement) {
+      const timeLoopLimit = riskManagement.time_loop_limit || riskManagement.timeLoopLimit || 1;
+      if (parseInt(timeLoopLimit, 10) > 1) {
+          globalLoopMultiplier = parseInt(timeLoopLimit, 10);
+      }
+  }
+  // --- NEW: Extract dynamic global loop multiplier END ---
 
   // Group legs by Ticker to handle multi-index strategies dynamically
   let legsByTicker = {};
@@ -144,6 +155,20 @@ export const calculateLiveMargin = (currentLegs) => {
           let lots = rawQty >= lotSize ? Math.floor(rawQty / lotSize) : rawQty;
           let actualQty = lots * lotSize; 
 
+          // --- NEW: Apply leg-level re-entry or global loop multiplier START ---
+          let legReEntry = parseInt(leg.re_entry_count || leg.reEntryCount || leg.re_entry || 0, 10);
+          if (isNaN(legReEntry)) legReEntry = 0;
+          
+          let legMultiplier = globalLoopMultiplier;
+          // If global loop is 1 (off), but this specific leg has re-entries, factor that in
+          if (legReEntry > 0 && globalLoopMultiplier === 1) {
+              legMultiplier = 1 + legReEntry;
+          }
+          
+          // Scale the lots by the worst-case multiplier
+          let worstCaseLots = lots * legMultiplier;
+          // --- NEW: Apply leg-level re-entry or global loop multiplier END ---
+
           if (optType.includes("CE") || optType.includes("CALL")) {
               ceTotalQty += actualQty;
           } else if (optType.includes("PE") || optType.includes("PUT")) {
@@ -154,14 +179,14 @@ export const calculateLiveMargin = (currentLegs) => {
 
           if (position === "SELL" || position === "SHORT") {
               if (optType.includes("CE") || optType.includes("CALL")) {
-                  ceSellLots += lots;
+                  ceSellLots += worstCaseLots;
               } else if (optType.includes("PE") || optType.includes("PUT")) {
-                  peSellLots += lots;
+                  peSellLots += worstCaseLots;
               } else {
-                  totalMargin += (lots * nakedMarginVal);
+                  totalMargin += (worstCaseLots * nakedMarginVal);
               }
           } else {
-              buyMargin += (lots * buyMarginVal);
+              buyMargin += (worstCaseLots * buyMarginVal);
           }
       });
 
