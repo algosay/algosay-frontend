@@ -109,7 +109,8 @@ export const getLotSize = (ticker) => {
   return 65; 
 };
 
-// --- OPTIMIZED: Supports object OR direct number for loop limit ---
+// --- OPTIMIZED: Strict Base Margin for Active Legs (No loop multipliers) ---
+// RiskManagement param is kept for signature backward compatibility, but we don't multiply by loops anymore.
 export const calculateLiveMargin = (currentLegs, riskManagement = null) => {
   if (!currentLegs || !Array.isArray(currentLegs) || currentLegs.length === 0) {
       return { totalMargin: 0, ceQty: 0, peQty: 0 };
@@ -118,19 +119,6 @@ export const calculateLiveMargin = (currentLegs, riskManagement = null) => {
   let totalMargin = 0;
   let ceTotalQty = 0; 
   let peTotalQty = 0;
-
-  // --- Extract dynamic global loop multiplier ---
-  let globalLoopMultiplier = 1;
-  if (riskManagement) {
-      const limitVal = typeof riskManagement === 'number' 
-        ? riskManagement 
-        : (riskManagement.time_loop_limit || riskManagement.timeLoopLimit || 1);
-      
-      const parsed = parseInt(limitVal, 10);
-      if (!isNaN(parsed) && parsed > 1) {
-          globalLoopMultiplier = parsed;
-      }
-  }
 
   // Group legs by Ticker to handle multi-index strategies dynamically
   let legsByTicker = {};
@@ -158,39 +146,26 @@ export const calculateLiveMargin = (currentLegs, riskManagement = null) => {
           let lots = rawQty >= lotSize ? Math.floor(rawQty / lotSize) : rawQty;
           let actualQty = lots * lotSize; 
 
-          // --- Apply leg-level re-entry or global loop multiplier ---
-          let legReEntry = parseInt(leg.re_entry_count || leg.reEntryCount || leg.re_entry || 0, 10);
-          if (isNaN(legReEntry)) legReEntry = 0;
-          
-          let legMultiplier = globalLoopMultiplier;
-          // If global loop is 1 (off), but this specific leg has re-entries, factor that in
-          if (legReEntry > 0 && globalLoopMultiplier === 1) {
-              legMultiplier = 1 + legReEntry;
-          }
-          
-          // Scale lots and actual quantities by multiplier
-          let worstCaseLots = lots * legMultiplier;
-          let worstCaseQty = actualQty * legMultiplier;
-
-          // 🚀 FIX: Apply worstCaseQty to total CE/PE quantities
+          // 🚀 FIX: Apply strict actualQty to total CE/PE quantities without multiplying by loops
           if (optType.includes("CE") || optType.includes("CALL")) {
-              ceTotalQty += worstCaseQty;
+              ceTotalQty += actualQty;
           } else if (optType.includes("PE") || optType.includes("PUT")) {
-              peTotalQty += worstCaseQty;
+              peTotalQty += actualQty;
           } else {
-              ceTotalQty += worstCaseQty; // fallback
+              ceTotalQty += actualQty; // fallback
           }
 
+          // Strict Lots applied to Margin Calculation
           if (position === "SELL" || position === "SHORT") {
               if (optType.includes("CE") || optType.includes("CALL")) {
-                  ceSellLots += worstCaseLots;
+                  ceSellLots += lots;
               } else if (optType.includes("PE") || optType.includes("PUT")) {
-                  peSellLots += worstCaseLots;
+                  peSellLots += lots;
               } else {
-                  totalMargin += (worstCaseLots * nakedMarginVal);
+                  totalMargin += (lots * nakedMarginVal);
               }
           } else {
-              buyMargin += (worstCaseLots * buyMarginVal);
+              buyMargin += (lots * buyMarginVal);
           }
       });
 
