@@ -10,20 +10,50 @@ const TopNavBar = ({
   openStrategiesModal, 
   setShowProfileModal, 
   setShowPricingModal,
-  isFyersConnected, // ⚡ NEW: Added to check Fyers connection status
-  handleFyersLogin  // ⚡ NEW: Function to trigger Fyers login flow
+  isFyersConnected, 
+  handleFyersLogin,
+  activeTab,       // ⚡ NEW: Active view state ('trade' or 'wealth')
+  setActiveTab     // ⚡ NEW: Function to switch views
 }) => {
   return (
     <div className="flex justify-between items-center px-4 py-3 md:px-6 bg-[#020205] border-b border-[#16162a] shadow-[0_4px_30px_rgba(0,0,0,0.4)] sticky top-0 z-50">
       
-      {/* LEFT: App Logo & Name */}
-      <div className="flex items-center gap-3">
-        <img src="/image/logo.png" alt="AlgoSay Logo" className="w-10 h-10 md:w-12 md:h-12 object-contain" />
-        <div className="flex flex-col">
-          <span className="text-xl md:text-2xl font-bold tracking-wide">
-            <span className="text-white">Algo</span><span className="text-blue-500">Say</span>
-          </span>
-          <span className="text-[9px] md:text-[10px] text-cyan-400 font-bold tracking-[0.2em]">PRO QUANT EDGE</span>
+      {/* LEFT: App Logo, Name & Mode Switcher Tabs */}
+      <div className="flex items-center gap-4 md:gap-6">
+        {/* Logo */}
+        <div className="flex items-center gap-3">
+          <img src="/image/logo.png" alt="AlgoSay Logo" className="w-10 h-10 md:w-12 md:h-12 object-contain" />
+          <div className="flex flex-col">
+            <span className="text-xl md:text-2xl font-bold tracking-wide">
+              <span className="text-white">Algo</span><span className="text-blue-500">Say</span>
+            </span>
+            <span className="text-[9px] md:text-[10px] text-cyan-400 font-bold tracking-[0.2em]">PRO QUANT EDGE</span>
+          </div>
+        </div>
+
+        {/* ⚡ NEW: Mode Switcher Tabs ([⚡ Intraday Algo Trading] & [💎 Long-term Wealth Allocator]) */}
+        <div className="hidden md:flex items-center bg-[#070710] border border-[#1e1e30] rounded-full p-1 shadow-inner">
+          <button
+            onClick={() => setActiveTab('trade')}
+            className={`px-3.5 py-1.5 text-xs font-bold rounded-full transition-all flex items-center gap-1.5 cursor-pointer ${
+              activeTab === 'trade' 
+                ? 'bg-blue-600/30 border border-blue-500/60 text-blue-400 shadow-[0_0_12px_rgba(59,130,246,0.3)]' 
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            <span>⚡</span> Intraday Algo
+          </button>
+          
+          <button
+            onClick={() => setActiveTab('wealth')}
+            className={`px-3.5 py-1.5 text-xs font-bold rounded-full transition-all flex items-center gap-1.5 cursor-pointer ${
+              activeTab === 'wealth' 
+                ? 'bg-purple-600/30 border border-purple-500/60 text-purple-400 shadow-[0_0_12px_rgba(168,85,247,0.3)]' 
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            <span>💎</span> Wealth Allocator
+          </button>
         </div>
       </div>
 
@@ -34,27 +64,27 @@ const TopNavBar = ({
         <div className="hidden lg:flex items-center bg-[#070710] border border-[#1e1e30] rounded-full px-2 py-1 shadow-inner">
           <button 
             onClick={() => openStrategiesModal('my_strategies')}
-            className="px-4 py-1.5 text-gray-300 hover:text-white text-sm font-medium transition-colors flex items-center gap-2 border-r border-[#1e1e30]"
+            className="px-4 py-1.5 text-gray-300 hover:text-white text-sm font-medium transition-colors flex items-center gap-2 border-r border-[#1e1e30] cursor-pointer"
           >
             <span className="text-yellow-500">📂</span> My Strategies
           </button>
           
           <button 
             onClick={() => openStrategiesModal('default_strategies')}
-            className="px-4 py-1.5 text-gray-300 hover:text-white text-sm font-medium transition-colors flex items-center gap-2 border-r border-[#1e1e30]"
+            className="px-4 py-1.5 text-gray-300 hover:text-white text-sm font-medium transition-colors flex items-center gap-2 border-r border-[#1e1e30] cursor-pointer"
           >
             <span className="text-orange-400">📜</span> Default Templates
           </button>
 
           <button 
             onClick={() => setShowProfileModal(true)}
-            className="px-4 py-1.5 text-gray-300 hover:text-white text-sm font-medium transition-colors flex items-center gap-2"
+            className="px-4 py-1.5 text-gray-300 hover:text-white text-sm font-medium transition-colors flex items-center gap-2 cursor-pointer"
           >
             <span className="text-purple-500">👤</span> {user?.email || user?.displayName}
           </button>
         </div>
 
-        {/* ⚡ NEW: Fyers Login / Connection Badge */}
+        {/* Fyers Login / Connection Badge */}
         {isFyersConnected ? (
           <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#001405] border border-green-600/40 rounded-full shadow-inner cursor-default">
             <span className="text-green-500 text-sm">🟢</span>
@@ -88,7 +118,7 @@ const TopNavBar = ({
         {/* Logout Button (Neon Red Theme) */}
         <button 
           onClick={() => signOut(auth)}
-          className="px-4 py-1.5 bg-transparent border border-[#e11d48] text-[#f43f5e] hover:bg-[#e11d48]/10 hover:shadow-[0_0_15px_rgba(225,29,72,0.4)] text-xs md:text-sm font-bold rounded-lg transition-all"
+          className="px-4 py-1.5 bg-transparent border border-[#e11d48] text-[#f43f5e] hover:bg-[#e11d48]/10 hover:shadow-[0_0_15px_rgba(225,29,72,0.4)] text-xs md:text-sm font-bold rounded-lg transition-all cursor-pointer"
         >
           Logout
         </button>
