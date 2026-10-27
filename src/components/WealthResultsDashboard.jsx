@@ -14,10 +14,11 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
     estimated_max_drawdown = 0,
     risk_warning = '',
     portfolio_breakdown = [],
-    selectedSegmentAssets = {}
+    selectedSegmentAssets = {},
+    is_sip = false
   } = wealthData;
 
-  // 🧮 Dynamically calculate weighted return & future value based on selectedHorizon and user selected assets
+  // 🧮 Dynamically calculate weighted return based on selectedHorizon and user selected assets
   let currentWeightedReturn = 0;
   portfolio_breakdown.forEach((item) => {
     const weight = item.weight_percentage / 100;
@@ -37,12 +38,31 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
     }
   });
 
+  // Time mapping in years and months
   const yearsMap = { '1m': 0.083, '3m': 0.25, '6m': 0.5, '1yr': 1.0, '3yr': 3.0, '5yr': 5.0 };
   const t = yearsMap[selectedHorizon] || 1.0;
+  const months = Math.round(t * 12);
   
-  const projectedValue = t <= 1.0 
-    ? initial_capital * (1 + (currentWeightedReturn / 100) * t)
-    : initial_capital * Math.pow((1 + currentWeightedReturn / 100), t);
+  // 🧮 Projected Value calculation (Lumpsum vs Monthly SIP)
+  let projectedValue = 0;
+  let totalInvestedCapital = initial_capital;
+
+  if (is_sip) {
+    // initial_capital represents monthly installment (P) for SIP mode
+    const monthlyRate = (currentWeightedReturn / 100) / 12;
+    if (monthlyRate === 0) {
+      projectedValue = initial_capital * months;
+    } else {
+      projectedValue = initial_capital * ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate) * (1 + monthlyRate);
+    }
+    totalInvestedCapital = initial_capital * months;
+  } else {
+    // Lumpsum calculation
+    projectedValue = t <= 1.0 
+      ? initial_capital * (1 + (currentWeightedReturn / 100) * t)
+      : initial_capital * Math.pow((1 + currentWeightedReturn / 100), t);
+    totalInvestedCapital = initial_capital;
+  }
 
   const toggleSegment = (segmentName) => {
     setExpandedSegment(expandedSegment === segmentName ? null : segmentName);
@@ -61,7 +81,7 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
   };
 
   return (
-    // 🌟 UPDATED: w-full min-h-screen for full-screen layout and clear visibility
+    // 🌟 w-full min-h-screen for full-screen layout and clear visibility
     <div className="w-full min-h-screen p-4 md:p-8 lg:p-12 space-y-6 text-white bg-[#070710]">
       
       {/* TOP NAVIGATION / BACK BUTTON */}
@@ -111,9 +131,13 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         
         <div className="bg-[#070710] border border-[#1e1e30] p-5 rounded-2xl relative overflow-hidden">
-          <div className="text-gray-400 text-xs font-mono uppercase">Initial Capital</div>
-          <div className="text-2xl font-extrabold text-white mt-1 font-mono">{formatCurrency(initial_capital)}</div>
-          <div className="text-[10px] text-cyan-400 mt-1">Target: {target_return_requested}% p.a.</div>
+          <div className="text-gray-400 text-xs font-mono uppercase">
+            {is_sip ? `Total Invested (${selectedHorizon.toUpperCase()})` : 'Initial Capital'}
+          </div>
+          <div className="text-2xl font-extrabold text-white mt-1 font-mono">{formatCurrency(totalInvestedCapital)}</div>
+          <div className="text-[10px] text-cyan-400 mt-1">
+            {is_sip ? `Monthly SIP: ${formatCurrency(initial_capital)}/mo` : `Target: ${target_return_requested}% p.a.`}
+          </div>
         </div>
 
         <div className="bg-[#070710] border border-[#1e1e30] p-5 rounded-2xl relative overflow-hidden">
@@ -121,7 +145,7 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
           <div className="text-2xl font-extrabold text-green-400 mt-1 font-mono">
             {formatCurrency(projectedValue)}
           </div>
-          <div className="text-[10px] text-green-500 mt-1">Compound Growth</div>
+          <div className="text-[10px] text-green-500 mt-1">{is_sip ? 'SIP Compounding Growth' : 'Compound Growth'}</div>
         </div>
 
         <div className="bg-[#070710] border border-[#1e1e30] p-5 rounded-2xl relative overflow-hidden">
@@ -150,7 +174,7 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
       <div className="bg-[#070710] border border-[#1e1e30] p-6 rounded-2xl space-y-4">
         <div className="flex justify-between items-center mb-2">
           <h3 className="text-lg font-bold text-white flex items-center gap-2">
-            <span>🧬</span> Multi-Segment Breakdown & Selected Asset Performance ({selectedHorizon.toUpperCase()})
+            <span>🧬</span> {is_sip ? 'Monthly SIP' : 'Multi-Segment'} Breakdown & Selected Asset Performance ({selectedHorizon.toUpperCase()})
           </h3>
           <span className="text-xs text-gray-400 font-mono">Click segment to inspect individual instruments</span>
         </div>
@@ -175,7 +199,8 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
               : 0;
 
             // Per-asset capital allocation
-            const capitalPerAsset = displayedAssets.length > 0 ? item.allocated_capital / displayedAssets.length : 0;
+            const segmentAllocated = is_sip ? (initial_capital * (item.weight_percentage / 100)) : item.allocated_capital;
+            const capitalPerAsset = displayedAssets.length > 0 ? segmentAllocated / displayedAssets.length : 0;
 
             return (
               <div 
@@ -191,7 +216,7 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-bold text-white">{item.segment}</span>
                       <span className="px-2 py-0.5 bg-purple-950/40 border border-purple-500/40 text-purple-300 text-[10px] font-mono rounded">
-                        {item.weight_percentage}% Weight ({formatCurrency(item.allocated_capital)})
+                        {item.weight_percentage}% Weight ({formatCurrency(segmentAllocated)}{is_sip ? '/mo' : ''})
                       </span>
                     </div>
                     <p className="text-xs text-gray-400">{item.description}</p>
@@ -215,7 +240,7 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
                   <div className="p-4 border-t border-[#1e1e30] bg-[#05050a] space-y-3">
                     <div className="flex justify-between items-center">
                       <span className="text-xs font-bold text-cyan-400 uppercase tracking-wider">
-                        🛡️ Allocated Capital per Instrument ({formatCurrency(capitalPerAsset)} each for {displayedAssets.length} funds)
+                        🛡️ Allocated Capital per Instrument ({formatCurrency(capitalPerAsset)}{is_sip ? '/mo' : ''} each for {displayedAssets.length} funds)
                       </span>
                       <span className="text-[10px] text-gray-500 font-mono">Direct Plans (0% Commission)</span>
                     </div>
@@ -231,7 +256,7 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
                             <div className="flex justify-between items-start">
                               <div>
                                 <div className="text-xs font-bold text-white">{idx + 1}. {asset.name}</div>
-                                <div className="text-[10px] text-gray-400 font-mono">Type: {asset.type} | Capital: {formatCurrency(capitalPerAsset)}</div>
+                                <div className="text-[10px] text-gray-400 font-mono">Type: {asset.type} | Allocation: {formatCurrency(capitalPerAsset)}{is_sip ? '/mo' : ''}</div>
                               </div>
                               <span className="px-2 py-0.5 bg-cyan-950/40 border border-cyan-600/30 text-cyan-300 font-mono text-[10px] rounded">
                                 {asset.ticker || asset.symbol || 'N/A'}
