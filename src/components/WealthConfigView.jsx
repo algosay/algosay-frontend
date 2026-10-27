@@ -24,7 +24,9 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
   const fetchWealthPlan = async () => {
     setLoading(true);
     try {
-      const response = await axios.post('/api/wealth/calculate-plan', {
+      // 🛠️ FIX: Using full URL to avoid 405 / connection mismatch errors
+      // (If running on Render live, replace localhost:10000 with your render backend URL or keep relative if proxy is set)
+      const response = await axios.post('http://localhost:10000/api/wealth/calculate-plan', {
         capital: Number(capital),
         target_return: Number(targetReturn)
       });
