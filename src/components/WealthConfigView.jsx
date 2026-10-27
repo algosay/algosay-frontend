@@ -24,9 +24,8 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
   const fetchWealthPlan = async () => {
     setLoading(true);
     try {
-      // 🛠️ FIX: Using full URL to avoid 405 / connection mismatch errors
-      // (If running on Render live, replace localhost:10000 with your render backend URL or keep relative if proxy is set)
-      const response = await axios.post('http://localhost:10000/api/wealth/calculate-plan', {
+      // 🛠️ FIXED: Using Render Live Backend URL to avoid connection issues on production
+      const response = await axios.post('https://algosay-backend.onrender.com/api/wealth/calculate-plan', {
         capital: Number(capital),
         target_return: Number(targetReturn)
       });
