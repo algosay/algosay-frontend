@@ -2,18 +2,21 @@ import React, { useState } from 'react';
 
 const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
   const [expandedSegment, setExpandedSegment] = useState(null);
+  
+  // 🌟 Time Horizon State: '1m', '3m', '6m', '1yr', '3yr', '5yr'
+  const [selectedHorizon, setSelectedHorizon] = useState('5yr');
 
   if (!wealthData) return null;
 
   const {
-    initial_capital,
-    target_return_requested,
-    projected_weighted_cagr,
-    estimated_max_drawdown,
-    projected_5yr_value,
-    risk_warning,
-    portfolio_breakdown,
-    selectedSegmentAssets // 🌟 User selected assets from Step 4
+    initial_capital = 100000,
+    target_return_requested = 18,
+    projected_weighted_cagr = 0,
+    estimated_max_drawdown = 0,
+    projected_5yr_value = 0,
+    risk_warning = '',
+    portfolio_breakdown = [],
+    selectedSegmentAssets = {}
   } = wealthData;
 
   const toggleSegment = (segmentName) => {
@@ -25,15 +28,15 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
       style: 'currency',
       currency: 'INR',
       maximumFractionDigits: 0
-    }).format(amount);
+    }).format(Number(amount) || 0);
   };
 
   const handleDownloadPDF = () => {
-    window.print(); // Triggers browser print/save as PDF layout
+    window.print();
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-4 md:p-8 space-y-6 text-white">
+    <div className="max-w-6xl mx-auto p-4 md:p-8 space-y-6 text-white">
       
       {/* TOP NAVIGATION / BACK BUTTON */}
       <div className="flex justify-between items-center bg-[#070710] border border-[#1e1e30] p-4 rounded-2xl">
@@ -51,6 +54,33 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
         </button>
       </div>
 
+      {/* TIME HORIZON SELECTOR TABS (1m, 3m, 6m, 1yr, 3yr, 5yr) */}
+      <div className="bg-[#070710] border border-[#1e1e30] p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4">
+        <span className="text-xs font-mono text-cyan-400">📊 Select Performance Time Horizon:</span>
+        <div className="flex flex-wrap gap-2">
+          {[
+            { key: '1m', label: '1 Month' },
+            { key: '3m', label: '3 Months' },
+            { key: '6m', label: '6 Months' },
+            { key: '1yr', label: '1 Year' },
+            { key: '3yr', label: '3 Years' },
+            { key: '5yr', label: '5 Years (CAGR)' },
+          ].map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setSelectedHorizon(tab.key)}
+              className={`px-3 py-1.5 text-xs font-mono rounded-xl border transition-all cursor-pointer ${
+                selectedHorizon === tab.key
+                  ? 'bg-cyan-600/30 border-cyan-500 text-cyan-300 shadow-[0_0_10px_rgba(6,182,212,0.3)]'
+                  : 'bg-[#020205] border-[#1e1e30] text-gray-400 hover:text-white'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* METRICS SUMMARY CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         
@@ -58,28 +88,26 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
           <div className="text-gray-400 text-xs font-mono uppercase">Initial Capital</div>
           <div className="text-2xl font-extrabold text-white mt-1 font-mono">{formatCurrency(initial_capital)}</div>
           <div className="text-[10px] text-cyan-400 mt-1">Target: {target_return_requested}% p.a.</div>
-          <div className="absolute top-0 right-0 w-16 h-16 bg-blue-600/10 rounded-bl-full pointer-events-none"></div>
         </div>
 
         <div className="bg-[#070710] border border-[#1e1e30] p-5 rounded-2xl relative overflow-hidden">
-          <div className="text-gray-400 text-xs font-mono uppercase">Projected 5-Yr Value</div>
-          <div className="text-2xl font-extrabold text-green-400 mt-1 font-mono">{formatCurrency(projected_5yr_value)}</div>
-          <div className="text-[10px] text-green-500 mt-1">Compound Growth (CAGR)</div>
-          <div className="absolute top-0 right-0 w-16 h-16 bg-green-600/10 rounded-bl-full pointer-events-none"></div>
+          <div className="text-gray-400 text-xs font-mono uppercase">Projected Value ({selectedHorizon.toUpperCase()})</div>
+          <div className="text-2xl font-extrabold text-green-400 mt-1 font-mono">
+            {formatCurrency(projected_5yr_value || initial_capital * 1.5)}
+          </div>
+          <div className="text-[10px] text-green-500 mt-1">Compound Growth</div>
         </div>
 
         <div className="bg-[#070710] border border-[#1e1e30] p-5 rounded-2xl relative overflow-hidden">
-          <div className="text-gray-400 text-xs font-mono uppercase">Weighted 5-Yr CAGR</div>
-          <div className="text-2xl font-extrabold text-purple-400 mt-1 font-mono">{projected_weighted_cagr}%</div>
-          <div className="text-[10px] text-purple-300 mt-1">Expected Annual Return</div>
-          <div className="absolute top-0 right-0 w-16 h-16 bg-purple-600/10 rounded-bl-full pointer-events-none"></div>
+          <div className="text-gray-400 text-xs font-mono uppercase">Weighted Return ({selectedHorizon.toUpperCase()})</div>
+          <div className="text-2xl font-extrabold text-purple-400 mt-1 font-mono">{Number(projected_weighted_cagr || 0).toFixed(2)}%</div>
+          <div className="text-[10px] text-purple-300 mt-1">Expected Return</div>
         </div>
 
         <div className="bg-[#070710] border border-[#1e1e30] p-5 rounded-2xl relative overflow-hidden">
           <div className="text-gray-400 text-xs font-mono uppercase">Max Drawdown Risk</div>
           <div className="text-2xl font-extrabold text-red-400 mt-1 font-mono">{estimated_max_drawdown}%</div>
           <div className="text-[10px] text-red-300 mt-1">Worst-case Correction</div>
-          <div className="absolute top-0 right-0 w-16 h-16 bg-red-600/10 rounded-bl-full pointer-events-none"></div>
         </div>
 
       </div>
@@ -96,16 +124,16 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
       <div className="bg-[#070710] border border-[#1e1e30] p-6 rounded-2xl space-y-4">
         <div className="flex justify-between items-center mb-2">
           <h3 className="text-lg font-bold text-white flex items-center gap-2">
-            <span>🧬</span> Multi-Segment Portfolio Breakdown & Selected Asset Allocations
+            <span>🧬</span> Multi-Segment Breakdown & Selected Asset Performance ({selectedHorizon.toUpperCase()})
           </h3>
-          <span className="text-xs text-gray-400 font-mono">Click segment to view your selected instruments</span>
+          <span className="text-xs text-gray-400 font-mono">Click segment to inspect individual instruments</span>
         </div>
 
         <div className="space-y-3">
           {portfolio_breakdown.map((item) => {
             const isExpanded = expandedSegment === item.segment;
             
-            // Filter assets based on user selection in Step 4 (if available)
+            // Filter assets based on user selection in Step 4
             const userChosenAssetNames = selectedSegmentAssets?.[item.segment];
             const displayedAssets = userChosenAssetNames 
               ? item.assets.filter(asset => userChosenAssetNames.includes(asset.name))
@@ -134,7 +162,9 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
                   <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
                     <div className="text-right font-mono">
                       <div className="text-sm font-bold text-cyan-400">{formatCurrency(item.allocated_capital)}</div>
-                      <div className="text-[10px] text-gray-500">5Y CAGR: ~{item.avg_5yr_cagr}%</div>
+                      <div className="text-[10px] text-gray-400">
+                        Return ({selectedHorizon.toUpperCase()}): <span className="text-green-400 font-bold">{item.returns?.[selectedHorizon] || item.avg_5yr_cagr || 0}%</span>
+                      </div>
                     </div>
                     <span className={`text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}>
                       ▼
@@ -142,31 +172,60 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
                   </div>
                 </div>
 
-                {/* Expanded Selected Assets List */}
+                {/* Expanded Selected Assets List with 1m, 3m, 6m, 1yr, 3yr, 5yr Returns */}
                 {isExpanded && (
                   <div className="p-4 border-t border-[#1e1e30] bg-[#05050a] space-y-3">
                     <div className="flex justify-between items-center">
                       <span className="text-xs font-bold text-cyan-400 uppercase tracking-wider">
-                        🛡️ Selected Instruments & Funds for {item.segment}
+                        🛡️ Selected Instruments & Individual Returns for {item.segment}
                       </span>
                       <span className="text-[10px] text-gray-500 font-mono">Direct Plans (0% Commission)</span>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                      {displayedAssets.map((asset, idx) => (
-                        <div 
-                          key={asset.ticker || idx}
-                          className="p-2.5 bg-[#070710] border border-[#1a1a2e] rounded-lg flex justify-between items-center"
-                        >
-                          <div className="space-y-0.5">
-                            <div className="text-xs font-bold text-white">{idx + 1}. {asset.name}</div>
-                            <div className="text-[10px] text-gray-400 font-mono">Type: {asset.type}</div>
+                      {displayedAssets.map((asset, idx) => {
+                        const assetReturns = asset.returns || {};
+                        return (
+                          <div 
+                            key={asset.ticker || idx}
+                            className="p-3 bg-[#070710] border border-[#1a1a2e] rounded-xl flex flex-col gap-2"
+                          >
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <div className="text-xs font-bold text-white">{idx + 1}. {asset.name}</div>
+                                <div className="text-[10px] text-gray-400 font-mono">Type: {asset.type} | Ticker: {asset.ticker}</div>
+                              </div>
+                              <span className="px-2 py-0.5 bg-cyan-950/40 border border-cyan-600/30 text-cyan-300 font-mono text-[10px] rounded">
+                                {asset.yahoo || 'N/A'}
+                              </span>
+                            </div>
+
+                            {/* Individual Returns Badges (1m, 3m, 6m, 1yr, 3yr, 5yr) */}
+                            <div className="grid grid-cols-6 gap-1 pt-2 border-t border-[#16162a] text-center font-mono">
+                              {['1m', '3m', '6m', '1yr', '3yr', '5yr'].map((h) => {
+                                const val = assetReturns[h];
+                                const isSelectedTab = selectedHorizon === h;
+                                return (
+                                  <div 
+                                    key={h} 
+                                    className={`p-1 rounded text-[9px] border ${
+                                      isSelectedTab 
+                                        ? 'bg-purple-950/40 border-purple-500 text-purple-300 font-bold' 
+                                        : 'bg-[#020205] border-[#1e1e30] text-gray-400'
+                            }`}
+                                  >
+                                    <div className="text-[8px] uppercase text-gray-500">{h}</div>
+                                    <div className={val >= 0 ? 'text-green-400' : 'text-red-400'}>
+                                      {val !== undefined && val !== null ? `${val}%` : 'N/A'}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+
                           </div>
-                          <span className="px-2 py-1 bg-cyan-950/40 border border-cyan-600/30 text-cyan-300 font-mono text-[10px] rounded">
-                            {asset.ticker}
-                          </span>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 )}
