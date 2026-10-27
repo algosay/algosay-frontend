@@ -4,20 +4,45 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
   const [expandedSegment, setExpandedSegment] = useState(null);
   
   // 🌟 Time Horizon State: '1m', '3m', '6m', '1yr', '3yr', '5yr'
-  const [selectedHorizon, setSelectedHorizon] = useState('5yr');
+  const [selectedHorizon, setSelectedHorizon] = useState('1yr');
 
   if (!wealthData) return null;
 
   const {
     initial_capital = 100000,
     target_return_requested = 18,
-    projected_weighted_cagr = 0,
     estimated_max_drawdown = 0,
-    projected_5yr_value = 0,
     risk_warning = '',
     portfolio_breakdown = [],
     selectedSegmentAssets = {}
   } = wealthData;
+
+  // 🧮 Dynamically calculate weighted return & future value based on selectedHorizon and user selected assets
+  let currentWeightedReturn = 0;
+  portfolio_breakdown.forEach((item) => {
+    const weight = item.weight_percentage / 100;
+    const userChosenNames = selectedSegmentAssets?.[item.segment] || [];
+    const chosenAssets = item.assets ? item.assets.filter(ast => userChosenNames.includes(ast.name)) : (item.selected_assets || []);
+    
+    if (chosenAssets.length > 0) {
+      const validReturns = chosenAssets
+        .map(ast => (ast.returns ? ast.returns[selectedHorizon] : ast.return))
+        .filter(val => val !== undefined && val !== null);
+      
+      const avgAssetReturn = validReturns.length > 0 
+        ? validReturns.reduce((acc, v) => acc + v, 0) / validReturns.length 
+        : (item.period_return || 0);
+      
+      currentWeightedReturn += avgAssetReturn * weight;
+    }
+  });
+
+  const yearsMap = { '1m': 0.083, '3m': 0.25, '6m': 0.5, '1yr': 1.0, '3yr': 3.0, '5yr': 5.0 };
+  const t = yearsMap[selectedHorizon] || 1.0;
+  
+  const projectedValue = t <= 1.0 
+    ? initial_capital * (1 + (currentWeightedReturn / 100) * t)
+    : initial_capital * Math.pow((1 + currentWeightedReturn / 100), t);
 
   const toggleSegment = (segmentName) => {
     setExpandedSegment(expandedSegment === segmentName ? null : segmentName);
@@ -93,14 +118,14 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
         <div className="bg-[#070710] border border-[#1e1e30] p-5 rounded-2xl relative overflow-hidden">
           <div className="text-gray-400 text-xs font-mono uppercase">Projected Value ({selectedHorizon.toUpperCase()})</div>
           <div className="text-2xl font-extrabold text-green-400 mt-1 font-mono">
-            {formatCurrency(projected_5yr_value || initial_capital * 1.5)}
+            {formatCurrency(projectedValue)}
           </div>
           <div className="text-[10px] text-green-500 mt-1">Compound Growth</div>
         </div>
 
         <div className="bg-[#070710] border border-[#1e1e30] p-5 rounded-2xl relative overflow-hidden">
           <div className="text-gray-400 text-xs font-mono uppercase">Weighted Return ({selectedHorizon.toUpperCase()})</div>
-          <div className="text-2xl font-extrabold text-purple-400 mt-1 font-mono">{Number(projected_weighted_cagr || 0).toFixed(2)}%</div>
+          <div className="text-2xl font-extrabold text-purple-400 mt-1 font-mono">{currentWeightedReturn.toFixed(2)}%</div>
           <div className="text-[10px] text-purple-300 mt-1">Expected Return</div>
         </div>
 
@@ -134,10 +159,22 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
             const isExpanded = expandedSegment === item.segment;
             
             // Filter assets based on user selection in Step 4
-            const userChosenAssetNames = selectedSegmentAssets?.[item.segment];
-            const displayedAssets = userChosenAssetNames 
+            const userChosenAssetNames = selectedSegmentAssets?.[item.segment] || [];
+            const displayedAssets = item.assets 
               ? item.assets.filter(asset => userChosenAssetNames.includes(asset.name))
-              : item.assets;
+              : (item.selected_assets || []);
+
+            // Calculate segment return for selected horizon
+            const validReturns = displayedAssets
+              .map(ast => (ast.returns ? ast.returns[selectedHorizon] : ast.return))
+              .filter(val => val !== undefined && val !== null);
+            
+            const segmentReturn = validReturns.length > 0 
+              ? validReturns.reduce((acc, v) => acc + v, 0) / validReturns.length 
+              : 0;
+
+            // Per-asset capital allocation
+            const capitalPerAsset = displayedAssets.length > 0 ? item.allocated_capital / displayedAssets.length : 0;
 
             return (
               <div 
@@ -153,7 +190,7 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-bold text-white">{item.segment}</span>
                       <span className="px-2 py-0.5 bg-purple-950/40 border border-purple-500/40 text-purple-300 text-[10px] font-mono rounded">
-                        {item.weight_percentage}% Weight
+                        {item.weight_percentage}% Weight ({formatCurrency(item.allocated_capital)})
                       </span>
                     </div>
                     <p className="text-xs text-gray-400">{item.description}</p>
@@ -161,9 +198,9 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
 
                   <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
                     <div className="text-right font-mono">
-                      <div className="text-sm font-bold text-cyan-400">{formatCurrency(item.allocated_capital)}</div>
+                      <div className="text-sm font-bold text-cyan-400">Selected: {displayedAssets.length} Instruments</div>
                       <div className="text-[10px] text-gray-400">
-                        Return ({selectedHorizon.toUpperCase()}): <span className="text-green-400 font-bold">{item.returns?.[selectedHorizon] || item.avg_5yr_cagr || 0}%</span>
+                        Return ({selectedHorizon.toUpperCase()}): <span className="text-green-400 font-bold">{segmentReturn.toFixed(2)}%</span>
                       </div>
                     </div>
                     <span className={`text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}>
@@ -177,7 +214,7 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
                   <div className="p-4 border-t border-[#1e1e30] bg-[#05050a] space-y-3">
                     <div className="flex justify-between items-center">
                       <span className="text-xs font-bold text-cyan-400 uppercase tracking-wider">
-                        🛡️ Selected Instruments & Individual Returns for {item.segment}
+                        🛡️ Allocated Capital per Instrument ({formatCurrency(capitalPerAsset)} each for {displayedAssets.length} funds)
                       </span>
                       <span className="text-[10px] text-gray-500 font-mono">Direct Plans (0% Commission)</span>
                     </div>
@@ -187,16 +224,16 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
                         const assetReturns = asset.returns || {};
                         return (
                           <div 
-                            key={asset.ticker || idx}
+                            key={asset.ticker || asset.symbol || idx}
                             className="p-3 bg-[#070710] border border-[#1a1a2e] rounded-xl flex flex-col gap-2"
                           >
                             <div className="flex justify-between items-start">
                               <div>
                                 <div className="text-xs font-bold text-white">{idx + 1}. {asset.name}</div>
-                                <div className="text-[10px] text-gray-400 font-mono">Type: {asset.type} | Ticker: {asset.ticker}</div>
+                                <div className="text-[10px] text-gray-400 font-mono">Type: {asset.type} | Capital: {formatCurrency(capitalPerAsset)}</div>
                               </div>
                               <span className="px-2 py-0.5 bg-cyan-950/40 border border-cyan-600/30 text-cyan-300 font-mono text-[10px] rounded">
-                                {asset.yahoo || 'N/A'}
+                                {asset.ticker || asset.symbol || 'N/A'}
                               </span>
                             </div>
 
@@ -212,7 +249,7 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
                                       isSelectedTab 
                                         ? 'bg-purple-950/40 border-purple-500 text-purple-300 font-bold' 
                                         : 'bg-[#020205] border-[#1e1e30] text-gray-400'
-                            }`}
+                                    }`}
                                   >
                                     <div className="text-[8px] uppercase text-gray-500">{h}</div>
                                     <div className={val >= 0 ? 'text-green-400' : 'text-red-400'}>
