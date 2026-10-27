@@ -11,7 +11,7 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
   const [wealthData, setWealthData] = useState(null);
   const [expandedSegment, setExpandedSegment] = useState(null);
 
-  // 🌟 NEW: State to store user selected assets per segment { "Large Cap": ["Nippon India ETF Nifty 50 BeES", ...] }
+  // 🌟 UPDATED: Default-ஆக எந்தவொரு ஃபண்டும் டிக் ஆகியிருக்காது (Empty object)
   const [selectedSegmentAssets, setSelectedSegmentAssets] = useState({});
 
   const presetCapitals = [50000, 100000, 250000, 500000, 1000000];
@@ -36,14 +36,8 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
         const data = response.data.data;
         setWealthData(data);
 
-        // Initialize all assets as selected by default for every segment
-        const initialSelections = {};
-        if (data.portfolio_breakdown) {
-          data.portfolio_breakdown.forEach((item) => {
-            initialSelections[item.segment] = item.assets.map((asset) => asset.name);
-          });
-        }
-        setSelectedSegmentAssets(initialSelections);
+        // 🌟 No default auto-selection. User must manually select instruments.
+        setSelectedSegmentAssets({});
 
         setCurrentStep(3); // Move to Allocation view
       } else {
@@ -62,8 +56,7 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
     setSelectedSegmentAssets((prev) => {
       const currentSelected = prev[segmentName] || [];
       if (currentSelected.includes(assetName)) {
-        // Remove if already selected (keep at least 1)
-        if (currentSelected.length === 1) return prev;
+        // Remove if already selected
         return { ...prev, [segmentName]: currentSelected.filter((name) => name !== assetName) };
       } else {
         // Add asset
@@ -316,13 +309,15 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
           <div>
             <span className="px-3 py-1 bg-cyan-950/40 border border-cyan-500/40 text-cyan-300 text-xs font-mono rounded-full">Step 4 of 6</span>
             <h3 className="text-xl md:text-2xl font-bold mt-1">Select Specific Instruments & Funds</h3>
-            <p className="text-gray-400 text-xs">Tick/untick the instruments you want to include in your portfolio calculation per segment.</p>
+            <p className="text-gray-400 text-xs">Nothing is selected by default. Tick the instruments you want to include in your portfolio calculation per segment.</p>
           </div>
 
           <div className="space-y-3">
             {wealthData.portfolio_breakdown.map((item) => {
               const isExpanded = expandedSegment === item.segment;
               const selectedCount = (selectedSegmentAssets[item.segment] || []).length;
+              const capitalPerFund = selectedCount > 0 ? item.allocated_capital / selectedCount : 0;
+
               return (
                 <div key={item.segment} className="bg-[#020205] border border-[#1e1e30] rounded-xl overflow-hidden">
                   <div 
@@ -335,7 +330,7 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
                         {item.weight_percentage}% Allocation ({formatCurrency(item.allocated_capital)})
                       </span>
                       <span className="px-2 py-0.5 bg-cyan-950/40 border border-cyan-500/30 text-cyan-300 text-[10px] font-mono rounded">
-                        {selectedCount} of {item.assets.length} Selected
+                        {selectedCount} Selected ({selectedCount > 0 ? `${formatCurrency(capitalPerFund)} / fund` : '₹0 / fund'})
                       </span>
                     </div>
                     <span className="text-cyan-400 text-xs font-bold flex items-center gap-1">
@@ -369,9 +364,11 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
                                 <div className="text-[10px] text-gray-400 font-mono">Type: {asset.type}</div>
                               </div>
                             </div>
-                            <span className="px-2 py-1 bg-cyan-950/40 border border-cyan-600/30 text-cyan-300 font-mono text-[10px] rounded">
-                              {asset.ticker}
-                            </span>
+                            {isChecked && (
+                              <span className="px-2 py-1 bg-cyan-950/40 border border-cyan-600/30 text-cyan-300 font-mono text-[10px] rounded">
+                                {formatCurrency(capitalPerFund)}
+                              </span>
+                            )}
                           </div>
                         );
                       })}
