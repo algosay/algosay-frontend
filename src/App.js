@@ -86,14 +86,12 @@ const ProtectedDashboard = ({ logic }) => {
         setActiveTab={setActiveTab}
       />
 
-      <Header />
-
       <div className="w-full max-w-[96%] xl:max-w-[98%] mx-auto p-4 md:p-6 lg:p-8">
         
         {/* CONDITIONAL RENDERING BASED ON ACTIVE TAB */}
         {activeTab === 'wealth' ? (
-          /* 💎 WEALTH ALLOCATOR ENGINE VIEW */
-          <div className="animate-fade-in">
+          /* 💎 WEALTH ALLOCATOR ENGINE VIEW (Trading Header is strictly removed here) */
+          <div className="animate-fade-in pt-4">
             {wealthError && (
               <div className="max-w-4xl mx-auto mb-4 bg-red-500/10 text-red-500 p-4 rounded-xl border border-red-500/20 text-sm font-semibold text-center">
                 {wealthError}
@@ -115,8 +113,10 @@ const ProtectedDashboard = ({ logic }) => {
             )}
           </div>
         ) : (
-          /* ⚡ EXISTING INTRADAY ALGO TRADING VIEW */
+          /* ⚡ EXISTING INTRADAY ALGO TRADING VIEW (Trading Header appears ONLY here) */
           <>
+            <Header />
+
             <AIParseSection 
               aiPrompt={logic.aiPrompt} setAiPrompt={logic.setAiPrompt} 
               isParsing={logic.isParsing} setIsParsing={logic.setIsParsing} 

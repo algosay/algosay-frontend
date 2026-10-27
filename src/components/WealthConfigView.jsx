@@ -41,7 +41,7 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 md:p-8 bg-[#070710] border border-[#1e1e30] rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.6)] my-6 relative overflow-hidden">
+   <div className="w-full max-w-6xl mx-auto p-6 md:p-10 bg-[#070710] border border-[#1e1e30] rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.6)] my-6 relative overflow-hidden">
       
       {/* Background Neon Glow Effects */}
       <div className="absolute -top-24 -right-24 w-72 h-72 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
