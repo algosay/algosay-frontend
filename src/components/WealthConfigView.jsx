@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 
 const WealthConfigView = ({ onPlanCalculated, onError }) => {
-  // Wizard Steps: 1: Capital, 2: Return, 3: Allocation, 4: Specific Funds, 5: Backtest Report, 6: Final
+  // Wizard Steps: 1: Capital, 2: Return, 3: Allocation, 4: Specific Funds & Selection, 5: Backtest Report, 6: Final
   const [currentStep, setCurrentStep] = useState(1);
   
   const [capital, setCapital] = useState(100000);
@@ -10,6 +10,9 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
   const [loading, setLoading] = useState(false);
   const [wealthData, setWealthData] = useState(null);
   const [expandedSegment, setExpandedSegment] = useState(null);
+
+  // 🌟 NEW: State to store user selected assets per segment { "Large Cap": ["Nippon India ETF Nifty 50 BeES", ...] }
+  const [selectedSegmentAssets, setSelectedSegmentAssets] = useState({});
 
   const presetCapitals = [50000, 100000, 250000, 500000, 1000000];
 
@@ -24,14 +27,24 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
   const fetchWealthPlan = async () => {
     setLoading(true);
     try {
-      // 🛠️ FIXED: Using Render Live Backend URL to avoid connection issues on production
       const response = await axios.post('https://algosay-backend.onrender.com/api/wealth/calculate-plan', {
         capital: Number(capital),
         target_return: Number(targetReturn)
       });
 
       if (response.data && response.data.status === 'success') {
-        setWealthData(response.data.data);
+        const data = response.data.data;
+        setWealthData(data);
+
+        // Initialize all assets as selected by default for every segment
+        const initialSelections = {};
+        if (data.portfolio_breakdown) {
+          data.portfolio_breakdown.forEach((item) => {
+            initialSelections[item.segment] = item.assets.map((asset) => asset.name);
+          });
+        }
+        setSelectedSegmentAssets(initialSelections);
+
         setCurrentStep(3); // Move to Allocation view
       } else {
         if (onError) onError("Failed to fetch wealth plan from backend.");
@@ -42,6 +55,21 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Toggle individual asset selection in a segment
+  const handleAssetToggle = (segmentName, assetName) => {
+    setSelectedSegmentAssets((prev) => {
+      const currentSelected = prev[segmentName] || [];
+      if (currentSelected.includes(assetName)) {
+        // Remove if already selected (keep at least 1)
+        if (currentSelected.length === 1) return prev;
+        return { ...prev, [segmentName]: currentSelected.filter((name) => name !== assetName) };
+      } else {
+        // Add asset
+        return { ...prev, [segmentName]: [...currentSelected, assetName] };
+      }
+    });
   };
 
   const formatCurrency = (amount) => {
@@ -274,26 +302,27 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
               onClick={() => setCurrentStep(4)}
               className="px-8 py-3.5 bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 text-white font-bold rounded-xl shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all cursor-pointer flex items-center gap-2"
             >
-              <span>Next: View Specific Fund Recommendations</span> <span>→</span>
+              <span>Next: Select Specific Funds & ETFs</span> <span>→</span>
             </button>
           </div>
         </div>
       )}
 
       {/* ------------------------------------------------------------------ */}
-      {/* STEP 4: SPECIFIC FUND RECOMMENDATIONS (TOP 10 PER SEGMENT) */}
+      {/* STEP 4: SPECIFIC FUND RECOMMENDATIONS & SELECTION (CHECKBOXES) */}
       {/* ------------------------------------------------------------------ */}
       {currentStep === 4 && wealthData && (
         <div className="space-y-6 py-4">
           <div>
             <span className="px-3 py-1 bg-cyan-950/40 border border-cyan-500/40 text-cyan-300 text-xs font-mono rounded-full">Step 4 of 6</span>
-            <h3 className="text-xl md:text-2xl font-bold mt-1">Specific Fund & ETF Recommendations</h3>
-            <p className="text-gray-400 text-xs">Direct plans (0% commission) across all selected asset segments. Click any segment to expand.</p>
+            <h3 className="text-xl md:text-2xl font-bold mt-1">Select Specific Instruments & Funds</h3>
+            <p className="text-gray-400 text-xs">Tick/untick the instruments you want to include in your portfolio calculation per segment.</p>
           </div>
 
           <div className="space-y-3">
             {wealthData.portfolio_breakdown.map((item) => {
               const isExpanded = expandedSegment === item.segment;
+              const selectedCount = (selectedSegmentAssets[item.segment] || []).length;
               return (
                 <div key={item.segment} className="bg-[#020205] border border-[#1e1e30] rounded-xl overflow-hidden">
                   <div 
@@ -305,25 +334,47 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
                       <span className="px-2 py-0.5 bg-purple-950/40 border border-purple-500/40 text-purple-300 text-[10px] font-mono rounded">
                         {item.weight_percentage}% Allocation ({formatCurrency(item.allocated_capital)})
                       </span>
+                      <span className="px-2 py-0.5 bg-cyan-950/40 border border-cyan-500/30 text-cyan-300 text-[10px] font-mono rounded">
+                        {selectedCount} of {item.assets.length} Selected
+                      </span>
                     </div>
                     <span className="text-cyan-400 text-xs font-bold flex items-center gap-1">
-                      {isExpanded ? 'Hide Top 10 Funds ▲' : 'View Top 10 Funds ▼'}
+                      {isExpanded ? 'Hide Instruments ▲' : 'Configure Funds ▼'}
                     </span>
                   </div>
 
                   {isExpanded && (
                     <div className="p-4 border-t border-[#1e1e30] bg-[#05050a] grid grid-cols-1 md:grid-cols-2 gap-2">
-                      {item.assets.map((asset, idx) => (
-                        <div key={asset.ticker || idx} className="p-3 bg-[#070710] border border-[#1a1a2e] rounded-lg flex justify-between items-center">
-                          <div>
-                            <div className="text-xs font-bold text-white">{idx + 1}. {asset.name}</div>
-                            <div className="text-[10px] text-gray-400 font-mono">Type: {asset.type}</div>
+                      {item.assets.map((asset, idx) => {
+                        const isChecked = (selectedSegmentAssets[item.segment] || []).includes(asset.name);
+                        return (
+                          <div 
+                            key={asset.ticker || idx} 
+                            onClick={() => handleAssetToggle(item.segment, asset.name)}
+                            className={`p-3 border rounded-lg flex justify-between items-center cursor-pointer transition-all ${
+                              isChecked 
+                                ? 'bg-purple-950/20 border-purple-500/50 shadow-[0_0_10px_rgba(168,85,247,0.15)]' 
+                                : 'bg-[#070710] border-[#1a1a2e] opacity-60 hover:opacity-100'
+                            }`}
+                          >
+                            <div className="flex items-center gap-3">
+                              <input
+                                type="checkbox"
+                                checked={isChecked}
+                                onChange={() => {}} // Handled by parent div click
+                                className="accent-purple-500 h-4 w-4 rounded cursor-pointer"
+                              />
+                              <div>
+                                <div className="text-xs font-bold text-white">{idx + 1}. {asset.name}</div>
+                                <div className="text-[10px] text-gray-400 font-mono">Type: {asset.type}</div>
+                              </div>
+                            </div>
+                            <span className="px-2 py-1 bg-cyan-950/40 border border-cyan-600/30 text-cyan-300 font-mono text-[10px] rounded">
+                              {asset.ticker}
+                            </span>
                           </div>
-                          <span className="px-2 py-1 bg-cyan-950/40 border border-cyan-600/30 text-cyan-300 font-mono text-[10px] rounded">
-                            {asset.ticker}
-                          </span>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>
@@ -400,7 +451,7 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
             <button
               onClick={() => {
                 setCurrentStep(6);
-                if (onPlanCalculated) onPlanCalculated(wealthData);
+                if (onPlanCalculated) onPlanCalculated({ ...wealthData, selectedSegmentAssets });
               }}
               className="px-8 py-3.5 bg-gradient-to-r from-green-600 to-cyan-600 hover:from-green-500 hover:to-cyan-500 text-white font-bold rounded-xl shadow-[0_0_20px_rgba(34,197,94,0.3)] transition-all cursor-pointer flex items-center gap-2"
             >
@@ -420,7 +471,7 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
           </div>
           <div className="space-y-2">
             <h3 className="text-2xl font-bold">Wealth Blueprint Generated Successfully!</h3>
-            <p className="text-gray-400 text-xs">Your institutional-grade multi-segment allocation is ready.</p>
+            <p className="text-gray-400 text-xs">Your institutional-grade multi-segment allocation with custom selected instruments is ready.</p>
           </div>
           <div className="flex justify-center gap-4 pt-4">
             <button

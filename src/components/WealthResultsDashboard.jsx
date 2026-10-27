@@ -12,7 +12,8 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
     estimated_max_drawdown,
     projected_5yr_value,
     risk_warning,
-    portfolio_breakdown
+    portfolio_breakdown,
+    selectedSegmentAssets // 🌟 User selected assets from Step 4
   } = wealthData;
 
   const toggleSegment = (segmentName) => {
@@ -95,14 +96,21 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
       <div className="bg-[#070710] border border-[#1e1e30] p-6 rounded-2xl space-y-4">
         <div className="flex justify-between items-center mb-2">
           <h3 className="text-lg font-bold text-white flex items-center gap-2">
-            <span>🧬</span> Multi-Segment Portfolio Breakdown & Top Asset Recommendations
+            <span>🧬</span> Multi-Segment Portfolio Breakdown & Selected Asset Allocations
           </h3>
-          <span className="text-xs text-gray-400 font-mono">Click segment to view Top 10 specific funds</span>
+          <span className="text-xs text-gray-400 font-mono">Click segment to view your selected instruments</span>
         </div>
 
         <div className="space-y-3">
           {portfolio_breakdown.map((item) => {
             const isExpanded = expandedSegment === item.segment;
+            
+            // Filter assets based on user selection in Step 4 (if available)
+            const userChosenAssetNames = selectedSegmentAssets?.[item.segment];
+            const displayedAssets = userChosenAssetNames 
+              ? item.assets.filter(asset => userChosenAssetNames.includes(asset.name))
+              : item.assets;
+
             return (
               <div 
                 key={item.segment}
@@ -134,18 +142,18 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
                   </div>
                 </div>
 
-                {/* Expanded Top 10 Assets List */}
+                {/* Expanded Selected Assets List */}
                 {isExpanded && (
                   <div className="p-4 border-t border-[#1e1e30] bg-[#05050a] space-y-3">
                     <div className="flex justify-between items-center">
                       <span className="text-xs font-bold text-cyan-400 uppercase tracking-wider">
-                        🛡️ Top 10 Recommended Funds & ETFs for {item.segment}
+                        🛡️ Selected Instruments & Funds for {item.segment}
                       </span>
                       <span className="text-[10px] text-gray-500 font-mono">Direct Plans (0% Commission)</span>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                      {item.assets.map((asset, idx) => (
+                      {displayedAssets.map((asset, idx) => (
                         <div 
                           key={asset.ticker || idx}
                           className="p-2.5 bg-[#070710] border border-[#1a1a2e] rounded-lg flex justify-between items-center"
