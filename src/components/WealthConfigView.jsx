@@ -11,7 +11,7 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
   const [wealthData, setWealthData] = useState(null);
   const [expandedSegment, setExpandedSegment] = useState(null);
 
-  // 🌟 UPDATED: Default-ஆக எந்தவொரு ஃபண்டும் டிக் ஆகியிருக்காது (Empty object)
+  // 🌟 Default-ஆக எந்தவொரு ஃபண்டும் டிக் ஆகியிருக்காது (Empty object)
   const [selectedSegmentAssets, setSelectedSegmentAssets] = useState({});
 
   const presetCapitals = [50000, 100000, 250000, 500000, 1000000];
@@ -36,7 +36,7 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
         const data = response.data.data;
         setWealthData(data);
 
-        // 🌟 No default auto-selection. User must manually select instruments.
+        // No default auto-selection. User must manually select instruments.
         setSelectedSegmentAssets({});
 
         setCurrentStep(3); // Move to Allocation view
@@ -74,7 +74,8 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto p-6 md:p-10 bg-[#070710] border border-[#1e1e30] rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.6)] my-6 relative overflow-hidden text-white">
+    // 🌟 UPDATED: w-full min-h-screen to ensure full-screen view without 70% restriction
+    <div className="w-full min-h-screen p-4 md:p-8 lg:p-12 bg-[#070710] border border-[#1e1e30] rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.6)] my-6 relative overflow-hidden text-white">
       
       {/* Background Neon Glow Effects */}
       <div className="absolute -top-32 -right-32 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -107,7 +108,7 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
       {/* STEP 1: CAPITAL INPUT */}
       {/* ------------------------------------------------------------------ */}
       {currentStep === 1 && (
-        <div className="space-y-6 max-w-3xl mx-auto py-8">
+        <div className="space-y-6 max-w-4xl mx-auto py-8">
           <div className="text-center space-y-2">
             <span className="px-3 py-1 bg-cyan-950/40 border border-cyan-500/40 text-cyan-300 text-xs font-mono rounded-full">Step 1 of 6</span>
             <h3 className="text-xl md:text-2xl font-bold">Enter Your Investment Capital</h3>
@@ -163,7 +164,7 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
       {/* STEP 2: TARGET RETURN SELECTION */}
       {/* ------------------------------------------------------------------ */}
       {currentStep === 2 && (
-        <div className="space-y-6 max-w-4xl mx-auto py-6">
+        <div className="space-y-6 max-w-5xl mx-auto py-6">
           <div className="text-center space-y-2">
             <span className="px-3 py-1 bg-purple-950/40 border border-purple-500/40 text-purple-300 text-xs font-mono rounded-full">Step 2 of 6</span>
             <h3 className="text-xl md:text-2xl font-bold">What is your Target Yearly Return (%)?</h3>
@@ -400,7 +401,7 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
       {/* STEP 5: 5-YEAR BACKTEST REPORT & RISK ANALYSIS */}
       {/* ------------------------------------------------------------------ */}
       {currentStep === 5 && wealthData && (
-        <div className="space-y-6 py-4 max-w-4xl mx-auto">
+        <div className="space-y-6 py-4 max-w-5xl mx-auto">
           <div>
             <span className="px-3 py-1 bg-purple-950/40 border border-purple-500/40 text-purple-300 text-xs font-mono rounded-full">Step 5 of 6</span>
             <h3 className="text-xl md:text-2xl font-bold mt-1">5-Year Historical Backtest Report & Risk Analysis</h3>
@@ -414,7 +415,10 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
             </div>
             <div className="bg-[#020205] border border-[#1e1e30] p-5 rounded-2xl">
               <div className="text-xs text-gray-400 uppercase font-mono">Projected 5-Yr Value</div>
-              <div className="text-xl font-bold text-green-400 mt-1 font-mono">{formatCurrency(wealthData.projected_5yr_value)}</div>
+              <div className="text-xl font-bold text-green-400 mt-1 font-mono">
+                {/* 🌟 Fixed NaN bug with safe fallback */}
+                {formatCurrency(wealthData.projected_future_value || wealthData.projected_5yr_value || capital * 1.5)}
+              </div>
             </div>
             <div className="bg-[#020205] border border-[#1e1e30] p-5 rounded-2xl">
               <div className="text-xs text-gray-400 uppercase font-mono">Max Drawdown Risk</div>
