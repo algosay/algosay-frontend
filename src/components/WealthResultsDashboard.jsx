@@ -189,50 +189,80 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
 
       </div>
 
-      {/* 🌟 VISUAL DONUT CHART & REBALANCING SLIDER SECTION */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 bg-[#070710] border border-[#1e1e30] p-6 rounded-2xl">
+      {/* 🌟 VISUAL DONUT CHART WITH SIDE-BY-SIDE ALLOCATION INFO & SLIDERS SECTION */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 bg-[#070710] border border-[#1e1e30] p-6 rounded-2xl">
         
-        {/* Left: Donut Chart */}
-        <div className="flex flex-col items-center justify-center space-y-2">
-          <h4 className="text-sm font-bold text-cyan-400 uppercase tracking-wide">🎨 Asset Allocation Donut Chart</h4>
-          <div className="w-full h-60">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={chartData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={90}
-                  paddingAngle={4}
-                  dataKey="value"
-                >
-                  {chartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip 
-                  formatter={(value) => [`${value}%`, 'Weight']}
-                  contentStyle={{ backgroundColor: '#020205', borderColor: '#1e1e30', borderRadius: '12px', fontSize: '12px' }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
+        {/* Column 1 & 2: Donut Chart + Side-by-Side Allocation Info */}
+        <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 items-center bg-[#020205] p-5 rounded-2xl border border-[#1e1e30]">
+          
+          {/* Donut Chart */}
+          <div className="flex flex-col items-center justify-center">
+            <h4 className="text-xs font-bold text-cyan-400 uppercase tracking-wide mb-2">🎨 Asset Allocation Donut</h4>
+            <div className="w-full h-52">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={chartData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={50}
+                    outerRadius={80}
+                    paddingAngle={4}
+                    dataKey="value"
+                  >
+                    {chartData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    formatter={(value) => [`${value}%`, 'Weight']}
+                    contentStyle={{ backgroundColor: '#020205', borderColor: '#1e1e30', borderRadius: '12px', fontSize: '12px' }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className={`text-[11px] font-mono font-bold mt-1 ${totalCustomWeight === 100 ? 'text-green-400' : 'text-orange-400'}`}>
+              Total Weight: {totalCustomWeight}% {totalCustomWeight !== 100 && '(Target: 100%)'}
+            </div>
           </div>
-          <div className={`text-xs font-mono font-bold ${totalCustomWeight === 100 ? 'text-green-400' : 'text-orange-400'}`}>
-            Total Portfolio Weight: {totalCustomWeight}% {totalCustomWeight !== 100 && '(Note: Should equal 100%)'}
+
+          {/* Side-by-Side Allocation Legend / Information */}
+          <div className="space-y-2.5">
+            <h4 className="text-xs font-bold text-cyan-400 uppercase tracking-wide mb-1">📋 Side-by-Side Breakdown</h4>
+            <div className="space-y-2 max-h-52 overflow-y-auto pr-1">
+              {portfolio_breakdown.map((item, index) => {
+                const currentW = customWeights[item.segment] !== undefined ? customWeights[item.segment] : item.weight_percentage;
+                const segmentAllocatedAmount = totalInvestedCapital * (currentW / 100);
+                const dotColor = COLORS[index % COLORS.length];
+
+                return (
+                  <div key={item.segment} className="p-2.5 bg-[#070710] border border-[#1e1e30] rounded-xl flex items-center justify-between text-xs font-mono">
+                    <div className="flex items-center gap-2">
+                      <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: dotColor }}></span>
+                      <span className="font-bold text-white truncate max-w-[110px]">{item.segment}</span>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-cyan-400 font-bold">{currentW}%</span>
+                      <div className="text-[10px] text-gray-400">{formatCurrency(segmentAllocatedAmount)}</div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
+
         </div>
 
-        {/* Right: One-Click Rebalance Sliders */}
-        <div className="space-y-4 flex flex-col justify-center">
-          <h4 className="text-sm font-bold text-cyan-400 uppercase tracking-wide">🎚️ One-Click Rebalance Sliders</h4>
-          <p className="text-xs text-gray-400">Drag sliders to adjust segment weight dynamically. Returns update instantly.</p>
+        {/* Column 3: One-Click Rebalance Sliders */}
+        <div className="space-y-3 bg-[#020205] p-5 rounded-2xl border border-[#1e1e30] flex flex-col justify-center">
+          <h4 className="text-xs font-bold text-cyan-400 uppercase tracking-wide">🎚️ Rebalance Sliders</h4>
+          <p className="text-[11px] text-gray-400">Drag sliders to adjust segment weight dynamically.</p>
           
-          <div className="space-y-3 max-h-56 overflow-y-auto pr-2">
+          <div className="space-y-2.5 max-h-52 overflow-y-auto pr-2">
             {portfolio_breakdown.map((item) => {
               const currentW = customWeights[item.segment] !== undefined ? customWeights[item.segment] : item.weight_percentage;
               return (
-                <div key={item.segment} className="bg-[#020205] p-3 rounded-xl border border-[#1e1e30] space-y-1">
+                <div key={item.segment} className="bg-[#070710] p-2.5 rounded-xl border border-[#1e1e30] space-y-1">
                   <div className="flex justify-between text-xs font-bold">
                     <span>{item.segment}</span>
                     <span className="text-cyan-400 font-mono">{currentW}%</span>
