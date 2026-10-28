@@ -843,37 +843,95 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
       )}
 
       {/* ------------------------------------------------------------------ */}
-      {/* STEP 6: SPECIFIC FUND RECOMMENDATIONS */}
+      {/* STEP 6: SPECIFIC FUND RECOMMENDATIONS WITH DYNAMIC SPLIT CAPITAL */}
       {/* ------------------------------------------------------------------ */}
       {currentStep === 6 && wealthData && (
-        <div className="space-y-6 py-4">
+        <div className="space-y-6 py-4 animate-fadeIn">
           <div className="bg-[#020205] p-6 rounded-2xl border border-[#1e1e30] space-y-2">
             <span className="px-3.5 py-1.5 bg-cyan-950/40 border border-cyan-500/40 text-cyan-300 text-xs font-mono rounded-full font-bold">Step 6 of 8</span>
-            <h3 className="text-2xl font-extrabold mt-2">Select Specific Instruments & Funds</h3>
+            <h3 className="text-2xl font-extrabold mt-2">Select Specific Instruments & Capital Split</h3>
+            <p className="text-gray-300 text-sm">Click each segment to view available funds. Tick your preferred instruments, and we will automatically split your allocated capital among them!</p>
           </div>
 
           <div className="space-y-4">
             {wealthData.portfolio_breakdown.map((item) => {
               const isExpanded = expandedSegment === item.segment;
-              const selectedCount = (selectedSegmentAssets[item.segment] || []).length;
+              const selectedAssetsInSegment = selectedSegmentAssets[item.segment] || [];
+              const selectedCount = selectedAssetsInSegment.length;
+              
+              // Calculate pro-rata split capital per selected fund
+              const totalSegmentCapital = item.allocated_capital || (Number(capital) * (item.weight_percentage / 100));
+              const splitAmountPerFund = selectedCount > 0 ? Math.round(totalSegmentCapital / selectedCount) : 0;
 
               return (
-                <div key={item.segment} className="bg-[#020205] border border-[#1e1e30] rounded-2xl overflow-hidden">
-                  <div onClick={() => setExpandedSegment(isExpanded ? null : item.segment)} className="p-5 flex justify-between items-center cursor-pointer">
-                    <span className="text-base font-bold text-white">{item.segment} ({item.weight_percentage}%)</span>
-                    <span className="text-cyan-400 text-sm font-bold">{selectedCount} Selected</span>
+                <div key={item.segment} className="bg-[#020205] border border-[#1e1e30] rounded-2xl overflow-hidden transition-all duration-300">
+                  <div 
+                    onClick={() => setExpandedSegment(isExpanded ? null : item.segment)} 
+                    className="p-5 flex justify-between items-center cursor-pointer hover:bg-[#0a0a14]"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-lg font-bold text-white">📊 {item.segment}</span>
+                      <span className="text-xs px-2.5 py-1 bg-purple-950/50 border border-purple-500/40 text-purple-300 font-mono rounded-lg font-bold">
+                        Total Allocated: {formatCurrency(totalSegmentCapital)} ({item.weight_percentage}%)
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3 font-mono">
+                      <span className="text-cyan-400 text-xs bg-cyan-950/40 border border-cyan-500/30 px-3 py-1 rounded-lg">
+                        {selectedCount} Selected
+                      </span>
+                      <span className="text-gray-400 text-sm">{isExpanded ? '▲' : '▼'}</span>
+                    </div>
                   </div>
+
                   {isExpanded && (
-                    <div className="p-5 border-t border-[#1e1e30] bg-[#05050a] grid grid-cols-1 md:grid-cols-3 gap-3">
-                      {item.assets.map((asset, idx) => {
-                        const isChecked = (selectedSegmentAssets[item.segment] || []).includes(asset.name);
-                        return (
-                          <div key={asset.ticker || idx} onClick={() => handleAssetToggle(item.segment, asset.name)} className={`p-4 border rounded-xl flex justify-between items-center cursor-pointer ${isChecked ? 'bg-purple-950/25 border-purple-500' : 'bg-[#070710] border-[#1a1a2e]'}`}>
-                            <span className="text-sm font-bold text-white">{asset.name}</span>
-                            <input type="checkbox" checked={isChecked} onChange={() => {}} className="accent-purple-500 h-5 w-5" />
-                          </div>
-                        );
-                      })}
+                    <div className="p-5 border-t border-[#1e1e30] bg-[#05050a] space-y-4 animate-fadeIn">
+                      <div className="text-xs text-gray-400 font-mono">
+                        💡 Tick funds below. Selected capital of <strong className="text-cyan-400">{formatCurrency(totalSegmentCapital)}</strong> will be dynamically split across {selectedCount || 1} selected instrument(s):
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {item.assets.map((asset, idx) => {
+                          const isChecked = selectedAssetsInSegment.includes(asset.name);
+                          return (
+                            <div 
+                              key={asset.ticker || idx} 
+                              onClick={() => handleAssetToggle(item.segment, asset.name)} 
+                              className={`p-4 border rounded-xl flex flex-col justify-between gap-2 cursor-pointer transition-all transform hover:scale-[1.01] ${
+                                isChecked 
+                                  ? 'bg-purple-950/30 border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.3)]' 
+                                  : 'bg-[#070710] border-[#1a1a2e] hover:border-gray-600'
+                              }`}
+                            >
+                              <div className="flex justify-between items-start">
+                                <span className="text-sm font-bold text-white">{asset.name}</span>
+                                <input 
+                                  type="checkbox" 
+                                  checked={isChecked} 
+                                  onChange={() => {}} 
+                                  className="accent-purple-500 h-5 w-5 cursor-pointer" 
+                                />
+                              </div>
+
+                              <div className="flex justify-between items-center pt-2 border-t border-gray-800 text-xs font-mono">
+                                <span className="text-gray-400">{asset.type || 'Mutual Fund / ETF'}</span>
+                                {isChecked ? (
+                                  <span className="text-green-400 font-bold bg-green-950/40 px-2 py-0.5 rounded border border-green-500/40 animate-pulse">
+                                    ⚡ {formatCurrency(splitAmountPerFund)}
+                                  </span>
+                                ) : (
+                                  <span className="text-gray-500">Not Selected</span>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {selectedCount === 0 && (
+                        <div className="p-3 bg-orange-950/20 border border-orange-500/30 rounded-xl text-xs text-orange-300 font-mono text-center">
+                          ⚠️ No instrument selected for {item.segment}. Please tick at least one fund to distribute capital.
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -883,7 +941,7 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
 
           <div className="pt-6 flex justify-between">
             <button onClick={() => setCurrentStep(5)} className="px-7 py-3.5 bg-gray-800 text-gray-200 font-bold rounded-xl text-sm">← Back</button>
-            <button onClick={() => setCurrentStep(7)} className="px-9 py-4 bg-gradient-to-r from-purple-600 to-cyan-600 text-white font-bold rounded-2xl">Next: Backtest Report →</button>
+            <button onClick={() => setCurrentStep(7)} className="px-9 py-4 bg-gradient-to-r from-purple-600 to-cyan-600 text-white font-bold rounded-2xl shadow-[0_0_20px_rgba(6,182,212,0.3)]">Next: Backtest Report →</button>
           </div>
         </div>
       )}
