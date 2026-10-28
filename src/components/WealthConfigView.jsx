@@ -2,9 +2,20 @@ import React, { useState } from 'react';
 import axios from 'axios';
 
 const WealthConfigView = ({ onPlanCalculated, onError }) => {
-  // Wizard Steps: 1: Capital/SIP, 2: Return, 3: Allocation, 4: Specific Funds & Selection, 5: Backtest Report, 6: Final
+  // Wizard Steps: 1: Multi-Lang Quiz, 2: Capital/SIP, 3: Return, 4: Allocation, 5: Specific Funds & Selection, 6: Backtest Report, 7: Final
   const [currentStep, setCurrentStep] = useState(1);
   
+  // 🌐 Multi-Language State & Dictionary
+  const [selectedLang, setSelectedLang] = useState('en');
+  const [quizAnswers, setQuizAnswers] = useState({
+    ageGroup: '',
+    marketCrashReaction: '',
+    investmentGoal: '',
+    timeHorizon: '',
+    primaryIncome: ''
+  });
+  const [inferredProfile, setInferredProfile] = useState(null);
+
   // 🌟 Investment Mode State ('lumpsum' or 'sip')
   const [investmentMode, setInvestmentMode] = useState('lumpsum');
   const [capital, setCapital] = useState(100000);
@@ -26,7 +37,346 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
     { label: 'Extreme High (100%+)', value: 85, tag: 'High Beta / Risk', color: 'border-red-500/40 text-red-400 bg-red-950/20' },
   ];
 
-  // Fetch data from FastAPI backend when moving past Step 2
+  // 🌐 Multi-Language Dictionary for Quiz
+  const translations = {
+    en: {
+      stepIndicator: 'Risk Assessment Quiz',
+      title: 'Discover Your Investor Personality',
+      subtitle: 'Answer 5 quick questions so our AI can design your ideal multi-segment wealth blueprint.',
+      nextBtn: 'Analyze & Generate Ideal Profile 🚀',
+      retakeBtn: '← Retake Quiz',
+      questions: [
+        {
+          id: 'ageGroup',
+          title: 'Q1: What is your age group?',
+          subtitle: 'Helps determine your investment horizon and risk capacity.',
+          options: [
+            { label: '20s (Younger - Higher Risk Capacity)', value: '20s', score: 3 },
+            { label: '30s - 40s (Mid-career - Balanced Growth)', value: '30s_40s', score: 2 },
+            { label: '50s+ (Near Retirement - Capital Safety)', value: '50s_plus', score: 1 }
+          ]
+        },
+        {
+          id: 'marketCrashReaction',
+          title: 'Q2: If the stock market suddenly drops by 20%, what will you do?',
+          subtitle: 'Tests your mental fortitude and volatility tolerance.',
+          options: [
+            { label: 'Panic and sell everything immediately', value: 'panic_sell', score: 1 },
+            { label: 'Stay calm and hold my investments', value: 'stay_calm', score: 2 },
+            { label: 'Buy more! This is a discounted opportunity', value: 'buy_more', score: 3 }
+          ]
+        },
+        {
+          id: 'investmentGoal',
+          title: 'Q3: What is your primary investment objective?',
+          subtitle: 'Matches your return expectations with asset classes.',
+          options: [
+            { label: 'Capital preservation with steady modest returns', value: 'conservative', score: 1 },
+            { label: 'Beat inflation and achieve balanced growth', value: 'balanced', score: 2 },
+            { label: 'Aggressive wealth creation and high alpha', value: 'aggressive', score: 3 }
+          ]
+        },
+        {
+          id: 'timeHorizon',
+          title: 'Q4: How long do you plan to stay invested?',
+          subtitle: 'Longer periods allow compounding and high-alpha asset exposure.',
+          options: [
+            { label: 'Short Term (1 to 2 Years)', value: 'short', score: 1 },
+            { label: 'Medium Term (3 to 5 Years)', value: 'medium', score: 2 },
+            { label: 'Long Term (5+ Years / Wealth Compounder)', value: 'long', score: 3 }
+          ]
+        },
+        {
+          id: 'primaryIncome',
+          title: 'Q5: How would you describe your income stability?',
+          subtitle: 'Assesses your emergency buffer and risk appetite.',
+          options: [
+            { label: 'Variable / Freelance / High Fluctuation', value: 'variable', score: 1 },
+            { label: 'Stable Salaried / Professional', value: 'stable', score: 2 },
+            { label: 'Multiple Income Streams / Business Owner', value: 'multiple', score: 3 }
+          ]
+        }
+      ]
+    },
+    ta: {
+      stepIndicator: 'முதலீட்டு மனநிலை வினாடி வினா',
+      title: 'உங்கள் முதலீட்டு ஆளுமையை கண்டறியுங்கள்',
+      subtitle: '5 எளிமையான கேள்விகளுக்குப் பதிலளியுங்கள், உங்கள் வெல்த் பிளான் தயாராகும்.',
+      nextBtn: 'பகுப்பாய்வு செய்து சுயவிவரம் உருவாக்கு 🚀',
+      retakeBtn: '← மீண்டும் வினாடி வினா',
+      questions: [
+        {
+          id: 'ageGroup',
+          title: 'கேள்வி 1: உங்களது வயது பிரிவு என்ன?',
+          subtitle: 'உங்கள் முதலீட்டு கால அளவைத் தீர்மானிக்க உதவுகிறது.',
+          options: [
+            { label: '20கள் (இளம் வயது - அதிக ரிஸ்க் எடுக்கலாம்)', value: '20s', score: 3 },
+            { label: '30கள் - 40கள் (நடுத்தர வயது - சீரான வளர்ச்சி)', value: '30s_40s', score: 2 },
+            { label: '50கள்+ (பாதுகாப்பான முதலீடு அவசியம்)', value: '50s_plus', score: 1 }
+          ]
+        },
+        {
+          id: 'marketCrashReaction',
+          title: 'கேள்வி 2: திடீரென மார்க்கெட் 20% கீழே விழுந்தால் என்ன செய்வீர்கள்?',
+          subtitle: 'உங்கள் மன உறுதியைப் பரிசோதிக்கிறது.',
+          options: [
+            { label: 'பயந்து போய் உடனே விற்றுவிடுவேன்', value: 'panic_sell', score: 1 },
+            { label: 'கவலைப்படாமல் அமைதியாக இருப்பேன் (Hold)', value: 'stay_calm', score: 2 },
+            { label: 'இது ஒரு வாய்ப்பு, மேலும் வாங்குவேன் (Buy More)', value: 'buy_more', score: 3 }
+          ]
+        },
+        {
+          id: 'investmentGoal',
+          title: 'கேள்வி 3: உங்களது முதலீட்டின் முக்கிய நோக்கம் என்ன?',
+          subtitle: 'உங்கள் இலக்குக்கு ஏற்ற வருமானத்தைத் தேர்ந்தெடுக்கிறது.',
+          options: [
+            { label: 'இருப்பதைக் காப்பாற்றி மிதமான வருமானம்', value: 'conservative', score: 1 },
+            { label: 'பணவீக்கத்தை மீறி சீரான வளர்ச்சி (Balanced)', value: 'balanced', score: 2 },
+            { label: 'அதிக லாபம், மல்டிபேக்கர் வளர்ச்சி (High Alpha)', value: 'aggressive', score: 3 }
+          ]
+        },
+        {
+          id: 'timeHorizon',
+          title: 'கேள்வி 4: எவ்வளவு காலம் முதலீடு செய்யத் திட்டமிட்டுள்ளீர்கள்?',
+          subtitle: 'நீண்ட காலம் கூட்டு வட்டி பலனைத் தரும்.',
+          options: [
+            { label: 'குறுகிய காலம் (1 முதல் 2 ஆண்டுகள்)', value: 'short', score: 1 },
+            { label: 'நடுத்தர காலம் (3 முதல் 5 ஆண்டுகள்)', value: 'medium', score: 2 },
+            { label: 'நீண்ட காலம் (5+ ஆண்டுகள் / வெல்த் கிரியேஷன்)', value: 'long', score: 3 }
+          ]
+        },
+        {
+          id: 'primaryIncome',
+          title: 'கேள்வி 5: உங்கள் வருமானத்தின் நிலைத்தன்மை எப்படிப்பட்டது?',
+          subtitle: 'உங்கள் சேமிப்புத் திறனை மதிப்பிடுகிறது.',
+          options: [
+            { label: 'மாறும் வருமானம் / ஃப்ரீலான்ஸ் / பிசினஸ்', value: 'variable', score: 1 },
+            { label: 'நிலையான சம்பளம் / முறையான வேலை', value: 'stable', score: 2 },
+            { label: 'பல வருமான ஆதாரங்கள் / தொழில் முனைவோர்', value: 'multiple', score: 3 }
+          ]
+        }
+      ]
+    },
+    hi: {
+      stepIndicator: 'जोखिम आकलन क्विज़',
+      title: 'अपने निवेशक व्यक्तित्व की खोज करें',
+      subtitle: '5 त्वरित प्रश्नों के उत्तर दें ताकि हमारा AI आपका वेल्थ ब्लूप्रिंट तैयार कर सके।',
+      nextBtn: 'विश्लेषण करें और प्रोफ़ाइल बनाएं 🚀',
+      retakeBtn: '← क्विज़ दोहराएं',
+      questions: [
+        {
+          id: 'ageGroup',
+          title: 'प्रश्न 1: आपकी आयु वर्ग क्या है?',
+          subtitle: 'आपके निवेश क्षितिज को निर्धारित करने में मदद करता है।',
+          options: [
+            { label: '20s (युवा - उच्च जोखिम क्षमता)', value: '20s', score: 3 },
+            { label: '30s - 40s (संतुलित विकास)', value: '30s_40s', score: 2 },
+            { label: '50s+ (सेवानिवृत्ति के करीब - पूंजी सुरक्षा)', value: '50s_plus', score: 1 }
+          ]
+        },
+        {
+          id: 'marketCrashReaction',
+          title: 'प्रश्न 2: यदि शेयर बाजार अचानक 20% गिर जाए, तो आप क्या करेंगे?',
+          subtitle: 'आपकी सहनशीलता का परीक्षण करता है।',
+          options: [
+            { label: 'घबराकर सब बेच दूंगा', value: 'panic_sell', score: 1 },
+            { label: 'शांत रहूंगा और होल्ड रखूंगा', value: 'stay_calm', score: 2 },
+            { label: 'और खरीदूंगा! यह एक शानदार अवसर है', value: 'buy_more', score: 3 }
+          ]
+        },
+        {
+          id: 'investmentGoal',
+          title: 'प्रश्न 3: आपका मुख्य निवेश उद्देश्य क्या है?',
+          subtitle: 'आपके रिटर्न की उम्मीदों से मेल खाता है।',
+          options: [
+            { label: 'पूंजी सुरक्षा और स्थिर मध्यम रिटर्न', value: 'conservative', score: 1 },
+            { label: 'मुद्रास्फीति को मात देना और संतुलित विकास', value: 'balanced', score: 2 },
+            { label: 'आक्रामक संपत्ति सृजन और उच्च अल्फा', value: 'aggressive', score: 3 }
+          ]
+        },
+        {
+          id: 'timeHorizon',
+          title: 'प्रश्न 4: आप कितने समय तक निवेशित रहने की योजना बना रहे हैं?',
+          subtitle: 'लंबी अवधि चक्रवृद्धि का लाभ देती है।',
+          options: [
+            { label: 'अल्पकालिक (1 से 2 वर्ष)', value: 'short', score: 1 },
+            { label: 'मध्यम अवधि (3 से 5 वर्ष)', value: 'medium', score: 2 },
+            { label: 'दीर्घकालिक (5+ वर्ष / संपदा सृजन)', value: 'long', score: 3 }
+          ]
+        },
+        {
+          id: 'primaryIncome',
+          title: 'प्रश्न 5: आपकी आय की स्थिरता कैसी है?',
+          subtitle: 'आपकी जोखिम क्षमता का आकलन करता है।',
+          options: [
+            { label: 'परिवर्तनशील / फ्रीलांस / उतार-चढ़ाव', value: 'variable', score: 1 },
+            { label: 'स्थिर वेतन / नौकरी', value: 'stable', score: 2 },
+            { label: 'आय के कई स्रोत / व्यावसायिक मालिक', value: 'multiple', score: 3 }
+          ]
+        }
+      ]
+    },
+    ml: {
+      stepIndicator: 'റിസ്ക് അസസ്മെന്റ് ക്വിസ്',
+      title: 'നിങ്ങളുടെ നിക്ഷേപക വ്യക്തിത്വം കണ്ടെത്തുക',
+      subtitle: '5 ചോദ്യങ്ങൾക്ക് ഉത്തരം നൽകി നിങ്ങളുടെ വെൽത്ത് ബ്ലൂപ്രിന്റ് തയ്യാറാക്കൂ.',
+      nextBtn: 'പ്രൊഫൈൽ തയ്യാറാക്കുക 🚀',
+      retakeBtn: '← ക്വിസ് വീണ്ടും ചെയ്യുക',
+      questions: [
+        {
+          id: 'ageGroup',
+          title: 'ചോദ്യം 1: നിങ്ങളുടെ വയസ്സ് എത്രയാണ്?',
+          subtitle: 'നിങ്ങളുടെ നിക്ഷേപ കാലാവധി നിർണ്ണയിക്കാൻ സഹായിക്കുന്നു.',
+          options: [
+            { label: '20-കളിൽ (യൂത്ത് - ഉയർന്ന റിസ്ക് എടുക്കാം)', value: '20s', score: 3 },
+            { label: '30s - 40s (സമതുലിതമായ വളർച്ച)', value: '30s_40s', score: 2 },
+            { label: '50s+ (മൂലധന സുരക്ഷ)', value: '50s_plus', score: 1 }
+          ]
+        },
+        {
+          id: 'marketCrashReaction',
+          title: 'ചോദ്യം 2: വിപണി പെട്ടെന്ന് 20% ഇടിഞ്ഞാൽ നിങ്ങൾ എന്ത് ചെയ്യും?',
+          subtitle: 'നിങ്ങളുടെ മാനസിക ശേഷി പരിശോധിക്കുന്നു.',
+          options: [
+            { label: 'ഭയന്ന് ഉടൻ വിൽക്കും', value: 'panic_sell', score: 1 },
+            { label: 'ശാന്തനായി കൈവശം വെക്കും (Hold)', value: 'stay_calm', score: 2 },
+            { label: 'കൂടുതൽ ഓഹരികൾ വാങ്ങും (Buy More)', value: 'buy_more', score: 3 }
+          ]
+        },
+        {
+          id: 'investmentGoal',
+          title: 'ചോദ്യം 3: നിങ്ങളുടെ പ്രധാന നിക്ഷേപ ലക്ഷ്യമെന്താണ്?',
+          subtitle: 'നിങ്ങളുടെ റിട്ടേൺ പ്രതീക്ഷകളുമായി പൊരുത്തപ്പെടുന്നു.',
+          options: [
+            { label: 'മൂലധന സംരക്ഷണവും സ്ഥിരമായ വരുമാനവും', value: 'conservative', score: 1 },
+            { label: 'പണപ്പെരുപ്പത്തെ തോൽപ്പിച്ച് സമതുലിതമായ വളർച്ച', value: 'balanced', score: 2 },
+            { label: 'വലിയ സമ്പത്ത് സൃഷ്ടി (High Alpha)', value: 'aggressive', score: 3 }
+          ]
+        },
+        {
+          id: 'timeHorizon',
+          title: 'ചോദ്യം 4: എത്ര കാലത്തേക്ക് നിക്ഷേപിക്കാൻ പദ്ധതിയിടുന്നു?',
+          subtitle: 'ദീർഘകാല നിക്ഷേപം സംയുക്ത വളർച്ച നൽകും.',
+          options: [
+            { label: 'ഹ്രസ്വകാലം (1 മുതൽ 2 വർഷം)', value: 'short', score: 1 },
+            { label: 'ഇടത്തരം (3 മുതൽ 5 വർഷം)', value: 'medium', score: 2 },
+            { label: 'ദീർഘകാലം (5+ വർഷം / വെൽത്ത് ക്രിയേഷൻ)', value: 'long', score: 3 }
+          ]
+        },
+        {
+          id: 'primaryIncome',
+          title: 'ചോദ്യം 5: നിങ്ങളുടെ വരുമാന സ്ഥിരത എങ്ങനെയുള്ളതാണ്?',
+          subtitle: 'നിങ്ങളുടെ റിസ്ക് എടുക്കാനുള്ള ശേഷി വിലയിരുത്തുന്നു.',
+          options: [
+            { label: 'മാറിക്കൊണ്ടിരിക്കുന്ന വരുമാനം / ഫ്രീലാൻസ്', value: 'variable', score: 1 },
+            { label: 'സ്ഥിരമായ ശമ്പളം / ജോലി', value: 'stable', score: 2 },
+            { label: 'ഒന്നിലധികം വരുമാന സ്രോതസ്സുകൾ / ബിസിനസ്സ്', value: 'multiple', score: 3 }
+          ]
+        }
+      ]
+    },
+    te: {
+      stepIndicator: 'రిస్క్ అసెస్‌మెంట్ క్విజ్',
+      title: 'మీ ఇన్వెస్టర్ పర్సనాలిటీని కనుగొనండి',
+      subtitle: '5 సాధారణ ప్రశ్నలకు సమాధానం ఇవ్వండి, మీ వెల్త్ బ్లూప్రింట్ సిద్ధమవుతుంది.',
+      nextBtn: 'ప్రొఫైల్ సృష్టించండి 🚀',
+      retakeBtn: '← క్విజ్ తిరిగి చేయండి',
+      questions: [
+        {
+          id: 'ageGroup',
+          title: 'ప్రశ్న 1: మీ వయస్సు ఎంత?',
+          subtitle: 'మీ పెట్టుబడి కాలపరిమితిని నిర్ణయించడంలో సహాయపడుతుంది.',
+          options: [
+            { label: '20లు (యువకులు - ఎక్కువ రిస్క్ భరించగలరు)', value: '20s', score: 3 },
+            { label: '30లు - 40లు (సమతుల్య వృద్ధి)', value: '30s_40s', score: 2 },
+            { label: '50లు+ (పెట్టుబడి భద్రత ముఖ్యం)', value: '50s_plus', score: 1 }
+          ]
+        },
+        {
+          id: 'marketCrashReaction',
+          title: 'ప్రశ్న 2: మార్కెట్ ఒక్కసారిగా 20% పడిపోతే మీరు ఏం చేస్తారు?',
+          subtitle: 'మీ మానసిక దృఢత్వాన్ని పరీక్షిస్తుంది.',
+          options: [
+            { label: 'భయపడి వెంటనే అన్నీ అమ్మేస్తాను', value: 'panic_sell', score: 1 },
+            { label: 'ప్రశాంతంగా ఉండి హోల్డ్ చేస్తాను', value: 'stay_calm', score: 2 },
+            { label: 'మరిన్ని కొనుగోలు చేస్తాను! ఇది మంచి అవకాశం', value: 'buy_more', score: 3 }
+          ]
+        },
+        {
+          id: 'investmentGoal',
+          title: 'ప్రశ్న 3: మీ ప్రధాన పెట్టుబడి లక్ష్యం ఏమిటి?',
+          subtitle: 'మీ రాబడి అంచనాలకు సరిపోతుంది.',
+          options: [
+            { label: 'పెట్టుబడి భద్రత మరియు స్థిరమైన రాబడి', value: 'conservative', score: 1 },
+            { label: 'ద్రవ్యోల్బణాన్ని అధిగమించి సమతుల్య వృద్ధి', value: 'balanced', score: 2 },
+            { label: 'అగ్రెసివ్ వెల్త్ క్రియేషన్ మరియు హై ఆల్ఫా', value: 'aggressive', score: 3 }
+          ]
+        },
+        {
+          id: 'timeHorizon',
+          title: 'ప్రశ్న 4: మీరు ఎంతకాలం పెట్టుబడి పెట్టాలని ప్లాన్ చేస్తున్నారు?',
+          subtitle: 'దీర్ఘకాలిక పెట్టుబడి చక్రవడ్డీ లాభాన్ని ఇస్తుంది.',
+          options: [
+            { label: 'స్వల్పకాలికం (1 నుండి 2 సంవత్సరాలు)', value: 'short', score: 1 },
+            { label: 'మధ్యస్థ కాలం (3 నుండి 5 సంవత్సరాలు)', value: 'medium', score: 2 },
+            { label: 'దీర్ఘకాలికం (5+ సంవత్సరాలు / వెల్త్ క్రియేషన్)', value: 'long', score: 3 }
+          ]
+        },
+        {
+          id: 'primaryIncome',
+          title: 'ప్రశ్న 5: మీ ఆదాయ స్థిరత్వం ఎలా ఉంది?',
+          subtitle: 'మీ రిస్క్ సామర్థ్యాన్ని అంచనా వేస్తుంది.',
+          options: [
+            { label: 'మారుతున్న ఆదాయం / ఫ్రీలాన్స్ / హెచ్చుతగ్గులు', value: 'variable', score: 1 },
+            { label: 'స్థిరమైన జీతం / ఉద్యోగం', value: 'stable', score: 2 },
+            { label: 'బహుళ ఆదాయ వనరులు / వ్యాపార యజమాని', value: 'multiple', score: 3 }
+          ]
+        }
+      ]
+    }
+  };
+
+  const currentDict = translations[selectedLang] || translations.en;
+
+  const handleOptionSelect = (questionId, value) => {
+    setQuizAnswers(prev => ({ ...prev, [questionId]: value }));
+  };
+
+  const calculateQuizProfile = () => {
+    let totalScore = 0;
+    if (quizAnswers.ageGroup === '20s') totalScore += 3;
+    else if (quizAnswers.ageGroup === '30s_40s') totalScore += 2;
+    else totalScore += 1;
+
+    if (quizAnswers.marketCrashReaction === 'buy_more') totalScore += 3;
+    else if (quizAnswers.marketCrashReaction === 'stay_calm') totalScore += 2;
+    else totalScore += 1;
+
+    if (quizAnswers.investmentGoal === 'aggressive') totalScore += 3;
+    else if (quizAnswers.investmentGoal === 'balanced') totalScore += 2;
+    else totalScore += 1;
+
+    if (quizAnswers.timeHorizon === 'long') totalScore += 3;
+    else if (quizAnswers.timeHorizon === 'medium') totalScore += 2;
+    else totalScore += 1;
+
+    if (quizAnswers.primaryIncome === 'multiple') totalScore += 3;
+    else if (quizAnswers.primaryIncome === 'stable') totalScore += 2;
+    else totalScore += 1;
+
+    let profile = { name: 'Balanced', returnVal: 18 };
+    if (totalScore <= 7) {
+      profile = { name: 'Conservative', returnVal: 12 };
+    } else if (totalScore >= 12) {
+      profile = { name: 'Aggressive / High Alpha', returnVal: 35 };
+    }
+
+    setInferredProfile(profile);
+    setTargetReturn(profile.returnVal);
+    setCurrentStep(2); // Move to Capital/SIP Input
+  };
+
+  // Fetch data from FastAPI backend when moving past Step 3
   const fetchWealthPlan = async () => {
     setLoading(true);
     try {
@@ -49,7 +399,7 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
 
         setWealthData(data);
         setSelectedSegmentAssets({});
-        setCurrentStep(3); // Move to Allocation view
+        setCurrentStep(4); // Move to Allocation view
       } else {
         if (onError) onError("Failed to fetch wealth plan from backend.");
       }
@@ -78,7 +428,7 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
           { segment: "Gold", weight_percentage: 30, allocated_capital: Number(capital) * 0.3, description: "Safe haven asset", avg_5yr_cagr: 12, assets: [] }
         ]
       });
-      setCurrentStep(3);
+      setCurrentStep(4);
     } finally {
       setLoading(false);
     }
@@ -112,28 +462,107 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
       <div className="absolute -top-32 -right-32 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
       <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
 
-      {/* Progress Bar Header */}
-      <div className="mb-4 border-b border-[#1e1e30] pb-3 flex justify-end items-center">
+      {/* Progress Bar Header with Language Selector */}
+      <div className="mb-4 border-b border-[#1e1e30] pb-3 flex flex-col md:flex-row justify-between items-center gap-3">
+        {/* Language Selector */}
+        <div className="flex items-center gap-1.5 bg-[#020205] border border-[#1e1e30] px-3 py-1.5 rounded-xl">
+          <span className="text-xs text-gray-400 font-mono">🌐 Lang:</span>
+          {[
+            { code: 'en', label: 'English' },
+            { code: 'ta', label: 'தமிழ்' },
+            { code: 'hi', label: 'हिंदी' },
+            { code: 'ml', label: 'മലയാളം' },
+            { code: 'te', label: 'తెలుగు' }
+          ].map((lang) => (
+            <button
+              key={lang.code}
+              onClick={() => setSelectedLang(lang.code)}
+              className={`px-2.5 py-1 text-xs rounded-lg transition-all cursor-pointer font-bold ${
+                selectedLang === lang.code 
+                  ? 'bg-cyan-600 text-white shadow-[0_0_10px_rgba(6,182,212,0.4)]' 
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              {lang.label}
+            </button>
+          ))}
+        </div>
+
         <div className="flex items-center gap-3 bg-[#020205] border border-[#1e1e30] px-5 py-2 rounded-xl">
-          <span className="text-sm font-mono text-cyan-400 font-bold">Step {currentStep} of 6</span>
+          <span className="text-sm font-mono text-cyan-400 font-bold">Step {currentStep} of 7</span>
           <div className="w-32 bg-gray-800 h-2.5 rounded-full overflow-hidden">
             <div 
               className="bg-gradient-to-r from-purple-500 to-cyan-400 h-full transition-all duration-300"
-              style={{ width: `${(currentStep / 6) * 100}%` }}
+              style={{ width: `${(currentStep / 7) * 100}%` }}
             ></div>
           </div>
         </div>
       </div>
 
       {/* ------------------------------------------------------------------ */}
-      {/* STEP 1: CAPITAL / SIP MODE INPUT */}
+      {/* STEP 1: MULTI-LANGUAGE 5-QUESTION RISK QUIZ */}
       {/* ------------------------------------------------------------------ */}
       {currentStep === 1 && (
+        <div className="space-y-8 max-w-3xl mx-auto py-6">
+          <div className="text-center space-y-2">
+            <span className="px-3.5 py-1.5 bg-purple-950/40 border border-purple-500/40 text-purple-300 text-xs font-mono rounded-full font-bold">{currentDict.stepIndicator}</span>
+            <h3 className="text-2xl md:text-3xl font-extrabold">{currentDict.title}</h3>
+            <p className="text-gray-300 text-sm">{currentDict.subtitle}</p>
+          </div>
+
+          <div className="space-y-6">
+            {currentDict.questions.map((q) => (
+              <div key={q.id} className="bg-[#020205] p-5 rounded-2xl border border-[#1e1e30] space-y-3">
+                <div>
+                  <h4 className="text-base font-bold text-white">{q.title}</h4>
+                  <p className="text-xs text-gray-400">{q.subtitle}</p>
+                </div>
+                <div className="grid grid-cols-1 gap-2.5">
+                  {q.options.map((opt) => {
+                    const isSelected = quizAnswers[q.id] === opt.value;
+                    return (
+                      <div
+                        key={opt.value}
+                        onClick={() => handleOptionSelect(q.id, opt.value)}
+                        className={`p-3.5 rounded-xl border cursor-pointer transition-all flex items-center justify-between ${
+                          isSelected 
+                            ? 'bg-purple-900/30 border-purple-500 text-white shadow-[0_0_15px_rgba(168,85,247,0.25)]' 
+                            : 'bg-[#070710] border-[#1a1a2e] text-gray-300 hover:border-gray-600'
+                        }`}
+                      >
+                        <span className="text-xs md:text-sm font-medium">{opt.label}</span>
+                        <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${isSelected ? 'border-purple-400 bg-purple-500' : 'border-gray-600'}`}>
+                          {isSelected && <div className="w-1.5 h-1.5 bg-white rounded-full"></div>}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="pt-4 flex justify-end">
+            <button
+              onClick={calculateQuizProfile}
+              disabled={!quizAnswers.ageGroup || !quizAnswers.marketCrashReaction || !quizAnswers.investmentGoal || !quizAnswers.timeHorizon || !quizAnswers.primaryIncome}
+              className="px-9 py-4 bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 text-white font-bold text-sm md:text-base rounded-2xl shadow-[0_0_20px_rgba(168,85,247,0.3)] transition-all cursor-pointer flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <span>{currentDict.nextBtn}</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ------------------------------------------------------------------ */}
+      {/* STEP 2: CAPITAL / SIP MODE INPUT */}
+      {/* ------------------------------------------------------------------ */}
+      {currentStep === 2 && (
         <div className="space-y-8 max-w-4xl mx-auto py-6">
           <div className="text-center space-y-3">
-            <span className="px-3.5 py-1.5 bg-cyan-950/40 border border-cyan-500/40 text-cyan-300 text-xs font-mono rounded-full font-bold">Step 1 of 6</span>
-            <h3 className="text-2xl md:text-3xl font-extrabold">Choose Investment Mode & Amount</h3>
-            <p className="text-gray-300 text-sm md:text-base">Select whether you want to invest a lumpsum amount or set up a monthly SIP.</p>
+            <span className="px-3.5 py-1.5 bg-cyan-950/40 border border-cyan-500/40 text-cyan-300 text-xs font-mono rounded-full font-bold">Step 2 of 7: AI Profile Matched</span>
+            <h3 className="text-2xl md:text-3xl font-extrabold">Your Profile: <span className="text-purple-400">{inferredProfile?.name}</span></h3>
+            <p className="text-gray-300 text-sm md:text-base">Choose whether you want to invest a lumpsum amount or set up a monthly SIP.</p>
           </div>
 
           {/* Lumpsum vs Monthly SIP Toggle Switch */}
@@ -199,9 +628,15 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
             </div>
           </div>
 
-          <div className="pt-6 flex justify-end">
+          <div className="pt-6 flex justify-between">
             <button
-              onClick={() => setCurrentStep(2)}
+              onClick={() => setCurrentStep(1)}
+              className="px-7 py-3.5 bg-gray-800 hover:bg-gray-700 text-gray-200 font-bold rounded-xl text-sm transition-all cursor-pointer"
+            >
+              {currentDict.retakeBtn}
+            </button>
+            <button
+              onClick={() => setCurrentStep(3)}
               className="px-9 py-4 bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 text-white font-bold text-sm md:text-base rounded-2xl shadow-[0_0_20px_rgba(168,85,247,0.3)] transition-all cursor-pointer flex items-center gap-2"
             >
               <span>Next: Select Target Return</span> <span>→</span>
@@ -211,12 +646,12 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
       )}
 
       {/* ------------------------------------------------------------------ */}
-      {/* STEP 2: TARGET RETURN SELECTION */}
+      {/* STEP 3: TARGET RETURN SELECTION */}
       {/* ------------------------------------------------------------------ */}
-      {currentStep === 2 && (
+      {currentStep === 3 && (
         <div className="space-y-8 max-w-5xl mx-auto py-6">
           <div className="text-center space-y-3">
-            <span className="px-3.5 py-1.5 bg-purple-950/40 border border-purple-500/40 text-purple-300 text-xs font-mono rounded-full font-bold">Step 2 of 6</span>
+            <span className="px-3.5 py-1.5 bg-purple-950/40 border border-purple-500/40 text-purple-300 text-xs font-mono rounded-full font-bold">Step 3 of 7</span>
             <h3 className="text-2xl md:text-3xl font-extrabold">What is your Target Yearly Return (%)?</h3>
             <p className="text-gray-300 text-sm md:text-base">Choose your expected annual compound growth rate or risk appetite.</p>
           </div>
@@ -273,7 +708,7 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
 
           <div className="pt-6 flex justify-between">
             <button
-              onClick={() => setCurrentStep(1)}
+              onClick={() => setCurrentStep(2)}
               className="px-7 py-3.5 bg-gray-800 hover:bg-gray-700 text-gray-200 font-bold rounded-xl text-sm transition-all cursor-pointer"
             >
               ← Back
@@ -299,13 +734,13 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
       )}
 
       {/* ------------------------------------------------------------------ */}
-      {/* STEP 3: ASSET ALLOCATION BREAKDOWN */}
+      {/* STEP 4: ASSET ALLOCATION BREAKDOWN */}
       {/* ------------------------------------------------------------------ */}
-      {currentStep === 3 && wealthData && (
+      {currentStep === 4 && wealthData && (
         <div className="space-y-6 py-4">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-[#020205] p-6 rounded-2xl border border-[#1e1e30]">
             <div>
-              <span className="px-3.5 py-1.5 bg-blue-950/40 border border-blue-500/40 text-blue-300 text-xs font-mono rounded-full font-bold">Step 3 of 6</span>
+              <span className="px-3.5 py-1.5 bg-blue-950/40 border border-blue-500/40 text-blue-300 text-xs font-mono rounded-full font-bold">Step 4 of 7</span>
               <h3 className="text-2xl md:text-3xl font-extrabold mt-2">
                 {wealthData.is_sip ? 'Monthly SIP Multi-Segment Allocation' : 'Multi-Segment Asset Allocation'}
               </h3>
@@ -343,13 +778,13 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
 
           <div className="pt-6 flex justify-between">
             <button
-              onClick={() => setCurrentStep(2)}
+              onClick={() => setCurrentStep(3)}
               className="px-7 py-3.5 bg-gray-800 hover:bg-gray-700 text-gray-200 font-bold rounded-xl text-sm transition-all cursor-pointer"
             >
               ← Back
             </button>
             <button
-              onClick={() => setCurrentStep(4)}
+              onClick={() => setCurrentStep(5)}
               className="px-9 py-4 bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 text-white font-bold text-base rounded-2xl shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all cursor-pointer flex items-center gap-2"
             >
               <span>Next: Select Specific Funds & ETFs</span> <span>→</span>
@@ -359,12 +794,12 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
       )}
 
       {/* ------------------------------------------------------------------ */}
-      {/* STEP 4: SPECIFIC FUND RECOMMENDATIONS & SELECTION (CHECKBOXES) */}
+      {/* STEP 5: SPECIFIC FUND RECOMMENDATIONS & SELECTION (CHECKBOXES) */}
       {/* ------------------------------------------------------------------ */}
-      {currentStep === 4 && wealthData && (
+      {currentStep === 5 && wealthData && (
         <div className="space-y-6 py-4">
           <div className="bg-[#020205] p-6 rounded-2xl border border-[#1e1e30] space-y-2">
-            <span className="px-3.5 py-1.5 bg-cyan-950/40 border border-cyan-500/40 text-cyan-300 text-xs font-mono rounded-full font-bold">Step 4 of 6</span>
+            <span className="px-3.5 py-1.5 bg-cyan-950/40 border border-cyan-500/40 text-cyan-300 text-xs font-mono rounded-full font-bold">Step 5 of 7</span>
             <h3 className="text-2xl md:text-3xl font-extrabold mt-2">Select Specific Instruments & Funds</h3>
             <p className="text-gray-300 text-sm md:text-base">Nothing is selected by default. Tick the instruments you want to include in your portfolio calculation per segment.</p>
           </div>
@@ -438,13 +873,13 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
 
           <div className="pt-6 flex justify-between">
             <button
-              onClick={() => setCurrentStep(3)}
+              onClick={() => setCurrentStep(4)}
               className="px-7 py-3.5 bg-gray-800 hover:bg-gray-700 text-gray-200 font-bold rounded-xl text-sm transition-all cursor-pointer"
             >
               ← Back
             </button>
             <button
-              onClick={() => setCurrentStep(5)}
+              onClick={() => setCurrentStep(6)}
               className="px-9 py-4 bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 text-white font-bold text-base rounded-2xl shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all cursor-pointer flex items-center gap-2"
             >
               <span>Next: View 5-Year Backtest Report</span> <span>→</span>
@@ -454,12 +889,12 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
       )}
 
       {/* ------------------------------------------------------------------ */}
-      {/* STEP 5: 5-YEAR BACKTEST REPORT & RISK ANALYSIS */}
+      {/* STEP 6: 5-YEAR BACKTEST REPORT & RISK ANALYSIS */}
       {/* ------------------------------------------------------------------ */}
-      {currentStep === 5 && wealthData && (
+      {currentStep === 6 && wealthData && (
         <div className="space-y-6 py-4 max-w-6xl mx-auto">
           <div className="bg-[#020205] p-6 rounded-2xl border border-[#1e1e30] space-y-2">
-            <span className="px-3.5 py-1.5 bg-purple-950/40 border border-purple-500/40 text-purple-300 text-xs font-mono rounded-full font-bold">Step 5 of 6</span>
+            <span className="px-3.5 py-1.5 bg-purple-950/40 border border-purple-500/40 text-purple-300 text-xs font-mono rounded-full font-bold">Step 6 of 7</span>
             <h3 className="text-2xl md:text-3xl font-extrabold mt-2">5-Year Historical Backtest Report & Risk Analysis</h3>
             <p className="text-gray-300 text-sm md:text-base">Simulated performance across past market cycles and corrections.</p>
           </div>
@@ -506,14 +941,14 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
 
           <div className="pt-6 flex justify-between">
             <button
-              onClick={() => setCurrentStep(4)}
+              onClick={() => setCurrentStep(5)}
               className="px-7 py-3.5 bg-gray-800 hover:bg-gray-700 text-gray-200 font-bold rounded-xl text-sm transition-all cursor-pointer"
             >
               ← Back
             </button>
             <button
               onClick={() => {
-                setCurrentStep(6);
+                setCurrentStep(7);
                 if (onPlanCalculated) onPlanCalculated({ ...wealthData, selectedSegmentAssets });
               }}
               className="px-9 py-4 bg-gradient-to-r from-green-600 to-cyan-600 hover:from-green-500 hover:to-cyan-500 text-white font-bold text-base rounded-2xl shadow-[0_0_20px_rgba(34,197,94,0.3)] transition-all cursor-pointer flex items-center gap-2"
@@ -525,9 +960,9 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
       )}
 
       {/* ------------------------------------------------------------------ */}
-      {/* STEP 6: FINAL RESULTS DASHBOARD HANDOFF */}
+      {/* STEP 7: FINAL RESULTS DASHBOARD HANDOFF */}
       {/* ------------------------------------------------------------------ */}
-      {currentStep === 6 && wealthData && (
+      {currentStep === 7 && wealthData && (
         <div className="text-center space-y-8 py-12">
           <div className="w-20 h-20 bg-green-500/20 border border-green-500 rounded-full flex items-center justify-center mx-auto text-green-400 text-3xl shadow-[0_0_25px_rgba(34,197,94,0.4)]">
             ✓
@@ -541,7 +976,7 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
               onClick={() => setCurrentStep(1)}
               className="px-7 py-3.5 bg-gray-800 hover:bg-gray-700 text-gray-200 font-bold rounded-xl text-sm transition-all cursor-pointer"
             >
-              Create New Plan
+              Create New Plan (Retake Quiz)
             </button>
             <button
               onClick={() => window.print()}

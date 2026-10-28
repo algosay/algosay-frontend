@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 
 const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
   const [expandedSegment, setExpandedSegment] = useState(null);
@@ -18,10 +19,32 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
     is_sip = false
   } = wealthData;
 
-  // 🧮 Dynamically calculate weighted return based on selectedHorizon and user selected assets
+  // 🌟 Interactive Weights State for Rebalancing Tool
+  const [customWeights, setCustomWeights] = useState(
+    portfolio_breakdown.reduce((acc, item) => {
+      acc[item.segment] = item.weight_percentage;
+      return acc;
+    }, {})
+  );
+
+  // Handle Weight Slider Change
+  const handleWeightChange = (segmentName, newWeight) => {
+    setCustomWeights(prev => ({
+      ...prev,
+      [segmentName]: Number(newWeight)
+    }));
+  };
+
+  // Check total weight percentage
+  const totalCustomWeight = Object.values(customWeights).reduce((a, b) => a + b, 0);
+
+  // Neon Colors for Donut Chart Slices
+  const COLORS = ['#06b6d4', '#a855f7', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#ec4899', '#8b5cf6'];
+
+  // 🧮 Dynamically calculate weighted return based on selectedHorizon, customWeights and user selected assets
   let currentWeightedReturn = 0;
   portfolio_breakdown.forEach((item) => {
-    const weight = item.weight_percentage / 100;
+    const weight = (customWeights[item.segment] !== undefined ? customWeights[item.segment] : item.weight_percentage) / 100;
     const userChosenNames = selectedSegmentAssets?.[item.segment] || [];
     const chosenAssets = item.assets ? item.assets.filter(asset => userChosenNames.includes(asset.name)) : (item.selected_assets || []);
     
@@ -35,6 +58,8 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
         : (item.period_return || 0);
       
       currentWeightedReturn += avgAssetReturn * weight;
+    } else {
+      currentWeightedReturn += (item.period_return || 0) * weight;
     }
   });
 
@@ -48,7 +73,6 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
   let totalInvestedCapital = initial_capital;
 
   if (is_sip) {
-    // initial_capital represents monthly installment (P) for SIP mode
     const monthlyRate = (currentWeightedReturn / 100) / 12;
     if (monthlyRate === 0) {
       projectedValue = initial_capital * months;
@@ -57,12 +81,17 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
     }
     totalInvestedCapital = initial_capital * months;
   } else {
-    // Lumpsum calculation
     projectedValue = t <= 1.0 
       ? initial_capital * (1 + (currentWeightedReturn / 100) * t)
       : initial_capital * Math.pow((1 + currentWeightedReturn / 100), t);
     totalInvestedCapital = initial_capital;
   }
+
+  // Prepare Data for Recharts Donut Chart
+  const chartData = portfolio_breakdown.map((item) => ({
+    name: item.segment,
+    value: customWeights[item.segment] !== undefined ? customWeights[item.segment] : item.weight_percentage
+  }));
 
   const toggleSegment = (segmentName) => {
     setExpandedSegment(expandedSegment === segmentName ? null : segmentName);
@@ -81,7 +110,6 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
   };
 
   return (
-    // 🌟 w-full min-h-screen for full-screen layout and clear visibility
     <div className="w-full min-h-screen p-4 md:p-8 lg:p-12 space-y-6 text-white bg-[#070710]">
       
       {/* TOP NAVIGATION / BACK BUTTON */}
@@ -100,7 +128,7 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
         </button>
       </div>
 
-      {/* TIME HORIZON SELECTOR TABS (1m, 3m, 6m, 1yr, 3yr, 5yr) */}
+      {/* TIME HORIZON SELECTOR TABS */}
       <div className="bg-[#070710] border border-[#1e1e30] p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4">
         <span className="text-xs font-mono text-cyan-400">📊 Select Performance Time Horizon:</span>
         <div className="flex flex-wrap gap-2">
@@ -162,6 +190,71 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
 
       </div>
 
+      {/* 🌟 VISUAL DONUT CHART & REBALANCING SLIDER SECTION */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 bg-[#070710] border border-[#1e1e30] p-6 rounded-2xl">
+        
+        {/* Left: Donut Chart */}
+        <div className="flex flex-col items-center justify-center space-y-2">
+          <h4 className="text-sm font-bold text-cyan-400 uppercase tracking-wide">🎨 Asset Allocation Donut Chart</h4>
+          <div className="w-full h-60">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={chartData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={90}
+                  paddingAngle={4}
+                  dataKey="value"
+                >
+                  {chartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  formatter={(value) => [`${value}%`, 'Weight']}
+                  contentStyle={{ backgroundColor: '#020205', borderColor: '#1e1e30', borderRadius: '12px', fontSize: '12px' }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          <div className={`text-xs font-mono font-bold ${totalCustomWeight === 100 ? 'text-green-400' : 'text-orange-400'}`}>
+            Total Portfolio Weight: {totalCustomWeight}% {totalCustomWeight !== 100 && '(Note: Should equal 100%)'}
+          </div>
+        </div>
+
+        {/* Right: One-Click Rebalance Sliders */}
+        <div className="space-y-4 flex flex-col justify-center">
+          <h4 className="text-sm font-bold text-cyan-400 uppercase tracking-wide">🎚️ One-Click Rebalance Sliders</h4>
+          <p className="text-xs text-gray-400">Drag sliders to adjust segment weight dynamically. Returns update instantly.</p>
+          
+          <div className="space-y-3 max-h-56 overflow-y-auto pr-2">
+            {portfolio_breakdown.map((item) => {
+              const currentW = customWeights[item.segment] !== undefined ? customWeights[item.segment] : item.weight_percentage;
+              return (
+                <div key={item.segment} className="bg-[#020205] p-3 rounded-xl border border-[#1e1e30] space-y-1">
+                  <div className="flex justify-between text-xs font-bold">
+                    <span>{item.segment}</span>
+                    <span className="text-cyan-400 font-mono">{currentW}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="1"
+                    value={currentW}
+                    onChange={(e) => handleWeightChange(item.segment, e.target.value)}
+                    className="w-full accent-cyan-500 cursor-pointer h-1.5 bg-gray-800 rounded-lg"
+                  />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+      </div>
+
       {/* RISK WARNING BANNER */}
       {risk_warning && (
         <div className="p-4 bg-red-950/20 border border-red-500/40 rounded-xl flex items-center gap-3">
@@ -182,6 +275,7 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
         <div className="space-y-3">
           {portfolio_breakdown.map((item) => {
             const isExpanded = expandedSegment === item.segment;
+            const currentW = customWeights[item.segment] !== undefined ? customWeights[item.segment] : item.weight_percentage;
             
             // Filter assets based on user selection in Step 4
             const userChosenAssetNames = selectedSegmentAssets?.[item.segment] || [];
@@ -199,7 +293,7 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
               : 0;
 
             // Per-asset capital allocation
-            const segmentAllocated = is_sip ? (initial_capital * (item.weight_percentage / 100)) : item.allocated_capital;
+            const segmentAllocated = is_sip ? (initial_capital * (currentW / 100)) : (initial_capital * (currentW / 100));
             const capitalPerAsset = displayedAssets.length > 0 ? segmentAllocated / displayedAssets.length : 0;
 
             return (
@@ -216,7 +310,7 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-bold text-white">{item.segment}</span>
                       <span className="px-2 py-0.5 bg-purple-950/40 border border-purple-500/40 text-purple-300 text-[10px] font-mono rounded">
-                        {item.weight_percentage}% Weight ({formatCurrency(segmentAllocated)}{is_sip ? '/mo' : ''})
+                        {currentW}% Weight ({formatCurrency(segmentAllocated)}{is_sip ? '/mo' : ''})
                       </span>
                     </div>
                     <p className="text-xs text-gray-400">{item.description}</p>
@@ -235,7 +329,7 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
                   </div>
                 </div>
 
-                {/* Expanded Selected Assets List with 1m, 3m, 6m, 1yr, 3yr, 5yr Returns */}
+                {/* Expanded Selected Assets List with Returns */}
                 {isExpanded && (
                   <div className="p-4 border-t border-[#1e1e30] bg-[#05050a] space-y-3">
                     <div className="flex justify-between items-center">
