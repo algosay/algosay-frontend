@@ -14,6 +14,9 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
     timeHorizon: '',
     primaryIncome: ''
   });
+  
+  // 🌟 Step-by-Step Quiz Index State (0 to 4 for 5 questions)
+  const [currentQuizIndex, setCurrentQuizIndex] = useState(0);
   const [inferredProfile, setInferredProfile] = useState(null);
 
   // 🌟 Investment Mode State ('lumpsum' or 'sip')
@@ -23,6 +26,9 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
   const [loading, setLoading] = useState(false);
   const [wealthData, setWealthData] = useState(null);
   const [expandedSegment, setExpandedSegment] = useState(null);
+
+  // 🌟 3D Interactive Donut Slice State
+  const [activeDonutSegment, setActiveDonutSegment] = useState(null);
 
   // Default-ஆக எந்தவொரு ஃபண்டும் டிக் ஆகியிருக்காது (Empty object)
   const [selectedSegmentAssets, setSelectedSegmentAssets] = useState({});
@@ -42,8 +48,9 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
     en: {
       stepIndicator: 'Risk Assessment Quiz',
       title: 'Discover Your Investor Personality',
-      subtitle: 'Answer 5 quick questions so our AI can design your ideal multi-segment wealth blueprint.',
-      nextBtn: 'Analyze & Get AI Recommendation 🚀',
+      subtitle: 'Answer quick questions one by one so our AI can design your ideal wealth blueprint.',
+      nextBtn: 'Next Question →',
+      analyzeBtn: 'Analyze & Get AI Recommendation 🚀',
       retakeBtn: '← Retake Quiz',
       questions: [
         {
@@ -101,8 +108,9 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
     ta: {
       stepIndicator: 'முதலீட்டு மனநிலை வினாடி வினா',
       title: 'உங்கள் முதலீட்டு ஆளுமையை கண்டறியுங்கள்',
-      subtitle: '5 கேள்விகளுக்குப் பதிலளியுங்கள், AI உங்களுக்கான சரியான பிளானைப் பரிந்துரைக்கும்.',
-      nextBtn: 'பகுப்பாய்வு செய்து AI பரிந்துரையைப் பெறு 🚀',
+      subtitle: 'ஒவ்வொரு கேள்வியாகப் பதிலளியுங்கள், AI உங்களுக்கான சரியான பிளானைப் பரிந்துரைக்கும்.',
+      nextBtn: 'அடுத்த கேள்வி →',
+      analyzeBtn: 'பகுப்பாய்வு செய்து AI பரிந்துரையைப் பெறு 🚀',
       retakeBtn: '← மீண்டும் வினாடி வினா',
       questions: [
         {
@@ -160,8 +168,9 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
     hi: {
       stepIndicator: 'जोखिम आकलन क्विज़',
       title: 'अपने निवेशक व्यक्तित्व की खोज करें',
-      subtitle: '5 त्वरित प्रश्नों के उत्तर दें ताकि AI आपके लिए सही योजना सुझा सके।',
-      nextBtn: 'विश्लेषण करें और AI सुझाव देखें 🚀',
+      subtitle: 'एक-एक करके प्रश्नों के उत्तर दें ताकि AI आपके लिए सही योजना सुझा सके।',
+      nextBtn: 'अगला प्रश्न →',
+      analyzeBtn: 'विश्लेषण करें और AI सुझाव देखें 🚀',
       retakeBtn: '← क्विज़ दोहराएं',
       questions: [
         {
@@ -219,8 +228,9 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
     ml: {
       stepIndicator: 'റിസ്ക് അസസ്മെന്റ് ക്വിസ്',
       title: 'നിങ്ങളുടെ നിക്ഷേപക വ്യക്തിത്വം കണ്ടെത്തുക',
-      subtitle: '5 ചോദ്യങ്ങൾക്ക് ഉത്തരം നൽകി AI ശുപാർശ ചെയ്യുന്ന പ്ലാൻ കണ്ടെത്തൂ.',
-      nextBtn: 'AI ശുപാർശ കാണുക 🚀',
+      subtitle: 'ഓരോ ചോദ്യങ്ങളായി ഉത്തരം നൽകി AI ശുപാർശ ചെയ്യുന്ന പ്ലാൻ കണ്ടെത്തൂ.',
+      nextBtn: 'അടുത്ത ചോദ്യം →',
+      analyzeBtn: 'AI ശുപാർശ കാണുക 🚀',
       retakeBtn: '← ക്വിസ് വീണ്ടും ചെയ്യുക',
       questions: [
         {
@@ -278,8 +288,9 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
     te: {
       stepIndicator: 'రిస్క్ అసెస్‌మెంట్ క్విజ్',
       title: 'మీ ఇన్వెస్టర్ పర్సనాలిటీని కనుగొనండి',
-      subtitle: '5 ప్రశ్నలకు సమాధానం ఇవ్వండి, AI మీకు సరైన ప్లాన్‌ను సూచిస్తుంది.',
-      nextBtn: 'AI సిఫార్సును చూడండి 🚀',
+      subtitle: 'ఒక్కొక్క ప్రశ్నగా సమాధానం ఇవ్వండి, AI మీకు సరైన ప్లాన్‌ను సూచిస్తుంది.',
+      nextBtn: 'తదుపరి ప్రశ్న →',
+      analyzeBtn: 'AI సిఫార్సును చూడండి 🚀',
       retakeBtn: '← క్విజ్ తిరిగి చేయండి',
       questions: [
         {
@@ -337,9 +348,24 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
   };
 
   const currentDict = translations[selectedLang] || translations.en;
+  const currentQuestion = currentDict.questions[currentQuizIndex];
 
   const handleOptionSelect = (questionId, value) => {
     setQuizAnswers(prev => ({ ...prev, [questionId]: value }));
+  };
+
+  const handleNextQuestion = () => {
+    if (currentQuizIndex < currentDict.questions.length - 1) {
+      setCurrentQuizIndex(prev => prev + 1);
+    } else {
+      calculateQuizProfile();
+    }
+  };
+
+  const handlePrevQuestion = () => {
+    if (currentQuizIndex > 0) {
+      setCurrentQuizIndex(prev => prev - 1);
+    }
   };
 
   const calculateQuizProfile = () => {
@@ -423,9 +449,9 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
         projected_5yr_value: Math.round(projVal),
         estimated_max_drawdown: -14.5,
         portfolio_breakdown: [
-          { segment: "Large Cap", weight_percentage: 40, allocated_capital: Number(capital) * 0.4, description: "Top 50 stable companies", avg_5yr_cagr: 14, assets: [] },
-          { segment: "Mid Cap", weight_percentage: 30, allocated_capital: Number(capital) * 0.3, description: "High growth mid-sized companies", avg_5yr_cagr: 16, assets: [] },
-          { segment: "Gold", weight_percentage: 30, allocated_capital: Number(capital) * 0.3, description: "Safe haven asset", avg_5yr_cagr: 12, assets: [] }
+          { segment: "Large Cap", weight_percentage: 40, allocated_capital: Number(capital) * 0.4, description: "Top 50 stable companies", avg_5yr_cagr: 14, assets: [{ name: "Nifty 50 Index Fund", type: "Index Fund", return: 14 }] },
+          { segment: "Mid Cap", weight_percentage: 30, allocated_capital: Number(capital) * 0.3, description: "High growth mid-sized companies", avg_5yr_cagr: 16, assets: [{ name: "Nifty Midcap 150", type: "ETF", return: 16 }] },
+          { segment: "Gold", weight_percentage: 30, allocated_capital: Number(capital) * 0.3, description: "Safe haven asset", avg_5yr_cagr: 12, assets: [{ name: "Sovereign Gold Bond", type: "Commodity", return: 12 }] }
         ]
       });
       setCurrentStep(5);
@@ -498,55 +524,67 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
       </div>
 
       {/* ------------------------------------------------------------------ */}
-      {/* STEP 1: MULTI-LANGUAGE 5-QUESTION RISK QUIZ */}
+      {/* STEP 1: STEP-BY-STEP INTERACTIVE QUIZ WITH SMOOTH ANIMATIONS */}
       {/* ------------------------------------------------------------------ */}
       {currentStep === 1 && (
-        <div className="space-y-8 max-w-3xl mx-auto py-6">
+        <div className="space-y-8 max-w-2xl mx-auto py-6 animate-fadeIn">
           <div className="text-center space-y-2">
-            <span className="px-3.5 py-1.5 bg-purple-950/40 border border-purple-500/40 text-purple-300 text-xs font-mono rounded-full font-bold">{currentDict.stepIndicator}</span>
+            <span className="px-3.5 py-1.5 bg-purple-950/40 border border-purple-500/40 text-purple-300 text-xs font-mono rounded-full font-bold">
+              {currentDict.stepIndicator} • Question {currentQuizIndex + 1} of 5
+            </span>
             <h3 className="text-2xl md:text-3xl font-extrabold">{currentDict.title}</h3>
             <p className="text-gray-300 text-sm">{currentDict.subtitle}</p>
           </div>
 
-          <div className="space-y-6">
-            {currentDict.questions.map((q) => (
-              <div key={q.id} className="bg-[#020205] p-5 rounded-2xl border border-[#1e1e30] space-y-3">
-                <div>
-                  <h4 className="text-base font-bold text-white">{q.title}</h4>
-                  <p className="text-xs text-gray-400">{q.subtitle}</p>
-                </div>
-                <div className="grid grid-cols-1 gap-2.5">
-                  {q.options.map((opt) => {
-                    const isSelected = quizAnswers[q.id] === opt.value;
-                    return (
-                      <div
-                        key={opt.value}
-                        onClick={() => handleOptionSelect(q.id, opt.value)}
-                        className={`p-3.5 rounded-xl border cursor-pointer transition-all flex items-center justify-between ${
-                          isSelected 
-                            ? 'bg-purple-900/30 border-purple-500 text-white shadow-[0_0_15px_rgba(168,85,247,0.25)]' 
-                            : 'bg-[#070710] border-[#1a1a2e] text-gray-300 hover:border-gray-600'
-                        }`}
-                      >
-                        <span className="text-xs md:text-sm font-medium">{opt.label}</span>
-                        <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${isSelected ? 'border-purple-400 bg-purple-500' : 'border-gray-600'}`}>
-                          {isSelected && <div className="w-1.5 h-1.5 bg-white rounded-full"></div>}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
+          {/* Single Question Animated Card */}
+          <div className="bg-[#020205] p-6 md:p-8 rounded-3xl border border-purple-500/30 shadow-[0_0_30px_rgba(168,85,247,0.15)] space-y-5 transition-all transform duration-300">
+            <div>
+              <h4 className="text-lg md:text-xl font-bold text-white">{currentQuestion.title}</h4>
+              <p className="text-xs text-cyan-400 font-mono mt-1">{currentQuestion.subtitle}</p>
+            </div>
+
+            <div className="space-y-3">
+              {currentQuestion.options.map((opt) => {
+                const isSelected = quizAnswers[currentQuestion.id] === opt.value;
+                return (
+                  <div
+                    key={opt.value}
+                    onClick={() => handleOptionSelect(currentQuestion.id, opt.value)}
+                    className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-center justify-between transform hover:scale-[1.01] ${
+                      isSelected 
+                        ? 'bg-purple-900/40 border-purple-400 text-white shadow-[0_0_20px_rgba(168,85,247,0.3)]' 
+                        : 'bg-[#070710] border-[#1a1a2e] text-gray-300 hover:border-gray-500'
+                    }`}
+                  >
+                    <span className="text-sm md:text-base font-medium">{opt.label}</span>
+                    <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${isSelected ? 'border-cyan-400 bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.5)]' : 'border-gray-600'}`}>
+                      {isSelected && <div className="w-2 h-2 bg-white rounded-full"></div>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
-          <div className="pt-4 flex justify-end">
+          {/* Navigation Controls for Quiz */}
+          <div className="flex justify-between items-center pt-4">
+            {currentQuizIndex > 0 ? (
+              <button
+                onClick={handlePrevQuestion}
+                className="px-6 py-3 bg-gray-800 hover:bg-gray-700 text-gray-200 font-bold rounded-xl text-sm transition-all cursor-pointer"
+              >
+                ← Previous
+              </button>
+            ) : (
+              <div></div>
+            )}
+
             <button
-              onClick={calculateQuizProfile}
-              disabled={!quizAnswers.ageGroup || !quizAnswers.marketCrashReaction || !quizAnswers.investmentGoal || !quizAnswers.timeHorizon || !quizAnswers.primaryIncome}
+              onClick={handleNextQuestion}
+              disabled={!quizAnswers[currentQuestion.id]}
               className="px-9 py-4 bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 text-white font-bold text-sm md:text-base rounded-2xl shadow-[0_0_20px_rgba(168,85,247,0.3)] transition-all cursor-pointer flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              <span>{currentDict.nextBtn}</span>
+              <span>{currentQuizIndex === currentDict.questions.length - 1 ? currentDict.analyzeBtn : currentDict.nextBtn}</span>
             </button>
           </div>
         </div>
@@ -556,7 +594,7 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
       {/* STEP 2: AI RECOMMENDATION DASHBOARD */}
       {/* ------------------------------------------------------------------ */}
       {currentStep === 2 && inferredProfile && (
-        <div className="space-y-8 max-w-3xl mx-auto py-10 text-center">
+        <div className="space-y-8 max-w-3xl mx-auto py-10 text-center animate-fadeIn">
           <div className="space-y-3">
             <span className="px-4 py-1.5 bg-cyan-950/40 border border-cyan-500/40 text-cyan-300 text-xs font-mono rounded-full font-bold">🤖 AI Investor Personality Match</span>
             <h3 className="text-3xl md:text-4xl font-extrabold">Your Profile: <span className="text-purple-400">{inferredProfile.name}</span></h3>
@@ -573,7 +611,7 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
 
           <div className="flex justify-between pt-4">
             <button
-              onClick={() => setCurrentStep(1)}
+              onClick={() => { setCurrentStep(1); setCurrentQuizIndex(0); }}
               className="px-7 py-3.5 bg-gray-800 hover:bg-gray-700 text-gray-200 font-bold rounded-xl text-sm transition-all cursor-pointer"
             >
               {currentDict.retakeBtn}
@@ -728,14 +766,14 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
       )}
 
       {/* ------------------------------------------------------------------ */}
-      {/* STEP 5: ASSET ALLOCATION BREAKDOWN */}
+      {/* STEP 5: ASSET ALLOCATION BREAKDOWN WITH 3D POP-OUT DONUT INTERACTION */}
       {/* ------------------------------------------------------------------ */}
       {currentStep === 5 && wealthData && (
         <div className="space-y-6 py-4">
           <div className="flex justify-between items-center bg-[#020205] p-6 rounded-2xl border border-[#1e1e30]">
             <div>
               <span className="px-3.5 py-1.5 bg-blue-950/40 border border-blue-500/40 text-blue-300 text-xs font-mono rounded-full font-bold">Step 5 of 8</span>
-              <h3 className="text-2xl font-extrabold mt-2">Multi-Segment Asset Allocation</h3>
+              <h3 className="text-2xl font-extrabold mt-2">Multi-Segment Asset Allocation & 3D Interactive Insights</h3>
             </div>
             <div className="text-right font-mono bg-[#070710] p-4 rounded-xl border border-[#1e1e30]">
               <div className="text-xs text-gray-400">Projected 5Y CAGR</div>
@@ -743,17 +781,46 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {wealthData.portfolio_breakdown.map((item) => (
-              <div key={item.segment} className="bg-[#020205] border border-[#1e1e30] p-6 rounded-2xl space-y-4">
-                <div className="flex justify-between items-start">
-                  <span className="text-base font-bold text-white">{item.segment}</span>
-                  <span className="px-3 py-1 bg-purple-950/40 border border-purple-500/40 text-purple-300 font-mono text-sm rounded-lg font-bold">{item.weight_percentage}%</span>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            {wealthData.portfolio_breakdown.map((item) => {
+              const isActive = activeDonutSegment === item.segment;
+              return (
+                <div 
+                  key={item.segment} 
+                  onClick={() => setActiveDonutSegment(isActive ? null : item.segment)}
+                  className={`bg-[#020205] border p-6 rounded-2xl space-y-4 cursor-pointer transition-all duration-300 transform ${
+                    isActive 
+                      ? 'border-cyan-400 shadow-[0_0_30px_rgba(6,182,212,0.4)] -translate-y-2 bg-[#0b0b18]' 
+                      : 'border-[#1e1e30] hover:border-purple-500/50'
+                  }`}
+                >
+                  <div className="flex justify-between items-start">
+                    <span className="text-base font-bold text-white flex items-center gap-2">
+                      <span>{isActive ? '🌟' : '📊'}</span> {item.segment}
+                    </span>
+                    <span className="px-3 py-1 bg-purple-950/40 border border-purple-500/40 text-purple-300 font-mono text-sm rounded-lg font-bold">
+                      {item.weight_percentage}%
+                    </span>
+                  </div>
+                  <div className="text-2xl font-mono font-extrabold text-cyan-400">{formatCurrency(item.allocated_capital)}</div>
+                  <p className="text-sm text-gray-300">{item.description}</p>
+                  
+                  {/* 3D Pop-out Interactive Info Box */}
+                  {isActive && (
+                    <div className="mt-4 p-4 bg-[#070710] border border-cyan-500/50 rounded-xl space-y-2 animate-fadeIn">
+                      <div className="text-xs font-mono font-bold text-cyan-300 uppercase tracking-wider">💡 3D Segment Insights:</div>
+                      <div className="text-xs text-gray-300 font-mono">
+                        Included Instruments: {item.assets?.length ? item.assets.map(a => a.name).join(', ') : 'Direct Index & ETFs'}
+                      </div>
+                      <div className="text-[10px] text-green-400 font-mono">Historical CAGR: ~{item.avg_5yr_cagr || 15}% p.a.</div>
+                    </div>
+                  )}
+                  <div className="text-[11px] text-purple-400 font-mono italic pt-2">
+                    {isActive ? '▲ Click to minimize 3D view' : '✨ Click for 3D Pop-out details'}
+                  </div>
                 </div>
-                <div className="text-2xl font-mono font-extrabold text-cyan-400">{formatCurrency(item.allocated_capital)}</div>
-                <p className="text-sm text-gray-300">{item.description}</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           <div className="pt-6 flex justify-between">
@@ -777,7 +844,6 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
             {wealthData.portfolio_breakdown.map((item) => {
               const isExpanded = expandedSegment === item.segment;
               const selectedCount = (selectedSegmentAssets[item.segment] || []).length;
-              const capitalPerFund = selectedCount > 0 ? item.allocated_capital / selectedCount : 0;
 
               return (
                 <div key={item.segment} className="bg-[#020205] border border-[#1e1e30] rounded-2xl overflow-hidden">
