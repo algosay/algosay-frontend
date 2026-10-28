@@ -105,20 +105,17 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
   };
 
   return (
-    <div className="w-full min-h-screen p-6 md:p-10 lg:p-14 bg-[#070710] border border-[#1e1e30] rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.6)] my-6 relative overflow-hidden text-white">
+    // 🌟 TOP MARGIN REDUCED TO 0/2 FOR FULL UPPER ALIGNMENT
+    <div className="w-full min-h-screen p-4 md:p-8 lg:p-10 bg-[#070710] border border-[#1e1e30] rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.6)] my-1 relative overflow-hidden text-white">
       
       {/* Background Neon Glow Effects */}
       <div className="absolute -top-32 -right-32 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
       <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
 
-      {/* 🌟 REMOVED BIG HEADER TEXT & CLEAN PROGRESS BAR ONLY */}
-      <div className="mb-8 border-b border-[#1e1e30] pb-6 flex justify-between items-center">
-        <h2 className="text-xl md:text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400">
-          💎 AlgoSay Wealth Allocator
-        </h2>
-
+      {/* 🌟 BIG HEADER REMOVED COMPLETELY & PROGRESS BAR PLACED AT THE VERY TOP */}
+      <div className="mb-6 border-b border-[#1e1e30] pb-4 flex justify-end items-center">
         {/* Progress Indicator */}
-        <div className="flex items-center gap-3 bg-[#020205] border border-[#1e1e30] px-5 py-2.5 rounded-xl">
+        <div className="flex items-center gap-3 bg-[#020205] border border-[#1e1e30] px-5 py-2 rounded-xl">
           <span className="text-sm font-mono text-cyan-400 font-bold">Step {currentStep} of 6</span>
           <div className="w-32 bg-gray-800 h-2.5 rounded-full overflow-hidden">
             <div 
@@ -133,7 +130,7 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
       {/* STEP 1: CAPITAL / SIP MODE INPUT */}
       {/* ------------------------------------------------------------------ */}
       {currentStep === 1 && (
-        <div className="space-y-8 max-w-4xl mx-auto py-10">
+        <div className="space-y-8 max-w-4xl mx-auto py-6">
           <div className="text-center space-y-3">
             <span className="px-3.5 py-1.5 bg-cyan-950/40 border border-cyan-500/40 text-cyan-300 text-xs font-mono rounded-full font-bold">Step 1 of 6</span>
             <h3 className="text-2xl md:text-3xl font-extrabold">Choose Investment Mode & Amount</h3>
@@ -203,7 +200,7 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
             </div>
           </div>
 
-          <div className="pt-8 flex justify-end">
+          <div className="pt-6 flex justify-end">
             <button
               onClick={() => setCurrentStep(2)}
               className="px-9 py-4 bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 text-white font-bold text-sm md:text-base rounded-2xl shadow-[0_0_20px_rgba(168,85,247,0.3)] transition-all cursor-pointer flex items-center gap-2"
@@ -218,7 +215,7 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
       {/* STEP 2: TARGET RETURN SELECTION */}
       {/* ------------------------------------------------------------------ */}
       {currentStep === 2 && (
-        <div className="space-y-8 max-w-5xl mx-auto py-8">
+        <div className="space-y-8 max-w-5xl mx-auto py-6">
           <div className="text-center space-y-3">
             <span className="px-3.5 py-1.5 bg-purple-950/40 border border-purple-500/40 text-purple-300 text-xs font-mono rounded-full font-bold">Step 2 of 6</span>
             <h3 className="text-2xl md:text-3xl font-extrabold">What is your Target Yearly Return (%)?</h3>
@@ -306,7 +303,7 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
       {/* STEP 3: ASSET ALLOCATION BREAKDOWN */}
       {/* ------------------------------------------------------------------ */}
       {currentStep === 3 && wealthData && (
-        <div className="space-y-6 py-6">
+        <div className="space-y-6 py-4">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-[#020205] p-6 rounded-2xl border border-[#1e1e30]">
             <div>
               <span className="px-3.5 py-1.5 bg-blue-950/40 border border-blue-500/40 text-blue-300 text-xs font-mono rounded-full font-bold">Step 3 of 6</span>
@@ -366,7 +363,7 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
       {/* STEP 4: SPECIFIC FUND RECOMMENDATIONS & SELECTION (CHECKBOXES) */}
       {/* ------------------------------------------------------------------ */}
       {currentStep === 4 && wealthData && (
-        <div className="space-y-6 py-6">
+        <div className="space-y-6 py-4">
           <div className="bg-[#020205] p-6 rounded-2xl border border-[#1e1e30] space-y-2">
             <span className="px-3.5 py-1.5 bg-cyan-950/40 border border-cyan-500/40 text-cyan-300 text-xs font-mono rounded-full font-bold">Step 4 of 6</span>
             <h3 className="text-2xl md:text-3xl font-extrabold mt-2">Select Specific Instruments & Funds</h3>
@@ -461,7 +458,7 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
       {/* STEP 5: 5-YEAR BACKTEST REPORT & RISK ANALYSIS */}
       {/* ------------------------------------------------------------------ */}
       {currentStep === 5 && wealthData && (
-        <div className="space-y-6 py-6 max-w-6xl mx-auto">
+        <div className="space-y-6 py-4 max-w-6xl mx-auto">
           <div className="bg-[#020205] p-6 rounded-2xl border border-[#1e1e30] space-y-2">
             <span className="px-3.5 py-1.5 bg-purple-950/40 border border-purple-500/40 text-purple-300 text-xs font-mono rounded-full font-bold">Step 5 of 6</span>
             <h3 className="text-2xl md:text-3xl font-extrabold mt-2">5-Year Historical Backtest Report & Risk Analysis</h3>
@@ -532,7 +529,7 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
       {/* STEP 6: FINAL RESULTS DASHBOARD HANDOFF */}
       {/* ------------------------------------------------------------------ */}
       {currentStep === 6 && wealthData && (
-        <div className="text-center space-y-8 py-16">
+        <div className="text-center space-y-8 py-12">
           <div className="w-20 h-20 bg-green-500/20 border border-green-500 rounded-full flex items-center justify-center mx-auto text-green-400 text-3xl shadow-[0_0_25px_rgba(34,197,94,0.4)]">
             ✓
           </div>
