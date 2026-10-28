@@ -37,8 +37,8 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
   // Check total weight percentage
   const totalCustomWeight = Object.values(customWeights).reduce((a, b) => a + b, 0);
 
-  // Neon Colors for Donut Chart Slices
-  const COLORS = ['#06b6d4', '#a855f7', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#ec4899', '#8b5cf6'];
+  // Neon Colors for Performance Donut Chart Slices
+  const COLORS = ['#06b6d4', '#10b981', '#a855f7', '#3b82f6', '#f59e0b', '#ef4444', '#ec4899', '#8b5cf6'];
 
   // 🧮 Dynamically calculate weighted return based on selectedHorizon, customWeights and user selected assets
   let currentWeightedReturn = 0;
@@ -86,11 +86,25 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
     totalInvestedCapital = initial_capital;
   }
 
-  // Prepare Data for Recharts Donut Chart
-  const chartData = portfolio_breakdown.map((item) => ({
-    name: item.segment,
-    value: customWeights[item.segment] !== undefined ? customWeights[item.segment] : item.weight_percentage
-  }));
+  // 🌟 Prepare Data for Performance Donut Chart (Calculates individual segment return % for chart distribution)
+  const performanceDonutData = portfolio_breakdown.map((item) => {
+    const userChosenNames = selectedSegmentAssets?.[item.segment] || [];
+    const chosenAssets = item.assets ? item.assets.filter(asset => userChosenNames.includes(asset.name)) : (item.selected_assets || []);
+    
+    let segRet = item.period_return || 15;
+    if (chosenAssets.length > 0) {
+      const validReturns = chosenAssets
+        .map(ast => (ast.returns ? ast.returns[selectedHorizon] : ast.return))
+        .filter(val => val !== undefined && val !== null);
+      if (validReturns.length > 0) {
+        segRet = validReturns.reduce((acc, v) => acc + v, 0) / validReturns.length;
+      }
+    }
+    return {
+      name: item.segment,
+      value: Math.max(Number(segRet.toFixed(2)), 1) // Ensure positive value for pie slice representation
+    };
+  });
 
   const toggleSegment = (segmentName) => {
     setExpandedSegment(expandedSegment === segmentName ? null : segmentName);
@@ -189,20 +203,20 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
 
       </div>
 
-      {/* 🌟 VISUAL DONUT CHART WITH SIDE-BY-SIDE ALLOCATION INFO & SLIDERS SECTION */}
+      {/* 🌟 PERFORMANCE DONUT CHART WITH ANIMATION & SIDE-BY-SIDE INFO & REBALANCE SLIDERS */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 bg-[#070710] border border-[#1e1e30] p-6 rounded-2xl">
         
-        {/* Column 1 & 2: Animated Donut Chart + Side-by-Side Allocation Info */}
+        {/* Column 1 & 2: Animated Performance Donut Chart + Side-by-Side Breakdown */}
         <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 items-center bg-[#020205] p-5 rounded-2xl border border-[#1e1e30]">
           
-          {/* Animated Donut Chart */}
+          {/* Animated Performance Donut Chart */}
           <div className="flex flex-col items-center justify-center">
-            <h4 className="text-xs font-bold text-cyan-400 uppercase tracking-wide mb-2">🎨 Asset Allocation Donut</h4>
+            <h4 className="text-xs font-bold text-cyan-400 uppercase tracking-wide mb-2">📈 Performance Donut ({selectedHorizon.toUpperCase()})</h4>
             <div className="w-full h-52">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
-                    data={chartData}
+                    data={performanceDonutData}
                     cx="50%"
                     cy="50%"
                     innerRadius={50}
@@ -210,31 +224,42 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
                     paddingAngle={4}
                     dataKey="value"
                     isAnimationActive={true}
-                    animationDuration={1000}
+                    animationDuration={1200}
                   >
-                    {chartData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    {performanceDonutData.map((entry, index) => (
+                      <Cell key={`cell-perf-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
                   <Tooltip 
-                    formatter={(value) => [`${value}%`, 'Weight']}
+                    formatter={(value) => [`+${value}%`, 'Return Contribution']}
                     contentStyle={{ backgroundColor: '#020205', borderColor: '#1e1e30', borderRadius: '12px', fontSize: '12px' }}
                   />
                 </PieChart>
               </ResponsiveContainer>
             </div>
-            <div className={`text-[11px] font-mono font-bold mt-1 ${totalCustomWeight === 100 ? 'text-green-400' : 'text-orange-400'}`}>
-              Total Weight: {totalCustomWeight}% {totalCustomWeight !== 100 && '(Target: 100%)'}
+            <div className="text-[11px] font-mono font-bold text-green-400 mt-1">
+              Weighted Return: +{currentWeightedReturn.toFixed(2)}% p.a.
             </div>
           </div>
 
-          {/* Side-by-Side Allocation Legend / Information */}
+          {/* Side-by-Side Performance Legend / Information */}
           <div className="space-y-2.5">
-            <h4 className="text-xs font-bold text-cyan-400 uppercase tracking-wide mb-1">📋 Side-by-Side Breakdown</h4>
+            <h4 className="text-xs font-bold text-cyan-400 uppercase tracking-wide mb-1">📋 Return Share Breakdown</h4>
             <div className="space-y-2 max-h-52 overflow-y-auto pr-1">
               {portfolio_breakdown.map((item, index) => {
-                const currentW = customWeights[item.segment] !== undefined ? customWeights[item.segment] : item.weight_percentage;
-                const segmentAllocatedAmount = totalInvestedCapital * (currentW / 100);
+                const userChosenNames = selectedSegmentAssets?.[item.segment] || [];
+                const displayedAssets = item.assets 
+                  ? item.assets.filter(asset => userChosenNames.includes(asset.name))
+                  : (item.selected_assets || []);
+
+                const validReturns = displayedAssets
+                  .map(ast => (ast.returns ? ast.returns[selectedHorizon] : ast.return))
+                  .filter(val => val !== undefined && val !== null);
+                
+                const segmentReturn = validReturns.length > 0 
+                  ? validReturns.reduce((acc, v) => acc + v, 0) / validReturns.length 
+                  : (item.period_return || 15);
+
                 const dotColor = COLORS[index % COLORS.length];
 
                 return (
@@ -244,8 +269,8 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
                       <span className="font-bold text-white truncate max-w-[110px]">{item.segment}</span>
                     </div>
                     <div className="text-right">
-                      <span className="text-cyan-400 font-bold">{currentW}%</span>
-                      <div className="text-[10px] text-gray-400">{formatCurrency(segmentAllocatedAmount)}</div>
+                      <span className="text-green-400 font-bold">+{segmentReturn.toFixed(1)}%</span>
+                      <div className="text-[10px] text-gray-400">{selectedHorizon.toUpperCase()} Return</div>
                     </div>
                   </div>
                 );
@@ -281,6 +306,9 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
                 </div>
               );
             })}
+          </div>
+          <div className={`text-[10px] font-mono font-bold text-center ${totalCustomWeight === 100 ? 'text-green-400' : 'text-orange-400'}`}>
+            Total Weight: {totalCustomWeight}% {totalCustomWeight !== 100 && '(Target: 100%)'}
           </div>
         </div>
 
@@ -351,7 +379,7 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
                     <div className="text-right font-mono">
                       <div className="text-sm font-bold text-cyan-400">Selected: {displayedAssets.length} Instruments</div>
                       <div className="text-[10px] text-gray-400">
-                        Return ({selectedHorizon.toUpperCase()}): <span className="text-green-400 font-bold">{segmentReturn.toFixed(2)}%</span>
+                        Return ({selectedHorizon.toUpperCase()}): <span className="text-green-400 font-bold">+{segmentReturn.toFixed(2)}%</span>
                       </div>
                     </div>
                     <span className={`text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}>
