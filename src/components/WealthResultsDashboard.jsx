@@ -2,30 +2,29 @@ import React, { useState } from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 
 const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
+  // 🌟 FIX: ALL HOOKS MUST BE DECLARED AT THE VERY TOP BEFORE ANY CONDITIONAL RETURN!
   const [expandedSegment, setExpandedSegment] = useState(null);
-  
-  // 🌟 Time Horizon State: '1m', '3m', '6m', '1yr', '3yr', '5yr'
   const [selectedHorizon, setSelectedHorizon] = useState('1yr');
 
-  if (!wealthData) return null;
+  // Extract properties safely or fallback
+  const initial_capital = wealthData?.initial_capital ?? 100000;
+  const target_return_requested = wealthData?.target_return_requested ?? 18;
+  const estimated_max_drawdown = wealthData?.estimated_max_drawdown ?? 0;
+  const risk_warning = wealthData?.risk_warning ?? '';
+  const portfolio_breakdown = wealthData?.portfolio_breakdown ?? [];
+  const selectedSegmentAssets = wealthData?.selectedSegmentAssets ?? {};
+  const is_sip = wealthData?.is_sip ?? false;
 
-  const {
-    initial_capital = 100000,
-    target_return_requested = 18,
-    estimated_max_drawdown = 0,
-    risk_warning = '',
-    portfolio_breakdown = [],
-    selectedSegmentAssets = {},
-    is_sip = false
-  } = wealthData;
-
-  // 🌟 Interactive Weights State for Rebalancing Tool
+  // 🌟 Interactive Weights State for Rebalancing Tool (Hook placed at top)
   const [customWeights, setCustomWeights] = useState(
     portfolio_breakdown.reduce((acc, item) => {
       acc[item.segment] = item.weight_percentage;
       return acc;
     }, {})
   );
+
+  // Now conditional check can safely happen AFTER hooks
+  if (!wealthData) return null;
 
   // Handle Weight Slider Change
   const handleWeightChange = (segmentName, newWeight) => {
