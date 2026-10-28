@@ -105,16 +105,15 @@ const WealthConfigView = ({ onPlanCalculated, onError }) => {
   };
 
   return (
-    // 🌟 TOP MARGIN REDUCED TO 0/2 FOR FULL UPPER ALIGNMENT
-    <div className="w-full min-h-screen p-4 md:p-8 lg:p-10 bg-[#070710] border border-[#1e1e30] rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.6)] my-1 relative overflow-hidden text-white">
+    // 🌟 ZERO MARGIN & TOP ALIGNED: Fits perfectly right below the header/navbar with zero gap
+    <div className="w-full min-h-screen p-4 md:p-8 lg:p-10 bg-[#070710] border-t-0 border-x border-b border-[#1e1e30] rounded-b-2xl shadow-[0_10px_40px_rgba(0,0,0,0.6)] mt-0 pt-2 relative overflow-hidden text-white">
       
       {/* Background Neon Glow Effects */}
       <div className="absolute -top-32 -right-32 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
       <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
 
-      {/* 🌟 BIG HEADER REMOVED COMPLETELY & PROGRESS BAR PLACED AT THE VERY TOP */}
-      <div className="mb-6 border-b border-[#1e1e30] pb-4 flex justify-end items-center">
-        {/* Progress Indicator */}
+      {/* Progress Bar Header */}
+      <div className="mb-4 border-b border-[#1e1e30] pb-3 flex justify-end items-center">
         <div className="flex items-center gap-3 bg-[#020205] border border-[#1e1e30] px-5 py-2 rounded-xl">
           <span className="text-sm font-mono text-cyan-400 font-bold">Step {currentStep} of 6</span>
           <div className="w-32 bg-gray-800 h-2.5 rounded-full overflow-hidden">
