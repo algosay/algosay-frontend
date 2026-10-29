@@ -100,8 +100,9 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
     totalInvestedCapital = initial_capital;
   }
 
-  // 🌟 Prepare Data for Performance Donut Chart (Calculates individual segment return % for chart distribution)
+  // 🌟 Prepare Data for Performance Donut Chart (Dynamically driven by customWeights & selectedHorizon)
   const performanceDonutData = portfolio_breakdown.map((item) => {
+    const weight = (customWeights[item.segment] !== undefined ? customWeights[item.segment] : item.weight_percentage) / 100;
     const userChosenNames = selectedSegmentAssets?.[item.segment] || [];
     const chosenAssets = item.assets ? item.assets.filter(asset => userChosenNames.includes(asset.name)) : (item.selected_assets || []);
     
@@ -116,7 +117,7 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
     }
     return {
       name: item.segment,
-      value: Math.max(Number(segRet.toFixed(2)), 1) // Ensure positive value for pie slice representation
+      value: Math.max(Number((segRet * weight).toFixed(2)), 1) // Weighted contribution for chart slice distribution
     };
   });
 
@@ -258,6 +259,7 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
             <h4 className="text-xs font-bold text-cyan-400 uppercase tracking-wide mb-1">📋 Return Share Breakdown</h4>
             <div className="space-y-2 max-h-52 overflow-y-auto pr-1">
               {portfolio_breakdown.map((item, index) => {
+                const currentW = customWeights[item.segment] !== undefined ? customWeights[item.segment] : item.weight_percentage;
                 const userChosenNames = selectedSegmentAssets?.[item.segment] || [];
                 const displayedAssets = item.assets 
                   ? item.assets.filter(asset => userChosenNames.includes(asset.name))
@@ -271,17 +273,19 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
                   ? validReturns.reduce((acc, v) => acc + v, 0) / validReturns.length 
                   : (item.period_return || 15);
 
+                const segmentAllocatedAmt = initial_capital * (currentW / 100);
+                const segmentReturnAmt = segmentAllocatedAmt * (segmentReturn / 100);
                 const dotColor = COLORS[index % COLORS.length];
 
                 return (
                   <div key={item.segment} className="p-2.5 bg-[#070710] border border-[#1e1e30] rounded-xl flex items-center justify-between text-xs font-mono">
                     <div className="flex items-center gap-2">
                       <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: dotColor }}></span>
-                      <span className="font-bold text-white truncate max-w-[110px]">{item.segment}</span>
+                      <span className="font-bold text-white truncate max-w-[100px]">{item.segment}</span>
                     </div>
                     <div className="text-right">
                       <span className="text-green-400 font-bold">+{segmentReturn.toFixed(1)}%</span>
-                      <div className="text-[10px] text-gray-400">{selectedHorizon.toUpperCase()} Return</div>
+                      <div className="text-[10px] text-cyan-300 font-bold">{formatCurrency(segmentReturnAmt)}</div>
                     </div>
                   </div>
                 );
@@ -333,7 +337,7 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
         </div>
       )}
 
-      {/* PORTFOLIO SEGMENTS DRILLDOWN LIST (Enhanced with Larger Cards & Amount Display) */}
+      {/* PORTFOLIO SEGMENTS DRILLDOWN LIST (Enhanced with Percentage + Return Amount in ₹) */}
       <div className="bg-[#070710] border border-[#1e1e30] p-6 rounded-2xl space-y-4">
         <div className="flex justify-between items-center mb-3">
           <h3 className="text-lg md:text-xl font-bold text-white flex items-center gap-2">
@@ -364,14 +368,16 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
 
             // Per-asset capital allocation amount calculation
             const segmentAllocated = initial_capital * (currentW / 100);
+            const segmentReturnAmount = segmentAllocated * (segmentReturn / 100);
             const capitalPerAsset = displayedAssets.length > 0 ? segmentAllocated / displayedAssets.length : 0;
+            const returnPerAsset = displayedAssets.length > 0 ? segmentReturnAmount / displayedAssets.length : 0;
 
             return (
               <div 
                 key={item.segment}
                 className="bg-[#020205] border border-[#2a2a40] rounded-2xl overflow-hidden transition-all shadow-[0_4px_20px_rgba(0,0,0,0.4)]"
               >
-                {/* Segment Main Header (Enlarged & Clear) */}
+                {/* Segment Main Header (Enlarged with % and Amount in ₹) */}
                 <div 
                   onClick={() => toggleSegment(item.segment)}
                   className="p-5 md:p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 cursor-pointer hover:bg-[#080814] transition-colors"
@@ -390,7 +396,7 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
                     <div className="text-right font-mono">
                       <div className="text-sm font-extrabold text-cyan-400">Selected: {displayedAssets.length} Instruments</div>
                       <div className="text-xs text-gray-300 mt-0.5">
-                        Return: <span className="text-green-400 font-extrabold">+{segmentReturn.toFixed(2)}%</span> ({selectedHorizon.toUpperCase()})
+                        Return: <span className="text-green-400 font-extrabold">+{segmentReturn.toFixed(2)}%</span> <span className="text-cyan-300 font-bold">({formatCurrency(segmentReturnAmount)})</span>
                       </div>
                     </div>
                     <span className={`text-cyan-400 font-bold transition-transform duration-300 text-base ${isExpanded ? 'rotate-180' : ''}`}>
@@ -399,7 +405,7 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
                   </div>
                 </div>
 
-                {/* Expanded Selected Assets List with Clear Amount & Return Badges */}
+                {/* Expanded Selected Assets List with Amount & Return in ₹ & % */}
                 {isExpanded && (
                   <div className="p-5 md:p-6 border-t border-[#2a2a40] bg-[#05050f] space-y-4">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 bg-[#090916] p-3.5 rounded-xl border border-[#222238]">
@@ -412,6 +418,9 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       {displayedAssets.map((asset, idx) => {
                         const assetReturns = asset.returns || {};
+                        const singleAssetReturnPct = assetReturns[selectedHorizon] !== undefined ? assetReturns[selectedHorizon] : (asset.return || 15);
+                        const singleAssetReturnAmt = capitalPerAsset * (singleAssetReturnPct / 100);
+
                         return (
                           <div 
                             key={asset.ticker || asset.symbol || idx}
@@ -421,7 +430,10 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
                               <div>
                                 <div className="text-sm font-bold text-white leading-snug">{idx + 1}. {asset.name}</div>
                                 <div className="text-xs text-cyan-400/90 font-mono mt-0.5">
-                                  Type: {asset.type} | <span className="text-green-300 font-bold">Amt: {formatCurrency(capitalPerAsset)}{is_sip ? '/mo' : ''}</span>
+                                  Type: {asset.type} | <span className="text-green-300 font-bold">Inv: {formatCurrency(capitalPerAsset)}{is_sip ? '/mo' : ''}</span>
+                                </div>
+                                <div className="text-xs text-cyan-200 font-mono mt-1">
+                                  Est. Return: <span className="text-green-400 font-bold">+{singleAssetReturnPct}%</span> <span className="text-yellow-300 font-bold">({formatCurrency(singleAssetReturnAmt)})</span>
                                 </div>
                               </div>
                               <span className="px-2.5 py-1 bg-cyan-950/60 border border-cyan-600/40 text-cyan-300 font-mono text-xs rounded-lg font-bold flex-shrink-0">
