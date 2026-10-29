@@ -333,16 +333,16 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
         </div>
       )}
 
-      {/* PORTFOLIO SEGMENTS DRILLDOWN LIST */}
+      {/* PORTFOLIO SEGMENTS DRILLDOWN LIST (Enhanced with Larger Cards & Amount Display) */}
       <div className="bg-[#070710] border border-[#1e1e30] p-6 rounded-2xl space-y-4">
-        <div className="flex justify-between items-center mb-2">
-          <h3 className="text-lg font-bold text-white flex items-center gap-2">
+        <div className="flex justify-between items-center mb-3">
+          <h3 className="text-lg md:text-xl font-bold text-white flex items-center gap-2">
             <span>🧬</span> {is_sip ? 'Monthly SIP' : 'Multi-Segment'} Breakdown & Selected Asset Performance ({selectedHorizon.toUpperCase()})
           </h3>
-          <span className="text-xs text-gray-400 font-mono">Click segment to inspect individual instruments</span>
+          <span className="text-xs text-cyan-400 font-mono">Click segment to inspect individual instruments</span>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-4">
           {portfolio_breakdown.map((item) => {
             const isExpanded = expandedSegment === item.segment;
             const currentW = customWeights[item.segment] !== undefined ? customWeights[item.segment] : item.weight_percentage;
@@ -362,87 +362,89 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
               ? validReturns.reduce((acc, v) => acc + v, 0) / validReturns.length 
               : 0;
 
-            // Per-asset capital allocation
-            const segmentAllocated = is_sip ? (initial_capital * (currentW / 100)) : (initial_capital * (currentW / 100));
+            // Per-asset capital allocation amount calculation
+            const segmentAllocated = initial_capital * (currentW / 100);
             const capitalPerAsset = displayedAssets.length > 0 ? segmentAllocated / displayedAssets.length : 0;
 
             return (
               <div 
                 key={item.segment}
-                className="bg-[#020205] border border-[#1e1e30] rounded-xl overflow-hidden transition-all"
+                className="bg-[#020205] border border-[#2a2a40] rounded-2xl overflow-hidden transition-all shadow-[0_4px_20px_rgba(0,0,0,0.4)]"
               >
-                {/* Segment Main Header */}
+                {/* Segment Main Header (Enlarged & Clear) */}
                 <div 
                   onClick={() => toggleSegment(item.segment)}
-                  className="p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 cursor-pointer hover:bg-[#070710]"
+                  className="p-5 md:p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 cursor-pointer hover:bg-[#080814] transition-colors"
                 >
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold text-white">{item.segment}</span>
-                      <span className="px-2 py-0.5 bg-purple-950/40 border border-purple-500/40 text-purple-300 text-[10px] font-mono rounded">
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-3">
+                      <span className="text-base md:text-lg font-extrabold text-white">{item.segment}</span>
+                      <span className="px-3 py-1 bg-purple-950/60 border border-purple-500/50 text-purple-300 text-xs font-mono rounded-xl font-bold">
                         {currentW}% Weight ({formatCurrency(segmentAllocated)}{is_sip ? '/mo' : ''})
                       </span>
                     </div>
-                    <p className="text-xs text-gray-400">{item.description}</p>
+                    <p className="text-xs md:text-sm text-gray-300">{item.description}</p>
                   </div>
 
-                  <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
+                  <div className="flex items-center gap-5 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 pt-3 sm:pt-0 border-[#1e1e30]">
                     <div className="text-right font-mono">
-                      <div className="text-sm font-bold text-cyan-400">Selected: {displayedAssets.length} Instruments</div>
-                      <div className="text-[10px] text-gray-400">
-                        Return ({selectedHorizon.toUpperCase()}): <span className="text-green-400 font-bold">+{segmentReturn.toFixed(2)}%</span>
+                      <div className="text-sm font-extrabold text-cyan-400">Selected: {displayedAssets.length} Instruments</div>
+                      <div className="text-xs text-gray-300 mt-0.5">
+                        Return: <span className="text-green-400 font-extrabold">+{segmentReturn.toFixed(2)}%</span> ({selectedHorizon.toUpperCase()})
                       </div>
                     </div>
-                    <span className={`text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}>
+                    <span className={`text-cyan-400 font-bold transition-transform duration-300 text-base ${isExpanded ? 'rotate-180' : ''}`}>
                       ▼
                     </span>
                   </div>
                 </div>
 
-                {/* Expanded Selected Assets List with Returns */}
+                {/* Expanded Selected Assets List with Clear Amount & Return Badges */}
                 {isExpanded && (
-                  <div className="p-4 border-t border-[#1e1e30] bg-[#05050a] space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs font-bold text-cyan-400 uppercase tracking-wider">
-                        🛡️ Allocated Capital per Instrument ({formatCurrency(capitalPerAsset)}{is_sip ? '/mo' : ''} each for {displayedAssets.length} funds)
+                  <div className="p-5 md:p-6 border-t border-[#2a2a40] bg-[#05050f] space-y-4">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 bg-[#090916] p-3.5 rounded-xl border border-[#222238]">
+                      <span className="text-xs md:text-sm font-bold text-cyan-300 uppercase tracking-wider flex items-center gap-2">
+                        🛡️ Allocated Capital: <span className="text-white font-mono">{formatCurrency(capitalPerAsset)}{is_sip ? '/mo' : ''}</span> each for {displayedAssets.length} funds
                       </span>
-                      <span className="text-[10px] text-gray-500 font-mono">Direct Plans (0% Commission)</span>
+                      <span className="text-xs text-gray-400 font-mono">Direct Plans (0% Commission)</span>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       {displayedAssets.map((asset, idx) => {
                         const assetReturns = asset.returns || {};
                         return (
                           <div 
                             key={asset.ticker || asset.symbol || idx}
-                            className="p-3 bg-[#070710] border border-[#1a1a2e] rounded-xl flex flex-col gap-2"
+                            className="p-4 bg-[#070710] border border-[#202036] rounded-xl flex flex-col gap-3 shadow-inner"
                           >
-                            <div className="flex justify-between items-start">
+                            <div className="flex justify-between items-start gap-2">
                               <div>
-                                <div className="text-xs font-bold text-white">{idx + 1}. {asset.name}</div>
-                                <div className="text-[10px] text-gray-400 font-mono">Type: {asset.type} | Allocation: {formatCurrency(capitalPerAsset)}{is_sip ? '/mo' : ''}</div>
+                                <div className="text-sm font-bold text-white leading-snug">{idx + 1}. {asset.name}</div>
+                                <div className="text-xs text-cyan-400/90 font-mono mt-0.5">
+                                  Type: {asset.type} | <span className="text-green-300 font-bold">Amt: {formatCurrency(capitalPerAsset)}{is_sip ? '/mo' : ''}</span>
+                                </div>
                               </div>
-                              <span className="px-2 py-0.5 bg-cyan-950/40 border border-cyan-600/30 text-cyan-300 font-mono text-[10px] rounded">
+                              <span className="px-2.5 py-1 bg-cyan-950/60 border border-cyan-600/40 text-cyan-300 font-mono text-xs rounded-lg font-bold flex-shrink-0">
                                 {asset.ticker || asset.symbol || 'N/A'}
                               </span>
                             </div>
 
                             {/* Individual Returns Badges (1m, 3m, 6m, 1yr, 3yr, 5yr) */}
-                            <div className="grid grid-cols-6 gap-1 pt-2 border-t border-[#16162a] text-center font-mono">
+                            <div className="grid grid-cols-6 gap-1 pt-2.5 border-t border-[#1a1a2e] text-center font-mono">
                               {['1m', '3m', '6m', '1yr', '3yr', '5yr'].map((h) => {
                                 const val = assetReturns[h];
                                 const isSelectedTab = selectedHorizon === h;
                                 return (
                                   <div 
                                     key={h} 
-                                    className={`p-1 rounded text-[9px] border ${
+                                    className={`p-1.5 rounded-lg text-[10px] border ${
                                       isSelectedTab 
-                                        ? 'bg-purple-950/40 border-purple-500 text-purple-300 font-bold' 
-                                        : 'bg-[#020205] border-[#1e1e30] text-gray-400'
+                                        ? 'bg-purple-900/55 border-purple-400 text-purple-200 font-bold shadow-[0_0_8px_rgba(168,85,247,0.4)]' 
+                                        : 'bg-[#020205] border-[#1e1e30] text-gray-300'
                                     }`}
                                   >
-                                    <div className="text-[8px] uppercase text-gray-500">{h}</div>
-                                    <div className={val >= 0 ? 'text-green-400' : 'text-red-400'}>
+                                    <div className="text-[9px] uppercase text-gray-400">{h}</div>
+                                    <div className={`font-bold ${val >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                                       {val !== undefined && val !== null ? `${val}%` : 'N/A'}
                                     </div>
                                   </div>
