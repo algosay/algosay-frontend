@@ -232,7 +232,7 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
                   </Pie>
                   <Tooltip 
                     formatter={(value) => [`+${value}%`, 'Return Contribution']}
-                    contentStyle={{ backgroundColor: '#020205', borderColor: '#1e1e30', borderRadius: '12px', fontSize: '12px' }}
+                    contentStyle={{ backgroundColor: '#020205', borderColor: '#1e1e30', borderRadius: '12px', fontSize: '12px', color: '#ffffff' }}
                   />
                 </PieChart>
               </ResponsiveContainer>
