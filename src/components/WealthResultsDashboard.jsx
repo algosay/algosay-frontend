@@ -54,6 +54,11 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
   // Neon Colors for Performance Donut Chart Slices
   const COLORS = ['#06b6d4', '#10b981', '#a855f7', '#3b82f6', '#f59e0b', '#ef4444', '#ec4899', '#8b5cf6'];
 
+  // Time mapping in years and months
+  const yearsMap = { '1m': 0.083, '3m': 0.25, '6m': 0.5, '1yr': 1.0, '3yr': 3.0, '5yr': 5.0 };
+  const t = yearsMap[selectedHorizon] || 1.0;
+  const months = Math.round(t * 12);
+
   // 🧮 Dynamically calculate weighted return based on selectedHorizon, customWeights and user selected assets
   let currentWeightedReturn = 0;
   portfolio_breakdown.forEach((item) => {
@@ -75,11 +80,6 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
       currentWeightedReturn += (item.period_return || 0) * weight;
     }
   });
-
-  // Time mapping in years and months
-  const yearsMap = { '1m': 0.083, '3m': 0.25, '6m': 0.5, '1yr': 1.0, '3yr': 3.0, '5yr': 5.0 };
-  const t = yearsMap[selectedHorizon] || 1.0;
-  const months = Math.round(t * 12);
   
   // 🧮 Projected Value calculation (Lumpsum vs Monthly SIP)
   let projectedValue = 0;
@@ -273,8 +273,18 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
                   ? validReturns.reduce((acc, v) => acc + v, 0) / validReturns.length 
                   : (item.period_return || 15);
 
-                const segmentAllocatedAmt = initial_capital * (currentW / 100);
-                const segmentReturnAmt = segmentAllocatedAmt * (segmentReturn / 100);
+                const segmentAllocatedAmt = totalInvestedCapital * (currentW / 100);
+                
+                // 🧮 Correct Horizon-aware Compounded Return Amount for Side Breakdown
+                let segmentReturnAmt = 0;
+                if (is_sip) {
+                  segmentReturnAmt = segmentAllocatedAmt * (segmentReturn / 100) * (t / 2); // Pro-rata compound estimate for SIP
+                } else {
+                  segmentReturnAmt = t <= 1.0 
+                    ? segmentAllocatedAmt * (segmentReturn / 100) * t
+                    : segmentAllocatedAmt * Math.pow((1 + segmentReturn / 100), t) - segmentAllocatedAmt;
+                }
+
                 const dotColor = COLORS[index % COLORS.length];
 
                 return (
@@ -337,7 +347,7 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
         </div>
       )}
 
-      {/* PORTFOLIO SEGMENTS DRILLDOWN LIST (Enhanced with Percentage + Return Amount in ₹) */}
+      {/* PORTFOLIO SEGMENTS DRILLDOWN LIST (Enhanced with Horizon-aware Compounded Return Amount in ₹) */}
       <div className="bg-[#070710] border border-[#1e1e30] p-6 rounded-2xl space-y-4">
         <div className="flex justify-between items-center mb-3">
           <h3 className="text-lg md:text-xl font-bold text-white flex items-center gap-2">
@@ -354,7 +364,7 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
             // Filter assets based on user selection in Step 4
             const userChosenAssetNames = selectedSegmentAssets?.[item.segment] || [];
             const displayedAssets = item.assets 
-              ? item.assets.filter(asset => userChosenAssetNames.includes(asset.name))
+              ? item.assets.filter(asset => userChosenNames.includes(asset.name))
               : (item.selected_assets || []);
 
             // Calculate segment return for selected horizon
@@ -366,9 +376,18 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
               ? validReturns.reduce((acc, v) => acc + v, 0) / validReturns.length 
               : 0;
 
-            // Per-asset capital allocation amount calculation
-            const segmentAllocated = initial_capital * (currentW / 100);
-            const segmentReturnAmount = segmentAllocated * (segmentReturn / 100);
+            // Per-segment capital allocation & horizon-aware compound return calculation
+            const segmentAllocated = totalInvestedCapital * (currentW / 100);
+            
+            let segmentReturnAmount = 0;
+            if (is_sip) {
+              segmentReturnAmount = segmentAllocated * (segmentReturn / 100) * (t / 2);
+            } else {
+              segmentReturnAmount = t <= 1.0 
+                ? segmentAllocated * (segmentReturn / 100) * t
+                : segmentAllocated * Math.pow((1 + segmentReturn / 100), t) - segmentAllocated;
+            }
+
             const capitalPerAsset = displayedAssets.length > 0 ? segmentAllocated / displayedAssets.length : 0;
             const returnPerAsset = displayedAssets.length > 0 ? segmentReturnAmount / displayedAssets.length : 0;
 
@@ -377,7 +396,7 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
                 key={item.segment}
                 className="bg-[#020205] border border-[#2a2a40] rounded-2xl overflow-hidden transition-all shadow-[0_4px_20px_rgba(0,0,0,0.4)]"
               >
-                {/* Segment Main Header (Enlarged with % and Amount in ₹) */}
+                {/* Segment Main Header (Enlarged with % and Horizon-aware Compound Amount in ₹) */}
                 <div 
                   onClick={() => toggleSegment(item.segment)}
                   className="p-5 md:p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 cursor-pointer hover:bg-[#080814] transition-colors"
@@ -419,7 +438,15 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
                       {displayedAssets.map((asset, idx) => {
                         const assetReturns = asset.returns || {};
                         const singleAssetReturnPct = assetReturns[selectedHorizon] !== undefined ? assetReturns[selectedHorizon] : (asset.return || 15);
-                        const singleAssetReturnAmt = capitalPerAsset * (singleAssetReturnPct / 100);
+                        
+                        let singleAssetReturnAmt = 0;
+                        if (is_sip) {
+                          singleAssetReturnAmt = capitalPerAsset * (singleAssetReturnPct / 100) * (t / 2);
+                        } else {
+                          singleAssetReturnAmt = t <= 1.0 
+                            ? capitalPerAsset * (singleAssetReturnPct / 100) * t
+                            : capitalPerAsset * Math.pow((1 + singleAssetReturnPct / 100), t) - capitalPerAsset;
+                        }
 
                         return (
                           <div 
@@ -433,7 +460,7 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
                                   Type: {asset.type} | <span className="text-green-300 font-bold">Inv: {formatCurrency(capitalPerAsset)}{is_sip ? '/mo' : ''}</span>
                                 </div>
                                 <div className="text-xs text-cyan-200 font-mono mt-1">
-                                  Est. Return: <span className="text-green-400 font-bold">+{singleAssetReturnPct}%</span> <span className="text-yellow-300 font-bold">({formatCurrency(singleAssetReturnAmt)})</span>
+                                  Est. Return ({selectedHorizon.toUpperCase()}): <span className="text-green-400 font-bold">+{singleAssetReturnPct}%</span> <span className="text-yellow-300 font-bold">({formatCurrency(singleAssetReturnAmt)})</span>
                                 </div>
                               </div>
                               <span className="px-2.5 py-1 bg-cyan-950/60 border border-cyan-600/40 text-cyan-300 font-mono text-xs rounded-lg font-bold flex-shrink-0">
