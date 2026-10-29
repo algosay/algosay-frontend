@@ -284,6 +284,7 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
 
                 const segmentAllocatedAmt = (is_sip ? (initial_capital * months) : initial_capital) * (currentW / 100);
                 
+                // 🧮 TRUE INDEPENDENT SEGMENT COMPOUNDING RETURN AMOUNT
                 let segmentReturnAmt = 0;
                 if (is_sip) {
                   const monthlyRate = (segmentReturn / 100) / 12;
