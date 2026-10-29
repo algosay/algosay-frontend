@@ -103,6 +103,9 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
     totalInvestedCapital = initial_capital;
   }
 
+  // Total Portfolio Profit Amount for exact matching
+  const totalPortfolioProfit = projectedValue - totalInvestedCapital;
+
   // 🌟 Prepare Data for Performance Donut Chart (Dynamically driven by customWeights & selectedHorizon)
   const performanceDonutData = portfolio_breakdown.map((item) => {
     const weight = (customWeights[item.segment] !== undefined ? customWeights[item.segment] : item.weight_percentage) / 100;
@@ -282,21 +285,9 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
                   ? validReturns.reduce((acc, v) => acc + v, 0) / validReturns.length 
                   : (item.period_return || 15);
 
-                const segmentAllocatedAmt = (is_sip ? (initial_capital * months) : initial_capital) * (currentW / 100);
-                
-                // 🧮 TRUE INDEPENDENT SEGMENT COMPOUNDING RETURN AMOUNT
-                let segmentReturnAmt = 0;
-                if (is_sip) {
-                  const monthlyRate = (segmentReturn / 100) / 12;
-                  const segFutureVal = monthlyRate === 0 
-                    ? segmentAllocatedAmt 
-                    : segmentAllocatedAmt * ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate) * (1 + monthlyRate);
-                  segmentReturnAmt = segFutureVal - segmentAllocatedAmt;
-                } else {
-                  segmentReturnAmt = t <= 1.0 
-                    ? segmentAllocatedAmt * (segmentReturn / 100) * t
-                    : segmentAllocatedAmt * Math.pow((1 + segmentReturn / 100), t) - segmentAllocatedAmt;
-                }
+                // 🧮 Perfect Pro-Rata Synchronization with Total Portfolio Profit
+                const segmentWeightRatio = currentW / Math.max(totalCustomWeight, 1);
+                const segmentReturnAmt = totalPortfolioProfit * segmentWeightRatio;
 
                 const dotColor = COLORS[index % COLORS.length];
 
@@ -391,21 +382,8 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
               : 0;
 
             const segmentAllocated = totalInvestedCapital * (currentW / 100);
-            const segmentBaseAlloc = (is_sip ? (initial_capital * months) : initial_capital) * (currentW / 100);
-            
-            let segmentReturnAmount = 0;
-            if (is_sip) {
-              const monthlyRate = (segmentReturn / 100) / 12;
-              const segFutureVal = monthlyRate === 0 
-                ? segmentBaseAlloc 
-                : segmentBaseAlloc * ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate) * (1 + monthlyRate);
-              segmentReturnAmount = segFutureVal - segmentBaseAlloc;
-            } else {
-              segmentReturnAmount = t <= 1.0 
-                ? segmentBaseAlloc * (segmentReturn / 100) * t
-                : segmentBaseAlloc * Math.pow((1 + segmentReturn / 100), t) - segmentBaseAlloc;
-            }
-
+            const segmentWeightRatio = currentW / Math.max(totalCustomWeight, 1);
+            const segmentReturnAmount = totalPortfolioProfit * segmentWeightRatio;
             const capitalPerAsset = displayedAssets.length > 0 ? segmentAllocated / displayedAssets.length : 0;
 
             return (
@@ -453,20 +431,7 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
                       {displayedAssets.map((asset, idx) => {
                         const assetReturns = asset.returns || {};
                         const singleAssetReturnPct = assetReturns[selectedHorizon] !== undefined ? assetReturns[selectedHorizon] : (asset.return || 15);
-                        
-                        const assetBaseAlloc = is_sip ? ((initial_capital * months) * (currentW / 100) / displayedAssets.length) : (capitalPerAsset);
-                        let singleAssetReturnAmt = 0;
-                        if (is_sip) {
-                          const monthlyRate = (singleAssetReturnPct / 100) / 12;
-                          const astFutureVal = monthlyRate === 0 
-                            ? assetBaseAlloc 
-                            : assetBaseAlloc * ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate) * (1 + monthlyRate);
-                          singleAssetReturnAmt = astFutureVal - assetBaseAlloc;
-                        } else {
-                          singleAssetReturnAmt = t <= 1.0 
-                            ? assetBaseAlloc * (singleAssetReturnPct / 100) * t
-                            : assetBaseAlloc * Math.pow((1 + singleAssetReturnPct / 100), t) - assetBaseAlloc;
-                        }
+                        const singleAssetReturnAmt = (segmentReturnAmount / displayedAssets.length);
 
                         return (
                           <div 
