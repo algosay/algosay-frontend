@@ -275,10 +275,9 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
 
                 const segmentAllocatedAmt = totalInvestedCapital * (currentW / 100);
                 
-                // 🧮 Correct Horizon-aware Compounded Return Amount for Side Breakdown
                 let segmentReturnAmt = 0;
                 if (is_sip) {
-                  segmentReturnAmt = segmentAllocatedAmt * (segmentReturn / 100) * (t / 2); // Pro-rata compound estimate for SIP
+                  segmentReturnAmt = segmentAllocatedAmt * (segmentReturn / 100) * (t / 2);
                 } else {
                   segmentReturnAmt = t <= 1.0 
                     ? segmentAllocatedAmt * (segmentReturn / 100) * t
@@ -347,7 +346,7 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
         </div>
       )}
 
-      {/* PORTFOLIO SEGMENTS DRILLDOWN LIST (Enhanced with Horizon-aware Compounded Return Amount in ₹) */}
+      {/* PORTFOLIO SEGMENTS DRILLDOWN LIST */}
       <div className="bg-[#070710] border border-[#1e1e30] p-6 rounded-2xl space-y-4">
         <div className="flex justify-between items-center mb-3">
           <h3 className="text-lg md:text-xl font-bold text-white flex items-center gap-2">
@@ -361,13 +360,12 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
             const isExpanded = expandedSegment === item.segment;
             const currentW = customWeights[item.segment] !== undefined ? customWeights[item.segment] : item.weight_percentage;
             
-            // Filter assets based on user selection in Step 4
-            const userChosenAssetNames = selectedSegmentAssets?.[item.segment] || [];
+            // 🌟 FIXED: userChosenNames properly declared here
+            const userChosenNames = selectedSegmentAssets?.[item.segment] || [];
             const displayedAssets = item.assets 
               ? item.assets.filter(asset => userChosenNames.includes(asset.name))
               : (item.selected_assets || []);
 
-            // Calculate segment return for selected horizon
             const validReturns = displayedAssets
               .map(ast => (ast.returns ? ast.returns[selectedHorizon] : ast.return))
               .filter(val => val !== undefined && val !== null);
@@ -376,7 +374,6 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
               ? validReturns.reduce((acc, v) => acc + v, 0) / validReturns.length 
               : 0;
 
-            // Per-segment capital allocation & horizon-aware compound return calculation
             const segmentAllocated = totalInvestedCapital * (currentW / 100);
             
             let segmentReturnAmount = 0;
@@ -389,14 +386,12 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
             }
 
             const capitalPerAsset = displayedAssets.length > 0 ? segmentAllocated / displayedAssets.length : 0;
-            const returnPerAsset = displayedAssets.length > 0 ? segmentReturnAmount / displayedAssets.length : 0;
 
             return (
               <div 
                 key={item.segment}
                 className="bg-[#020205] border border-[#2a2a40] rounded-2xl overflow-hidden transition-all shadow-[0_4px_20px_rgba(0,0,0,0.4)]"
               >
-                {/* Segment Main Header (Enlarged with % and Horizon-aware Compound Amount in ₹) */}
                 <div 
                   onClick={() => toggleSegment(item.segment)}
                   className="p-5 md:p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 cursor-pointer hover:bg-[#080814] transition-colors"
@@ -424,7 +419,6 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
                   </div>
                 </div>
 
-                {/* Expanded Selected Assets List with Amount & Return in ₹ & % */}
                 {isExpanded && (
                   <div className="p-5 md:p-6 border-t border-[#2a2a40] bg-[#05050f] space-y-4">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 bg-[#090916] p-3.5 rounded-xl border border-[#222238]">
@@ -468,7 +462,6 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
                               </span>
                             </div>
 
-                            {/* Individual Returns Badges (1m, 3m, 6m, 1yr, 3yr, 5yr) */}
                             <div className="grid grid-cols-6 gap-1 pt-2.5 border-t border-[#1a1a2e] text-center font-mono">
                               {['1m', '3m', '6m', '1yr', '3yr', '5yr'].map((h) => {
                                 const val = assetReturns[h];
