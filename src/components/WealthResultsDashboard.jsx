@@ -68,7 +68,10 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
     
     if (chosenAssets.length > 0) {
       const validReturns = chosenAssets
-        .map(ast => (ast.returns ? ast.returns[selectedHorizon] : ast.return))
+        .map(ast => {
+          const returnsObj = ast.returns || {};
+          return returnsObj[selectedHorizon] !== undefined ? returnsObj[selectedHorizon] : ast.return;
+        })
         .filter(val => val !== undefined && val !== null);
       
       const avgAssetReturn = validReturns.length > 0 
@@ -109,7 +112,10 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
     let segRet = item.period_return || 15;
     if (chosenAssets.length > 0) {
       const validReturns = chosenAssets
-        .map(ast => (ast.returns ? ast.returns[selectedHorizon] : ast.return))
+        .map(ast => {
+          const returnsObj = ast.returns || {};
+          return returnsObj[selectedHorizon] !== undefined ? returnsObj[selectedHorizon] : ast.return;
+        })
         .filter(val => val !== undefined && val !== null);
       if (validReturns.length > 0) {
         segRet = validReturns.reduce((acc, v) => acc + v, 0) / validReturns.length;
@@ -117,7 +123,7 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
     }
     return {
       name: item.segment,
-      value: Math.max(Number((segRet * weight).toFixed(2)), 1) // Weighted contribution for chart slice distribution
+      value: Math.max(Number((segRet * weight).toFixed(2)), 1)
     };
   });
 
@@ -266,18 +272,25 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
                   : (item.selected_assets || []);
 
                 const validReturns = displayedAssets
-                  .map(ast => (ast.returns ? ast.returns[selectedHorizon] : ast.return))
+                  .map(ast => {
+                    const returnsObj = ast.returns || {};
+                    return returnsObj[selectedHorizon] !== undefined ? returnsObj[selectedHorizon] : ast.return;
+                  })
                   .filter(val => val !== undefined && val !== null);
                 
                 const segmentReturn = validReturns.length > 0 
                   ? validReturns.reduce((acc, v) => acc + v, 0) / validReturns.length 
                   : (item.period_return || 15);
 
-                const segmentAllocatedAmt = totalInvestedCapital * (currentW / 100);
+                const segmentAllocatedAmt = (is_sip ? (initial_capital * months) : initial_capital) * (currentW / 100);
                 
                 let segmentReturnAmt = 0;
                 if (is_sip) {
-                  segmentReturnAmt = segmentAllocatedAmt * (segmentReturn / 100) * (t / 2);
+                  const monthlyRate = (segmentReturn / 100) / 12;
+                  const segFutureVal = monthlyRate === 0 
+                    ? segmentAllocatedAmt 
+                    : segmentAllocatedAmt * ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate) * (1 + monthlyRate);
+                  segmentReturnAmt = segFutureVal - segmentAllocatedAmt;
                 } else {
                   segmentReturnAmt = t <= 1.0 
                     ? segmentAllocatedAmt * (segmentReturn / 100) * t
@@ -360,14 +373,16 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
             const isExpanded = expandedSegment === item.segment;
             const currentW = customWeights[item.segment] !== undefined ? customWeights[item.segment] : item.weight_percentage;
             
-            // 🌟 FIXED: userChosenNames properly declared here
             const userChosenNames = selectedSegmentAssets?.[item.segment] || [];
             const displayedAssets = item.assets 
               ? item.assets.filter(asset => userChosenNames.includes(asset.name))
               : (item.selected_assets || []);
 
             const validReturns = displayedAssets
-              .map(ast => (ast.returns ? ast.returns[selectedHorizon] : ast.return))
+              .map(ast => {
+                const returnsObj = ast.returns || {};
+                return returnsObj[selectedHorizon] !== undefined ? returnsObj[selectedHorizon] : ast.return;
+              })
               .filter(val => val !== undefined && val !== null);
             
             const segmentReturn = validReturns.length > 0 
@@ -375,14 +390,19 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
               : 0;
 
             const segmentAllocated = totalInvestedCapital * (currentW / 100);
+            const segmentBaseAlloc = (is_sip ? (initial_capital * months) : initial_capital) * (currentW / 100);
             
             let segmentReturnAmount = 0;
             if (is_sip) {
-              segmentReturnAmount = segmentAllocated * (segmentReturn / 100) * (t / 2);
+              const monthlyRate = (segmentReturn / 100) / 12;
+              const segFutureVal = monthlyRate === 0 
+                ? segmentBaseAlloc 
+                : segmentBaseAlloc * ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate) * (1 + monthlyRate);
+              segmentReturnAmount = segFutureVal - segmentBaseAlloc;
             } else {
               segmentReturnAmount = t <= 1.0 
-                ? segmentAllocated * (segmentReturn / 100) * t
-                : segmentAllocated * Math.pow((1 + segmentReturn / 100), t) - segmentAllocated;
+                ? segmentBaseAlloc * (segmentReturn / 100) * t
+                : segmentBaseAlloc * Math.pow((1 + segmentReturn / 100), t) - segmentBaseAlloc;
             }
 
             const capitalPerAsset = displayedAssets.length > 0 ? segmentAllocated / displayedAssets.length : 0;
@@ -433,13 +453,18 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
                         const assetReturns = asset.returns || {};
                         const singleAssetReturnPct = assetReturns[selectedHorizon] !== undefined ? assetReturns[selectedHorizon] : (asset.return || 15);
                         
+                        const assetBaseAlloc = is_sip ? ((initial_capital * months) * (currentW / 100) / displayedAssets.length) : (capitalPerAsset);
                         let singleAssetReturnAmt = 0;
                         if (is_sip) {
-                          singleAssetReturnAmt = capitalPerAsset * (singleAssetReturnPct / 100) * (t / 2);
+                          const monthlyRate = (singleAssetReturnPct / 100) / 12;
+                          const astFutureVal = monthlyRate === 0 
+                            ? assetBaseAlloc 
+                            : assetBaseAlloc * ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate) * (1 + monthlyRate);
+                          singleAssetReturnAmt = astFutureVal - assetBaseAlloc;
                         } else {
                           singleAssetReturnAmt = t <= 1.0 
-                            ? capitalPerAsset * (singleAssetReturnPct / 100) * t
-                            : capitalPerAsset * Math.pow((1 + singleAssetReturnPct / 100), t) - capitalPerAsset;
+                            ? assetBaseAlloc * (singleAssetReturnPct / 100) * t
+                            : assetBaseAlloc * Math.pow((1 + singleAssetReturnPct / 100), t) - assetBaseAlloc;
                         }
 
                         return (
