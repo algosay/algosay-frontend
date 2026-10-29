@@ -1,6 +1,20 @@
 import React, { useState } from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 
+// 🌟 Custom Tooltip Component to fix black/empty box problem in dark theme
+const CustomTooltip = ({ active, payload }) => {
+  if (active && payload && payload.length) {
+    const data = payload[0];
+    return (
+      <div className="bg-[#020205] border border-cyan-500/40 p-3 rounded-xl shadow-[0_0_15px_rgba(6,182,212,0.3)] text-white text-xs font-mono">
+        <p className="font-bold text-cyan-400 mb-1">{data.name}</p>
+        <p className="text-green-400 font-bold">Return Contribution: +{data.value}%</p>
+      </div>
+    );
+  }
+  return null;
+};
+
 const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
   // 🌟 FIX: ALL HOOKS MUST BE DECLARED AT THE VERY TOP BEFORE ANY CONDITIONAL RETURN!
   const [expandedSegment, setExpandedSegment] = useState(null);
@@ -230,10 +244,7 @@ const WealthResultsDashboard = ({ wealthData, onModifyPlan }) => {
                       <Cell key={`cell-perf-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip 
-                    formatter={(value) => [`+${value}%`, 'Return Contribution']}
-                    contentStyle={{ backgroundColor: '#020205', borderColor: '#1e1e30', borderRadius: '12px', fontSize: '12px', color: '#ffffff' }}
-                  />
+                  <Tooltip content={<CustomTooltip />} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
