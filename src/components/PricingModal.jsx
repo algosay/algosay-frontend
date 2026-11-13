@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-// 🚨 Mela Import section-la itha add panniyachu (auth & firestore use panna)
 import { auth, db } from '../firebase'; // Update path if needed
 import { doc, updateDoc, increment } from 'firebase/firestore';
 
-// 🟢 PUTHU UPDATE: Razorpay Script-ஐ பாதுகாப்பாக லோட் செய்வதற்கான Function
+// 🔴 Website full ah complete aana apram idha `true` nu maathunga
+const PAYMENTS_ENABLED = false;
+
+// Razorpay script-ah safe ah load panra function
 const loadRazorpayScript = () => {
   return new Promise((resolve) => {
     if (window.Razorpay) {
-      resolve(true); // ஏற்கனவே லோட் ஆகியிருந்தால் விட்டுவிடலாம்
+      resolve(true);
       return;
     }
     const script = document.createElement("script");
@@ -47,14 +49,19 @@ const PricingModal = ({ isOpen, onClose }) => {
     return credits * 3.00;
   };
 
-  // 🟢 Razorpay Payment Logic (PricingModal kulla ezuthiyachu)
+  // Razorpay Payment Logic
   const handlePayment = async () => {
+      // 🔴 Payments disable guard (button bypass panninaalum payment poga koodathu)
+      if (!PAYMENTS_ENABLED) {
+          alert("Our website is under improvement. Payments will be enabled soon!");
+          return;
+      }
+
       if (!selectedPlan || !auth.currentUser) {
           alert("Please login and select a plan!");
           return;
       }
 
-      // 🟢 PUTHU UPDATE: பேமெண்ட் ஆரம்பிக்கும் முன் Razorpay ஸ்கிரிப்ட் லோட் ஆகியுள்ளதா என செக் செய்கிறோம்
       const isRazorpayLoaded = await loadRazorpayScript();
       if (!isRazorpayLoaded) {
           alert("Failed to load Razorpay payment gateway. Please check your internet connection.");
@@ -81,7 +88,6 @@ const PricingModal = ({ isOpen, onClose }) => {
           const plan = unlimitedPlans.find(p => p.id === selectedPlan);
           finalAmount = plan.price;
           planName = plan.name;
-          // Days calculate pandrom for unlimited plans
           daysToAdd = selectedPlan === 'u1' ? 7 : (selectedPlan === 'u2' ? 30 : (selectedPlan === 'u3' ? 90 : 180));
       }
 
@@ -100,30 +106,28 @@ const PricingModal = ({ isOpen, onClose }) => {
 
           const orderData = await orderResponse.json();
 
-          // 2. Razorpay Checkout Options set pandrom
+          // 2. Razorpay Checkout Options
           const options = {
-              key: orderData.key, // Backend-லிருந்து வரும் Live Key ID இங்கு வந்துவிடும்
+              key: orderData.key,
               amount: orderData.amount,
               currency: orderData.currency,
               name: "AlgoSay Pro",
               description: activeTab === 'payg' ? `Purchase of ${creditsToAdd} Credits` : `${planName} Unlimited Plan`,
-              order_id: orderData.order_id, 
+              order_id: orderData.order_id,
               handler: async function (response) {
-                  // 3. Payment Success aana odane Firebase-la Update pandrom! 🟢
+                  // 3. Payment Success aana odane Firebase-la Update pandrom
                   try {
                       const userRef = doc(db, 'users', user.uid);
-                      
+
                       if (activeTab === 'payg') {
-                          // 🚨 PAY-AS-YOU-GO SELECT PANNA CREDITS ADD AAGUM 🚨
                           await updateDoc(userRef, {
                               credits: increment(creditsToAdd)
                           });
                           alert(`✅ Payment Successful! ${creditsToAdd} Credits added to your account.`);
                       } else {
-                          // 🚨 UNLIMITED SELECT PANNA SUBSCRIPTION DATE UPDATE AAGUM 🚨
                           const expiryDate = new Date();
                           expiryDate.setDate(expiryDate.getDate() + daysToAdd);
-                          
+
                           await updateDoc(userRef, {
                               subscription: {
                                   is_active: true,
@@ -146,11 +150,11 @@ const PricingModal = ({ isOpen, onClose }) => {
                   email: user.email,
               },
               theme: {
-                  color: "#3B82F6" // Blue theme
+                  color: "#3B82F6"
               }
           };
 
-          // 4. Razorpay Modal-a open pandrom
+          // 4. Razorpay Modal open
           const rzp = new window.Razorpay(options);
           rzp.on('payment.failed', function (response){
               alert("❌ Payment Failed! Reason: " + response.error.description);
@@ -166,16 +170,14 @@ const PricingModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    /* 🚨 MAIN WRAPPER FIX: Maathuna edam - z-50 ah thookitu z-[9999] potachu! 🚨 */
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
       <div className="bg-[#0a0a0a] w-full max-w-2xl rounded-2xl border border-gray-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-        
-        {/* 🚨 HEADER (shrink-0 add panniyachu) */}
+
+        {/* HEADER */}
         <div className="shrink-0 p-6 border-b border-gray-800 flex justify-between items-start sm:items-center bg-[#151515] flex-col sm:flex-row gap-4 relative z-10">
           <div className="flex items-center gap-4">
-            {/* 🚨 PUTHUSA STYLE PANNA BACK BUTTON */}
-            <button 
-              onClick={onClose} 
+            <button
+              onClick={onClose}
               className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-white hover:text-black text-white rounded-lg transition-all cursor-pointer text-sm font-bold border border-gray-500 shadow-md shrink-0"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -188,7 +190,7 @@ const PricingModal = ({ isOpen, onClose }) => {
               <p className="text-gray-400 text-sm mt-1">Choose the plan that fits your trading style.</p>
             </div>
           </div>
-          
+
           <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors cursor-pointer hidden sm:block shrink-0">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -196,24 +198,31 @@ const PricingModal = ({ isOpen, onClose }) => {
           </button>
         </div>
 
-        {/* 🚨 TABS (shrink-0 add panniyachu - Inime marayathu) */}
+        {/* 🔴 UNDER IMPROVEMENT NOTICE */}
+        {!PAYMENTS_ENABLED && (
+          <div className="shrink-0 px-6 py-3 bg-yellow-500/10 border-b border-yellow-500/30 text-yellow-400 text-sm text-center">
+            🚧 Website is under improvement. Payments will open soon!
+          </div>
+        )}
+
+        {/* TABS */}
         <div className="shrink-0 flex p-4 bg-[#0a0a0a] gap-4 border-b border-gray-800/50 z-10 relative">
           <button
             onClick={() => { setActiveTab('payg'); setSelectedPlan(null); }}
             className={`flex-1 py-4 px-4 text-base font-bold rounded-xl transition-all cursor-pointer border-2 ${
-              activeTab === 'payg' 
-                ? 'bg-blue-600/10 text-blue-400 border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.3)]' 
+              activeTab === 'payg'
+                ? 'bg-blue-600/10 text-blue-400 border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.3)]'
                 : 'bg-[#151515] text-gray-500 border-gray-800 hover:border-gray-600 hover:text-gray-300'
             }`}
           >
             Pay-As-You-Go Credits
           </button>
-          
+
           <button
             onClick={() => { setActiveTab('unlimited'); setSelectedPlan(null); }}
             className={`flex-1 py-4 px-4 text-base font-bold rounded-xl transition-all cursor-pointer border-2 ${
-              activeTab === 'unlimited' 
-                ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.3)]' 
+              activeTab === 'unlimited'
+                ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.3)]'
                 : 'bg-[#151515] text-gray-500 border-gray-800 hover:border-gray-600 hover:text-gray-300'
             }`}
           >
@@ -223,7 +232,7 @@ const PricingModal = ({ isOpen, onClose }) => {
 
         {/* Scrollable Content Area */}
         <div className="p-6 overflow-y-auto custom-scrollbar flex-1 relative">
-          
+
           {/* TAB 1: PAY AS YOU GO */}
           {activeTab === 'payg' && (
             <div className="space-y-6 animate-fade-in-up">
@@ -233,8 +242,8 @@ const PricingModal = ({ isOpen, onClose }) => {
                     key={plan.id}
                     onClick={() => setSelectedPlan(plan.id)}
                     className={`relative cursor-pointer p-5 rounded-xl border-2 transition-all ${
-                      selectedPlan === plan.id 
-                        ? 'border-blue-500 bg-blue-900/10' 
+                      selectedPlan === plan.id
+                        ? 'border-blue-500 bg-blue-900/10'
                         : 'border-gray-800 bg-[#1a1a1a] hover:border-gray-600'
                     }`}
                   >
@@ -245,7 +254,6 @@ const PricingModal = ({ isOpen, onClose }) => {
                     )}
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-xl font-bold text-white">{plan.credits} <span className="text-sm font-normal text-gray-400">Credits</span></span>
-                      {/* Custom Radio Button */}
                       <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedPlan === plan.id ? 'border-blue-500' : 'border-gray-600'}`}>
                         {selectedPlan === plan.id && <div className="w-2.5 h-2.5 bg-blue-500 rounded-full"></div>}
                       </div>
@@ -256,7 +264,7 @@ const PricingModal = ({ isOpen, onClose }) => {
               </div>
 
               {/* Custom Credit Slider Section */}
-              <div 
+              <div
                 className={`p-6 rounded-xl border-2 transition-all cursor-pointer ${
                   selectedPlan === 'custom' ? 'border-blue-500 bg-blue-900/10' : 'border-gray-800 bg-[#1a1a1a] hover:border-gray-600'
                 }`}
@@ -268,13 +276,13 @@ const PricingModal = ({ isOpen, onClose }) => {
                     {selectedPlan === 'custom' && <div className="w-2.5 h-2.5 bg-blue-500 rounded-full"></div>}
                   </div>
                 </div>
-                
-                <input 
-                  type="range" 
-                  min="10" 
-                  max="1000" 
+
+                <input
+                  type="range"
+                  min="10"
+                  max="1000"
                   step="10"
-                  value={customCredits} 
+                  value={customCredits}
                   onChange={(e) => {
                     setCustomCredits(Number(e.target.value));
                     setSelectedPlan('custom');
@@ -303,9 +311,9 @@ const PricingModal = ({ isOpen, onClose }) => {
                   key={plan.id}
                   onClick={() => setSelectedPlan(plan.id)}
                   className={`relative cursor-pointer p-5 rounded-xl border-2 transition-all flex justify-between items-center ${
-                    selectedPlan === plan.id 
-                      ? 'border-yellow-500 bg-yellow-900/10' 
-                      : plan.highlight 
+                    selectedPlan === plan.id
+                      ? 'border-yellow-500 bg-yellow-900/10'
+                      : plan.highlight
                         ? 'border-yellow-600/50 bg-gradient-to-r from-yellow-900/20 to-[#1a1a1a]'
                         : 'border-gray-800 bg-[#1a1a1a] hover:border-gray-600'
                   }`}
@@ -315,7 +323,7 @@ const PricingModal = ({ isOpen, onClose }) => {
                       {plan.tag}
                     </span>
                   )}
-                  
+
                   <div className="flex items-center gap-4">
                     <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${selectedPlan === plan.id ? 'border-yellow-500' : 'border-gray-600'}`}>
                       {selectedPlan === plan.id && <div className="w-2.5 h-2.5 bg-yellow-500 rounded-full"></div>}
@@ -332,20 +340,22 @@ const PricingModal = ({ isOpen, onClose }) => {
           )}
         </div>
 
-        {/* 🚨 FOOTER (shrink-0 add panniyachu) */}
+        {/* FOOTER */}
         <div className="shrink-0 p-6 border-t border-gray-800 bg-[#151515]">
-          <button 
+          <button
             onClick={handlePayment}
-            disabled={!selectedPlan}
+            disabled={!PAYMENTS_ENABLED || !selectedPlan}
             className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
-              !selectedPlan 
-                ? 'bg-gray-800 text-gray-500 cursor-not-allowed' 
+              !PAYMENTS_ENABLED || !selectedPlan
+                ? 'bg-gray-800 text-gray-500 cursor-not-allowed'
                 : activeTab === 'payg'
                   ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-900/50 cursor-pointer'
                   : 'bg-yellow-500 hover:bg-yellow-400 text-black shadow-lg shadow-yellow-900/20 cursor-pointer'
             }`}
           >
-            {selectedPlan ? 'Proceed to Payment' : 'Select a Plan'}
+            {!PAYMENTS_ENABLED
+              ? 'Coming Soon – Under Improvement'
+              : selectedPlan ? 'Proceed to Payment' : 'Select a Plan'}
           </button>
           <p className="text-center text-xs text-gray-500 mt-4 flex items-center justify-center gap-2">
              <i className="fa-solid fa-lock"></i> Secure 256-bit encrypted checkout
