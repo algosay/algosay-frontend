@@ -414,7 +414,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
             <textarea
               value={customPrompt}
               onChange={(e) => setCustomPrompt(e.target.value)}
-              placeholder="EClicking the Ask AI button will instantly generate a comprehensive, detailed backtest analysis report with deep insights for your strategy"
+              placeholder="Clicking the Ask AI button will instantly generate a comprehensive, detailed backtest analysis report with deep insights for your strategy"
               className="w-full bg-transparent text-gray-300 text-sm focus:outline-none resize-none placeholder-gray-600 mb-2"
               rows="2"
             />
@@ -458,8 +458,10 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
           />
           
           {/* ⚡ PUDHU UPDATE: ExecutionLedger onFilterChange-ah catch panni puthu state-la podurathu */}
+          {/* 🚀 NEW FIX: withTax pass pannirukken, so Day PnL / Trade PnL toggle-padi Net / Gross maarum */}
           <ExecutionLedger 
             result={activeResult} 
+            withTax={withTax}
             onFilterChange={setFilteredLedgerData} 
           />
         </div>

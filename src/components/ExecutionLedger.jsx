@@ -1,6 +1,28 @@
 import React, { useState, useMemo, useEffect } from 'react';
 
-const ExecutionLedger = ({ result, onFilterChange }) => {
+// 🚀 NEW FIX: "₹", "," ellam remove panni safe-ah number-ah maathum
+const toNum = (v) => {
+  if (typeof v === 'number') return isNaN(v) ? 0 : v;
+  const n = parseFloat(String(v ?? '').replace(/[₹,\s]/g, ''));
+  return isNaN(n) ? 0 : n;
+};
+
+// 🚀 NEW FIX: Toggle (withTax) padi Net / Gross PnL edukkum.
+// Munnadi "PnL" nu irukkura first key (= Gross) fixed-ah eduthuchu, adhaala Day PnL toggle-ku respond aagala.
+const getPnl = (trade, withTax) => {
+  if (!trade) return 0;
+  const keys = Object.keys(trade);
+  const netKey = keys.find(k => k === 'Net Real PnL' || k === 'Net PnL' || k === 'Net Real');
+  const grossKey = keys.find(k => k === 'Gross PnL (No Tax)' || k === 'Gross PnL');
+  const key = withTax ? (netKey || grossKey) : (grossKey || netKey);
+  if (key) return toNum(trade[key]);
+
+  // Fallback: old format data-kku
+  const fallbackKey = keys.find(k => k.includes('PnL') || k === 'Net Real');
+  return fallbackKey ? toNum(trade[fallbackKey]) : 0;
+};
+
+const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
   const [showLogs, setShowLogs] = useState(false);
   
   // Filter States
@@ -10,15 +32,7 @@ const ExecutionLedger = ({ result, onFilterChange }) => {
   const [filterResult, setFilterResult] = useState('All');
   const [filterSegment, setFilterSegment] = useState('All');
 
-  // Helper to extract PnL
-  const getPnl = (trade) => {
-    let pnlValue = 0;
-    const pnlKey = Object.keys(trade).find(k => k.includes('PnL') || k === 'Net Real');
-    if (pnlKey && trade[pnlKey] !== undefined) {
-        pnlValue = parseFloat(trade[pnlKey]) || 0;
-    }
-    return pnlValue;
-  };
+  const pnlModeLabel = withTax ? 'Net' : 'Gross';
 
   // Hook 1: orderedKeys (Unconditional - Always runs first)
   const orderedKeys = useMemo(() => {
@@ -84,7 +98,7 @@ const ExecutionLedger = ({ result, onFilterChange }) => {
     filteredLedger.forEach(trade => {
       const tradeType = String(trade.Trade_Type || trade['Trade Type'] || '').toLowerCase();
       const isReentry = tradeType.includes('re-entry') || tradeType.includes('re-execute') || tradeType.includes('reentry');
-      const pnlValue = getPnl(trade);
+      const pnlValue = getPnl(trade, withTax);
       const dateStr = trade.Date || trade.date || trade.Day || 'Unknown Date';
 
       if (!isReentry) {
@@ -125,19 +139,19 @@ const ExecutionLedger = ({ result, onFilterChange }) => {
     });
     
     return groupedList;
-  }, [filteredLedger]);
+  }, [filteredLedger, withTax]);
 
-  // Pre-calculate the combined total PnL for each specific Date
+  // Pre-calculate the combined total PnL for each specific Date (🚀 toggle-padi Net / Gross)
   const dailyPnLs = useMemo(() => {
     const totals = {};
     filteredLedger.forEach(trade => {
         const dateStr = trade.Date || trade.date || trade.Day || 'Unknown Date';
-        const pnlValue = getPnl(trade);
+        const pnlValue = getPnl(trade, withTax);
         if (!totals[dateStr]) totals[dateStr] = 0;
         totals[dateStr] += pnlValue;
     });
     return totals;
-  }, [filteredLedger]);
+  }, [filteredLedger, withTax]);
 
   // 🚀 NEW LOGIC: Calculate how many rows each date has (for rowSpan on the side box)
   const dateRowCounts = useMemo(() => {
@@ -272,10 +286,10 @@ const ExecutionLedger = ({ result, onFilterChange }) => {
                   ))}
                   {/* Dynamic Headers */}
                   {hasAnyReentries && <th className="p-3 text-indigo-400 font-semibold uppercase whitespace-nowrap bg-[#2a2a2a]">Re-entries Details</th>}
-                  {hasAnyReentries && <th className="p-3 text-emerald-400 font-semibold uppercase whitespace-nowrap bg-[#2a2a2a]">Trade PnL</th>}
+                  {hasAnyReentries && <th className="p-3 text-emerald-400 font-semibold uppercase whitespace-nowrap bg-[#2a2a2a]">Trade PnL ({pnlModeLabel})</th>}
                   
-                  {/* 🚀 NEW: Day Total Header on the extreme right */}
-                  <th className="p-3 text-purple-400 font-semibold uppercase whitespace-nowrap bg-[#2a2a2a] border-l border-[#333] text-center">Day PnL</th>
+                  {/* 🚀 Day Total Header on the extreme right (toggle-padi Net / Gross label maarum) */}
+                  <th className="p-3 text-purple-400 font-semibold uppercase whitespace-nowrap bg-[#2a2a2a] border-l border-[#333] text-center">Day PnL ({pnlModeLabel})</th>
                 </tr>
               </thead>
               <tbody>
@@ -389,7 +403,7 @@ const ExecutionLedger = ({ result, onFilterChange }) => {
                                   const formatPrice = (val) => !isNaN(parseFloat(val)) ? parseFloat(val).toFixed(2) : (val || '-');
                                   const rEntryPrice = formatPrice(re.Entry_Price || re['Entry Price']);
                                   const rExitPrice = formatPrice(re.Exit_Price || re['Exit Price']);
-                                  const rPnl = getPnl(re);
+                                  const rPnl = getPnl(re, withTax);
                                   
                                   let rBadgeColor = 'bg-[#333] text-gray-300 border-[#444]';
                                   if (rType.includes('SL Re-entry')) {
@@ -437,7 +451,7 @@ const ExecutionLedger = ({ result, onFilterChange }) => {
                           </td>
                         )}
 
-                        {/* 🚀 NEW: Combined Day PnL Side Box (Only renders once per date using rowSpan) */}
+                        {/* 🚀 Combined Day PnL Side Box (Only renders once per date using rowSpan) */}
                         {isFirstOfDate && (
                            <td 
                              rowSpan={dateRowCounts[currentTradeDate]} 
@@ -448,6 +462,7 @@ const ExecutionLedger = ({ result, onFilterChange }) => {
                                  <span className={`font-bold text-base ${dailyPnLs[currentTradeDate] >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                                     {dailyPnLs[currentTradeDate] >= 0 ? '+' : ''}₹{dailyPnLs[currentTradeDate].toLocaleString('en-IN', { maximumFractionDigits: 2 })}
                                  </span>
+                                 <span className="text-[9px] text-gray-500 mt-1 uppercase tracking-wider">{pnlModeLabel}</span>
                               </div>
                            </td>
                         )}
