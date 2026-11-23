@@ -22,9 +22,12 @@ const getPnl = (trade, withTax) => {
   return fallbackKey ? toNum(trade[fallbackKey]) : 0;
 };
 
+// 🚀 NEW: Backend link fields (table-la column-ah kaattaama maraikkanum)
+const HIDDEN_KEYS = ['Leg_ID', 'Chain_Seq', 'Parent_Trade_Num'];
+
 const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
   const [showLogs, setShowLogs] = useState(false);
-  
+
   // Filter States
   const [filterDirection, setFilterDirection] = useState('All');
   const [filterDay, setFilterDay] = useState('All');
@@ -37,9 +40,9 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
   // Hook 1: orderedKeys (Unconditional - Always runs first)
   const orderedKeys = useMemo(() => {
     const keys = Object.keys(result?.Trade_Ledger?.[0] || {});
-    
+
     const tradeNumKey = keys.find(k => k === 'Trade_Num' || k === 'Trade Num');
-    const tradeTypeKey = keys.find(k => k === 'Trade_Type' || k === 'Trade Type'); 
+    const tradeTypeKey = keys.find(k => k === 'Trade_Type' || k === 'Trade Type');
     const dateKey = keys.find(k => k.toLowerCase() === 'date');
     const entryTimeKey = keys.find(k => k === 'Entry Time' || k === 'Entry_Time');
     const tickerKey = keys.find(k => k.toLowerCase() === 'ticker' || k === 'Symbol');
@@ -47,19 +50,20 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
     // 1. Prepare front keys (Trade Num, Trade Type, and Date)
     const frontKeys = [];
     if (tradeNumKey) frontKeys.push(tradeNumKey);
-    if (tradeTypeKey) frontKeys.push(tradeTypeKey); 
+    if (tradeTypeKey) frontKeys.push(tradeTypeKey);
     if (dateKey) {
       frontKeys.push(dateKey);
     } else if (!dateKey && entryTimeKey) {
       frontKeys.push(entryTimeKey);
     }
 
-    // 2. Prepare remaining keys by excluding front keys, Ticker, AND removing MFE/MAE
-    let otherKeys = keys.filter(k => 
-      !frontKeys.includes(k) && 
-      k !== tickerKey && 
-      !k.toUpperCase().includes('MFE') && 
-      !k.toUpperCase().includes('MAE')    
+    // 2. Prepare remaining keys by excluding front keys, Ticker, link fields, AND removing MFE/MAE
+    let otherKeys = keys.filter(k =>
+      !frontKeys.includes(k) &&
+      k !== tickerKey &&
+      !HIDDEN_KEYS.includes(k) &&
+      !k.toUpperCase().includes('MFE') &&
+      !k.toUpperCase().includes('MAE')
     );
 
     // 3. Find Entry Time in the remaining keys
@@ -86,58 +90,67 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
       const matchDTE = filterDTE === 'All' || String(trade.DTE) === String(filterDTE);
       const matchResult = filterResult === 'All' || trade.Result === filterResult;
       const matchSegment = filterSegment === 'All' || trade.Segment === filterSegment;
-      
+
       return matchDirection && matchDay && matchDTE && matchResult && matchSegment;
     });
   }, [result?.Trade_Ledger, filterDirection, filterDay, filterDTE, filterResult, filterSegment]);
 
-  // Sequential Grouping - Initial Trades on New Rows, Re-entries on the side!
+  // 🚀 FIXED Grouping: Re-entry / Re-execute ippo correct parent-oda attach aagum.
+  // Priority: 1) Leg_ID (backend chain id)  2) Parent_Trade_Num  3) Ticker + Entry Price + Date (old saved backtests)
   const groupedLedger = useMemo(() => {
     const groupedList = [];
-    
+    const byLeg = {}; // Leg_ID -> group
+
+    const tickerOf = (t) => t.Symbol || t.symbol || t.Ticker || t.ticker;
+    const priceOf = (t) => toNum(t.Entry_Price ?? t['Entry Price']).toFixed(2);
+    const numOf = (t) => String(t.Trade_Num ?? t['Trade Num'] ?? '');
+
     filteredLedger.forEach(trade => {
       const tradeType = String(trade.Trade_Type || trade['Trade Type'] || '').toLowerCase();
       const isReentry = tradeType.includes('re-entry') || tradeType.includes('re-execute') || tradeType.includes('reentry');
       const pnlValue = getPnl(trade, withTax);
       const dateStr = trade.Date || trade.date || trade.Day || 'Unknown Date';
+      const legId = trade.Leg_ID;
+      const parentNum = trade.Parent_Trade_Num;
 
-      if (!isReentry) {
-        groupedList.push({
-          firstTrade: trade,
-          reentries: [],
-          totalPnl: pnlValue,
-          totalTrades: 1,
-          dateStr: dateStr
-        });
-      } else {
-        const ticker = trade.Symbol || trade.symbol || trade.Ticker;
-        let foundParent = false;
-        
-        for (let i = groupedList.length - 1; i >= 0; i--) {
-          const parentTrade = groupedList[i].firstTrade;
-          const parentTicker = parentTrade.Symbol || parentTrade.symbol || parentTrade.Ticker;
-          
-          if (parentTicker === ticker) {
-            groupedList[i].reentries.push(trade);
-            groupedList[i].totalPnl += pnlValue;
-            groupedList[i].totalTrades += 1;
-            foundParent = true;
-            break;
+      if (isReentry) {
+        let parent = null;
+
+        if (legId && byLeg[legId]) {
+          parent = byLeg[legId];
+        } else if (parentNum !== null && parentNum !== undefined && parentNum !== '') {
+          parent = groupedList.find(g => numOf(g.firstTrade) === String(parentNum)) || null;
+        } else if (!legId) {
+          // Old data (Leg_ID illa): Ticker + Entry Price + Date match
+          for (let i = groupedList.length - 1; i >= 0; i--) {
+            const g = groupedList[i];
+            if (g.dateStr === dateStr && tickerOf(g.firstTrade) === tickerOf(trade) && priceOf(g.firstTrade) === priceOf(trade)) {
+              parent = g;
+              break;
+            }
           }
         }
-        
-        if (!foundParent) {
-          groupedList.push({
-            firstTrade: trade,
-            reentries: [],
-            totalPnl: pnlValue,
-            totalTrades: 1,
-            dateStr: dateStr
-          });
+
+        if (parent) {
+          parent.reentries.push(trade);
+          parent.totalPnl += pnlValue;
+          parent.totalTrades += 1;
+          return;
         }
       }
+
+      // Initial trade (or re-entry whose parent is hidden by a filter) -> own row
+      const group = {
+        firstTrade: trade,
+        reentries: [],
+        totalPnl: pnlValue,
+        totalTrades: 1,
+        dateStr: dateStr
+      };
+      groupedList.push(group);
+      if (legId && !byLeg[legId]) byLeg[legId] = group;
     });
-    
+
     return groupedList;
   }, [filteredLedger, withTax]);
 
@@ -171,7 +184,7 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
   // Hook 3: Pass filtered data back to parent component
   useEffect(() => {
     if (onFilterChange) {
-      onFilterChange(filteredLedger); 
+      onFilterChange(filteredLedger);
     }
   }, [filteredLedger, onFilterChange]);
 
@@ -195,8 +208,8 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
     <div className="bg-[#1e1e1e] border border-[#2d2d2d] rounded-xl overflow-hidden flex flex-col mt-4">
       <div className="p-4 border-b border-[#2d2d2d] flex justify-between items-center bg-[#222]">
         <h3 className="text-sm font-bold text-gray-200">Execution Ledger ({filteredLedger.length} Trades)</h3>
-        <button 
-          onClick={() => setShowLogs(!showLogs)} 
+        <button
+          onClick={() => setShowLogs(!showLogs)}
           className="text-xs bg-[#333] hover:bg-[#444] text-white px-3 py-1.5 rounded transition-colors border border-[#444]"
         >
           {showLogs ? 'Hide Ledger' : 'View Ledger'}
@@ -208,9 +221,9 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
           {/* Filters Section */}
           <div className="p-3 bg-[#252525] border-b border-[#333] flex flex-wrap gap-4 items-center">
             <span className="text-xs text-gray-400 font-semibold uppercase tracking-wider">Filters:</span>
-            
+
             {uniqueSegments.length > 0 && (
-              <select 
+              <select
                 className="bg-[#1a1a1a] text-xs text-gray-300 border border-[#444] rounded px-2 py-1 outline-none focus:border-blue-500"
                 value={filterSegment}
                 onChange={(e) => setFilterSegment(e.target.value)}
@@ -220,7 +233,7 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
               </select>
             )}
 
-            <select 
+            <select
               className="bg-[#1a1a1a] text-xs text-gray-300 border border-[#444] rounded px-2 py-1 outline-none focus:border-blue-500"
               value={filterDirection}
               onChange={(e) => setFilterDirection(e.target.value)}
@@ -230,7 +243,7 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
               <option value="SHORT">Short (Sell)</option>
             </select>
 
-            <select 
+            <select
               className="bg-[#1a1a1a] text-xs text-gray-300 border border-[#444] rounded px-2 py-1 outline-none focus:border-blue-500"
               value={filterDay}
               onChange={(e) => setFilterDay(e.target.value)}
@@ -240,7 +253,7 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
             </select>
 
             {uniqueDTEs.length > 0 && (
-              <select 
+              <select
                 className="bg-[#1a1a1a] text-xs text-gray-300 border border-[#444] rounded px-2 py-1 outline-none focus:border-blue-500"
                 value={filterDTE}
                 onChange={(e) => setFilterDTE(e.target.value)}
@@ -250,7 +263,7 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
               </select>
             )}
 
-            <select 
+            <select
               className="bg-[#1a1a1a] text-xs text-gray-300 border border-[#444] rounded px-2 py-1 outline-none focus:border-blue-500"
               value={filterResult}
               onChange={(e) => setFilterResult(e.target.value)}
@@ -260,7 +273,7 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
               <option value="Loss">Loss</option>
             </select>
 
-            <button 
+            <button
               onClick={() => {
                 setFilterSegment('All');
                 setFilterDirection('All');
@@ -287,7 +300,7 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
                   {/* Dynamic Headers */}
                   {hasAnyReentries && <th className="p-3 text-indigo-400 font-semibold uppercase whitespace-nowrap bg-[#2a2a2a]">Re-entries Details</th>}
                   {hasAnyReentries && <th className="p-3 text-emerald-400 font-semibold uppercase whitespace-nowrap bg-[#2a2a2a]">Trade PnL ({pnlModeLabel})</th>}
-                  
+
                   {/* 🚀 Day Total Header on the extreme right (toggle-padi Net / Gross label maarum) */}
                   <th className="p-3 text-purple-400 font-semibold uppercase whitespace-nowrap bg-[#2a2a2a] border-l border-[#333] text-center">Day PnL ({pnlModeLabel})</th>
                 </tr>
@@ -297,13 +310,13 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
                   groupedLedger.map((group, idx) => {
                     const trade = group.firstTrade;
                     const currentTradeDate = group.dateStr;
-                    
+
                     // Identify if this row is the first trade of a New Date to spawn the rowSpan box
                     const isFirstOfDate = idx === 0 || groupedLedger[idx - 1].dateStr !== currentTradeDate;
 
                     return (
                       <tr key={idx} className={`border-b border-[#333] hover:bg-[#252525] ${idx % 2 === 0 ? 'bg-[#1a1a1a]' : 'bg-[#1e1e1e]'}`}>
-                        
+
                         {/* Standard Base Columns */}
                         {orderedKeys.map((key, i) => {
                           const val = trade[key];
@@ -311,7 +324,7 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
                           // TRADE TYPE COLOR FORMATTING
                           if (key === 'Trade_Type' || key === 'Trade Type') {
                             const valStr = val ? String(val) : 'Initial Trade';
-                            let badgeColor = 'bg-[#333] text-gray-300 border-[#444]'; 
+                            let badgeColor = 'bg-[#333] text-gray-300 border-[#444]';
 
                             if (valStr.includes('SL Re-entry')) {
                               badgeColor = 'bg-amber-950/60 text-amber-400 border-amber-800/60';
@@ -360,13 +373,13 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
                               </td>
                             );
                           }
-                          
+
                           // SPOT CHANGE FORMATTING
                           if (key === 'Spot Change') {
                             const valStr = String(val || '');
                             const isPositive = valStr.includes('(+');
                             const isNegative = valStr.includes('(-') || (valStr.includes('(') && valStr.includes('-'));
-                            
+
                             return (
                               <td key={i} className="p-3 whitespace-nowrap">
                                  <span className={`font-semibold ${isPositive ? 'text-green-400' : isNegative ? 'text-red-400' : 'text-gray-300'}`}>
@@ -388,7 +401,7 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
                                 </td>
                               )
                           }
-                          return <td key={i} className="p-3 whitespace-nowrap text-gray-300">{val !== undefined ? val : '-'}</td>;
+                          return <td key={i} className="p-3 whitespace-nowrap text-gray-300">{val !== undefined && val !== null ? val : '-'}</td>;
                         })}
 
                         {/* Inline Re-entries */}
@@ -399,12 +412,12 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
                                 {group.reentries.map((re, rIdx) => {
                                   const rType = re.Trade_Type || re['Trade Type'] || 'Re-entry';
                                   const rReason = re.Exit_Reason || re.Reason || 'Exit';
-                                  
+
                                   const formatPrice = (val) => !isNaN(parseFloat(val)) ? parseFloat(val).toFixed(2) : (val || '-');
                                   const rEntryPrice = formatPrice(re.Entry_Price || re['Entry Price']);
                                   const rExitPrice = formatPrice(re.Exit_Price || re['Exit Price']);
                                   const rPnl = getPnl(re, withTax);
-                                  
+
                                   let rBadgeColor = 'bg-[#333] text-gray-300 border-[#444]';
                                   if (rType.includes('SL Re-entry')) {
                                     rBadgeColor = 'bg-amber-950/60 text-amber-400 border-amber-800/60';
@@ -453,8 +466,8 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
 
                         {/* 🚀 Combined Day PnL Side Box (Only renders once per date using rowSpan) */}
                         {isFirstOfDate && (
-                           <td 
-                             rowSpan={dateRowCounts[currentTradeDate]} 
+                           <td
+                             rowSpan={dateRowCounts[currentTradeDate]}
                              className="p-3 whitespace-nowrap align-middle border-l border-[#333] bg-[#222] shadow-inner"
                            >
                               <div className={`flex flex-col items-center justify-center p-3 rounded-lg border ${dailyPnLs[currentTradeDate] >= 0 ? 'bg-green-950/20 border-green-900/40' : 'bg-red-950/20 border-red-900/40'}`}>
