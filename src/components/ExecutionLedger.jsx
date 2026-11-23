@@ -1,14 +1,13 @@
 import React, { useState, useMemo, useEffect } from 'react';
 
-// 🚀 NEW FIX: "₹", "," ellam remove panni safe-ah number-ah maathum
+// 🚀 "₹", "," ellam remove panni safe-ah number-ah maathum
 const toNum = (v) => {
   if (typeof v === 'number') return isNaN(v) ? 0 : v;
   const n = parseFloat(String(v ?? '').replace(/[₹,\s]/g, ''));
   return isNaN(n) ? 0 : n;
 };
 
-// 🚀 NEW FIX: Toggle (withTax) padi Net / Gross PnL edukkum.
-// Munnadi "PnL" nu irukkura first key (= Gross) fixed-ah eduthuchu, adhaala Day PnL toggle-ku respond aagala.
+// 🚀 Toggle (withTax) padi Net / Gross PnL edukkum.
 const getPnl = (trade, withTax) => {
   if (!trade) return 0;
   const keys = Object.keys(trade);
@@ -22,8 +21,8 @@ const getPnl = (trade, withTax) => {
   return fallbackKey ? toNum(trade[fallbackKey]) : 0;
 };
 
-// 🚀 NEW: Backend link fields (table-la column-ah kaattaama maraikkanum)
-const HIDDEN_KEYS = ['Leg_ID', 'Chain_Seq', 'Parent_Trade_Num'];
+// 🚀 Backend link fields (table-la column-ah kaattaama maraikkanum) - underscore + space rendu format-um
+const HIDDEN_KEYS = ['Leg_ID', 'Chain_Seq', 'Parent_Trade_Num', 'Leg ID', 'Chain Seq', 'Parent Trade Num'];
 
 const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
   const [showLogs, setShowLogs] = useState(false);
@@ -95,7 +94,7 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
     });
   }, [result?.Trade_Ledger, filterDirection, filterDay, filterDTE, filterResult, filterSegment]);
 
-  // 🚀 FIXED Grouping: Re-entry / Re-execute ippo correct parent-oda attach aagum.
+  // 🚀 Grouping: Re-entry / Re-execute correct parent-oda attach aagum.
   // Priority: 1) Leg_ID (backend chain id)  2) Parent_Trade_Num  3) Ticker + Entry Price + Date (old saved backtests)
   const groupedLedger = useMemo(() => {
     const groupedList = [];
@@ -110,8 +109,8 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
       const isReentry = tradeType.includes('re-entry') || tradeType.includes('re-execute') || tradeType.includes('reentry');
       const pnlValue = getPnl(trade, withTax);
       const dateStr = trade.Date || trade.date || trade.Day || 'Unknown Date';
-      const legId = trade.Leg_ID;
-      const parentNum = trade.Parent_Trade_Num;
+      const legId = trade.Leg_ID ?? trade['Leg ID'];
+      const parentNum = trade.Parent_Trade_Num ?? trade['Parent Trade Num'];
 
       if (isReentry) {
         let parent = null;
@@ -154,7 +153,7 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
     return groupedList;
   }, [filteredLedger, withTax]);
 
-  // Pre-calculate the combined total PnL for each specific Date (🚀 toggle-padi Net / Gross)
+  // Pre-calculate the combined total PnL for each specific Date (toggle-padi Net / Gross)
   const dailyPnLs = useMemo(() => {
     const totals = {};
     filteredLedger.forEach(trade => {
@@ -166,7 +165,7 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
     return totals;
   }, [filteredLedger, withTax]);
 
-  // 🚀 NEW LOGIC: Calculate how many rows each date has (for rowSpan on the side box)
+  // Calculate how many rows each date has (for rowSpan on the side box)
   const dateRowCounts = useMemo(() => {
     const counts = {};
     groupedLedger.forEach(group => {
@@ -201,7 +200,7 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
     return a - b;
   });
 
-  // 🚀 UPDATE: Added +1 to total columns for the new Day Total side column
+  // +1 column for the Day Total side column
   const totalColumnsCount = orderedKeys.length + (hasAnyReentries ? 2 : 0) + 1;
 
   return (
@@ -301,7 +300,7 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
                   {hasAnyReentries && <th className="p-3 text-indigo-400 font-semibold uppercase whitespace-nowrap bg-[#2a2a2a]">Re-entries Details</th>}
                   {hasAnyReentries && <th className="p-3 text-emerald-400 font-semibold uppercase whitespace-nowrap bg-[#2a2a2a]">Trade PnL ({pnlModeLabel})</th>}
 
-                  {/* 🚀 Day Total Header on the extreme right (toggle-padi Net / Gross label maarum) */}
+                  {/* Day Total Header on the extreme right */}
                   <th className="p-3 text-purple-400 font-semibold uppercase whitespace-nowrap bg-[#2a2a2a] border-l border-[#333] text-center">Day PnL ({pnlModeLabel})</th>
                 </tr>
               </thead>
@@ -464,7 +463,7 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
                           </td>
                         )}
 
-                        {/* 🚀 Combined Day PnL Side Box (Only renders once per date using rowSpan) */}
+                        {/* Combined Day PnL Side Box (Only renders once per date using rowSpan) */}
                         {isFirstOfDate && (
                            <td
                              rowSpan={dateRowCounts[currentTradeDate]}
