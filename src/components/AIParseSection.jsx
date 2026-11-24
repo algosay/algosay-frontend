@@ -160,15 +160,43 @@ const AIParseSection = ({
         combTargetUnit = combTargetUnit || 'Pts';
         combSLUnit = combSLUnit || 'Pts';
 
+        // 🚀 SMART EXTRACTION FOR OVERALL STRATEGY TARGET & UNIT (top-level + risk_management, camel + snake case)
+        let rawOverallTarget = data.overallStrategyTarget ?? data.overall_strategy_target ?? data.overallTarget ?? data.overall_target ?? riskObj.overallTarget ?? riskObj.overallStrategyTarget ?? riskObj.overall_strategy_target ?? riskObj.overall_target ?? '';
+        let overallTargetUnit = data.overallStrategyTargetUnit ?? data.overall_strategy_target_unit ?? data.overallTargetUnit ?? data.overall_target_unit ?? riskObj.overallTargetUnit ?? riskObj.overallStrategyTargetUnit ?? riskObj.overall_strategy_target_unit ?? riskObj.overall_target_unit ?? '';
+
+        if (typeof rawOverallTarget === 'string') {
+          const lowerOT = rawOverallTarget.toLowerCase();
+          if (lowerOT.includes('%')) overallTargetUnit = '%';
+          else if (lowerOT.includes('pt') || lowerOT.includes('point')) overallTargetUnit = 'Pts';
+          else if (lowerOT.includes('rs') || lowerOT.includes('rupee') || lowerOT.includes('₹')) overallTargetUnit = 'Rs';
+          rawOverallTarget = parseFloat(rawOverallTarget) || rawOverallTarget;
+        }
+
+        // 🚀 SMART EXTRACTION FOR OVERALL STRATEGY SL & UNIT
+        let rawOverallSL = data.overallStrategySL ?? data.overall_strategy_sl ?? data.overallSL ?? data.overall_sl ?? riskObj.overallSL ?? riskObj.overallStrategySL ?? riskObj.overall_strategy_sl ?? riskObj.overall_sl ?? '';
+        let overallSLUnit = data.overallStrategySLUnit ?? data.overall_strategy_sl_unit ?? data.overallSLUnit ?? data.overall_sl_unit ?? riskObj.overallSLUnit ?? riskObj.overallStrategySLUnit ?? riskObj.overall_strategy_sl_unit ?? riskObj.overall_sl_unit ?? '';
+
+        if (typeof rawOverallSL === 'string') {
+          const lowerOSL = rawOverallSL.toLowerCase();
+          if (lowerOSL.includes('%')) overallSLUnit = '%';
+          else if (lowerOSL.includes('pt') || lowerOSL.includes('point')) overallSLUnit = 'Pts';
+          else if (lowerOSL.includes('rs') || lowerOSL.includes('rupee') || lowerOSL.includes('₹')) overallSLUnit = 'Rs';
+          rawOverallSL = parseFloat(rawOverallSL) || rawOverallSL;
+        }
+
+        // Final safety fallback (Overall defaults to Rs)
+        overallTargetUnit = overallTargetUnit || 'Rs';
+        overallSLUnit = overallSLUnit || 'Rs';
+
         const extractedRisk = {
           combinedPremiumTarget: rawCombTarget,
           combinedPremiumTargetUnit: combTargetUnit,
           combinedPremiumSL: rawCombSL,
           combinedPremiumSLUnit: combSLUnit,
-          overallTarget: riskObj.overallTarget ?? riskObj.overallStrategyTarget ?? riskObj.overall_strategy_target ?? riskObj.overall_target ?? '',
-          overallTargetUnit: riskObj.overallTargetUnit ?? riskObj.overallStrategyTargetUnit ?? 'Rs',
-          overallSL: riskObj.overallSL ?? riskObj.overallStrategySL ?? riskObj.overall_strategy_sl ?? riskObj.overall_sl ?? '',
-          overallSLUnit: riskObj.overallSLUnit ?? riskObj.overallStrategySLUnit ?? 'Rs'
+          overallTarget: rawOverallTarget,
+          overallTargetUnit: overallTargetUnit,
+          overallSL: rawOverallSL,
+          overallSLUnit: overallSLUnit
         };
         setParsedRisk(extractedRisk);
 
@@ -193,6 +221,33 @@ const AIParseSection = ({
         data.risk_management.combined_premium_sl_unit = combSLUnit;
         data.risk_management.combinedPremiumSL = rawCombSL;
         data.risk_management.combinedPremiumSLUnit = combSLUnit;
+
+        // 🚨 INJECT OVERALL TARGET / SL (+ UNITS) INTO `data` SO PARENT AUTO-FILLS THE OVERALL RISK UI
+        data.overall_strategy_target = rawOverallTarget;
+        data.overallStrategyTarget = rawOverallTarget;
+        data.overall_strategy_target_unit = overallTargetUnit;
+        data.overallStrategyTargetUnit = overallTargetUnit;
+
+        data.overall_strategy_sl = rawOverallSL;
+        data.overallStrategySL = rawOverallSL;
+        data.overall_strategy_sl_unit = overallSLUnit;
+        data.overallStrategySLUnit = overallSLUnit;
+
+        data.risk_management.overall_strategy_target = rawOverallTarget;
+        data.risk_management.overallStrategyTarget = rawOverallTarget;
+        data.risk_management.overall_target = rawOverallTarget;
+        data.risk_management.overallTarget = rawOverallTarget;
+        data.risk_management.overall_strategy_target_unit = overallTargetUnit;
+        data.risk_management.overallStrategyTargetUnit = overallTargetUnit;
+        data.risk_management.overallTargetUnit = overallTargetUnit;
+
+        data.risk_management.overall_strategy_sl = rawOverallSL;
+        data.risk_management.overallStrategySL = rawOverallSL;
+        data.risk_management.overall_sl = rawOverallSL;
+        data.risk_management.overallSL = rawOverallSL;
+        data.risk_management.overall_strategy_sl_unit = overallSLUnit;
+        data.risk_management.overallStrategySLUnit = overallSLUnit;
+        data.risk_management.overallSLUnit = overallSLUnit;
 
         // Enhanced Legs details passed back to parent
         if (enhancedLegs.length > 0) {
@@ -464,4 +519,4 @@ const AIParseSection = ({
   );
 };
 
-export default React.memo(AIParseSection);
+export default React.memo(AIParseSection);s

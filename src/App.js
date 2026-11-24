@@ -26,7 +26,7 @@ import Careers from './components/Careers';
 // 🛠️ FIX: ProtectedDashboard component-ah App function-ku VELIYA move pannitom.
 // Ithanaala type pannum pothu component re-mount aagi focus lose aagathu!
 const ProtectedDashboard = ({ logic }) => {
-  // 💎 NEW: State for Wealth Engine View inside Dashboard
+  // 💎 State for Wealth Engine View inside Dashboard
   const [wealthData, setWealthData] = useState(null);
   const [wealthError, setWealthError] = useState(null);
   const [activeTab, setActiveTab] = useState('trade'); // 'trade' or 'wealth'
@@ -81,7 +81,7 @@ const ProtectedDashboard = ({ logic }) => {
         // ⚡ Fyers Login & Connection Props ⚡
         isFyersConnected={logic.isFyersConnected}
         handleFyersLogin={logic.handleFyersLogin}
-        // 💎 NEW: Mode Switcher Props ([⚡ Intraday Algo] & [💎 Wealth Allocator])
+        // 💎 Mode Switcher Props ([⚡ Intraday Algo] & [💎 Wealth Allocator])
         activeTab={activeTab}
         setActiveTab={setActiveTab}
       />
@@ -154,6 +154,10 @@ const ProtectedDashboard = ({ logic }) => {
                   setIsConfirmed={logic.setIsConfirmed}
                   dataSource={logic.dataSource}
                   setDataSource={logic.setDataSource}
+
+                  // 🚀 FIX: Max Loop Limit (was missing -> "setTimeLoopLimit is not a function")
+                  timeLoopLimit={logic.timeLoopLimit}
+                  setTimeLoopLimit={logic.setTimeLoopLimit}
                   
                   combinedPremiumTarget={logic.combinedPremiumTarget}
                   setCombinedPremiumTarget={logic.setCombinedPremiumTarget}
@@ -165,7 +169,13 @@ const ProtectedDashboard = ({ logic }) => {
                   combinedPremiumSLUnit={logic.combinedPremiumSLUnit}
                   setCombinedPremiumSLUnit={logic.setCombinedPremiumSLUnit}
 
-                  // 🚀 NEW: Overall Strategy Target & SL Units
+                  // 🚀 FIX: Overall Strategy Target & SL values (auto-fill from AI parse)
+                  overallStrategyTarget={logic.overallStrategyTarget}
+                  setOverallStrategyTarget={logic.setOverallStrategyTarget}
+                  overallStrategySL={logic.overallStrategySL}
+                  setOverallStrategySL={logic.setOverallStrategySL}
+
+                  // 🚀 Overall Strategy Target & SL Units
                   overallStrategyTargetUnit={logic.overallStrategyTargetUnit}
                   setOverallStrategyTargetUnit={logic.setOverallStrategyTargetUnit}
                   overallStrategySLUnit={logic.overallStrategySLUnit}
@@ -186,7 +196,7 @@ const ProtectedDashboard = ({ logic }) => {
                   </button>
 
                   <button
-                    onClick={logic.logic?.runBacktest || logic.runBacktest}
+                    onClick={logic.runBacktest}
                     disabled={logic.loading || !logic.isConfirmed}
                     className={`w-full md:w-2/3 py-4 rounded-lg font-bold text-sm tracking-widest uppercase transition-all flex justify-center items-center gap-3 ${
                       logic.loading || !logic.isConfirmed 
@@ -227,7 +237,7 @@ function App() {
         
         {/* Main Content Area */}
         <div className="flex-grow">
-          {/* 🚦 ROUTING SYSTEM rt 🚦 */}
+          {/* 🚦 ROUTING SYSTEM 🚦 */}
           <Routes>
             
             {/* PUBLIC PAGES */}
