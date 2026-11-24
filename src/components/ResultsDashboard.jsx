@@ -19,6 +19,8 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
   
   // 📊 NEW: Excel report download state
   const [isDownloadingExcel, setIsDownloadingExcel] = useState(false);
+  // 📈 NEW: Daily MTM report download state
+  const [isDownloadingMtm, setIsDownloadingMtm] = useState(false);
   // 📑 NEW: Pro PDF tearsheet download state
   const [isDownloadingProPDF, setIsDownloadingProPDF] = useState(false);
   
@@ -239,6 +241,51 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
     }
   };
 
+  // 📈 NEW: Daily MTM report (separate Excel: peak / dip / true drawdown / minute chart of a picked day)
+  const downloadMtmExcel = async () => {
+    const ledgerData = filteredLedgerData || activeResult.Trade_Ledger || activeResult.ledger;
+
+    if (!ledgerData || ledgerData.length === 0) {
+      alert("No trade data available to download.");
+      return;
+    }
+    if (!activeResult.Day_MTM || Object.keys(activeResult.Day_MTM).length === 0) {
+      alert("This backtest has no minute-by-minute MTM data. Please re-run the backtest and try again.");
+      return;
+    }
+
+    setIsDownloadingMtm(true);
+    try {
+      const base = process.env.REACT_APP_API_URL;
+      const options = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ trade_ledger: ledgerData, day_mtm: activeResult.Day_MTM })
+      };
+
+      let response = await fetch(`${base}/generate_mtm_report`, options);
+      if (response.status === 404) {
+        response = await fetch(`${base}/api/generate_mtm_report`, options);
+      }
+      if (!response.ok) throw new Error(`Server error ${response.status}`);
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'Daily_MTM_Report.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error generating Daily MTM report:", error);
+      alert("Failed to generate Daily MTM report. Please try again.");
+    } finally {
+      setIsDownloadingMtm(false);
+    }
+  };
+
   // 📑 NEW: Pro PDF tearsheet built by backend (crisp charts + insights). Falls back to screenshot PDF if backend fails.
   const downloadProPDF = async () => {
     const ledgerData = filteredLedgerData || activeResult.Trade_Ledger || activeResult.ledger;
@@ -399,6 +446,13 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
           className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-md transition-colors shadow-lg disabled:opacity-50"
         >
           {isDownloadingExcel ? '⏳ Building Excel...' : '📊 Download Excel Report'}
+        </button>
+        <button 
+          onClick={downloadMtmExcel}
+          disabled={isExporting || isDownloadingMtm}
+          className="flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white text-sm font-semibold rounded-md transition-colors shadow-lg disabled:opacity-50"
+        >
+          {isDownloadingMtm ? '⏳ Building MTM...' : '📈 Download Daily MTM (Excel)'}
         </button>
         <button 
           onClick={downloadProPDF}
