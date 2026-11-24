@@ -249,8 +249,9 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
       alert("No trade data available to download.");
       return;
     }
-    if (!activeResult.Day_MTM || Object.keys(activeResult.Day_MTM).length === 0) {
-      alert("This backtest has no minute-by-minute MTM data. Please re-run the backtest and try again.");
+    // No minute data? Still download: backend falls back to closed-trade MTM and labels it in the sheet.
+    const hasMinuteMtm = activeResult.Day_MTM && Object.keys(activeResult.Day_MTM).length > 0;
+    if (!hasMinuteMtm && !window.confirm("This backtest has no minute-by-minute MTM data, so the report will use closed trades only (less accurate). Download anyway?")) {
       return;
     }
 
@@ -260,7 +261,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
       const options = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ trade_ledger: ledgerData, day_mtm: activeResult.Day_MTM })
+        body: JSON.stringify({ trade_ledger: ledgerData, day_mtm: activeResult.Day_MTM || {} })
       };
 
       let response = await fetch(`${base}/generate_mtm_report`, options);
