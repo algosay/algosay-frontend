@@ -165,8 +165,10 @@ const AIParseSection = ({
           combinedPremiumTargetUnit: combTargetUnit,
           combinedPremiumSL: rawCombSL,
           combinedPremiumSLUnit: combSLUnit,
-          overallTarget: riskObj.overallStrategyTarget ?? riskObj.overall_target ?? '',
-          overallSL: riskObj.overallStrategySL ?? riskObj.overall_sl ?? ''
+          overallTarget: riskObj.overallTarget ?? riskObj.overallStrategyTarget ?? riskObj.overall_strategy_target ?? riskObj.overall_target ?? '',
+          overallTargetUnit: riskObj.overallTargetUnit ?? riskObj.overallStrategyTargetUnit ?? 'Rs',
+          overallSL: riskObj.overallSL ?? riskObj.overallStrategySL ?? riskObj.overall_strategy_sl ?? riskObj.overall_sl ?? '',
+          overallSLUnit: riskObj.overallSLUnit ?? riskObj.overallStrategySLUnit ?? 'Rs'
         };
         setParsedRisk(extractedRisk);
 
@@ -426,14 +428,14 @@ const AIParseSection = ({
                   {parsedRisk.overallTarget && (
                     <div className="bg-blue-900/20 border border-blue-500/30 px-3 py-1.5 rounded-lg flex flex-col">
                       <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Overall Str. Target</span>
-                      <span className="text-sm font-bold text-blue-400">₹{parsedRisk.overallTarget}</span>
+                      <span className="text-sm font-bold text-blue-400">{parsedRisk.overallTarget} {parsedRisk.overallTargetUnit}</span>
                     </div>
                   )}
 
                   {parsedRisk.overallSL && (
                     <div className="bg-orange-900/20 border border-orange-500/30 px-3 py-1.5 rounded-lg flex flex-col">
                       <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Overall Str. SL</span>
-                      <span className="text-sm font-bold text-orange-400">₹{parsedRisk.overallSL}</span>
+                      <span className="text-sm font-bold text-orange-400">{parsedRisk.overallSL} {parsedRisk.overallSLUnit}</span>
                     </div>
                   )}
                   

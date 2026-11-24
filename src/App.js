@@ -164,6 +164,12 @@ const ProtectedDashboard = ({ logic }) => {
                   setCombinedPremiumTargetUnit={logic.setCombinedPremiumTargetUnit}
                   combinedPremiumSLUnit={logic.combinedPremiumSLUnit}
                   setCombinedPremiumSLUnit={logic.setCombinedPremiumSLUnit}
+
+                  // 🚀 NEW: Overall Strategy Target & SL Units
+                  overallStrategyTargetUnit={logic.overallStrategyTargetUnit}
+                  setOverallStrategyTargetUnit={logic.setOverallStrategyTargetUnit}
+                  overallStrategySLUnit={logic.overallStrategySLUnit}
+                  setOverallStrategySLUnit={logic.setOverallStrategySLUnit}
                 />
 
                 <div className="flex flex-col md:flex-row gap-4 mb-8">

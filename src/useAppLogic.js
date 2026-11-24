@@ -74,10 +74,10 @@ export const useAppLogic = () => {
 
   // 🟢 NEW UPDATE: Price-based Global/Combined Targets & SL States with Units 🟢
   const [overallStrategyTarget, setOverallStrategyTarget] = useState('');
-  const [overallStrategyTargetUnit, setOverallStrategyTargetUnit] = useState('Pts'); // NEW UNIT STATE
+  const [overallStrategyTargetUnit, setOverallStrategyTargetUnit] = useState('Rs'); // DEFAULT UNIT: Rs
 
   const [overallStrategySL, setOverallStrategySL] = useState('');
-  const [overallStrategySLUnit, setOverallStrategySLUnit] = useState('Pts'); // NEW UNIT STATE
+  const [overallStrategySLUnit, setOverallStrategySLUnit] = useState('Rs'); // DEFAULT UNIT: Rs
   
   // 🟢 A) STATE CREATION (Top Level) with Units 🟢
   const [combinedPremiumTarget, setCombinedPremiumTarget] = useState('');
@@ -208,14 +208,14 @@ export const useAppLogic = () => {
         return defaultUnit;
     };
 
-    let rawOverallTarget = risk.overallStrategyTarget ?? risk.overall_target ?? data.overallStrategyTarget ?? data.overall_target ?? '';
-    let rawOverallSL = risk.overallStrategySL ?? risk.overall_sl ?? data.overallStrategySL ?? data.overall_sl ?? '';
+    let rawOverallTarget = risk.overallTarget ?? risk.overallStrategyTarget ?? risk.overall_strategy_target ?? risk.overall_target ?? data.overallTarget ?? data.overallStrategyTarget ?? data.overall_strategy_target ?? data.overall_target ?? '';
+    let rawOverallSL = risk.overallSL ?? risk.overallStrategySL ?? risk.overall_strategy_sl ?? risk.overall_sl ?? data.overallSL ?? data.overallStrategySL ?? data.overall_strategy_sl ?? data.overall_sl ?? '';
 
     let rawCombinedTarget = data.combinedPremiumTarget ?? data.combined_premium_target ?? risk.combinedPremiumTarget ?? risk.combined_premium_target ?? risk.combinedTarget ?? data.combinedTarget ?? risk.combined_target ?? data.combined_target ?? '';
     let rawCombinedSL = data.combinedPremiumSL ?? data.combined_premium_sl ?? risk.combinedPremiumSL ?? risk.combined_premium_sl ?? risk.combinedSL ?? data.combinedSL ?? risk.combined_sl ?? data.combined_sl ?? risk.combinedPremiumStopLoss ?? risk.combined_premium_stop_loss ?? risk.combinedStopLoss ?? risk.combined_stop_loss ?? data.combinedStopLoss ?? data.combined_stop_loss ?? '';
 
-    const overallTargetUnitVal = risk.overallStrategyTargetUnit ?? risk.overall_target_unit ?? extractUnit(rawOverallTarget, 'Pts');
-    const overallSLUnitVal = risk.overallStrategySLUnit ?? risk.overall_sl_unit ?? extractUnit(rawOverallSL, 'Pts');
+    const overallTargetUnitVal = risk.overallTargetUnit ?? risk.overallStrategyTargetUnit ?? risk.overall_strategy_target_unit ?? risk.overall_target_unit ?? extractUnit(rawOverallTarget, 'Rs');
+    const overallSLUnitVal = risk.overallSLUnit ?? risk.overallStrategySLUnit ?? risk.overall_strategy_sl_unit ?? risk.overall_sl_unit ?? extractUnit(rawOverallSL, 'Rs');
     
     const combinedTargetUnitVal = data.combinedPremiumTargetUnit || data.combined_premium_target_unit || risk.combinedPremiumTargetUnit || risk.combined_premium_target_unit || extractUnit(rawCombinedTarget, 'Pts');
     const combinedSLUnitVal = data.combinedPremiumSLUnit || data.combined_premium_sl_unit || risk.combinedPremiumSLUnit || risk.combined_premium_sl_unit || extractUnit(rawCombinedSL, 'Pts');
@@ -233,10 +233,12 @@ export const useAppLogic = () => {
     const hasCombined = (valCombinedTarget !== '' && parseFloat(valCombinedTarget) > 0) || 
                         (valCombinedSL !== '' && parseFloat(valCombinedSL) > 0);
 
-    setOverallStrategyTarget(extractNumber(rawOverallTarget));
+    const cleanOverallTarget = extractNumber(rawOverallTarget);
+    const cleanOverallSL = extractNumber(rawOverallSL);
+    setOverallStrategyTarget(parseFloat(cleanOverallTarget) > 0 ? cleanOverallTarget : '');
     setOverallStrategyTargetUnit(overallTargetUnitVal);
 
-    setOverallStrategySL(extractNumber(rawOverallSL));
+    setOverallStrategySL(parseFloat(cleanOverallSL) > 0 ? cleanOverallSL : '');
     setOverallStrategySLUnit(overallSLUnitVal);
 
     setCombinedPremiumTarget(valCombinedTarget);
@@ -468,9 +470,9 @@ export const useAppLogic = () => {
     setTimeLoopLimit(data.timeLoopLimit || 1);
 
     setOverallStrategyTarget(data.overallStrategyTarget || '');
-    setOverallStrategyTargetUnit(data.overallStrategyTargetUnit || 'Pts');
+    setOverallStrategyTargetUnit(data.overallStrategyTargetUnit || 'Rs');
     setOverallStrategySL(data.overallStrategySL || '');
-    setOverallStrategySLUnit(data.overallStrategySLUnit || 'Pts');
+    setOverallStrategySLUnit(data.overallStrategySLUnit || 'Rs');
 
     setCombinedPremiumTarget(data.combinedPremiumTarget || '');
     setCombinedPremiumTargetUnit(data.combinedPremiumTargetUnit || 'Pts');

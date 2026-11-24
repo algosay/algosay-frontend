@@ -48,6 +48,9 @@ const StrategyConfig = ({
   // 🟢 NEW UPDATE: Price-based Global/Combined Targets & SL Props (WITH UNITS)
   overallStrategyTarget, setOverallStrategyTarget,
   overallStrategySL, setOverallStrategySL,
+  // 🚀 NEW: Overall Strategy Target & SL Units
+  overallStrategyTargetUnit, setOverallStrategyTargetUnit,
+  overallStrategySLUnit, setOverallStrategySLUnit,
   combinedPremiumTarget, setCombinedPremiumTarget,
   combinedPremiumTargetUnit, setCombinedPremiumTargetUnit, // 🚀 NEW: TARGET UNIT
   combinedPremiumSL, setCombinedPremiumSL,
@@ -109,26 +112,48 @@ const StrategyConfig = ({
           
           {/* Overall Strategy Target */}
           <div className="flex flex-col">
-            <label className="text-xs text-gray-400 mb-1">Overall Target (₹/Pts)</label>
-            <input
-              type="number"
-              className="bg-[#2a2a2a] text-white p-2 rounded border border-gray-600 focus:border-green-500 focus:outline-none text-sm transition-colors"
-              placeholder="E.g., 5000"
-              value={overallStrategyTarget || ""}
-              onChange={(e) => handleConfigChange(setOverallStrategyTarget, e.target.value)}
-            />
+            <label className="text-xs text-gray-400 mb-1">Overall Target</label>
+            <div className="flex gap-2">
+              <input
+                type="number"
+                className="bg-[#2a2a2a] w-full text-white p-2 rounded border border-gray-600 focus:border-green-500 focus:outline-none text-sm transition-colors"
+                placeholder="E.g., 5000"
+                value={overallStrategyTarget || ""}
+                onChange={(e) => handleConfigChange(setOverallStrategyTarget, e.target.value)}
+              />
+              <select
+                className="bg-[#2a2a2a] text-white p-2 rounded border border-gray-600 focus:border-green-500 focus:outline-none text-sm cursor-pointer"
+                value={normalizeUnit(overallStrategyTargetUnit || "Rs")}
+                onChange={(e) => handleConfigChange(setOverallStrategyTargetUnit, e.target.value)}
+              >
+                <option value="Rs">Rs</option>
+                <option value="Pts">Pts</option>
+                <option value="%">%</option>
+              </select>
+            </div>
           </div>
 
           {/* Overall Strategy SL */}
           <div className="flex flex-col">
-            <label className="text-xs text-gray-400 mb-1">Overall SL (₹/Pts)</label>
-            <input
-              type="number"
-              className="bg-[#2a2a2a] text-white p-2 rounded border border-gray-600 focus:border-red-500 focus:outline-none text-sm transition-colors"
-              placeholder="E.g., 2000"
-              value={overallStrategySL || ""}
-              onChange={(e) => handleConfigChange(setOverallStrategySL, e.target.value)}
-            />
+            <label className="text-xs text-gray-400 mb-1">Overall SL</label>
+            <div className="flex gap-2">
+              <input
+                type="number"
+                className="bg-[#2a2a2a] w-full text-white p-2 rounded border border-gray-600 focus:border-red-500 focus:outline-none text-sm transition-colors"
+                placeholder="E.g., 2000"
+                value={overallStrategySL || ""}
+                onChange={(e) => handleConfigChange(setOverallStrategySL, e.target.value)}
+              />
+              <select
+                className="bg-[#2a2a2a] text-white p-2 rounded border border-gray-600 focus:border-red-500 focus:outline-none text-sm cursor-pointer"
+                value={normalizeUnit(overallStrategySLUnit || "Rs")}
+                onChange={(e) => handleConfigChange(setOverallStrategySLUnit, e.target.value)}
+              >
+                <option value="Rs">Rs</option>
+                <option value="Pts">Pts</option>
+                <option value="%">%</option>
+              </select>
+            </div>
           </div>
 
           {/* Combined Premium Target & Unit (🚀 UPDATED WITH DYNAMIC DROPDOWN) */}
