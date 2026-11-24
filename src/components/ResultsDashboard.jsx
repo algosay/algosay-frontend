@@ -19,6 +19,8 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
   
   // 📊 NEW: Excel report download state
   const [isDownloadingExcel, setIsDownloadingExcel] = useState(false);
+  // 📑 NEW: Pro PDF tearsheet download state
+  const [isDownloadingProPDF, setIsDownloadingProPDF] = useState(false);
   
   // ⚡ PUDHU UPDATE: ExecutionLedger-oda local filtered data-va store panna puthu state
   const [filteredLedgerData, setFilteredLedgerData] = useState(null);
@@ -210,7 +212,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
       const options = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ trade_ledger: ledgerData, style: 'simple' })
+        body: JSON.stringify({ trade_ledger: ledgerData, style: 'pro' })
       };
 
       let response = await fetch(`${base}/generate_report`, options);
@@ -235,6 +237,48 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
     } finally {
       setIsDownloadingExcel(false);
     }
+  };
+
+  // 📑 NEW: Pro PDF tearsheet built by backend (crisp charts + insights). Falls back to screenshot PDF if backend fails.
+  const downloadProPDF = async () => {
+    const ledgerData = filteredLedgerData || activeResult.Trade_Ledger || activeResult.ledger;
+
+    if (!ledgerData || ledgerData.length === 0) {
+      alert("No trade data available to download.");
+      return;
+    }
+
+    setIsDownloadingProPDF(true);
+    try {
+      const base = process.env.REACT_APP_API_URL;
+      const options = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ trade_ledger: ledgerData, ai_advice: aiAdvice || '' })
+      };
+
+      let response = await fetch(`${base}/generate_pdf`, options);
+      if (response.status === 404) {
+        response = await fetch(`${base}/api/generate_pdf`, options);
+      }
+      if (!response.ok) throw new Error(`Server error ${response.status}`);
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'Backtest_Report.pdf');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Pro PDF failed, falling back to screenshot PDF:", error);
+      setIsDownloadingProPDF(false);
+      await downloadPDF();
+      return;
+    }
+    setIsDownloadingProPDF(false);
   };
 
   const downloadPDF = async () => {
@@ -357,11 +401,11 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
           {isDownloadingExcel ? '⏳ Building Excel...' : '📊 Download Excel Report'}
         </button>
         <button 
-          onClick={downloadPDF}
-          disabled={isExporting}
+          onClick={downloadProPDF}
+          disabled={isExporting || isDownloadingProPDF}
           className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-md transition-colors shadow-lg disabled:opacity-50"
         >
-          {isExporting ? '⏳ Generating PDF...' : '📄 Download AI Report (PDF)'}
+          {isExporting ? '⏳ Generating PDF...' : (isDownloadingProPDF ? '⏳ Building PDF...' : '📄 Download Pro Report (PDF)')}
         </button>
       </div>
 
