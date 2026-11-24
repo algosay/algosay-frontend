@@ -212,7 +212,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
       const options = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ trade_ledger: ledgerData, style: 'pro' })
+        body: JSON.stringify({ trade_ledger: ledgerData, style: 'pro', day_mtm: activeResult.Day_MTM || {} })
       };
 
       let response = await fetch(`${base}/generate_report`, options);
