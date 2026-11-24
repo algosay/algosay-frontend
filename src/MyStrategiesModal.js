@@ -97,13 +97,13 @@ const DEFAULT_STRATEGIES = [
     "Asset & Timeframe: Sensex | 15 Minutes Timeframe | 1 Lot (ATM Options Short)\nEntry Rule: Dynamic Loop. Starts checking from 09:30 AM onwards Until 3.00 PM.\nCE Short: If 3 consecutive 15-minute candles close red, short ATM CE at the open price of the next candle.\nPE Short: If 3 consecutive 15-minute candles close green, short ATM PE at the open price of the next candle.\nRisk Management: 22% Stop Loss & 65% Target calculated per individual leg.\nExit Rule: Universal square-off for all open positions automatically at 15:15 PM (3:15 PM).\nPeriod: Aug 06.08.2026 to Aug 06.08.2026", 
     'trend'
   ),
-  createDefaultObj(
-    's_6', 
-    'Combined Premium Short Straddle (SENSEX - 15M)', 
-    'Core Non-Dir - Combined premium target and SL.', 
-    "Asset & Timeframe: SENSEX | 15 Minutes Timeframe | 1 Lot (CE & PE Short)\nEntry Rule: Entry starts at 09:30 AM and repeats every 15 minutes till 15:15 PM (ATM Strike). Dynamic Loop\nRisk Management: Combined Premium SL: 20% points | Target: 20% (Overall strategy exit based on total premium movement)\nExit Rule: Universal square-off at 15:15 PM (3:15 PM) or when combined premium targets/stop-losses are triggered.\nPeriod: Aug 06.08.2026 to Aug 06.08.2026", 
-    'core_ndir'
-  ),
+ createDefaultObj(
+  's_6',
+  'Combined Premium Short Straddle (SENSEX - 15M)',
+  'Core Non-Dir - Combined premium target and SL.',
+  "Sell SENSEX ATM CE and PE, 1 lot each, 15 minutes timeframe.\nPlace a fresh entry at every 15-minute slot from 09:30 AM to 15:00 PM (09:30, 09:45, 10:00 ... 15:00).\nEach slot is an independent trade. Do NOT wait for the previous trade to exit or hit stoploss before placing the next entry. Overlapping positions are allowed.\nEach trade has its own Combined Premium SL 20% and Combined Premium Target 20%.\nSquare off all open trades at 15:15 PM.\nPeriod: 06-08-2026 to 06-08-2026.",
+  'core_ndir'
+),
   createDefaultObj(
     's_7', 
     'Inside Bar Premium Crush (15M)', 
