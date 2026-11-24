@@ -17,6 +17,9 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
   const [isLoadingAI, setIsLoadingAI] = useState(false);
   const [isExporting, setIsExporting] = useState(false); 
   
+  // 📊 NEW: Excel report download state
+  const [isDownloadingExcel, setIsDownloadingExcel] = useState(false);
+  
   // ⚡ PUDHU UPDATE: ExecutionLedger-oda local filtered data-va store panna puthu state
   const [filteredLedgerData, setFilteredLedgerData] = useState(null);
 
@@ -192,6 +195,48 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
     document.body.removeChild(link);
   };
 
+  // 📊 NEW: Excel report (Summary / All Trades / By Leg + MFE/MAE) built by backend from the same ledger as CSV
+  const downloadExcel = async () => {
+    const ledgerData = filteredLedgerData || activeResult.Trade_Ledger || activeResult.ledger;
+
+    if (!ledgerData || ledgerData.length === 0) {
+      alert("No trade data available to download.");
+      return;
+    }
+
+    setIsDownloadingExcel(true);
+    try {
+      const base = process.env.REACT_APP_API_URL;
+      const options = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ trade_ledger: ledgerData, style: 'simple' })
+      };
+
+      let response = await fetch(`${base}/generate_report`, options);
+      if (response.status === 404) {
+        // if backend router is mounted with /api prefix
+        response = await fetch(`${base}/api/generate_report`, options);
+      }
+      if (!response.ok) throw new Error(`Server error ${response.status}`);
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'Backtest_Report.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error generating Excel report:", error);
+      alert("Failed to generate Excel report. Please try again.");
+    } finally {
+      setIsDownloadingExcel(false);
+    }
+  };
+
   const downloadPDF = async () => {
     setIsExporting(true); 
 
@@ -303,6 +348,13 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
           className="flex items-center gap-2 px-4 py-2 bg-[#1e1e1e] hover:bg-[#2d2d2d] border border-gray-600 text-gray-200 text-sm font-semibold rounded-md transition-colors disabled:opacity-50"
         >
           📥 Download Trade Book (CSV)
+        </button>
+        <button 
+          onClick={downloadExcel}
+          disabled={isExporting || isDownloadingExcel}
+          className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-md transition-colors shadow-lg disabled:opacity-50"
+        >
+          {isDownloadingExcel ? '⏳ Building Excel...' : '📊 Download Excel Report'}
         </button>
         <button 
           onClick={downloadPDF}
