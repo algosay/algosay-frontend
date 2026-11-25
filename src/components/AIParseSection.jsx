@@ -27,6 +27,18 @@ const AIParseSection = ({
     }
   }, [aiPrompt]);
 
+  // 📏 Auto-grow textarea: content ku thagundha maari height maarum (max 480px, adhukku mela scroll)
+  const autoResize = () => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 480) + 'px';
+  };
+
+  useEffect(() => {
+    autoResize();
+  }, [localPrompt]);
+
   const handleTextChange = (e) => {
     const val = e.target.value;
     setLocalPrompt(val); // Update local state instantly so typing is smooth
@@ -317,8 +329,8 @@ const AIParseSection = ({
         <div className="flex flex-col lg:flex-row gap-3">
           <textarea
             ref={textareaRef}
-            className="flex-grow w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-[#0F1B2D] focus:outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 text-sm placeholder:text-slate-400 transition-all resize-none custom-scrollbar"
-            rows="3"
+            className="flex-grow w-full min-h-[160px] max-h-[480px] overflow-y-auto bg-slate-50 border border-slate-200 rounded-lg p-3 text-[#0F1B2D] focus:outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 text-sm placeholder:text-slate-400 transition-all resize-none custom-scrollbar"
+            rows="6"
             placeholder="e.g., Sell sensex option CE and PE every 15 mins. If 9.15-9.30 candle is green sell PE at 9.30 open price. Target 65% stop loss 22% exit at 3.15 PM."
             value={localPrompt}
             onChange={handleTextChange}
@@ -327,7 +339,7 @@ const AIParseSection = ({
           <button
             onClick={handleAIParse}
             disabled={isParsing || !localPrompt}
-            className={`lg:w-44 px-5 py-3 rounded-lg font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 ${
+            className={`lg:w-44 lg:self-start lg:h-12 px-5 py-3 rounded-lg font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 ${
               isParsing || !localPrompt
               ? 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed'
               : 'bg-[#0F1B2D] hover:bg-[#1c2d47] text-white shadow-sm cursor-pointer'
