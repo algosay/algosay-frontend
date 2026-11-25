@@ -438,7 +438,16 @@ const AIParseSection = ({
                             <>
                               <span className="bg-black/50 px-2 py-1 rounded border border-white/5">Asset: <strong className="text-white">{leg.displayTicker}</strong></span>
                               <span className="bg-black/50 px-2 py-1 rounded border border-white/5">Type: <strong className="text-white">{leg.optionType || leg.option_type || 'CE'}</strong></span>
-                              <span className="bg-black/50 px-2 py-1 rounded border border-white/5">Strike: <strong className="text-white">{leg.strikeType || leg.strike_type || 'ATM'}</strong></span>
+                              <span className="bg-black/50 px-2 py-1 rounded border border-white/5">Strike: <strong className="text-white">{
+                                (() => {
+                                  const c = leg.strikeCriteria || 'Strike Type';
+                                  if (c === 'Closest Premium') return `Closest Premium ₹${leg.targetPremium || 0}`;
+                                  if (c === 'Premium Range') return `Premium ₹${leg.lowerPremium || 0}-${leg.upperPremium || 0}`;
+                                  if (c === '% of Spot') return `${leg.spotPercent || 0}% ${leg.strikeType || 'OTM'} of Spot`;
+                                  if (c === 'Straddle Width') return `${leg.straddleMultiplier || 1}x Straddle ${leg.strikeType || 'OTM'}`;
+                                  return `${leg.strikeType || leg.strike_type || 'ATM'}${leg.distance ? ' ' + leg.distance : ''}`;
+                                })()
+                              }</strong></span>
                               <span className="bg-black/50 px-2 py-1 rounded border border-white/5">Expiry: <strong className="text-white">{leg.expiryType || leg.expiry || 'CURRENT_WEEK'}</strong></span>
                             </>
                           ) : (
