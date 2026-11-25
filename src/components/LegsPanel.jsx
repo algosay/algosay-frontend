@@ -349,6 +349,7 @@ const LegsPanel = ({
                           >
                             <option value="%">%</option>
                             <option value="Pts">Pts</option>
+                            <option value="Rs">Rs</option>
                           </select>
                         </div>
                       </div>
@@ -368,6 +369,31 @@ const LegsPanel = ({
                           >
                             <option value="%">%</option>
                             <option value="Pts">Pts</option>
+                            <option value="Rs">Rs</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 🎯 SPOT / UNDERLYING SL & TARGET */}
+                    <div className="col-span-2 grid grid-cols-2 gap-2 mt-1.5">
+                      <div>
+                        <label className="block text-[9px] text-orange-400 uppercase tracking-wide mb-1">Spot / Underlying SL</label>
+                        <div className="flex gap-1">
+                          <input type="number" value={leg.spotSL ?? leg.spot_sl ?? ''} onChange={(e) => updateLeg(leg.id, 'spotSL', Number(e.target.value))} className="w-2/3 bg-[#1e1e1e] border border-[#222] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-orange-500" placeholder="0" />
+                          <select value={leg.spotSLUnit || leg.spot_sl_unit || 'Pts'} onChange={(e) => updateLeg(leg.id, 'spotSLUnit', e.target.value)} className="w-1/3 bg-[#1e1e1e] border border-[#222] focus:border-orange-500 rounded p-1 text-[10px] text-gray-300 outline-none">
+                            <option value="Pts">Pts</option>
+                            <option value="%">%</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-[9px] text-lime-400 uppercase tracking-wide mb-1">Spot / Underlying Target</label>
+                        <div className="flex gap-1">
+                          <input type="number" value={leg.spotTarget ?? leg.spot_target ?? ''} onChange={(e) => updateLeg(leg.id, 'spotTarget', Number(e.target.value))} className="w-2/3 bg-[#1e1e1e] border border-[#222] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-lime-500" placeholder="0" />
+                          <select value={leg.spotTargetUnit || leg.spot_target_unit || 'Pts'} onChange={(e) => updateLeg(leg.id, 'spotTargetUnit', e.target.value)} className="w-1/3 bg-[#1e1e1e] border border-[#222] focus:border-lime-500 rounded p-1 text-[10px] text-gray-300 outline-none">
+                            <option value="Pts">Pts</option>
+                            <option value="%">%</option>
                           </select>
                         </div>
                       </div>
@@ -398,6 +424,77 @@ const LegsPanel = ({
                             onChange={(e) => updateLeg(leg.id, 'trailUnitY', e.target.value)} 
                             className="w-1/3 bg-[#1e1e1e] border border-[#222] focus:border-yellow-600 rounded p-1 text-[10px] text-gray-300 outline-none"
                           >
+                            <option value="Pts">Pts</option>
+                            <option value="%">%</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 🔒 LOCK AND TRAIL (leg level): profit >= Trigger -> Lock Profit, apparam X move-ku Y trail */}
+                    <div className="col-span-2 mt-1.5 p-2 bg-[#181818] border border-[#222] rounded">
+                      <label className="block text-[9px] text-violet-400 uppercase tracking-wide mb-1.5">🔒 Lock and Trail (Trigger → Lock, then X → Y)</label>
+                      <div className="grid grid-cols-5 gap-1">
+                        <div>
+                          <span className="block text-[8px] text-gray-500 uppercase mb-0.5">Trigger</span>
+                          <input type="number" value={leg.lockTrigger ?? leg.lock_trigger ?? ''} onChange={(e) => updateLeg(leg.id, 'lockTrigger', Number(e.target.value))} className="w-full bg-[#1e1e1e] border border-[#222] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-violet-500" placeholder="0" />
+                        </div>
+                        <div>
+                          <span className="block text-[8px] text-gray-500 uppercase mb-0.5">Lock</span>
+                          <input type="number" value={leg.lockProfit ?? leg.lock_profit ?? ''} onChange={(e) => updateLeg(leg.id, 'lockProfit', Number(e.target.value))} className="w-full bg-[#1e1e1e] border border-[#222] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-violet-500" placeholder="0" />
+                        </div>
+                        <div>
+                          <span className="block text-[8px] text-gray-500 uppercase mb-0.5">Trail X</span>
+                          <input type="number" value={leg.lockTrailX ?? leg.lock_trail_x ?? ''} onChange={(e) => updateLeg(leg.id, 'lockTrailX', Number(e.target.value))} className="w-full bg-[#1e1e1e] border border-[#222] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-violet-500" placeholder="0" />
+                        </div>
+                        <div>
+                          <span className="block text-[8px] text-gray-500 uppercase mb-0.5">Trail Y</span>
+                          <input type="number" value={leg.lockTrailY ?? leg.lock_trail_y ?? ''} onChange={(e) => updateLeg(leg.id, 'lockTrailY', Number(e.target.value))} className="w-full bg-[#1e1e1e] border border-[#222] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-violet-500" placeholder="0" />
+                        </div>
+                        <div>
+                          <span className="block text-[8px] text-gray-500 uppercase mb-0.5">Unit</span>
+                          <select value={leg.lockUnit || leg.lock_unit || 'Pts'} onChange={(e) => updateLeg(leg.id, 'lockUnit', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#222] focus:border-violet-500 rounded p-1.5 text-[10px] text-gray-300 outline-none">
+                            <option value="Pts">Pts</option>
+                            <option value="%">%</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 🎯 SL TO COST (trigger) + COST-TO-COST */}
+                    <div className="col-span-2 mt-1.5 p-2 bg-[#181818] border border-[#222] rounded grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-[9px] text-sky-400 uppercase tracking-wide mb-1">SL to Cost (profit trigger)</label>
+                        <div className="flex gap-1">
+                          <input type="number" value={leg.slToCostTrigger ?? leg.sl_to_cost_trigger ?? ''} onChange={(e) => updateLeg(leg.id, 'slToCostTrigger', Number(e.target.value))} className="w-2/3 bg-[#1e1e1e] border border-[#222] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-sky-500" placeholder="0" />
+                          <select value={leg.slToCostUnit || leg.sl_to_cost_unit || 'Pts'} onChange={(e) => updateLeg(leg.id, 'slToCostUnit', e.target.value)} className="w-1/3 bg-[#1e1e1e] border border-[#222] focus:border-sky-500 rounded p-1 text-[10px] text-gray-300 outline-none">
+                            <option value="Pts">Pts</option>
+                            <option value="%">%</option>
+                          </select>
+                        </div>
+                      </div>
+                      <label className="flex items-center gap-2 text-[10px] text-gray-300 cursor-pointer mt-4">
+                        <input type="checkbox" className="accent-sky-500" checked={!!(leg.costToCost ?? leg.cost_to_cost)} onChange={(e) => updateLeg(leg.id, 'costToCost', e.target.checked)} />
+                        Cost-to-Cost (SL → entry)
+                      </label>
+                    </div>
+
+                    {/* 🧩 SL ON CLOSE / NO-PROFIT EXIT / MOVE OTHER LEG TO COST */}
+                    <div className="col-span-2 mt-1.5 p-2 bg-[#181818] border border-[#222] rounded grid grid-cols-2 gap-2">
+                      <label className="flex items-center gap-2 text-[10px] text-gray-300 cursor-pointer">
+                        <input type="checkbox" className="accent-orange-500" checked={!!leg.slOnClose} onChange={(e) => updateLeg(leg.id, 'slOnClose', e.target.checked)} />
+                        SL on candle close
+                      </label>
+                      <label className="flex items-center gap-2 text-[10px] text-gray-300 cursor-pointer">
+                        <input type="checkbox" className="accent-cyan-500" checked={!!leg.moveOtherToCost} onChange={(e) => updateLeg(leg.id, 'moveOtherToCost', e.target.checked)} />
+                        Other leg SL hit → my SL to cost
+                      </label>
+                      <div className="col-span-2">
+                        <label className="block text-[9px] text-rose-400 uppercase tracking-wide mb-1">No-profit exit (time, min profit)</label>
+                        <div className="flex gap-1">
+                          <input type="time" value={leg.noProfitExitTime || ''} onChange={(e) => updateLeg(leg.id, 'noProfitExitTime', e.target.value)} className="w-1/2 bg-[#1e1e1e] border border-[#222] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-rose-500" />
+                          <input type="number" value={leg.noProfitMin ?? 0} onChange={(e) => updateLeg(leg.id, 'noProfitMin', Number(e.target.value))} className="w-1/4 bg-[#1e1e1e] border border-[#222] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-rose-500" placeholder="0" />
+                          <select value={leg.noProfitUnit || 'Pts'} onChange={(e) => updateLeg(leg.id, 'noProfitUnit', e.target.value)} className="w-1/4 bg-[#1e1e1e] border border-[#222] rounded p-1 text-[10px] text-gray-300 outline-none">
                             <option value="Pts">Pts</option>
                             <option value="%">%</option>
                           </select>

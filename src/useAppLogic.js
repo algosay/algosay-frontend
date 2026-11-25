@@ -15,6 +15,11 @@ const INDEX_STEP_SIZES = {
   "BANKEX": 100
 };
 
+const DEFAULT_RISK_EXTRA = {
+  overallLockTrigger: '', overallLockProfit: '', overallLockTrailX: '', overallLockTrailY: '', overallLockUnit: 'Rs', overallIntrabar: false,
+  combinedLockTrigger: '', combinedLockProfit: '', combinedLockTrailX: '', combinedLockTrailY: '', combinedTrailX: '', combinedTrailY: '', combinedLockUnit: 'Pts'
+};
+
 export const useAppLogic = () => {
   // --- Auth & Credits State ---
   const [user, setUser] = useState(null);
@@ -86,6 +91,8 @@ export const useAppLogic = () => {
 
   const [combinedPremiumSL, setCombinedPremiumSL] = useState('');
   const [combinedPremiumSLUnit, setCombinedPremiumSLUnit] = useState('Pts'); // NEW UNIT STATE
+
+  const [riskExtra, setRiskExtra] = useState(DEFAULT_RISK_EXTRA);
 
   const [indicators, setIndicators] = useState([]);
   const [legs, setLegs] = useState([]); 
@@ -248,6 +255,24 @@ export const useAppLogic = () => {
     setCombinedPremiumSL(valCombinedSL);
     setCombinedPremiumSLUnit(combinedSLUnitVal);
 
+    const rxNum = (...vals) => { for (const v of vals) { const n = parseFloat(v); if (!isNaN(n) && n > 0) return String(n); } return ''; };
+    const rxUnit = (v, d) => { const s = String(v ?? '').toLowerCase(); if (s.includes('%') || s.includes('percent')) return '%'; if (s.includes('rs') || s.includes('rupee') || s.includes('inr')) return 'Rs'; if (s.includes('pt') || s.includes('point')) return 'Pts'; return d; };
+    setRiskExtra({
+      overallLockTrigger: rxNum(risk.overallLockTrigger, risk.overall_lock_trigger),
+      overallLockProfit: rxNum(risk.overallLockProfit, risk.overall_lock_profit),
+      overallLockTrailX: rxNum(risk.overallLockTrailX, risk.overall_lock_trail_x),
+      overallLockTrailY: rxNum(risk.overallLockTrailY, risk.overall_lock_trail_y),
+      overallLockUnit: rxUnit(risk.overallLockUnit ?? risk.overall_lock_unit, 'Rs'),
+      overallIntrabar: Boolean(risk.overallIntrabar ?? risk.overall_intrabar ?? false),
+      combinedLockTrigger: rxNum(risk.combinedLockTrigger, risk.combined_lock_trigger),
+      combinedLockProfit: rxNum(risk.combinedLockProfit, risk.combined_lock_profit),
+      combinedLockTrailX: rxNum(risk.combinedLockTrailX, risk.combined_lock_trail_x),
+      combinedLockTrailY: rxNum(risk.combinedLockTrailY, risk.combined_lock_trail_y),
+      combinedTrailX: rxNum(risk.combinedTrailX, risk.combined_trail_x),
+      combinedTrailY: rxNum(risk.combinedTrailY, risk.combined_trail_y),
+      combinedLockUnit: rxUnit(risk.combinedLockUnit ?? risk.combined_lock_unit, 'Pts')
+    });
+
     if (data.indicators && Array.isArray(data.indicators)) {
       const mappedIndicators = data.indicators.map((ind, idx) => {
         let parsedSettings = '';
@@ -361,6 +386,24 @@ export const useAppLogic = () => {
           
           slUnit: extractedSlUnit,
           targetUnit: extractedTargetUnit,
+
+          // 🎯 Spot / Underlying SL & Target (index price move)
+          spotSL: leg.spotSL ?? leg.spot_sl ?? leg.spotSl ?? 0,
+          spotSLUnit: leg.spotSLUnit || leg.spot_sl_unit || 'Pts',
+          spotTarget: leg.spotTarget ?? leg.spot_target ?? 0,
+          spotTargetUnit: leg.spotTargetUnit || leg.spot_target_unit || 'Pts',
+
+          // 🔒 Leg Lock & Trail
+          lockTrigger: leg.lockTrigger ?? leg.lock_trigger ?? 0,
+          lockProfit: leg.lockProfit ?? leg.lock_profit ?? 0,
+          lockTrailX: leg.lockTrailX ?? leg.lock_trail_x ?? 0,
+          lockTrailY: leg.lockTrailY ?? leg.lock_trail_y ?? 0,
+          lockUnit: leg.lockUnit || leg.lock_unit || 'Pts',
+
+          // 🎯 SL to Cost trigger
+          slToCostTrigger: leg.slToCostTrigger ?? leg.sl_to_cost_trigger ?? 0,
+          slToCostUnit: leg.slToCostUnit || leg.sl_to_cost_unit || 'Pts',
+
           trailX: rawTrailX,
           trailY: rawTrailY,
           trailUnitX: extractedTrailUnitX,
@@ -375,6 +418,12 @@ export const useAppLogic = () => {
           waitAndTrade: leg.wait_and_trade || leg.waitAndTrade || false,
           costToCost: leg.cost_to_cost || leg.costToCost || false,
           moveToStoploss: leg.move_to_stoploss || leg.moveToStoploss || false,
+
+          slOnClose: leg.slOnClose ?? leg.sl_on_close ?? false,
+          noProfitExitTime: leg.noProfitExitTime ?? leg.no_profit_exit_time ?? '',
+          noProfitMin: leg.noProfitMin ?? leg.no_profit_min ?? 0,
+          noProfitUnit: leg.noProfitUnit || leg.no_profit_unit || 'Pts',
+          moveOtherToCost: leg.moveOtherToCost ?? leg.move_other_to_cost ?? false,
 
           condition: leg.condition || leg.trigger_condition || '',
           trigger_condition: leg.trigger_condition || leg.condition || '',
@@ -398,9 +447,13 @@ export const useAppLogic = () => {
       strikeCriteria: 'Strike Type', spotPercent: 1, targetPremium: 0, lowerPremium: 0, upperPremium: 0, straddleMultiplier: 1,
       strikeDistance: 0, strike_offset: 0, 
       stopLoss: '', target: '', slUnit: '%', targetUnit: '%', 
+      spotSL: 0, spotSLUnit: 'Pts', spotTarget: 0, spotTargetUnit: 'Pts',
+      lockTrigger: 0, lockProfit: 0, lockTrailX: 0, lockTrailY: 0, lockUnit: 'Pts',
+      slToCostTrigger: 0, slToCostUnit: 'Pts',
       trailX: 0, trailY: 0, trailUnitX: 'Pts', trailUnitY: 'Pts', 
       sl_reentry_count: 0, target_reexecute: 0, slReentry: 0, targetReexecute: 0, 
-      waitForCandleClose: false, waitAndTrade: false, costToCost: false, moveToStoploss: false 
+      waitForCandleClose: false, waitAndTrade: false, costToCost: false, moveToStoploss: false,
+      slOnClose: false, noProfitExitTime: '', noProfitMin: 0, noProfitUnit: 'Pts', moveOtherToCost: false
     }]); 
     setIsConfirmed(false); 
   };
@@ -425,6 +478,7 @@ export const useAppLogic = () => {
       overallStrategySL, overallStrategySLUnit, 
       combinedPremiumTarget, combinedPremiumTargetUnit, 
       combinedPremiumSL, combinedPremiumSLUnit, 
+      riskExtra,
       indicators, legs
     };
 
@@ -484,6 +538,7 @@ export const useAppLogic = () => {
     setCombinedPremiumSL(data.combinedPremiumSL || '');
     setCombinedPremiumSLUnit(data.combinedPremiumSLUnit || 'Pts');
 
+    setRiskExtra({ ...DEFAULT_RISK_EXTRA, ...(data.riskExtra || {}) });
     setIndicators(data.indicators || []);
     setLegs(data.legs || []); 
 
@@ -569,6 +624,24 @@ export const useAppLogic = () => {
         target_unit: leg.target_unit || leg.targetUnit || '%', 
         stop_loss: leg.stopLoss || 0, 
         sl_unit: leg.sl_unit || leg.slUnit || '%',
+
+        // 🎯 Spot / Underlying SL & Target
+        spot_sl: Number(leg.spotSL ?? leg.spot_sl) || 0,
+        spot_sl_unit: leg.spotSLUnit || leg.spot_sl_unit || 'Pts',
+        spot_target: Number(leg.spotTarget ?? leg.spot_target) || 0,
+        spot_target_unit: leg.spotTargetUnit || leg.spot_target_unit || 'Pts',
+
+        // 🔒 Leg Lock & Trail
+        lock_trigger: Number(leg.lockTrigger ?? leg.lock_trigger) || 0,
+        lock_profit: Number(leg.lockProfit ?? leg.lock_profit) || 0,
+        lock_trail_x: Number(leg.lockTrailX ?? leg.lock_trail_x) || 0,
+        lock_trail_y: Number(leg.lockTrailY ?? leg.lock_trail_y) || 0,
+        lock_unit: leg.lockUnit || leg.lock_unit || 'Pts',
+
+        // 🎯 SL to Cost trigger
+        sl_to_cost_trigger: Number(leg.slToCostTrigger ?? leg.sl_to_cost_trigger) || 0,
+        sl_to_cost_unit: leg.slToCostUnit || leg.sl_to_cost_unit || 'Pts',
+
         trail_sl: { x: leg.trailX || 0, y: leg.trailY || 0, unit_x: leg.trailUnitX || 'Pts', unit_y: leg.trailUnitY || 'Pts' }, 
         
         sl_reentry_count: parseInt(leg.sl_reentry_count || leg.sl_reentry || leg.slReentry || 0, 10),
@@ -578,6 +651,12 @@ export const useAppLogic = () => {
         wait_and_trade: leg.waitAndTrade || false, 
         cost_to_cost: leg.costToCost || false, 
         move_to_stoploss: leg.moveToStoploss || false,
+
+        sl_on_close: !!leg.slOnClose,
+        no_profit_exit_time: leg.noProfitExitTime || '',
+        no_profit_min: Number(leg.noProfitMin) || 0,
+        no_profit_unit: leg.noProfitUnit || 'Pts',
+        move_other_to_cost: !!leg.moveOtherToCost,
 
         condition: leg.condition || leg.trigger_condition || '',
         trigger_condition: leg.trigger_condition || leg.condition || '',
@@ -607,7 +686,20 @@ export const useAppLogic = () => {
         combined_premium_target: combinedPremiumTarget ? parseFloat(combinedPremiumTarget) : null,
         combined_premium_target_unit: combinedPremiumTargetUnit,
         combined_premium_sl: combinedPremiumSL ? parseFloat(combinedPremiumSL) : null,
-        combined_premium_sl_unit: combinedPremiumSLUnit
+        combined_premium_sl_unit: combinedPremiumSLUnit,
+        overall_lock_trigger: parseFloat(riskExtra.overallLockTrigger) || 0,
+        overall_lock_profit: parseFloat(riskExtra.overallLockProfit) || 0,
+        overall_lock_trail_x: parseFloat(riskExtra.overallLockTrailX) || 0,
+        overall_lock_trail_y: parseFloat(riskExtra.overallLockTrailY) || 0,
+        overall_lock_unit: riskExtra.overallLockUnit,
+        overall_intrabar: !!riskExtra.overallIntrabar,
+        combined_lock_trigger: parseFloat(riskExtra.combinedLockTrigger) || 0,
+        combined_lock_profit: parseFloat(riskExtra.combinedLockProfit) || 0,
+        combined_lock_trail_x: parseFloat(riskExtra.combinedLockTrailX) || 0,
+        combined_lock_trail_y: parseFloat(riskExtra.combinedLockTrailY) || 0,
+        combined_trail_x: parseFloat(riskExtra.combinedTrailX) || 0,
+        combined_trail_y: parseFloat(riskExtra.combinedTrailY) || 0,
+        combined_lock_unit: riskExtra.combinedLockUnit
       }, 
       indicators: indicators.map(i => {
         let parsedSettings = {};
@@ -705,6 +797,7 @@ export const useAppLogic = () => {
     combinedPremiumTargetUnit, setCombinedPremiumTargetUnit,
     combinedPremiumSL, setCombinedPremiumSL,
     combinedPremiumSLUnit, setCombinedPremiumSLUnit,
+    riskExtra, setRiskExtra,
 
     indicators, legs,
     loading, result, error, withTax, setWithTax,

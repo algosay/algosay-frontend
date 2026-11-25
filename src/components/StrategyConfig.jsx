@@ -51,6 +51,7 @@ const StrategyConfig = ({
   // 🚀 NEW: Overall Strategy Target & SL Units
   overallStrategyTargetUnit, setOverallStrategyTargetUnit,
   overallStrategySLUnit, setOverallStrategySLUnit,
+  riskExtra, setRiskExtra,
   combinedPremiumTarget, setCombinedPremiumTarget,
   combinedPremiumTargetUnit, setCombinedPremiumTargetUnit, // 🚀 NEW: TARGET UNIT
   combinedPremiumSL, setCombinedPremiumSL,
@@ -66,6 +67,35 @@ const StrategyConfig = ({
     }
     setIsConfirmed(false);
   };
+
+  const rx = riskExtra || {};
+  const setRX = (key, value) => {
+    if (setRiskExtra) setRiskExtra(prev => ({ ...prev, [key]: value }));
+    setIsConfirmed(false);
+  };
+  const rxField = (label, key, ph) => (
+    <div className="flex flex-col">
+      <label className="text-[10px] text-gray-400 mb-1 uppercase tracking-wide">{label}</label>
+      <input
+        type="number"
+        className="bg-[#2a2a2a] text-white p-2 rounded border border-gray-600 focus:border-violet-500 focus:outline-none text-sm transition-colors"
+        placeholder={ph}
+        value={rx[key] ?? ''}
+        onChange={(e) => setRX(key, e.target.value)}
+      />
+    </div>
+  );
+  const rxUnit = (key, defaultUnit) => (
+    <select
+      className="bg-[#2a2a2a] text-white p-2 rounded border border-gray-600 focus:border-violet-500 focus:outline-none text-sm cursor-pointer"
+      value={normalizeUnit(rx[key] || defaultUnit)}
+      onChange={(e) => setRX(key, e.target.value)}
+    >
+      <option value="Rs">Rs</option>
+      <option value="Pts">Pts</option>
+      <option value="%">%</option>
+    </select>
+  );
 
   // 🚀 NEW UPDATE: Passing timeLoopLimit inside riskManagement object for dynamic worst-case margin UI update!
   const { totalMargin, ceQty, peQty } = calculateLiveMargin(legs, { timeLoopLimit });
@@ -202,6 +232,41 @@ const StrategyConfig = ({
             </div>
           </div>
 
+        </div>
+      </div>
+
+      {/* 🔒 LOCK & TRAIL (OVERALL + COMBINED) */}
+      <div className="mb-4 p-4 bg-[#1e1e1e] border border-violet-700/40 rounded-lg shadow-sm">
+        <h3 className="text-sm font-bold text-gray-300 mb-3 uppercase tracking-wider">🔒 Lock & Trail (Overall MTM / Combined Premium)</h3>
+
+        <p className="text-[11px] text-violet-300 mb-2">Overall (day MTM): profit Trigger-ku vandha Lock lock aagum, apparam Trail X move-ku Y trail aagum.</p>
+        <div className="grid grid-cols-2 lg:grid-cols-6 gap-3 mb-3">
+          {rxField('Trigger', 'overallLockTrigger', 'e.g. 5000')}
+          {rxField('Lock Profit', 'overallLockProfit', 'e.g. 2000')}
+          {rxField('Trail X', 'overallLockTrailX', 'e.g. 1000')}
+          {rxField('Trail Y', 'overallLockTrailY', 'e.g. 500')}
+          <div className="flex flex-col">
+            <label className="text-[10px] text-gray-400 mb-1 uppercase tracking-wide">Unit</label>
+            {rxUnit('overallLockUnit', 'Rs')}
+          </div>
+          <label className="flex items-center gap-2 text-[11px] text-gray-300 mt-5 cursor-pointer">
+            <input type="checkbox" className="accent-violet-500" checked={!!rx.overallIntrabar} onChange={(e) => setRX('overallIntrabar', e.target.checked)} />
+            Overall SL/Target intrabar (High/Low)
+          </label>
+        </div>
+
+        <p className="text-[11px] text-cyan-300 mb-2">Combined premium (2+ legs basket): Lock & Trail and Trail SL.</p>
+        <div className="grid grid-cols-2 lg:grid-cols-7 gap-3">
+          {rxField('Lock Trigger', 'combinedLockTrigger', 'e.g. 30')}
+          {rxField('Lock Profit', 'combinedLockProfit', 'e.g. 10')}
+          {rxField('Lock Trail X', 'combinedLockTrailX', 'e.g. 10')}
+          {rxField('Lock Trail Y', 'combinedLockTrailY', 'e.g. 5')}
+          {rxField('Trail SL X', 'combinedTrailX', 'e.g. 20')}
+          {rxField('Trail SL Y', 'combinedTrailY', 'e.g. 10')}
+          <div className="flex flex-col">
+            <label className="text-[10px] text-gray-400 mb-1 uppercase tracking-wide">Unit</label>
+            {rxUnit('combinedLockUnit', 'Pts')}
+          </div>
         </div>
       </div>
 

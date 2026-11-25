@@ -180,6 +180,8 @@ const ProtectedDashboard = ({ logic }) => {
                   setOverallStrategyTargetUnit={logic.setOverallStrategyTargetUnit}
                   overallStrategySLUnit={logic.overallStrategySLUnit}
                   setOverallStrategySLUnit={logic.setOverallStrategySLUnit}
+                  riskExtra={logic.riskExtra}
+                  setRiskExtra={logic.setRiskExtra}
                 />
 
                 <div className="flex flex-col md:flex-row gap-4 mb-8">
