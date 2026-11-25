@@ -1,45 +1,45 @@
 import React from 'react';
 
-// Bespoke SVG Icons - Pure Premium Cyber-Neon Styling
+// SVG icons
 const Icons = {
   Strategy: () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M4 6h16M4 12h16m-7 6h7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M4 6h16M4 12h16m-7 6h7" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   ),
   Calendar: () => (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M19 4H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
       <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   ),
   Edit: () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   ),
   Delete: () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   ),
   Load: () => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   )
 };
 
-// Metadata Pill Component - Cyberpunk Tag Styling
+// Metadata pill (light tints)
 const MetadataPill = ({ text, color = 'cyan' }) => {
   const colors = {
-    cyan: 'bg-[#00FFFF]/10 text-[#00FFFF] border border-[#00FFFF]/50 shadow-[0_0_10px_rgba(0,255,255,0.3)]',
-    purple: 'bg-[#D500F9]/10 text-[#D500F9] border border-[#D500F9]/50 shadow-[0_0_10px_rgba(213,0,249,0.3)]',
-    green: 'bg-[#00E676]/10 text-[#00E676] border border-[#00E676]/50 shadow-[0_0_10px_rgba(0,230,118,0.3)]',
-    orange: 'bg-[#FF9100]/10 text-[#FF9100] border border-[#FF9100]/50 shadow-[0_0_10px_rgba(255,145,0,0.3)]',
+    cyan: 'bg-sky-50 text-sky-700 border border-sky-200',
+    purple: 'bg-violet-50 text-violet-700 border border-violet-200',
+    green: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+    orange: 'bg-amber-50 text-amber-700 border border-amber-200',
   };
   return (
-    <span className={`px-3 py-1.5 text-[10px] font-black rounded-lg ${colors[color] || colors.cyan} tracking-widest uppercase backdrop-blur-md`}>
+    <span className={`px-2.5 py-1 text-[11px] font-semibold rounded-md ${colors[color] || colors.cyan}`}>
       {text}
     </span>
   );
@@ -223,29 +223,22 @@ const MyStrategiesModal = ({ isOpen, onClose, isLoading, strategies = [], onLoad
   };
 
   return (
-    <div className="fixed inset-0 bg-[#090A0F] z-[999] overflow-y-auto overflow-x-hidden animate-fade-in transition-all duration-500">
-      
-      {/* Deep Dark Navy Background with Light Subtle Grid Lines */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none"></div>
+    <div className="fixed inset-0 bg-[#F4F5F7] z-[999] overflow-y-auto overflow-x-hidden animate-fade-in">
 
-      {/* Floating Ambient Glowing Orbs */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#00FFFF]/10 rounded-full blur-[100px] pointer-events-none"></div>
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#D500F9]/10 rounded-full blur-[100px] pointer-events-none"></div>
-
-      <div className="relative min-h-screen p-4 md:p-10 flex flex-col z-10 max-w-[1600px] mx-auto">
+      <div className="relative min-h-screen px-4 md:px-8 pb-10 flex flex-col max-w-[1600px] mx-auto">
         
-        {/* Header - Full Width Royal Neon Title */}
-        <div className="flex justify-between items-center mb-10 pb-6 border-b border-[#00FFFF]/20 sticky top-0 bg-[#090A0F]/80 backdrop-blur-xl z-50 rounded-b-3xl px-4 md:px-8 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
-          <div className="flex items-center gap-5 pt-4">
-            <div className="p-4 bg-gradient-to-br from-[#00FFFF]/20 to-[#D500F9]/20 rounded-2xl border border-[#00FFFF]/50 text-[#00FFFF] shadow-[0_0_20px_rgba(0,255,255,0.4)]">
+        {/* Sticky header */}
+        <div className="flex justify-between items-center mb-6 py-4 sticky top-0 bg-[#F4F5F7]/90 backdrop-blur-md z-50 border-b border-slate-200">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-[#0F1B2D] rounded-lg text-indigo-200">
               <Icons.Strategy />
             </div>
             <div>
-              <h1 className="text-3xl md:text-5xl font-black tracking-wide text-[#FFFFFF]">
-                AI-Powered <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00FFFF] to-[#D500F9] drop-shadow-[0_0_15px_rgba(213,0,249,0.5)]">Strategies</span>
+              <h1 className="text-xl md:text-2xl font-semibold tracking-tight text-[#0F1B2D]">
+                Strategy library
               </h1>
-              <p className="text-sm md:text-base text-gray-400 mt-2 font-medium tracking-wider">
-                Explore Intraday pure backtestable setups & your private saved collections.
+              <p className="text-xs md:text-sm text-slate-500 mt-0.5">
+                Backtest-ready intraday templates and your saved strategies.
               </p>
             </div>
           </div>
@@ -253,85 +246,74 @@ const MyStrategiesModal = ({ isOpen, onClose, isLoading, strategies = [], onLoad
           <button 
             type="button"
             onClick={onClose} 
-            className="p-3 md:p-4 rounded-full text-white bg-[#D500F9]/10 border border-[#D500F9]/30 hover:bg-[#D500F9]/30 hover:border-[#D500F9] hover:shadow-[0_0_25px_rgba(213,0,249,0.6)] transition-all duration-300 cursor-pointer"
+            aria-label="Close"
+            className="p-2 rounded-lg text-slate-600 bg-white border border-slate-300 hover:bg-slate-100 hover:text-[#0F1B2D] transition-colors cursor-pointer"
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round">
               <path d="M18 6L6 18M6 6l12 12"/>
             </svg>
           </button>
         </div>
 
-        {/* Strategies Grid Loading State */}
+        {/* Loading / empty / grid */}
         {isLoading ? (
           <div className="flex flex-col items-center justify-center flex-1 py-32">
-            <div className="animate-spin h-16 w-16 border-4 border-[#00FFFF] border-t-transparent rounded-full shadow-[0_0_30px_rgba(0,255,255,0.8)] mb-6"></div>
-            <p className="text-[#00FFFF] font-black text-xl tracking-widest uppercase">Initializing Database...</p>
+            <div className="animate-spin h-10 w-10 border-4 border-[#0F1B2D] border-t-transparent rounded-full mb-4"></div>
+            <p className="text-slate-500 font-medium text-sm">Loading your strategies...</p>
           </div>
         ) : allDisplayStrategies.length === 0 ? (
-          <div className="flex flex-col items-center justify-center flex-1 py-32 bg-[#00FFFF]/5 rounded-3xl border border-[#00FFFF]/20 backdrop-blur-sm">
-            <p className="text-white font-black text-2xl">No Strategies Found</p>
-            <p className="text-gray-400 mt-3 text-lg">Your master library is currently empty.</p>
+          <div className="flex flex-col items-center justify-center flex-1 py-24 bg-white rounded-xl border border-slate-200">
+            <p className="text-[#0F1B2D] font-semibold text-lg">No strategies yet</p>
+            <p className="text-slate-500 mt-1 text-sm">Describe a strategy in the AI box and save it to see it here.</p>
           </div>
         ) : (
-          /* Full Screen Responsive Grid Layout */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 pb-20">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-16">
             {allDisplayStrategies.map(strat => (
               
-              /* Terminal Style Animated Box for each strategy */
               <div 
                 key={strat.id} 
-                className="bg-[#0D0F18]/90 backdrop-blur-xl rounded-2xl flex flex-col h-[500px] border border-[#00FFFF]/20 hover:border-[#00FFFF]/80 hover:shadow-[0_0_40px_rgba(0,229,255,0.25)] hover:-translate-y-3 transition-all duration-500 group relative overflow-hidden"
+                className="bg-white rounded-xl flex flex-col h-[420px] border border-slate-200 hover:border-indigo-300 hover:shadow-[0_6px_20px_rgba(15,27,45,0.08)] transition-all duration-200 group overflow-hidden"
               >
-                {/* Terminal Header (Red, Yellow, Green dots) */}
-                <div className="flex items-center gap-2 px-5 py-3.5 bg-[#05060A] border-b border-[#00FFFF]/10 group-hover:bg-[#00FFFF]/5 transition-colors duration-500">
-                  <div className="w-3 h-3 rounded-full bg-[#FF007F] shadow-[0_0_8px_rgba(255,0,127,0.5)]"></div>
-                  <div className="w-3 h-3 rounded-full bg-[#FF9100] shadow-[0_0_8px_rgba(255,145,0,0.5)]"></div>
-                  <div className="w-3 h-3 rounded-full bg-[#00E676] shadow-[0_0_8px_rgba(0,230,118,0.5)]"></div>
-                  <span className="ml-auto text-[10px] text-gray-500 font-mono tracking-widest uppercase">
-                    ID: {strat.id.substring(0, 6)}
+                {/* Card top: pill + id */}
+                <div className="flex items-center justify-between px-4 pt-4 shrink-0">
+                  <MetadataPill 
+                    text={strat.isDefault ? (strat.segmentTag || 'TEMPLATE') : 'Custom build'} 
+                    color={getPillColor(strat.segmentTag)} 
+                  />
+                  <span className="text-[10px] text-slate-400 font-mono">
+                    {strat.id.substring(0, 6)}
                   </span>
                 </div>
 
-                {/* Card Body */}
-                <div className="p-5 flex flex-col flex-1 gap-4 overflow-hidden">
+                {/* Card body */}
+                <div className="px-4 pt-3 pb-3 flex flex-col flex-1 gap-3 overflow-hidden">
+                  <h3 className="font-semibold text-base text-[#0F1B2D] group-hover:text-indigo-700 transition-colors line-clamp-2 leading-snug shrink-0">
+                    {strat.name}
+                  </h3>
                   
-                  {/* Strategy Name & Tags */}
-                  <div className="flex flex-col gap-3 shrink-0">
-                    <h3 className="font-black text-xl text-white group-hover:text-[#00FFFF] transition-colors line-clamp-2 leading-tight">
-                      {strat.name}
-                    </h3>
-                    <div className="self-start">
-                      <MetadataPill 
-                        text={strat.isDefault ? (strat.segmentTag || 'TEMPLATE') : 'CUSTOM BUILD'} 
-                        color={getPillColor(strat.segmentTag)} 
-                      />
-                    </div>
-                  </div>
-                  
-                  {/* Neon Green Terminal Code Block (Scrollable) */}
-                  <div className="flex-1 bg-[#020205] p-4 rounded-xl border border-[#00E676]/20 shadow-[inset_0_0_15px_rgba(0,0,0,0.8)] overflow-y-auto scrollbar-thin scrollbar-thumb-[#00E676]/40 scrollbar-track-transparent">
-                    <pre className="text-xs text-[#00E676] font-mono whitespace-pre-wrap leading-relaxed">
+                  {/* Strategy text (scrollable) */}
+                  <div className="flex-1 bg-slate-50 p-3 rounded-lg border border-slate-200 overflow-y-auto custom-scrollbar">
+                    <pre className="text-[11px] text-slate-700 font-mono whitespace-pre-wrap leading-relaxed">
                       {strat.prompt || strat.concept || strat.text}
                     </pre>
                   </div>
 
-                  {/* Metadata (Date) */}
-                  <div className="flex items-center gap-2 text-[11px] text-[#00FFFF]/70 font-bold tracking-widest uppercase shrink-0">
+                  <div className="flex items-center gap-1.5 text-[11px] text-slate-400 font-medium shrink-0">
                     <Icons.Calendar />
                     Logged: {strat.createdAt ? new Date((strat.createdAt.seconds || strat.createdAt) * 1000).toLocaleDateString() : 'Active'}
                   </div>
                 </div>
 
-                {/* Footer Buttons Action Area */}
-                <div className="p-4 bg-[#05060A] border-t border-[#00FFFF]/10 flex items-center gap-3 shrink-0">
+                {/* Footer actions */}
+                <div className="p-3 border-t border-slate-200 bg-slate-50 flex items-center gap-2 shrink-0">
                   
-                  {/* Only show Edit/Delete if it is a user's custom strategy */}
+                  {/* Edit/Delete only for user's custom strategies */}
                   {!strat.isDefault && (
-                    <div className="flex gap-2">
+                    <div className="flex gap-1.5">
                       <button 
                         type="button"
                         onClick={(e) => handleEditStrategy(e, strat)}
-                        className="p-3 rounded-xl text-[#00FFFF] bg-[#00FFFF]/5 border border-[#00FFFF]/30 hover:bg-[#00FFFF]/20 hover:border-[#00FFFF] transition-all cursor-pointer shadow-[0_0_10px_rgba(0,255,255,0.1)] hover:scale-105"
+                        className="p-2.5 rounded-lg text-slate-600 bg-white border border-slate-300 hover:border-indigo-400 hover:text-indigo-600 transition-all cursor-pointer"
                         title="Edit Strategy"
                       >
                         <Icons.Edit />
@@ -339,7 +321,7 @@ const MyStrategiesModal = ({ isOpen, onClose, isLoading, strategies = [], onLoad
                       <button 
                         type="button"
                         onClick={(e) => handleDeleteStrategy(e, strat)}
-                        className="p-3 rounded-xl text-[#FF007F] bg-[#FF007F]/5 border border-[#FF007F]/30 hover:bg-[#FF007F]/20 hover:border-[#FF007F] transition-all cursor-pointer shadow-[0_0_10px_rgba(255,0,127,0.1)] hover:scale-105"
+                        className="p-2.5 rounded-lg text-slate-600 bg-white border border-slate-300 hover:border-rose-300 hover:text-rose-600 hover:bg-rose-50 transition-all cursor-pointer"
                         title="Delete Strategy"
                       >
                         <Icons.Delete />
@@ -347,14 +329,14 @@ const MyStrategiesModal = ({ isOpen, onClose, isLoading, strategies = [], onLoad
                     </div>
                   )}
 
-                  {/* Universal Execute / Load Button */}
+                  {/* Load button */}
                   <button 
                     type="button"
                     onClick={(e) => handleLoadStrategy(e, strat)} 
-                    className="flex items-center justify-center flex-1 gap-2 py-3.5 px-4 bg-gradient-to-r from-[#D500F9] to-[#FF007F] text-white text-[13px] font-black rounded-xl transition-all hover:shadow-[0_0_30px_rgba(213,0,249,0.6)] hover:scale-[1.02] active:scale-95 cursor-pointer uppercase tracking-widest border border-white/20"
+                    className="flex items-center justify-center flex-1 gap-2 py-2.5 px-4 bg-[#0F1B2D] hover:bg-[#1c2d47] text-white text-xs font-semibold rounded-lg transition-colors active:scale-[0.98] cursor-pointer"
                   >
                     <Icons.Load />
-                    {strat.isDefault ? 'Deploy Template' : 'Execute Plan'}
+                    {strat.isDefault ? 'Use template' : 'Load strategy'}
                   </button>
                 </div>
 
