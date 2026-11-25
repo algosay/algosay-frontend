@@ -129,6 +129,23 @@ const avg = (arr) => (arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length :
 const sum = (arr) => arr.reduce((a, b) => a + b, 0);
 const fmt = (n, d = 2) => (n === null || n === undefined ? 'n/a' : Number(n).toFixed(d));
 
+// ---------- Always turn the backend AI response into a plain string (prevents render crashes) ----------
+const normalizeAdvice = (v) => {
+  if (v === null || v === undefined) return '';
+  if (typeof v === 'string') return v;
+  if (Array.isArray(v)) return v.map(normalizeAdvice).filter(Boolean).join('\n');
+  if (typeof v === 'object') {
+    const inner = v.advice ?? v.text ?? v.content ?? v.message;
+    if (inner !== undefined && inner !== v) return normalizeAdvice(inner);
+    try {
+      return JSON.stringify(v, null, 2);
+    } catch (e) {
+      return String(v);
+    }
+  }
+  return String(v);
+};
+
 const buildAnalysisContext = (ledger = [], dayMtm = {}) => {
   if (!Array.isArray(ledger) || !ledger.length) return null;
   const sample = ledger[0];
@@ -291,7 +308,7 @@ const CopyIcon = () => (
 );
 
 const ResultsDashboard = ({ result, withTax, setWithTax }) => {
-  const [aiAdvice, setAiAdvice] = useState(result?.ai_advice || null);
+  const [aiAdvice, setAiAdvice] = useState(normalizeAdvice(result?.ai_advice) || null);
   const [isLoadingAI, setIsLoadingAI] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [isDownloadingExcel, setIsDownloadingExcel] = useState(false);
@@ -334,7 +351,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
     const initialDTEs = [...new Set(getSafeLedger(result).map((r) => r?.DTE))].sort((a, b) => a - b);
     setSelectedDTEs(initialDTEs);
     setDisplayResult(result);
-    setAiAdvice(result?.ai_advice || null);
+    setAiAdvice(normalizeAdvice(result?.ai_advice) || null);
     setFilteredLedgerData(null);
   }, [result]);
 
@@ -471,8 +488,12 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
+
+      if (!response.ok) throw new Error(`Server error ${response.status}`);
+
       const data = await response.json();
-      setAiAdvice(data?.advice);
+      const text = normalizeAdvice(data?.advice ?? data?.detail ?? data?.error);
+      setAiAdvice(text || 'AI returned an empty response. Please try again.');
     } catch (error) {
       console.error('Error fetching AI insights:', error);
       setAiAdvice('Failed to fetch AI insights. Please check your backend connection and try again.');
@@ -1179,7 +1200,9 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
                       <CopyIcon /> {copied ? 'Copied' : 'Copy'}
                     </button>
                   </div>
-                  <AdviceRenderer text={aiAdvice} />
+                  <ErrorBoundary name="AIAdvice">
+                    <AdviceRenderer text={aiAdvice} />
+                  </ErrorBoundary>
                 </div>
               )}
 
