@@ -100,7 +100,7 @@ const paintNegatives = (root) => {
 };
 
 // =====================================================================
-// AI helpers: build analysis context (PnL / day / DTE / month)
+// AI helpers: build analysis context (MFE / MAE / day / DTE / month)
 // =====================================================================
 const toNum = (v) => {
   if (v === null || v === undefined || v === '') return null;
@@ -127,12 +127,16 @@ const buildAnalysisContext = (ledger = [], dayMtm = {}) => {
   const sample = ledger[0];
 
   const pnlKey = findKey(sample, ['netpnl', 'pnl', 'grosspnl', 'profit', 'pl', 'pnlnet'], ['pnl']);
+  const mfeKey = findKey(sample, ['mfe'], ['mfe']);
+  const maeKey = findKey(sample, ['mae'], ['mae']);
   const dayKey = findKey(sample, ['day'], []);
   const dteKey = findKey(sample, ['dte'], []);
   const dateKey = findKey(sample, ['date', 'entrydate', 'tradedate'], ['date']);
 
   const rows = ledger.map((r) => ({
     pnl: pnlKey ? toNum(r[pnlKey]) : null,
+    mfe: mfeKey ? toNum(r[mfeKey]) : null,
+    mae: maeKey ? toNum(r[maeKey]) : null,
     day: dayKey ? r[dayKey] : null,
     dte: dteKey ? r[dteKey] : null,
     date: dateKey ? String(r[dateKey]) : null
@@ -141,6 +145,16 @@ const buildAnalysisContext = (ledger = [], dayMtm = {}) => {
   const pnls = rows.map((r) => r.pnl).filter((v) => v !== null);
   const wins = pnls.filter((v) => v > 0);
   const losses = pnls.filter((v) => v < 0);
+  const mfes = rows.map((r) => r.mfe).filter((v) => v !== null);
+  const maes = rows.map((r) => (r.mae !== null ? Math.abs(r.mae) : null)).filter((v) => v !== null);
+
+  // MFE capture: how much of the best excursion became realised profit (winners only)
+  const captureArr = rows
+    .filter((r) => r.pnl !== null && r.pnl > 0 && r.mfe !== null && r.mfe > 0)
+    .map((r) => (r.pnl / r.mfe) * 100);
+
+  // Winners that gave back profit / losers that were once green
+  const losersWithMfe = rows.filter((r) => r.pnl !== null && r.pnl < 0 && r.mfe !== null && r.mfe > 0).length;
 
   const groupBy = (keyFn) => {
     const g = {};
@@ -160,8 +174,8 @@ const buildAnalysisContext = (ledger = [], dayMtm = {}) => {
 
   const byMonth = groupBy((r) => (r.date && r.date.length >= 7 ? r.date.slice(0, 7) : null));
 
-  return {
-    detected_columns: { pnl: pnlKey || null },
+  const ctx = {
+    detected_columns: { pnl: pnlKey || null, mfe: mfeKey || null, mae: maeKey || null },
     total_trades: ledger.length,
     total_pnl: Math.round(sum(pnls)),
     win_rate_pct: pnls.length ? Math.round((wins.length / pnls.length) * 100) : null,
@@ -169,11 +183,26 @@ const buildAnalysisContext = (ledger = [], dayMtm = {}) => {
     avg_loss: losses.length ? Math.round(avg(losses)) : null,
     largest_win: wins.length ? Math.round(Math.max(...wins)) : null,
     largest_loss: losses.length ? Math.round(Math.min(...losses)) : null,
+    mfe: mfes.length
+      ? {
+          avg_mfe: Math.round(avg(mfes)),
+          max_mfe: Math.round(Math.max(...mfes)),
+          avg_winner_capture_pct: captureArr.length ? Math.round(avg(captureArr)) : null,
+          losing_trades_that_were_green_first: losersWithMfe
+        }
+      : null,
+    mae: maes.length
+      ? {
+          avg_mae: Math.round(avg(maes)),
+          max_mae: Math.round(Math.max(...maes))
+        }
+      : null,
     by_day: groupBy((r) => r.day),
     by_dte: groupBy((r) => r.dte),
     by_month: byMonth,
     has_minute_mtm: !!dayMtm && Object.keys(dayMtm).length > 0
   };
+  return ctx;
 };
 
 const contextToText = (ctx) => {
@@ -182,6 +211,12 @@ const contextToText = (ctx) => {
     `Trades: ${ctx.total_trades}, Total PnL: ${ctx.total_pnl}, Win rate: ${fmt(ctx.win_rate_pct, 0)}%`,
     `Avg win: ${fmt(ctx.avg_win, 0)}, Avg loss: ${fmt(ctx.avg_loss, 0)}, Largest win: ${fmt(ctx.largest_win, 0)}, Largest loss: ${fmt(ctx.largest_loss, 0)}`
   ];
+  if (ctx.mfe) {
+    lines.push(
+      `MFE -> avg: ${ctx.mfe.avg_mfe}, max: ${ctx.mfe.max_mfe}, avg winner capture: ${fmt(ctx.mfe.avg_winner_capture_pct, 0)}%, losers that were green first: ${ctx.mfe.losing_trades_that_were_green_first}`
+    );
+  }
+  if (ctx.mae) lines.push(`MAE -> avg: ${ctx.mae.avg_mae}, max: ${ctx.mae.max_mae}`);
   if (ctx.by_day.length) lines.push(`By day: ${JSON.stringify(ctx.by_day)}`);
   if (ctx.by_dte.length) lines.push(`By DTE: ${JSON.stringify(ctx.by_dte)}`);
   if (ctx.by_month.length) lines.push(`By month: ${JSON.stringify(ctx.by_month)}`);
@@ -189,13 +224,13 @@ const contextToText = (ctx) => {
 };
 
 const DEFAULT_QUERY =
-  'Give a complete, deep backtest diagnosis. Cover: edge & consistency, best/worst weekdays and DTE, drawdown & risk of ruin, monthly behaviour, win/loss distribution, and a prioritised list of concrete improvements.';
+  'Give a complete, deep backtest diagnosis. Cover: edge & consistency, MFE/MAE analysis (exit efficiency, stop-loss and target tuning), best/worst weekdays and DTE, drawdown & risk of ruin, monthly behaviour, and a prioritised list of concrete improvements.';
 
 const QUICK_PROMPTS = [
-  { label: 'Full diagnosis', q: DEFAULT_QUERY },
+  { label: 'Optimise SL & Target', q: 'Using MFE and MAE, suggest the optimal stop-loss and target levels with reasoning.' },
   { label: 'Best days & DTE', q: 'Which weekdays and DTE should I trade or avoid? Show the evidence.' },
   { label: 'Drawdown & risk', q: 'Analyse drawdown, losing streaks and give position sizing / risk advice.' },
-  { label: 'Monthly behaviour', q: 'How does the strategy behave month to month? Point out weak periods and what to change.' }
+  { label: 'Exit efficiency', q: 'How much of the available profit (MFE) am I capturing? How can exits be improved?' }
 ];
 
 // ---------- Lightweight markdown renderer for AI text ----------
@@ -456,7 +491,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
         analysis_context: analysisContext,
         target_language: aiLanguage,
         custom_user_query: ctxText
-          ? `${userQuery}\n\n[Pre-computed analysis context - use the day-wise, DTE-wise and monthly data below]\n${ctxText}`
+          ? `${userQuery}\n\n[Pre-computed analysis context - use MFE/MAE, day-wise, DTE-wise and monthly data below]\n${ctxText}`
           : userQuery
       };
 
@@ -512,7 +547,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
     triggerDownload(blob, 'Trade_Ledger_Filtered.csv');
   };
 
-  // Excel report (Summary / All Trades / By Leg)
+  // Excel report (Summary / All Trades / By Leg + MFE/MAE)
   const downloadExcel = async () => {
     const ledgerData = getLedgerData();
 
@@ -684,10 +719,10 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
 
   const ctxChips = [
     { label: 'Trades', value: analysisContext?.total_trades ?? 0, on: true },
-    { label: 'Win / Loss stats', value: analysisContext?.win_rate_pct !== null && analysisContext?.win_rate_pct !== undefined ? 'Included' : 'n/a', on: analysisContext?.win_rate_pct !== null && analysisContext?.win_rate_pct !== undefined },
+    { label: 'MFE', value: analysisContext?.mfe ? 'Detected' : 'Not found', on: !!analysisContext?.mfe },
+    { label: 'MAE', value: analysisContext?.mae ? 'Detected' : 'Not found', on: !!analysisContext?.mae },
     { label: 'Day-wise', value: analysisContext?.by_day?.length ? 'Included' : 'n/a', on: !!analysisContext?.by_day?.length },
     { label: 'DTE', value: analysisContext?.by_dte?.length ? 'Included' : 'n/a', on: !!analysisContext?.by_dte?.length },
-    { label: 'Monthly', value: analysisContext?.by_month?.length ? 'Included' : 'n/a', on: !!analysisContext?.by_month?.length },
     { label: 'Minute MTM', value: analysisContext?.has_minute_mtm ? 'Included' : 'n/a', on: !!analysisContext?.has_minute_mtm }
   ];
 
@@ -1059,7 +1094,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
             onFilterChange={setFilteredLedgerData}
           />
 
-          {/* ================= AI strategy diagnostics (below ledger) ================= */}
+          {/* ================= AI strategy diagnostics (now below ledger) ================= */}
           <section className="ai-card" data-no-neg="true">
             <div className="ai-inner p-5 sm:p-7">
               {/* Header */}
@@ -1110,7 +1145,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
                   <textarea
                     value={customPrompt}
                     onChange={(e) => setCustomPrompt(e.target.value)}
-                    placeholder="Ask anything about this backtest... or just hit Analyze for a full, deep diagnosis (edge, day & DTE performance, drawdown, monthly behaviour, improvements)"
+                    placeholder="Ask anything about this backtest... or just hit Analyze for a full, deep diagnosis (MFE, MAE, exits, day & DTE edge, drawdown, improvements)"
                     rows="3"
                   />
 
@@ -1165,7 +1200,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
                 <div className="ai-empty">
                   <SparkIcon className="w-5 h-5 shrink-0 text-indigo-300" />
                   <span>
-                    Review the ledger above, then let the AI study your day-wise, DTE-wise and monthly behaviour
+                    Review the ledger above, then let the AI study your MFE, MAE, day-wise and DTE-wise behaviour
                     to suggest actionable improvements.
                   </span>
                 </div>
