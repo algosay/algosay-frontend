@@ -588,7 +588,7 @@ export const useAppLogic = () => {
       user_id: user?.uid || "guest_123", 
       data_source: dataSource,            
       fyers_access_token: fyersToken,     
-      strategy_text: aiPrompt, 
+       strategy_text: "",
       is_dynamic: conditionBasedLoop, 
       timeframe: timeframe, 
       instrument_settings: { ticker, timeframe, underlyingFrom, qty, transactionType },
