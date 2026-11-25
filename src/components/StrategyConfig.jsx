@@ -115,7 +115,31 @@ const StrategyConfig = ({
         handleConfigChange={handleConfigChange} 
       />
 
-      {/* 🛡️ RISK & EXECUTION: loop limit + overall + combined premium, all in ONE row */}
+      {/* 📋 1. LEGS PANEL */}
+      <LegsPanel 
+        legs={legs} 
+        addLeg={addLeg} 
+        updateLeg={updateLeg} 
+        removeLeg={removeLeg} 
+        combinedPremiumTarget={combinedPremiumTarget}
+        setCombinedPremiumTarget={setCombinedPremiumTarget}
+        combinedPremiumTargetUnit={combinedPremiumTargetUnit}
+        setCombinedPremiumTargetUnit={setCombinedPremiumTargetUnit}
+        combinedPremiumSL={combinedPremiumSL}
+        setCombinedPremiumSL={setCombinedPremiumSL}
+        combinedPremiumSLUnit={combinedPremiumSLUnit}
+        setCombinedPremiumSLUnit={setCombinedPremiumSLUnit}
+      />
+
+      {/* 📊 2. INDICATORS PANEL */}
+      <IndicatorsPanel 
+        indicators={indicators} 
+        addIndicator={addIndicator} 
+        updateIndicator={updateIndicator} 
+        removeIndicator={removeIndicator} 
+      />
+
+      {/* 🛡️ 3. RISK & EXECUTION: loop limit + overall + combined premium, all in ONE row */}
       <Panel title="Risk & execution" caption="Limits applied to the whole strategy">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
 
@@ -180,7 +204,7 @@ const StrategyConfig = ({
         </div>
       </Panel>
 
-      {/* 🔒 LOCK & TRAIL (OVERALL + COMBINED) */}
+      {/* 🔒 4. LOCK & TRAIL (OVERALL + COMBINED) */}
       <Panel title="Lock & trail" caption="Protect profit at the strategy level">
         <div className="grid gap-4 xl:grid-cols-2">
 
@@ -215,31 +239,6 @@ const StrategyConfig = ({
 
         </div>
       </Panel>
-
-      {/* 📊 INDICATORS PANEL */}
-      <IndicatorsPanel 
-        indicators={indicators} 
-        addIndicator={addIndicator} 
-        updateIndicator={updateIndicator} 
-        removeIndicator={removeIndicator} 
-      />
-
-      {/* 📋 LEGS PANEL */}
-      <LegsPanel 
-        legs={legs} 
-        addLeg={addLeg} 
-        updateLeg={updateLeg} 
-        removeLeg={removeLeg} 
-        // 🟢 INTHA PROPS-A LEGS PANEL-KU PASS PANNIRUKEN 👇
-        combinedPremiumTarget={combinedPremiumTarget}
-        setCombinedPremiumTarget={setCombinedPremiumTarget}
-        combinedPremiumTargetUnit={combinedPremiumTargetUnit} // 🚀 NEW
-        setCombinedPremiumTargetUnit={setCombinedPremiumTargetUnit} // 🚀 NEW
-        combinedPremiumSL={combinedPremiumSL}
-        setCombinedPremiumSL={setCombinedPremiumSL}
-        combinedPremiumSLUnit={combinedPremiumSLUnit} // 🚀 NEW
-        setCombinedPremiumSLUnit={setCombinedPremiumSLUnit} // 🚀 NEW
-      />
 
       {/* 💰 Live Estimated Margin: sticky bar, always visible while you scroll the legs */}
       <div className="sticky bottom-2 z-10 flex items-center justify-between gap-4 rounded-xl bg-[#121A2B] px-4 py-2.5 text-white shadow-[0_8px_24px_rgba(18,26,43,0.28)]">
