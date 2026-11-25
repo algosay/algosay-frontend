@@ -37,7 +37,7 @@ const PricingModal = ({ isOpen, onClose }) => {
   const unlimitedPlans = [
     { id: 'u1', name: 'Weekly', desc: 'Unlimited Backtests for 7 days', price: 599 },
     { id: 'u2', name: 'Monthly', desc: 'Unlimited Backtests for 30 days', price: 1599 },
-    { id: 'u3', name: 'Quarterly', desc: 'Unlimited Backtests for 90 days', price: 3999, highlight: true, tag: 'MOST POPULAR' },
+    { id: 'u3', name: 'Quarterly', desc: 'Unlimited Backtests for 90 days', price: 3999, highlight: true, tag: 'Most popular' },
     { id: 'u4', name: 'Half-Yearly', desc: 'Unlimited Backtests for 180 days', price: 7499 },
   ];
 
@@ -150,7 +150,7 @@ const PricingModal = ({ isOpen, onClose }) => {
                   email: user.email,
               },
               theme: {
-                  color: "#3B82F6"
+                  color: "#0F1B2D"
               }
           };
 
@@ -169,112 +169,114 @@ const PricingModal = ({ isOpen, onClose }) => {
 
   if (!isOpen) return null;
 
+  const Radio = ({ on }) => (
+    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${on ? 'border-[#0F1B2D]' : 'border-slate-300'}`}>
+      {on && <div className="w-2 h-2 bg-[#0F1B2D] rounded-full"></div>}
+    </div>
+  );
+
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="bg-[#0a0a0a] w-full max-w-2xl rounded-2xl border border-gray-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
+      <div className="bg-white w-full max-w-2xl rounded-2xl border border-slate-200 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
 
         {/* HEADER */}
-        <div className="shrink-0 p-6 border-b border-gray-800 flex justify-between items-start sm:items-center bg-[#151515] flex-col sm:flex-row gap-4 relative z-10">
-          <div className="flex items-center gap-4">
+        <div className="shrink-0 px-5 py-4 border-b border-slate-200 flex justify-between items-start sm:items-center bg-slate-50 flex-col sm:flex-row gap-3 relative z-10">
+          <div className="flex items-center gap-3">
             <button
               onClick={onClose}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-white hover:text-black text-white rounded-lg transition-all cursor-pointer text-sm font-bold border border-gray-500 shadow-md shrink-0"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 rounded-md transition-all cursor-pointer text-xs font-semibold border border-slate-300 shrink-0"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
               </svg>
-              BACK
+              Back
             </button>
             <div>
-              <h2 className="text-2xl font-bold text-white">Upgrade Your Account</h2>
-              <p className="text-gray-400 text-sm mt-1">Choose the plan that fits your trading style.</p>
+              <h2 className="text-lg font-semibold text-[#0F1B2D] tracking-tight">Upgrade your account</h2>
+              <p className="text-slate-500 text-xs mt-0.5">Choose the plan that fits your trading style.</p>
             </div>
           </div>
 
-          <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors cursor-pointer hidden sm:block shrink-0">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-700 transition-colors cursor-pointer hidden sm:block shrink-0">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
-        {/* 🔴 UNDER IMPROVEMENT NOTICE */}
+        {/* UNDER IMPROVEMENT NOTICE */}
         {!PAYMENTS_ENABLED && (
-          <div className="shrink-0 px-6 py-3 bg-yellow-500/10 border-b border-yellow-500/30 text-yellow-400 text-sm text-center">
-            🚧 Website is under improvement. Payments will open soon!
+          <div className="shrink-0 px-5 py-2 bg-amber-50 border-b border-amber-200 text-amber-800 text-xs text-center">
+            Website is under improvement. Payments will open soon.
           </div>
         )}
 
         {/* TABS */}
-        <div className="shrink-0 flex p-4 bg-[#0a0a0a] gap-4 border-b border-gray-800/50 z-10 relative">
+        <div className="shrink-0 flex p-3 bg-white gap-2 border-b border-slate-200 z-10 relative">
           <button
             onClick={() => { setActiveTab('payg'); setSelectedPlan(null); }}
-            className={`flex-1 py-4 px-4 text-base font-bold rounded-xl transition-all cursor-pointer border-2 ${
+            className={`flex-1 py-2.5 px-4 text-sm font-semibold rounded-lg transition-all cursor-pointer border ${
               activeTab === 'payg'
-                ? 'bg-blue-600/10 text-blue-400 border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.3)]'
-                : 'bg-[#151515] text-gray-500 border-gray-800 hover:border-gray-600 hover:text-gray-300'
+                ? 'bg-[#0F1B2D] text-white border-[#0F1B2D]'
+                : 'bg-white text-slate-500 border-slate-200 hover:border-slate-400 hover:text-slate-800'
             }`}
           >
-            Pay-As-You-Go Credits
+            Pay-as-you-go credits
           </button>
 
           <button
             onClick={() => { setActiveTab('unlimited'); setSelectedPlan(null); }}
-            className={`flex-1 py-4 px-4 text-base font-bold rounded-xl transition-all cursor-pointer border-2 ${
+            className={`flex-1 py-2.5 px-4 text-sm font-semibold rounded-lg transition-all cursor-pointer border ${
               activeTab === 'unlimited'
-                ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.3)]'
-                : 'bg-[#151515] text-gray-500 border-gray-800 hover:border-gray-600 hover:text-gray-300'
+                ? 'bg-[#0F1B2D] text-white border-[#0F1B2D]'
+                : 'bg-white text-slate-500 border-slate-200 hover:border-slate-400 hover:text-slate-800'
             }`}
           >
-            Unlimited Plans
+            Unlimited plans
           </button>
         </div>
 
-        {/* Scrollable Content Area */}
-        <div className="p-6 overflow-y-auto custom-scrollbar flex-1 relative">
+        {/* Scrollable content */}
+        <div className="p-5 overflow-y-auto custom-scrollbar flex-1 relative bg-[#F4F5F7]">
 
           {/* TAB 1: PAY AS YOU GO */}
           {activeTab === 'payg' && (
-            <div className="space-y-6 animate-fade-in-up">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-4 animate-fade-in-up">
+              <div className="grid grid-cols-2 gap-3">
                 {paygPlans.map((plan) => (
                   <div
                     key={plan.id}
                     onClick={() => setSelectedPlan(plan.id)}
-                    className={`relative cursor-pointer p-5 rounded-xl border-2 transition-all ${
+                    className={`relative cursor-pointer p-4 rounded-xl border transition-all ${
                       selectedPlan === plan.id
-                        ? 'border-blue-500 bg-blue-900/10'
-                        : 'border-gray-800 bg-[#1a1a1a] hover:border-gray-600'
+                        ? 'border-[#0F1B2D] bg-white ring-1 ring-[#0F1B2D]'
+                        : 'border-slate-200 bg-white hover:border-slate-400'
                     }`}
                   >
                     {plan.highlight && (
-                      <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-500 text-white text-[10px] font-bold px-3 py-1 rounded-full tracking-wider uppercase">
+                      <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-[10px] font-semibold px-2.5 py-0.5 rounded-full">
                         {plan.tag}
                       </span>
                     )}
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-xl font-bold text-white">{plan.credits} <span className="text-sm font-normal text-gray-400">Credits</span></span>
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedPlan === plan.id ? 'border-blue-500' : 'border-gray-600'}`}>
-                        {selectedPlan === plan.id && <div className="w-2.5 h-2.5 bg-blue-500 rounded-full"></div>}
-                      </div>
+                    <div className="flex justify-between items-center mb-1.5">
+                      <span className="text-lg font-semibold text-[#0F1B2D]">{plan.credits} <span className="text-xs font-normal text-slate-500">credits</span></span>
+                      <Radio on={selectedPlan === plan.id} />
                     </div>
-                    <div className="text-2xl font-bold text-blue-400">₹{plan.price}</div>
+                    <div className="text-xl font-semibold font-mono text-indigo-600">₹{plan.price}</div>
                   </div>
                 ))}
               </div>
 
-              {/* Custom Credit Slider Section */}
+              {/* Custom credit slider */}
               <div
-                className={`p-6 rounded-xl border-2 transition-all cursor-pointer ${
-                  selectedPlan === 'custom' ? 'border-blue-500 bg-blue-900/10' : 'border-gray-800 bg-[#1a1a1a] hover:border-gray-600'
+                className={`p-5 rounded-xl border transition-all cursor-pointer bg-white ${
+                  selectedPlan === 'custom' ? 'border-[#0F1B2D] ring-1 ring-[#0F1B2D]' : 'border-slate-200 hover:border-slate-400'
                 }`}
                 onClick={() => setSelectedPlan('custom')}
               >
-                <div className="flex justify-between items-center mb-4">
-                  <span className="text-lg font-semibold text-white">Need a custom amount?</span>
-                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedPlan === 'custom' ? 'border-blue-500' : 'border-gray-600'}`}>
-                    {selectedPlan === 'custom' && <div className="w-2.5 h-2.5 bg-blue-500 rounded-full"></div>}
-                  </div>
+                <div className="flex justify-between items-center mb-3">
+                  <span className="text-sm font-semibold text-[#0F1B2D]">Need a custom amount?</span>
+                  <Radio on={selectedPlan === 'custom'} />
                 </div>
 
                 <input
@@ -287,16 +289,16 @@ const PricingModal = ({ isOpen, onClose }) => {
                     setCustomCredits(Number(e.target.value));
                     setSelectedPlan('custom');
                   }}
-                  className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500 mb-4"
+                  className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#0F1B2D] mb-3"
                 />
                 <div className="flex justify-between items-end">
                   <div>
-                    <span className="text-3xl font-bold text-white">{customCredits}</span>
-                    <span className="text-gray-400 ml-2">Credits</span>
+                    <span className="text-2xl font-semibold font-mono text-[#0F1B2D]">{customCredits}</span>
+                    <span className="text-slate-500 text-sm ml-1.5">credits</span>
                   </div>
                   <div className="text-right">
-                    <div className="text-2xl font-bold text-blue-400">₹{Math.round(calculateCustomPrice(customCredits))}</div>
-                    <div className="text-xs text-gray-500">Auto-calculated discount</div>
+                    <div className="text-xl font-semibold font-mono text-indigo-600">₹{Math.round(calculateCustomPrice(customCredits))}</div>
+                    <div className="text-[11px] text-slate-400">Discount applied automatically</div>
                   </div>
                 </div>
               </div>
@@ -305,35 +307,33 @@ const PricingModal = ({ isOpen, onClose }) => {
 
           {/* TAB 2: UNLIMITED PLANS */}
           {activeTab === 'unlimited' && (
-            <div className="space-y-4 animate-fade-in-up">
+            <div className="space-y-3 animate-fade-in-up">
               {unlimitedPlans.map((plan) => (
                 <div
                   key={plan.id}
                   onClick={() => setSelectedPlan(plan.id)}
-                  className={`relative cursor-pointer p-5 rounded-xl border-2 transition-all flex justify-between items-center ${
+                  className={`relative cursor-pointer p-4 rounded-xl border transition-all flex justify-between items-center bg-white ${
                     selectedPlan === plan.id
-                      ? 'border-yellow-500 bg-yellow-900/10'
+                      ? 'border-[#0F1B2D] ring-1 ring-[#0F1B2D]'
                       : plan.highlight
-                        ? 'border-yellow-600/50 bg-gradient-to-r from-yellow-900/20 to-[#1a1a1a]'
-                        : 'border-gray-800 bg-[#1a1a1a] hover:border-gray-600'
+                        ? 'border-amber-300 bg-amber-50/50'
+                        : 'border-slate-200 hover:border-slate-400'
                   }`}
                 >
                   {plan.highlight && (
-                    <span className="absolute -top-3 left-6 bg-gradient-to-r from-yellow-600 to-yellow-500 text-black text-[10px] font-bold px-3 py-1 rounded-full tracking-wider uppercase shadow-lg shadow-yellow-900/50">
+                    <span className="absolute -top-2.5 left-5 bg-amber-500 text-white text-[10px] font-semibold px-2.5 py-0.5 rounded-full">
                       {plan.tag}
                     </span>
                   )}
 
-                  <div className="flex items-center gap-4">
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${selectedPlan === plan.id ? 'border-yellow-500' : 'border-gray-600'}`}>
-                      {selectedPlan === plan.id && <div className="w-2.5 h-2.5 bg-yellow-500 rounded-full"></div>}
-                    </div>
+                  <div className="flex items-center gap-3">
+                    <Radio on={selectedPlan === plan.id} />
                     <div>
-                      <h3 className="text-lg font-bold text-white">{plan.name}</h3>
-                      <p className="text-sm text-gray-400">{plan.desc}</p>
+                      <h3 className="text-sm font-semibold text-[#0F1B2D]">{plan.name}</h3>
+                      <p className="text-xs text-slate-500">{plan.desc}</p>
                     </div>
                   </div>
-                  <div className="text-2xl font-bold text-yellow-400 shrink-0">₹{plan.price}</div>
+                  <div className="text-xl font-semibold font-mono text-[#0F1B2D] shrink-0">₹{plan.price}</div>
                 </div>
               ))}
             </div>
@@ -341,23 +341,21 @@ const PricingModal = ({ isOpen, onClose }) => {
         </div>
 
         {/* FOOTER */}
-        <div className="shrink-0 p-6 border-t border-gray-800 bg-[#151515]">
+        <div className="shrink-0 px-5 py-4 border-t border-slate-200 bg-white">
           <button
             onClick={handlePayment}
             disabled={!PAYMENTS_ENABLED || !selectedPlan}
-            className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
+            className={`w-full py-3 rounded-lg font-semibold text-sm transition-all ${
               !PAYMENTS_ENABLED || !selectedPlan
-                ? 'bg-gray-800 text-gray-500 cursor-not-allowed'
-                : activeTab === 'payg'
-                  ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-900/50 cursor-pointer'
-                  : 'bg-yellow-500 hover:bg-yellow-400 text-black shadow-lg shadow-yellow-900/20 cursor-pointer'
+                ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
+                : 'bg-[#0F1B2D] hover:bg-[#1c2d47] text-white cursor-pointer'
             }`}
           >
             {!PAYMENTS_ENABLED
-              ? 'Coming Soon – Under Improvement'
-              : selectedPlan ? 'Proceed to Payment' : 'Select a Plan'}
+              ? 'Coming soon (under improvement)'
+              : selectedPlan ? 'Proceed to payment' : 'Select a plan'}
           </button>
-          <p className="text-center text-xs text-gray-500 mt-4 flex items-center justify-center gap-2">
+          <p className="text-center text-[11px] text-slate-400 mt-2.5 flex items-center justify-center gap-1.5">
              <i className="fa-solid fa-lock"></i> Secure 256-bit encrypted checkout
           </p>
         </div>

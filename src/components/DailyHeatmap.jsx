@@ -4,11 +4,11 @@ const DailyHeatmap = ({ result, withTax }) => {
   if (!result || !result.Heatmap_Data || result.Heatmap_Data.length === 0) return null;
 
   return (
-    <div className="bg-[#1e1e1e] border border-[#2d2d2d] p-5 md:p-6 rounded-xl overflow-hidden">
-      <h3 className="text-sm font-bold text-gray-300 mb-6">Daily Profit/Loss Heatmap</h3>
+    <div className="bg-white border border-slate-200 p-4 md:p-5 rounded-xl overflow-hidden shadow-[0_1px_2px_rgba(15,27,45,0.04)]">
+      <h3 className="text-sm font-semibold text-[#0F1B2D] mb-4">Daily profit/loss heatmap</h3>
       <div className="overflow-x-auto custom-scrollbar-horizontal pb-4 pt-16 -mt-12 w-full">
         <div className="flex items-start gap-4 min-w-max">
-          <div className="flex flex-col justify-between text-[10px] text-gray-500 font-bold uppercase h-[120px] pt-1 pb-1 pr-4 border-r border-[#333]">
+          <div className="flex flex-col justify-between text-[10px] text-slate-400 font-medium h-[120px] pt-1 pb-1 pr-4 border-r border-slate-200">
             <span>Mon</span>
             <span>Wed</span>
             <span>Fri</span>
@@ -49,31 +49,31 @@ const DailyHeatmap = ({ result, withTax }) => {
                 {grid.map((day, idx) => {
                   const isProfit = day.pnl > 0;
                   const isLoss = day.pnl < 0;
-                  let intensity = "bg-[#2a2a2a]"; 
+                  let intensity = "bg-slate-200"; 
                   
                   if (day.hasTrade) {
                     if (isProfit) {
-                      if (day.pnl > 10000) intensity = "bg-green-500";
-                      else if (day.pnl > 3000) intensity = "bg-green-600";
-                      else intensity = "bg-green-800";
+                      if (day.pnl > 10000) intensity = "bg-emerald-600";
+                      else if (day.pnl > 3000) intensity = "bg-emerald-500";
+                      else intensity = "bg-emerald-300";
                     } else if (isLoss) {
-                      if (day.pnl < -10000) intensity = "bg-red-500";
-                      else if (day.pnl < -3000) intensity = "bg-red-600";
-                      else intensity = "bg-red-800";
+                      if (day.pnl < -10000) intensity = "bg-rose-600";
+                      else if (day.pnl < -3000) intensity = "bg-rose-500";
+                      else intensity = "bg-rose-300";
                     } else {
-                      intensity = "bg-gray-500"; 
+                      intensity = "bg-slate-400"; 
                     }
                   }
 
                   return (
                     <div key={idx} className={`w-4 h-4 sm:w-5 sm:h-5 rounded-sm cursor-pointer relative group ${intensity}`}>
                       {day.hasTrade && (
-                        <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 hidden group-hover:flex flex-col items-center justify-center z-50 bg-[#2d2d2d] border border-gray-600 px-3 py-1.5 rounded shadow-lg min-w-[100px]">
-                          <span className="text-[10px] text-gray-400 mb-0.5">{day.date}</span>
-                          <span className={`text-xs font-bold ${isProfit ? 'text-green-400' : 'text-red-400'}`}>
+                        <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 hidden group-hover:flex flex-col items-center justify-center z-50 bg-[#0F1B2D] px-3 py-1.5 rounded shadow-lg min-w-[100px]">
+                          <span className="text-[10px] text-slate-300 mb-0.5">{day.date}</span>
+                          <span className={`text-xs font-semibold font-mono ${isProfit ? 'text-emerald-400' : 'text-rose-400'}`}>
                             {isProfit ? '+' : ''}₹{Math.round(day.pnl).toLocaleString('en-IN')}
                           </span>
-                          <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-[4px] border-transparent border-t-[#2d2d2d]"></div>
+                          <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-[4px] border-transparent border-t-[#0F1B2D]"></div>
                         </div>
                       )}
                     </div>
@@ -84,12 +84,12 @@ const DailyHeatmap = ({ result, withTax }) => {
           })()}
         </div>
       </div>
-      <div className="flex justify-end items-center mt-4 text-[10px] text-gray-400 gap-3">
-        <span className="flex items-center gap-1.5"><div className="w-3 h-3 bg-red-500 rounded-sm"></div> High Loss</span>
-        <span className="flex items-center gap-1.5"><div className="w-3 h-3 bg-red-800 rounded-sm"></div> Loss</span>
-        <span className="flex items-center gap-1.5"><div className="w-3 h-3 bg-[#2a2a2a] rounded-sm"></div> Nil</span>
-        <span className="flex items-center gap-1.5"><div className="w-3 h-3 bg-green-800 rounded-sm"></div> Profit</span>
-        <span className="flex items-center gap-1.5"><div className="w-3 h-3 bg-green-500 rounded-sm"></div> High Profit</span>
+      <div className="flex justify-end items-center mt-3 text-[11px] text-slate-500 gap-3">
+        <span className="flex items-center gap-1.5"><div className="w-3 h-3 bg-rose-600 rounded-sm"></div> High loss</span>
+        <span className="flex items-center gap-1.5"><div className="w-3 h-3 bg-rose-300 rounded-sm"></div> Loss</span>
+        <span className="flex items-center gap-1.5"><div className="w-3 h-3 bg-slate-200 rounded-sm"></div> Nil</span>
+        <span className="flex items-center gap-1.5"><div className="w-3 h-3 bg-emerald-300 rounded-sm"></div> Profit</span>
+        <span className="flex items-center gap-1.5"><div className="w-3 h-3 bg-emerald-600 rounded-sm"></div> High profit</span>
       </div>
     </div>
   );

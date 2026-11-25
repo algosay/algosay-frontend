@@ -3,7 +3,7 @@ import React from 'react';
 const MonthlyAnalytics = ({ result, withTax }) => {
   if (!result || !result.Heatmap_Data || result.Heatmap_Data.length === 0) return null;
 
-  // 🚨 NEW: Extracting Estimated Margin safely
+  // 🚨 Extracting Estimated Margin safely
   const statsSourceBase = result.Strategy_Stats || result.Metrics || result || {};
   const estimatedMargin = statsSourceBase.estimated_margin || statsSourceBase.Estimated_Margin || 0;
 
@@ -50,24 +50,24 @@ const MonthlyAnalytics = ({ result, withTax }) => {
     : (result.GROSS_Yearly_Stats || modeData.Yearly_Stats || base.Yearly_Stats || result.Yearly_Stats || {});
 
   return (
-    <div className="bg-[#1e1e1e] border border-[#2d2d2d] p-5 md:p-6 rounded-xl flex flex-col">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-sm font-bold text-gray-300">Monthly Analytics</h3>
-        <span className="text-[10px] bg-gray-800 border border-gray-700 text-gray-400 px-2 py-0.5 rounded font-mono font-bold">
-          MODE: {withTax ? 'NET (AFTER TAX)' : 'GROSS'}
+    <div className="bg-white border border-slate-200 p-4 md:p-5 rounded-xl flex flex-col shadow-[0_1px_2px_rgba(15,27,45,0.04)]">
+      <div className="flex justify-between items-center mb-3">
+        <h3 className="text-sm font-semibold text-[#0F1B2D]">Monthly analytics</h3>
+        <span className="text-[10px] bg-slate-100 border border-slate-200 text-slate-600 px-2 py-0.5 rounded font-mono font-semibold">
+          {withTax ? 'NET (AFTER TAX)' : 'GROSS'}
         </span>
       </div>
-      <div className="w-full overflow-x-auto custom-scrollbar-horizontal border border-[#2d2d2d] rounded-lg">
+      <div className="w-full overflow-x-auto custom-scrollbar-horizontal border border-slate-200 rounded-lg">
         <table className="w-full min-w-[900px] text-left text-xs border-collapse">
-          <thead className="bg-[#2a2a2a]">
+          <thead className="bg-slate-50">
             <tr>
-              <th className="p-3 text-gray-400 font-semibold uppercase">Year</th>
-              {months.map(m => <th key={m} className="p-3 text-center text-gray-400 font-semibold uppercase">{m}</th>)}
-              <th className="p-3 text-center text-blue-400 font-semibold uppercase border-l border-[#333]">Total</th>
-              <th className="p-3 text-center text-yellow-400 font-semibold uppercase border-l border-[#333]">ROI %</th>
-              <th className="p-3 text-center text-gray-400 font-semibold uppercase border-l border-[#333]">Max DD</th>
-              <th className="p-3 text-center text-gray-400 font-semibold uppercase border-l border-[#333]">Days MDD</th>
-              <th className="p-3 text-center text-gray-400 font-semibold uppercase border-l border-[#333]">R/MDD</th>
+              <th className="p-2.5 text-slate-500 font-semibold">Year</th>
+              {months.map(m => <th key={m} className="p-2.5 text-center text-slate-500 font-semibold">{m}</th>)}
+              <th className="p-2.5 text-center text-indigo-600 font-semibold border-l border-slate-200">Total</th>
+              <th className="p-2.5 text-center text-amber-600 font-semibold border-l border-slate-200">ROI %</th>
+              <th className="p-2.5 text-center text-slate-500 font-semibold border-l border-slate-200">Max DD</th>
+              <th className="p-2.5 text-center text-slate-500 font-semibold border-l border-slate-200">Days MDD</th>
+              <th className="p-2.5 text-center text-slate-500 font-semibold border-l border-slate-200">R/MDD</th>
             </tr>
           </thead>
           <tbody>
@@ -83,52 +83,52 @@ const MonthlyAnalytics = ({ result, withTax }) => {
               };
 
               return (
-                <tr key={year} className={`border-t border-[#333] hover:bg-[#252525] ${idx % 2 === 0 ? 'bg-[#1a1a1a]' : 'bg-[#1e1e1e]'}`}>
-                  <td className="p-3 font-bold text-gray-300">{year}</td>
+                <tr key={year} className={`border-t border-slate-200 hover:bg-indigo-50/40 ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/60'}`}>
+                  <td className="p-2.5 font-semibold text-[#0F1B2D]">{year}</td>
                   {months.map(month => {
                     const val = monthlyPnL[year][month] || 0;
                     yearlyTotal += val;
                     const isProfit = val > 0;
                     const isLoss = val < 0;
-                    let textColor = "text-gray-500";
-                    if (isProfit) textColor = "text-green-400 font-semibold bg-green-500/10 rounded px-1";
-                    if (isLoss) textColor = "text-red-400 font-semibold bg-red-500/10 rounded px-1";
+                    let textColor = "text-slate-400";
+                    if (isProfit) textColor = "text-emerald-700 font-semibold bg-emerald-50 rounded px-1";
+                    if (isLoss) textColor = "text-rose-700 font-semibold bg-rose-50 rounded px-1";
                     return (
-                      <td key={month} className="p-3 text-center">
+                      <td key={month} className="p-2.5 text-center font-mono">
                         <span className={textColor}>
                           {val !== 0 ? `₹${Math.round(val).toLocaleString('en-IN')}` : '—'}
                         </span>
                       </td>
                     );
                   })}
-                  <td className="p-3 text-center border-l border-[#333]">
-                    <span className={`font-bold ${yearlyTotal >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                  <td className="p-2.5 text-center border-l border-slate-200 font-mono">
+                    <span className={`font-semibold ${yearlyTotal >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
                       {yearlyTotal >= 0 ? '+' : ''}₹{Math.round(yearlyTotal).toLocaleString('en-IN')}
                     </span>
                   </td>
                   
-                  {/* 🚨 NEW ROI COLUMN */}
-                  <td className="p-3 text-center border-l border-[#333] font-bold text-yellow-500">
+                  {/* ROI COLUMN */}
+                  <td className="p-2.5 text-center border-l border-slate-200 font-semibold font-mono text-amber-600">
                     {calculateROI(yearlyTotal)}
                   </td>
 
-                  <td className="p-3 text-center border-l border-[#333] text-red-400 font-medium">
+                  <td className="p-2.5 text-center border-l border-slate-200 text-rose-600 font-medium font-mono">
                     {(() => {
                       const val = yData?.Max_Drawdown ?? statsSource?.['Max Drawdown'] ?? statsSource?.['Max_Drawdown'];
                       return (val !== undefined && val !== null && !isNaN(val)) ? Math.round(Number(val)) : '—';
                     })()}
                   </td>
-                  <td className="p-3 text-center border-l border-[#333] text-gray-400 font-medium">
+                  <td className="p-2.5 text-center border-l border-slate-200 text-slate-600 font-medium font-mono">
                     {yData?.Days_for_MDD ?? statsSource?.['Duration of Max Drawdown (Periods)'] ?? statsSource?.['Days_for_MDD'] ?? '—'}
                   </td>
-                  <td className="p-3 text-center border-l border-[#333] font-medium">
+                  <td className="p-2.5 text-center border-l border-slate-200 font-medium font-mono">
                     {(() => {
                       const val = yData?.R_MDD ?? statsSource?.['Return / Max DD'] ?? statsSource?.['Reward_To_MDD'];
                       if (val !== undefined && val !== null && !isNaN(val)) {
                         const numVal = Number(val);
-                        return <span className={numVal >= 0 ? "text-green-400" : "text-red-400"}>{numVal.toFixed(2)}</span>;
+                        return <span className={numVal >= 0 ? "text-emerald-600" : "text-rose-600"}>{numVal.toFixed(2)}</span>;
                       }
-                      return <span className="text-gray-400">—</span>;
+                      return <span className="text-slate-400">—</span>;
                     })()}
                   </td>
                 </tr>

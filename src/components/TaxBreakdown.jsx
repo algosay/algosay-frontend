@@ -16,36 +16,27 @@ const TaxBreakdown = ({ result }) => {
   
   if (chargesVal <= 0) return null;
 
+  const items = [
+    { label: 'STT / CTT', pct: 0.65, red: true },
+    { label: 'Brokerage', pct: 0.15 },
+    { label: 'Exchange charges', pct: 0.12 },
+    { label: 'GST', pct: 0.075 },
+    { label: 'SEBI & stamp duty', pct: 0.005 },
+  ];
+
   return (
-    <div className="bg-[#1e1e1e] border border-[#2d2d2d] p-5 rounded-xl mb-8 shadow-sm">
-      <div className="flex items-center gap-2 mb-2">
-        <span className="text-lg">🧾</span>
-        <h3 className="text-sm font-bold text-gray-200 uppercase tracking-wide">Taxes & Charges Breakdown</h3>
-      </div>
-      <p className="text-xs text-gray-400 mb-4 leading-relaxed">
-        Your backtest incurred a total estimated cost of <span className="text-white font-bold">₹{Math.round(chargesVal).toLocaleString('en-IN')}</span> in taxes and brokerage. Here is the approximate breakdown:
+    <div className="bg-white border border-slate-200 p-4 rounded-xl mb-5 shadow-[0_1px_2px_rgba(15,27,45,0.04)]">
+      <h3 className="text-sm font-semibold text-[#0F1B2D] mb-1">Taxes & charges breakdown</h3>
+      <p className="text-xs text-slate-500 mb-3 leading-relaxed">
+        Your backtest incurred a total estimated cost of <span className="text-[#0F1B2D] font-semibold font-mono">₹{Math.round(chargesVal).toLocaleString('en-IN')}</span> in taxes and brokerage. Here is the approximate breakdown:
       </p>
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-        <div className="bg-[#121212] p-3 rounded border border-[#2d2d2d]">
-          <p className="text-[9px] text-gray-500 font-bold uppercase tracking-wider mb-1">STT / CTT</p>
-          <p className="text-sm font-mono font-bold text-red-400">₹{Math.round(chargesVal * 0.65).toLocaleString('en-IN')}</p>
-        </div>
-        <div className="bg-[#121212] p-3 rounded border border-[#2d2d2d]">
-          <p className="text-[9px] text-gray-500 font-bold uppercase tracking-wider mb-1">Brokerage</p>
-          <p className="text-sm font-mono font-bold text-gray-300">₹{Math.round(chargesVal * 0.15).toLocaleString('en-IN')}</p>
-        </div>
-        <div className="bg-[#121212] p-3 rounded border border-[#2d2d2d]">
-          <p className="text-[9px] text-gray-500 font-bold uppercase tracking-wider mb-1">Exchange Charges</p>
-          <p className="text-sm font-mono font-bold text-gray-300">₹{Math.round(chargesVal * 0.12).toLocaleString('en-IN')}</p>
-        </div>
-        <div className="bg-[#121212] p-3 rounded border border-[#2d2d2d]">
-          <p className="text-[9px] text-gray-500 font-bold uppercase tracking-wider mb-1">GST</p>
-          <p className="text-sm font-mono font-bold text-gray-300">₹{Math.round(chargesVal * 0.075).toLocaleString('en-IN')}</p>
-        </div>
-        <div className="bg-[#121212] p-3 rounded border border-[#2d2d2d]">
-          <p className="text-[9px] text-gray-500 font-bold uppercase tracking-wider mb-1">SEBI & Stamp Duty</p>
-          <p className="text-sm font-mono font-bold text-gray-300">₹{Math.round(chargesVal * 0.005).toLocaleString('en-IN')}</p>
-        </div>
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-2.5">
+        {items.map(it => (
+          <div key={it.label} className="bg-slate-50 px-3 py-2 rounded-lg border border-slate-200">
+            <p className="text-[11px] text-slate-500 font-medium mb-0.5">{it.label}</p>
+            <p className={`text-sm font-mono font-semibold ${it.red ? 'text-rose-600' : 'text-[#0F1B2D]'}`}>₹{Math.round(chargesVal * it.pct).toLocaleString('en-IN')}</p>
+          </div>
+        ))}
       </div>
     </div>
   );

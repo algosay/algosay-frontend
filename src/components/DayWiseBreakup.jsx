@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 
-// 'mode' prop add panniyachu (idhu "GROSS" or "NET" aagavum irukkalam)
+// 'mode' prop (idhu "GROSS" or "NET" aagavum irukkalam)
 const DayWiseBreakup = ({ ledger, mode = "NET" }) => {
   const data = useMemo(() => {
     if (!ledger || !Array.isArray(ledger) || ledger.length === 0) return null;
@@ -83,25 +83,25 @@ const DayWiseBreakup = ({ ledger, mode = "NET" }) => {
     });
 
     return { summary, totals };
-  }, [ledger, mode]); // mode-ai dependency-la add panniyachu, so toggle pannum bodhu re-calculate aagum.
+  }, [ledger, mode]); // mode dependency, so toggle pannum bodhu re-calculate aagum.
 
-  if (!data) return <div style={{ padding: '20px', textAlign: 'center', color: '#a0aec0' }}>No trading data available for Day Wise Breakup.</div>;
+  if (!data) return <div style={{ padding: '20px', textAlign: 'center', color: '#64748B' }}>No trading data available for Day Wise Breakup.</div>;
 
   const formatPnL = (val) => {
     const num = Number(val).toFixed(0); 
-    if (num > 0) return <span style={{ color: '#00b894', fontWeight: '600' }}>{num}</span>;
-    if (num < 0) return <span style={{ color: '#ff7675', fontWeight: '600' }}>{num}</span>;
-    return <span style={{ color: '#636e72' }}>0</span>; 
+    if (num > 0) return <span style={{ color: '#059669', fontWeight: '600' }}>{num}</span>;
+    if (num < 0) return <span style={{ color: '#e11d48', fontWeight: '600' }}>{num}</span>;
+    return <span style={{ color: '#94A3B8' }}>0</span>; 
   };
 
   return (
-    <div style={{ margin: '20px 0', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
-      <h3 style={{ marginBottom: '15px', color: '#e2e8f0' }}>Day Wise Breakup</h3>
+    <div style={{ margin: '16px 0' }}>
+      <h3 style={{ marginBottom: '10px', color: '#0F1B2D', fontSize: '14px', fontWeight: 600 }}>Day wise breakup</h3>
       
-      <div style={{ overflowX: 'auto', borderRadius: '8px', border: '1px solid #2d2d2d' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', backgroundColor: '#121212' }}>
+      <div style={{ overflowX: 'auto', borderRadius: '10px', border: '1px solid #E2E8F0', backgroundColor: '#FFFFFF' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', backgroundColor: '#FFFFFF', fontFamily: '"IBM Plex Mono", ui-monospace, monospace' }}>
           <thead>
-            <tr style={{ backgroundColor: '#1e1e1e', borderBottom: '2px solid #2d2d2d' }}>
+            <tr style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
               <th style={styles.th}>Year</th>
               <th style={styles.th}>Mon</th>
               <th style={styles.th}>Tue</th>
@@ -113,24 +113,24 @@ const DayWiseBreakup = ({ ledger, mode = "NET" }) => {
           </thead>
           <tbody>
             {Object.keys(data.summary).map((year) => (
-              <tr key={year} style={{ borderBottom: '1px solid #2d2d2d' }}>
+              <tr key={year} style={{ borderBottom: '1px solid #E2E8F0' }}>
                 <td style={styles.td}><strong>{year}</strong></td>
                 <td style={styles.td}>{formatPnL(data.summary[year].Mon)}</td>
                 <td style={styles.td}>{formatPnL(data.summary[year].Tue)}</td>
                 <td style={styles.td}>{formatPnL(data.summary[year].Wed)}</td>
                 <td style={styles.td}>{formatPnL(data.summary[year].Thu)}</td>
                 <td style={styles.td}>{formatPnL(data.summary[year].Fri)}</td>
-                <td style={{ ...styles.td, backgroundColor: '#1a1a1a' }}><strong>{formatPnL(data.summary[year].Total)}</strong></td>
+                <td style={{ ...styles.td, backgroundColor: '#F8FAFC' }}><strong>{formatPnL(data.summary[year].Total)}</strong></td>
               </tr>
             ))}
-            <tr style={{ backgroundColor: '#1e1e1e', borderTop: '2px solid #2d2d2d' }}>
+            <tr style={{ backgroundColor: '#F8FAFC', borderTop: '1px solid #CBD5E1' }}>
               <td style={styles.td}><strong>Total</strong></td>
               <td style={styles.td}><strong>{formatPnL(data.totals.Mon)}</strong></td>
               <td style={styles.td}><strong>{formatPnL(data.totals.Tue)}</strong></td>
               <td style={styles.td}><strong>{formatPnL(data.totals.Wed)}</strong></td>
               <td style={styles.td}><strong>{formatPnL(data.totals.Thu)}</strong></td>
               <td style={styles.td}><strong>{formatPnL(data.totals.Fri)}</strong></td>
-              <td style={{ ...styles.td, backgroundColor: '#1a1a1a' }}><strong>{formatPnL(data.totals.Total)}</strong></td>
+              <td style={{ ...styles.td, backgroundColor: '#EEF2FF' }}><strong>{formatPnL(data.totals.Total)}</strong></td>
             </tr>
           </tbody>
         </table>
@@ -141,16 +141,15 @@ const DayWiseBreakup = ({ ledger, mode = "NET" }) => {
 
 const styles = {
   th: {
-    padding: '12px 15px',
-    color: '#a0aec0',
+    padding: '9px 14px',
+    color: '#64748B',
     fontWeight: '600',
-    textTransform: 'uppercase',
-    fontSize: '13px'
+    fontSize: '12px'
   },
   td: {
-    padding: '12px 15px',
-    fontSize: '14px',
-    color: '#e2e8f0'
+    padding: '9px 14px',
+    fontSize: '13px',
+    color: '#0F1B2D'
   }
 };
 

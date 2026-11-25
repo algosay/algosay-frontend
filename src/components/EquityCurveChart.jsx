@@ -68,9 +68,8 @@ const EquityCurveChart = ({ result, withTax }) => {
       // முதலில் Equity Curve-ல் தேதி இருக்கிறதா என்று தேடும்
       let rawDate = findKeyInsensitive(pt, ['Date', 'TradeDate', 'trade_date', 'Exit_Time', 'time', 'timestamp', 'trade_time', 'date']);
       
-      // மாஸ்டர் அப்டேட்: Equity_Curve-ல் தேதி இல்லை என்றால், Trade_Ledger-ல் இருந்து தேதியை எடுக்கும்!
+      // Equity_Curve-ல் தேதி இல்லை என்றால், Trade_Ledger-ல் இருந்து தேதியை எடுக்கும்!
       if (!rawDate && ledgerData && ledgerData.length > 0) {
-        // பெரும்பாலும் 0-வது இன்டெக்ஸ் 'Start' என்பதால் i அல்லது i-1 செக் செய்யப்படுகிறது
         let ledgerPt = ledgerData[i] || ledgerData[i - 1] || ledgerData[ledgerData.length - 1];
         if (ledgerPt) {
           rawDate = findKeyInsensitive(ledgerPt, ['Date', 'TradeDate', 'trade_date', 'Exit_Time', 'ExitTime', 'time', 'timestamp', 'trade_time', 'date', 'Entry_Time']);
@@ -95,7 +94,7 @@ const EquityCurveChart = ({ result, withTax }) => {
 
       mappedEquity.push({
         Display_PnL: withTax ? netPnl : pnl,
-        Date: isFallback ? "T-" + displayLabel : displayLabel, // தேதி கிடைத்தால் தேதியைக் காட்டும், இல்லைனா மட்டும் T-1 என்று காட்டும்
+        Date: isFallback ? "T-" + displayLabel : displayLabel,
         Label: isFallback ? "Trade " + (i + 1) : displayLabel
       });
     });
@@ -119,7 +118,7 @@ const EquityCurveChart = ({ result, withTax }) => {
     const paddingLeft = 100;
     const paddingRight = 50;
     const paddingTop = 30;
-    const paddingBottom = 75; // தேதிகள் சாய்வாக எழுதப்படுவதால் வெட்டப்படாமல் இருக்க கொஞ்சம் கூட்டப்பட்டுள்ளது
+    const paddingBottom = 75;
 
     const plotWidth = dynamicWidth - paddingLeft - paddingRight;
     const plotHeight = chartHeight - paddingTop - paddingBottom;
@@ -131,7 +130,7 @@ const EquityCurveChart = ({ result, withTax }) => {
     };
 
     // Background Grid
-    ctx.strokeStyle = '#262626';
+    ctx.strokeStyle = '#E2E8F0';
     ctx.lineWidth = 1;
     ctx.setLineDash([4, 4]);
     
@@ -145,8 +144,8 @@ const EquityCurveChart = ({ result, withTax }) => {
       ctx.stroke();
 
       ctx.setLineDash([]);
-      ctx.fillStyle = '#a3a3a3';
-      ctx.font = '12px sans-serif';
+      ctx.fillStyle = '#64748B';
+      ctx.font = '12px "IBM Plex Mono", ui-monospace, monospace';
       ctx.textAlign = 'right';
       ctx.textBaseline = 'middle';
       
@@ -161,7 +160,7 @@ const EquityCurveChart = ({ result, withTax }) => {
 
     // Zero line
     ctx.setLineDash([]);
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+    ctx.strokeStyle = 'rgba(15, 27, 45, 0.35)';
     ctx.lineWidth = 1.5;
     ctx.beginPath();
     ctx.moveTo(paddingLeft, getY(0));
@@ -170,8 +169,8 @@ const EquityCurveChart = ({ result, withTax }) => {
 
     // Area Gradient
     const gradient = ctx.createLinearGradient(0, paddingTop, 0, paddingTop + plotHeight);
-    gradient.addColorStop(0, 'rgba(34, 197, 94, 0.25)');
-    gradient.addColorStop(1, 'rgba(34, 197, 94, 0.01)');
+    gradient.addColorStop(0, 'rgba(16, 185, 129, 0.22)');
+    gradient.addColorStop(1, 'rgba(16, 185, 129, 0.01)');
 
     ctx.fillStyle = gradient;
     ctx.beginPath();
@@ -184,8 +183,8 @@ const EquityCurveChart = ({ result, withTax }) => {
     ctx.fill();
 
     // Line Path
-    ctx.strokeStyle = '#3b82f6';
-    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = '#4F46E5';
+    ctx.lineWidth = 2.25;
     ctx.beginPath();
     for (let i = 0; i < dataPointsCount; i++) {
       if (i === 0) ctx.moveTo(getX(i), getY(mappedEquity[i].Display_PnL));
@@ -194,7 +193,7 @@ const EquityCurveChart = ({ result, withTax }) => {
     ctx.stroke();
 
     // X-Axis Text Labels
-    ctx.fillStyle = '#a3a3a3';
+    ctx.fillStyle = '#64748B';
     ctx.font = '11px sans-serif';
     ctx.textAlign = 'right';
     ctx.textBaseline = 'top';
@@ -243,12 +242,12 @@ const EquityCurveChart = ({ result, withTax }) => {
   };
 
   if (!equityData || equityData.length === 0) {
-    return <div className="p-4 text-white font-semibold">No data available for chart</div>;
+    return <div className="p-4 text-slate-600 font-medium">No data available for chart</div>;
   }
 
   return (
-    <div className="bg-[#1e1e1e] border border-[#2d2d2d] p-5 md:p-6 rounded-xl shadow-lg w-full relative">
-      <h3 className="text-sm font-bold text-gray-300 mb-6">Equity Curve (Cumulative PnL)</h3>
+    <div className="bg-white border border-slate-200 p-4 md:p-5 rounded-xl shadow-[0_1px_2px_rgba(15,27,45,0.04)] w-full relative">
+      <h3 className="text-sm font-semibold text-[#0F1B2D] mb-4">Equity curve (cumulative PnL)</h3>
       
       <div className="overflow-x-auto w-full custom-scrollbar-horizontal pb-2" ref={containerRef}>
         <div style={{ width: dynamicWidth + "px", height: chartHeight + "px", position: 'relative' }}>
@@ -264,18 +263,18 @@ const EquityCurveChart = ({ result, withTax }) => {
 
           {hoverData && (
             <div 
-              className="absolute bg-[#111111] border border-gray-700 p-3 rounded-lg shadow-2xl text-white pointer-events-none z-50 min-w-[140px]"
+              className="absolute bg-[#0F1B2D] p-3 rounded-lg shadow-xl text-white pointer-events-none z-50 min-w-[140px]"
               style={{ 
                 left: hoverData.x + 15 + "px", 
                 top: Math.min(hoverData.y, chartHeight - 120) + "px",
                 transform: hoverData.x > (dynamicWidth * 0.7) ? 'translateX(-120%)' : 'none'
               }}
             >
-              <p className="text-xs text-blue-400 font-bold mb-1 uppercase tracking-wide">
+              <p className="text-xs text-indigo-300 font-semibold mb-1">
                 {hoverData.Label}
               </p>
-              <p className="text-[10px] text-gray-400">Cumulative {withTax ? 'Net' : 'Gross'} PnL:</p>
-              <div className={`text-base font-bold ${hoverData.Display_PnL >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+              <p className="text-[10px] text-slate-300">Cumulative {withTax ? 'net' : 'gross'} PnL</p>
+              <div className={`text-base font-semibold font-mono ${hoverData.Display_PnL >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
                 {hoverData.Display_PnL >= 0 ? '+' : ''}₹{Math.round(hoverData.Display_PnL).toLocaleString('en-IN')}
               </div>
             </div>

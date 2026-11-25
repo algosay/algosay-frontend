@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { auth, db } from '../firebase'; // Update path if needed
 import { doc, getDoc } from 'firebase/firestore';
 
-// 🚨 UPDATED: Accept userProfileData prop passed from App.js 🚨
+// 🚨 Accept userProfileData prop passed from App.js 🚨
 const UserProfile = ({ onClose, userProfileData }) => {
   // Initialize with userProfileData if available, otherwise null
   const [userData, setUserData] = useState(userProfileData || null);
@@ -55,8 +55,8 @@ const UserProfile = ({ onClose, userProfileData }) => {
 
   if (loading) {
     return (
-      <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/80 backdrop-blur-md">
-        <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin shadow-[0_0_15px_rgba(59,130,246,0.6)]"></div>
+      <div className="fixed inset-0 z-[999] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm">
+        <div className="w-10 h-10 border-4 border-[#0F1B2D] border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -72,88 +72,83 @@ const UserProfile = ({ onClose, userProfileData }) => {
     : null;
 
   return (
-    // 🚨 UPDATED: z-[999] added to ensure it stays strictly above the header 🚨
-    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/85 backdrop-blur-md p-4">
+    // z-[999] keeps it strictly above the header
+    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
       
-      {/* 🚨 UPDATED: mt-16 to physically move the modal down below the top nav, plus neon glowing borders 🚨 */}
-      <div className="bg-[#05050a] w-full max-w-lg rounded-2xl border border-blue-500/20 shadow-[0_0_40px_rgba(0,100,255,0.15)] overflow-hidden flex flex-col mt-16 md:mt-20">
+      {/* mt-16 keeps the modal below the top nav */}
+      <div className="bg-white w-full max-w-lg rounded-2xl border border-slate-200 shadow-2xl overflow-hidden flex flex-col mt-16 md:mt-20">
         
-        {/* Header - Neon Title */}
-        <div className="p-6 border-b border-[#1e1e30] flex justify-between items-center bg-[#0a0a14]">
-          <h2 className="text-2xl font-black flex items-center gap-3">
-            <svg className="w-7 h-7 text-blue-500 drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        {/* Header */}
+        <div className="px-5 py-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
+          <h2 className="text-lg font-semibold text-[#0F1B2D] tracking-tight flex items-center gap-2.5">
+            <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-400 to-purple-500 tracking-wide">
-              My Profile
-            </span>
+            My profile
           </h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-white hover:drop-shadow-[0_0_5px_rgba(255,255,255,0.8)] transition-all">
-            <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-700 transition-colors cursor-pointer">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
-        {/* Profile Content */}
-        <div className="p-6 space-y-6">
+        {/* Profile content */}
+        <div className="p-5 space-y-4 bg-[#F4F5F7]">
           
-          {/* 🚨 UPDATED: Enhanced Profile Info showing Name, Mobile, and Email smoothly 🚨 */}
-          <div className="bg-[#0c0c16] p-5 rounded-xl border border-[#1e1e30] shadow-inner space-y-4">
-            {/* Top section: Avatar & Name */}
-            <div className="flex items-center gap-4 border-b border-[#1e1e30] pb-4">
-              <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-2xl font-black text-white shadow-[0_0_15px_rgba(147,51,234,0.5)] shrink-0">
+          {/* Name, email, mobile */}
+          <div className="bg-white p-4 rounded-xl border border-slate-200 space-y-3">
+            <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
+              <div className="w-11 h-11 bg-[#0F1B2D] rounded-full flex items-center justify-center text-lg font-semibold text-white shrink-0">
                 {(userData?.name || auth.currentUser?.email || 'U').charAt(0).toUpperCase()}
               </div>
               <div>
-                <p className="text-xs tracking-wider text-cyan-500/80 font-bold uppercase mb-1">Trader Profile</p>
-                <p className="text-xl text-gray-200 font-black capitalize">{userData?.name || 'Algo Trader'}</p>
+                <p className="text-[11px] text-slate-500 font-medium">Trader profile</p>
+                <p className="text-base text-[#0F1B2D] font-semibold capitalize">{userData?.name || 'Algo Trader'}</p>
               </div>
             </div>
             
-            {/* Bottom section: Email & Mobile Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <p className="text-[10px] tracking-wider text-gray-500 font-bold uppercase mb-1">Registered Email</p>
-                <p className="text-sm text-gray-300 font-bold truncate">{auth.currentUser?.email}</p>
+                <p className="text-[11px] text-slate-500 font-medium mb-0.5">Registered email</p>
+                <p className="text-sm text-[#0F1B2D] font-medium truncate">{auth.currentUser?.email}</p>
               </div>
               <div>
-                <p className="text-[10px] tracking-wider text-gray-500 font-bold uppercase mb-1">Mobile Number</p>
-                <p className="text-sm text-gray-300 font-bold">{userData?.mobile || 'Not Provided'}</p>
+                <p className="text-[11px] text-slate-500 font-medium mb-0.5">Mobile number</p>
+                <p className="text-sm text-[#0F1B2D] font-medium font-mono">{userData?.mobile || 'Not provided'}</p>
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            {/* Pay-As-You-Go Credits Card - Blue Neon Glow */}
-            <div className="bg-gradient-to-br from-[#0a1930] to-[#05050a] p-5 rounded-xl border border-blue-500/40 shadow-[0_0_20px_rgba(59,130,246,0.15)] hover:border-blue-400 transition-all">
-              <p className="text-xs tracking-widest text-blue-400 font-black uppercase mb-2">Available Credits</p>
-              <div className="flex items-end gap-2">
-                <span className="text-5xl font-black text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {/* Credits card */}
+            <div className="bg-white p-4 rounded-xl border border-slate-200 border-l-4 border-l-indigo-500">
+              <p className="text-xs text-slate-500 font-medium mb-1.5">Available credits</p>
+              <div className="flex items-end gap-1.5">
+                <span className="text-4xl font-semibold font-mono text-[#0F1B2D] leading-none">
                   {userData?.credits || 0}
                 </span>
-                <span className="text-sm text-blue-500/70 font-bold mb-1 uppercase">Tokens</span>
+                <span className="text-xs text-slate-400 font-medium mb-0.5">tokens</span>
               </div>
             </div>
 
-            {/* Unlimited Plan Card - Yellow/Gold Neon Glow */}
-            <div className="bg-gradient-to-br from-[#30200a] to-[#05050a] p-5 rounded-xl border border-yellow-500/40 shadow-[0_0_20px_rgba(234,179,8,0.15)] hover:border-yellow-400 transition-all">
-              <p className="text-xs tracking-widest text-yellow-500 font-black uppercase mb-2">Unlimited Plan</p>
+            {/* Unlimited plan card */}
+            <div className="bg-white p-4 rounded-xl border border-slate-200 border-l-4 border-l-amber-500">
+              <p className="text-xs text-slate-500 font-medium mb-1.5">Unlimited plan</p>
               {daysLeft > 0 ? (
                 <div>
-                  <div className="flex items-end gap-2">
-                    <span className="text-5xl font-black text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">{daysLeft}</span>
-                    <span className="text-sm text-yellow-500/70 font-bold mb-1 uppercase">Days Left</span>
+                  <div className="flex items-end gap-1.5">
+                    <span className="text-4xl font-semibold font-mono text-[#0F1B2D] leading-none">{daysLeft}</span>
+                    <span className="text-xs text-slate-400 font-medium mb-0.5">days left</span>
                   </div>
-                  {/* Shows Expiry Date Here */}
-                  <p className="text-xs text-green-400 mt-3 font-bold bg-green-900/30 inline-block px-2 py-1 rounded-md border border-green-500/30">
-                    ✅ Active until {exactExpiryDate}
+                  <p className="text-[11px] text-emerald-700 mt-2.5 font-medium bg-emerald-50 inline-block px-2 py-0.5 rounded border border-emerald-200">
+                    ✓ Active until {exactExpiryDate}
                   </p>
                 </div>
               ) : (
-                <div className="mt-1">
-                  <p className="text-xl font-black text-gray-500">No Active Plan</p>
-                  <p className="text-xs text-gray-500 mt-2 font-semibold">Upgrade to get unlimited.</p>
+                <div className="mt-0.5">
+                  <p className="text-base font-semibold text-slate-400">No active plan</p>
+                  <p className="text-xs text-slate-400 mt-1">Upgrade to get unlimited backtests.</p>
                 </div>
               )}
             </div>
@@ -161,25 +156,23 @@ const UserProfile = ({ onClose, userProfileData }) => {
 
         </div>
 
-        {/* Footer Action - Neon Buttons */}
-        <div className="p-6 border-t border-[#1e1e30] bg-[#0a0a14] flex gap-4">
-          {/* Back Button */}
+        {/* Footer actions */}
+        <div className="px-5 py-4 border-t border-slate-200 bg-white flex gap-3">
           <button 
             onClick={onClose} 
-            className="flex-1 py-3 bg-transparent hover:bg-[#1a1a24] text-gray-300 hover:text-white font-bold rounded-xl border border-gray-700 hover:border-gray-500 hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] transition-all uppercase tracking-wider text-sm"
+            className="flex-1 py-2 bg-white hover:bg-slate-50 text-slate-700 font-semibold rounded-lg border border-slate-300 transition-all text-sm cursor-pointer"
           >
             Back
           </button>
           
-          {/* Logout Button - Matches Top Nav Red Neon */}
           <button 
             onClick={() => {
               auth.signOut();
               window.location.reload();
             }} 
-            className="flex-1 py-3 bg-transparent hover:bg-[#e11d48]/10 text-[#f43f5e] font-bold rounded-xl border border-[#e11d48] hover:shadow-[0_0_20px_rgba(225,29,72,0.4)] transition-all uppercase tracking-wider text-sm"
+            className="flex-1 py-2 bg-white hover:bg-rose-50 text-rose-600 font-semibold rounded-lg border border-rose-300 transition-all text-sm cursor-pointer"
           >
-            Log Out
+            Log out
           </button>
         </div>
 

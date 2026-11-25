@@ -24,6 +24,16 @@ const getPnl = (trade, withTax) => {
 // 🚀 Backend link fields (table-la column-ah kaattaama maraikkanum) - underscore + space rendu format-um
 const HIDDEN_KEYS = ['Leg_ID', 'Chain_Seq', 'Parent_Trade_Num', 'Leg ID', 'Chain Seq', 'Parent Trade Num'];
 
+// Trade type badge colours (light theme)
+const typeBadge = (t) => {
+  if (t.includes('SL Re-entry')) return 'bg-amber-50 text-amber-700 border-amber-200';
+  if (t.includes('Target Re-execute')) return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+  if (t.includes('Target Re-entry')) return 'bg-cyan-50 text-cyan-700 border-cyan-200';
+  return 'bg-slate-100 text-slate-600 border-slate-200';
+};
+
+const selectCls = "bg-white text-xs text-slate-700 border border-slate-300 rounded-md px-2 py-1 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100";
+
 const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
   const [showLogs, setShowLogs] = useState(false);
 
@@ -204,26 +214,26 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
   const totalColumnsCount = orderedKeys.length + (hasAnyReentries ? 2 : 0) + 1;
 
   return (
-    <div className="bg-[#1e1e1e] border border-[#2d2d2d] rounded-xl overflow-hidden flex flex-col mt-4">
-      <div className="p-4 border-b border-[#2d2d2d] flex justify-between items-center bg-[#222]">
-        <h3 className="text-sm font-bold text-gray-200">Execution Ledger ({filteredLedger.length} Trades)</h3>
+    <div className="bg-white border border-slate-200 rounded-xl overflow-hidden flex flex-col mt-4 shadow-[0_1px_2px_rgba(15,27,45,0.04)]">
+      <div className="px-4 py-3 border-b border-slate-200 flex justify-between items-center bg-slate-50">
+        <h3 className="text-sm font-semibold text-[#0F1B2D]">Execution ledger <span className="text-slate-400 font-normal font-mono">({filteredLedger.length} trades)</span></h3>
         <button
           onClick={() => setShowLogs(!showLogs)}
-          className="text-xs bg-[#333] hover:bg-[#444] text-white px-3 py-1.5 rounded transition-colors border border-[#444]"
+          className="text-xs bg-[#0F1B2D] hover:bg-[#1c2d47] text-white px-3 py-1.5 rounded-md transition-colors font-semibold cursor-pointer"
         >
-          {showLogs ? 'Hide Ledger' : 'View Ledger'}
+          {showLogs ? 'Hide ledger' : 'View ledger'}
         </button>
       </div>
 
       {showLogs && (
         <div className="flex flex-col">
           {/* Filters Section */}
-          <div className="p-3 bg-[#252525] border-b border-[#333] flex flex-wrap gap-4 items-center">
-            <span className="text-xs text-gray-400 font-semibold uppercase tracking-wider">Filters:</span>
+          <div className="p-3 bg-white border-b border-slate-200 flex flex-wrap gap-3 items-center">
+            <span className="text-xs text-slate-500 font-semibold">Filters</span>
 
             {uniqueSegments.length > 0 && (
               <select
-                className="bg-[#1a1a1a] text-xs text-gray-300 border border-[#444] rounded px-2 py-1 outline-none focus:border-blue-500"
+                className={selectCls}
                 value={filterSegment}
                 onChange={(e) => setFilterSegment(e.target.value)}
               >
@@ -233,7 +243,7 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
             )}
 
             <select
-              className="bg-[#1a1a1a] text-xs text-gray-300 border border-[#444] rounded px-2 py-1 outline-none focus:border-blue-500"
+              className={selectCls}
               value={filterDirection}
               onChange={(e) => setFilterDirection(e.target.value)}
             >
@@ -243,7 +253,7 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
             </select>
 
             <select
-              className="bg-[#1a1a1a] text-xs text-gray-300 border border-[#444] rounded px-2 py-1 outline-none focus:border-blue-500"
+              className={selectCls}
               value={filterDay}
               onChange={(e) => setFilterDay(e.target.value)}
             >
@@ -253,7 +263,7 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
 
             {uniqueDTEs.length > 0 && (
               <select
-                className="bg-[#1a1a1a] text-xs text-gray-300 border border-[#444] rounded px-2 py-1 outline-none focus:border-blue-500"
+                className={selectCls}
                 value={filterDTE}
                 onChange={(e) => setFilterDTE(e.target.value)}
               >
@@ -263,7 +273,7 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
             )}
 
             <select
-              className="bg-[#1a1a1a] text-xs text-gray-300 border border-[#444] rounded px-2 py-1 outline-none focus:border-blue-500"
+              className={selectCls}
               value={filterResult}
               onChange={(e) => setFilterResult(e.target.value)}
             >
@@ -280,28 +290,28 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
                 setFilterDTE('All');
                 setFilterResult('All');
               }}
-              className="text-[10px] text-gray-400 hover:text-white underline ml-auto cursor-pointer"
+              className="text-[11px] text-slate-500 hover:text-[#0F1B2D] underline ml-auto cursor-pointer"
             >
-              Clear Filters
+              Clear filters
             </button>
           </div>
 
           {/* Table Section */}
           <div className="w-full overflow-x-auto max-h-[500px] custom-scrollbar">
             <table className="w-full text-left text-xs border-collapse min-w-[800px]">
-              <thead className="sticky top-0 bg-[#2a2a2a] z-10 shadow-sm border-b border-[#333]">
+              <thead className="sticky top-0 bg-slate-50 z-10 border-b border-slate-200">
                 <tr>
                   {orderedKeys.map((header, idx) => (
-                    <th key={idx} className="p-3 text-gray-400 font-semibold uppercase whitespace-nowrap">
+                    <th key={idx} className="p-2.5 text-slate-500 font-semibold whitespace-nowrap">
                       {header.replace(/_/g, ' ')}
                     </th>
                   ))}
                   {/* Dynamic Headers */}
-                  {hasAnyReentries && <th className="p-3 text-indigo-400 font-semibold uppercase whitespace-nowrap bg-[#2a2a2a]">Re-entries Details</th>}
-                  {hasAnyReentries && <th className="p-3 text-emerald-400 font-semibold uppercase whitespace-nowrap bg-[#2a2a2a]">Trade PnL ({pnlModeLabel})</th>}
+                  {hasAnyReentries && <th className="p-2.5 text-indigo-600 font-semibold whitespace-nowrap bg-slate-50">Re-entries details</th>}
+                  {hasAnyReentries && <th className="p-2.5 text-emerald-600 font-semibold whitespace-nowrap bg-slate-50">Trade PnL ({pnlModeLabel})</th>}
 
                   {/* Day Total Header on the extreme right */}
-                  <th className="p-3 text-purple-400 font-semibold uppercase whitespace-nowrap bg-[#2a2a2a] border-l border-[#333] text-center">Day PnL ({pnlModeLabel})</th>
+                  <th className="p-2.5 text-violet-600 font-semibold whitespace-nowrap bg-slate-50 border-l border-slate-200 text-center">Day PnL ({pnlModeLabel})</th>
                 </tr>
               </thead>
               <tbody>
@@ -314,7 +324,7 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
                     const isFirstOfDate = idx === 0 || groupedLedger[idx - 1].dateStr !== currentTradeDate;
 
                     return (
-                      <tr key={idx} className={`border-b border-[#333] hover:bg-[#252525] ${idx % 2 === 0 ? 'bg-[#1a1a1a]' : 'bg-[#1e1e1e]'}`}>
+                      <tr key={idx} className={`border-b border-slate-100 hover:bg-indigo-50/40 ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/60'}`}>
 
                         {/* Standard Base Columns */}
                         {orderedKeys.map((key, i) => {
@@ -323,19 +333,9 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
                           // TRADE TYPE COLOR FORMATTING
                           if (key === 'Trade_Type' || key === 'Trade Type') {
                             const valStr = val ? String(val) : 'Initial Trade';
-                            let badgeColor = 'bg-[#333] text-gray-300 border-[#444]';
-
-                            if (valStr.includes('SL Re-entry')) {
-                              badgeColor = 'bg-amber-950/60 text-amber-400 border-amber-800/60';
-                            } else if (valStr.includes('Target Re-execute')) {
-                              badgeColor = 'bg-emerald-950/60 text-emerald-400 border-emerald-800/60';
-                            } else if (valStr.includes('Target Re-entry')) {
-                              badgeColor = 'bg-cyan-950/60 text-cyan-400 border-cyan-800/60';
-                            }
-
                             return (
-                              <td key={i} className="p-3 whitespace-nowrap">
-                                <span className={`text-[10px] px-2 py-0.5 rounded border font-medium ${badgeColor}`}>
+                              <td key={i} className="p-2.5 whitespace-nowrap">
+                                <span className={`text-[10px] px-2 py-0.5 rounded border font-medium ${typeBadge(valStr)}`}>
                                   {valStr}
                                 </span>
                               </td>
@@ -346,11 +346,11 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
                           if (key === 'Direction') {
                             const valStr = val ? String(val) : '';
                             const colorClass = valStr.toLowerCase().includes('long') || valStr.toLowerCase().includes('buy')
-                              ? 'text-green-500 font-bold'
-                              : 'text-red-500 font-bold';
+                              ? 'text-emerald-600 font-semibold'
+                              : 'text-rose-600 font-semibold';
 
                             return (
-                              <td key={i} className="p-3 whitespace-nowrap">
+                              <td key={i} className="p-2.5 whitespace-nowrap">
                                 <span className={colorClass}>
                                   {val ? valStr : '-'}
                                 </span>
@@ -360,14 +360,14 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
 
                           if (key === 'Exit_Reason' || key === 'Reason') {
                             return (
-                              <td key={i} className="p-3 whitespace-nowrap">
-                                <span className="text-[10px] text-gray-400 bg-[#333] px-2 py-0.5 rounded">{val || '-'}</span>
+                              <td key={i} className="p-2.5 whitespace-nowrap">
+                                <span className="text-[10px] text-slate-600 bg-slate-100 px-2 py-0.5 rounded">{val || '-'}</span>
                               </td>
                             );
                           }
                           if (key === 'Result') {
                             return (
-                              <td key={i} className={`p-3 whitespace-nowrap font-bold ${val === 'Win' ? 'text-green-400' : val === 'Loss' ? 'text-red-400' : 'text-gray-400'}`}>
+                              <td key={i} className={`p-2.5 whitespace-nowrap font-semibold ${val === 'Win' ? 'text-emerald-600' : val === 'Loss' ? 'text-rose-600' : 'text-slate-500'}`}>
                                 {val || '-'}
                               </td>
                             );
@@ -380,8 +380,8 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
                             const isNegative = valStr.includes('(-') || (valStr.includes('(') && valStr.includes('-'));
 
                             return (
-                              <td key={i} className="p-3 whitespace-nowrap">
-                                 <span className={`font-semibold ${isPositive ? 'text-green-400' : isNegative ? 'text-red-400' : 'text-gray-300'}`}>
+                              <td key={i} className="p-2.5 whitespace-nowrap">
+                                 <span className={`font-semibold ${isPositive ? 'text-emerald-600' : isNegative ? 'text-rose-600' : 'text-slate-600'}`}>
                                     {val !== undefined ? val : '-'}
                                  </span>
                               </td>
@@ -393,19 +393,19 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
                               const numVal = parseFloat(val);
                               const formattedVal = isNaN(numVal) ? val : numVal.toLocaleString('en-IN', { maximumFractionDigits: 2 });
                               return (
-                                <td key={i} className="p-3 whitespace-nowrap">
-                                   <span className={`font-semibold ${numVal > 0 ? 'text-green-400' : numVal < 0 ? 'text-red-400' : 'text-gray-300'}`}>
+                                <td key={i} className="p-2.5 whitespace-nowrap">
+                                   <span className={`font-semibold font-mono ${numVal > 0 ? 'text-emerald-600' : numVal < 0 ? 'text-rose-600' : 'text-slate-600'}`}>
                                       {key.includes('PnL') || key === 'Net Real' ? '₹' : ''}{formattedVal !== undefined ? formattedVal : '-'}
                                    </span>
                                 </td>
                               )
                           }
-                          return <td key={i} className="p-3 whitespace-nowrap text-gray-300">{val !== undefined && val !== null ? val : '-'}</td>;
+                          return <td key={i} className="p-2.5 whitespace-nowrap text-slate-700">{val !== undefined && val !== null ? val : '-'}</td>;
                         })}
 
                         {/* Inline Re-entries */}
                         {hasAnyReentries && (
-                          <td className="p-3 whitespace-nowrap">
+                          <td className="p-2.5 whitespace-nowrap">
                             {group.reentries.length > 0 ? (
                               <div className="flex flex-col gap-1.5">
                                 {group.reentries.map((re, rIdx) => {
@@ -417,30 +417,21 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
                                   const rExitPrice = formatPrice(re.Exit_Price || re['Exit Price']);
                                   const rPnl = getPnl(re, withTax);
 
-                                  let rBadgeColor = 'bg-[#333] text-gray-300 border-[#444]';
-                                  if (rType.includes('SL Re-entry')) {
-                                    rBadgeColor = 'bg-amber-950/60 text-amber-400 border-amber-800/60';
-                                  } else if (rType.includes('Target Re-execute')) {
-                                    rBadgeColor = 'bg-emerald-950/60 text-emerald-400 border-emerald-800/60';
-                                  } else if (rType.includes('Target Re-entry')) {
-                                    rBadgeColor = 'bg-cyan-950/60 text-cyan-400 border-cyan-800/60';
-                                  }
-
                                   return (
                                     <div key={rIdx} className="flex items-center gap-2">
-                                      <span className={`text-[9px] px-1.5 py-0.5 rounded border font-medium min-w-[45px] text-center ${rBadgeColor}`}>
+                                      <span className={`text-[9px] px-1.5 py-0.5 rounded border font-medium min-w-[45px] text-center ${typeBadge(rType)}`}>
                                         {rType.replace('Re-entry', 'RE').replace('Re-execute', 'RX')}
                                       </span>
-                                      <span className="text-[10px] text-gray-400">
+                                      <span className="text-[10px] text-slate-500">
                                         {re.Entry_Time || re['Entry Time']} ➔ {re.Exit_Time || re['Exit Time']}
                                       </span>
-                                      <span className="text-[10px] text-gray-300 font-mono tracking-tight bg-[#222] px-1.5 py-0.5 rounded border border-[#333]">
+                                      <span className="text-[10px] text-slate-700 font-mono tracking-tight bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">
                                         ₹{rEntryPrice} ➔ ₹{rExitPrice}
                                       </span>
-                                      <span className="text-[9px] bg-[#333] px-1.5 py-0.5 rounded text-gray-300">
+                                      <span className="text-[9px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-600">
                                         {rReason}
                                       </span>
-                                      <span className={`text-[10px] font-bold ${rPnl > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                      <span className={`text-[10px] font-semibold font-mono ${rPnl > 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
                                         {rPnl > 0 ? '+' : ''}₹{rPnl.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
                                       </span>
                                     </div>
@@ -448,17 +439,17 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
                                 })}
                               </div>
                             ) : (
-                              <span className="text-gray-600 text-[10px] italic">No Re-entries</span>
+                              <span className="text-slate-400 text-[10px] italic">No re-entries</span>
                             )}
                           </td>
                         )}
 
                         {/* Trade Combined PnL */}
                         {hasAnyReentries && (
-                          <td className={`p-3 whitespace-nowrap font-bold text-sm ${group.totalPnl > 0 ? 'text-green-500' : group.totalPnl < 0 ? 'text-red-500' : 'text-gray-400'}`}>
+                          <td className={`p-2.5 whitespace-nowrap font-semibold font-mono text-sm ${group.totalPnl > 0 ? 'text-emerald-600' : group.totalPnl < 0 ? 'text-rose-600' : 'text-slate-500'}`}>
                             ₹{group.totalPnl.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
                             {group.totalTrades > 1 && (
-                              <span className="block text-[9px] font-normal text-gray-400 mt-0.5">({group.totalTrades} Trades)</span>
+                              <span className="block text-[9px] font-normal text-slate-400 mt-0.5">({group.totalTrades} trades)</span>
                             )}
                           </td>
                         )}
@@ -467,14 +458,14 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
                         {isFirstOfDate && (
                            <td
                              rowSpan={dateRowCounts[currentTradeDate]}
-                             className="p-3 whitespace-nowrap align-middle border-l border-[#333] bg-[#222] shadow-inner"
+                             className="p-2.5 whitespace-nowrap align-middle border-l border-slate-200 bg-slate-50"
                            >
-                              <div className={`flex flex-col items-center justify-center p-3 rounded-lg border ${dailyPnLs[currentTradeDate] >= 0 ? 'bg-green-950/20 border-green-900/40' : 'bg-red-950/20 border-red-900/40'}`}>
-                                 <span className="text-[10px] text-gray-400 mb-1 uppercase tracking-widest font-semibold">{currentTradeDate}</span>
-                                 <span className={`font-bold text-base ${dailyPnLs[currentTradeDate] >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                              <div className={`flex flex-col items-center justify-center p-2.5 rounded-lg border ${dailyPnLs[currentTradeDate] >= 0 ? 'bg-emerald-50 border-emerald-200' : 'bg-rose-50 border-rose-200'}`}>
+                                 <span className="text-[10px] text-slate-500 mb-0.5 font-medium">{currentTradeDate}</span>
+                                 <span className={`font-semibold font-mono text-base ${dailyPnLs[currentTradeDate] >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
                                     {dailyPnLs[currentTradeDate] >= 0 ? '+' : ''}₹{dailyPnLs[currentTradeDate].toLocaleString('en-IN', { maximumFractionDigits: 2 })}
                                  </span>
-                                 <span className="text-[9px] text-gray-500 mt-1 uppercase tracking-wider">{pnlModeLabel}</span>
+                                 <span className="text-[10px] text-slate-400 mt-0.5">{pnlModeLabel}</span>
                               </div>
                            </td>
                         )}
@@ -484,7 +475,7 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
                   })
                 ) : (
                   <tr>
-                    <td colSpan={totalColumnsCount} className="p-6 text-center text-gray-500">
+                    <td colSpan={totalColumnsCount} className="p-6 text-center text-slate-400">
                       No trades match the selected filters.
                     </td>
                   </tr>

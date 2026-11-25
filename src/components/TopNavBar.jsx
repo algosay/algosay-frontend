@@ -2,123 +2,114 @@ import React from 'react';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebase'; // Update path based on your folder structure
 
-const TopNavBar = ({ 
-  user, 
-  isSubscribed, 
-  subscriptionPlan, 
-  userCredits, 
-  openStrategiesModal, 
-  setShowProfileModal, 
+const TopNavBar = ({
+  user,
+  isSubscribed,
+  subscriptionPlan,
+  userCredits,
+  openStrategiesModal,
+  setShowProfileModal,
   setShowPricingModal,
-  isFyersConnected, 
+  isFyersConnected,
   handleFyersLogin,
-  activeTab,       // ⚡ NEW: Active view state ('trade' or 'wealth')
-  setActiveTab     // ⚡ NEW: Function to switch views
+  activeTab,       // 'trade' or 'wealth'
+  setActiveTab
 }) => {
   return (
-    <div className="flex justify-between items-center px-4 py-3 md:px-6 bg-[#020205] border-b border-[#16162a] shadow-[0_4px_30px_rgba(0,0,0,0.4)] sticky top-0 z-50">
-      
-      {/* LEFT: App Logo, Name & Mode Switcher Tabs */}
+    <div className="flex justify-between items-center px-4 py-2 md:px-6 bg-white border-b border-slate-200 sticky top-0 z-50">
+
+      {/* LEFT: Logo + mode switcher */}
       <div className="flex items-center gap-4 md:gap-6">
-        {/* Logo */}
-        <div className="flex items-center gap-3">
-          <img src="/image/logo.png" alt="AlgoSay Logo" className="w-10 h-10 md:w-12 md:h-12 object-contain" />
-          <div className="flex flex-col">
-            <span className="text-xl md:text-2xl font-bold tracking-wide">
-              <span className="text-white">Algo</span><span className="text-blue-500">Say</span>
+        <div className="flex items-center gap-2.5">
+          <img src="/image/logo.png" alt="AlgoSay Logo" className="w-8 h-8 md:w-9 md:h-9 object-contain" />
+          <div className="flex flex-col leading-tight">
+            <span className="text-lg md:text-xl font-semibold tracking-tight">
+              <span className="text-[#0F1B2D]">Algo</span><span className="text-indigo-600">Say</span>
             </span>
-            <span className="text-[9px] md:text-[10px] text-cyan-400 font-bold tracking-[0.2em]">PRO QUANT EDGE</span>
+            <span className="text-[10px] text-slate-400 font-medium">Pro quant edge</span>
           </div>
         </div>
 
-        {/* ⚡ NEW: Mode Switcher Tabs ([⚡ Intraday Algo Trading] & [💎 Long-term Wealth Allocator]) */}
-        <div className="hidden md:flex items-center bg-[#070710] border border-[#1e1e30] rounded-full p-1 shadow-inner">
+        {/* Mode switcher */}
+        <div className="hidden md:flex items-center bg-slate-100 border border-slate-200 rounded-lg p-0.5">
           <button
             onClick={() => setActiveTab('trade')}
-            className={`px-3.5 py-1.5 text-xs font-bold rounded-full transition-all flex items-center gap-1.5 cursor-pointer ${
-              activeTab === 'trade' 
-                ? 'bg-blue-600/30 border border-blue-500/60 text-blue-400 shadow-[0_0_12px_rgba(59,130,246,0.3)]' 
-                : 'text-gray-400 hover:text-white'
+            className={`px-3 py-1 text-xs font-semibold rounded-md transition-all cursor-pointer ${
+              activeTab === 'trade'
+                ? 'bg-white text-[#0F1B2D] shadow-sm border border-slate-200'
+                : 'text-slate-500 hover:text-[#0F1B2D] border border-transparent'
             }`}
           >
-            <span>⚡</span> Intraday Algo
+            Intraday algo
           </button>
-          
           <button
             onClick={() => setActiveTab('wealth')}
-            className={`px-3.5 py-1.5 text-xs font-bold rounded-full transition-all flex items-center gap-1.5 cursor-pointer ${
-              activeTab === 'wealth' 
-                ? 'bg-purple-600/30 border border-purple-500/60 text-purple-400 shadow-[0_0_12px_rgba(168,85,247,0.3)]' 
-                : 'text-gray-400 hover:text-white'
+            className={`px-3 py-1 text-xs font-semibold rounded-md transition-all cursor-pointer ${
+              activeTab === 'wealth'
+                ? 'bg-white text-[#0F1B2D] shadow-sm border border-slate-200'
+                : 'text-slate-500 hover:text-[#0F1B2D] border border-transparent'
             }`}
           >
-            <span>💎</span> Wealth Allocator
+            Wealth allocator
           </button>
         </div>
       </div>
 
-      {/* RIGHT: Action Buttons */}
-      <div className="flex items-center gap-3 md:gap-5">
-        
-        {/* Pill-shaped container for secondary actions (Desktop) */}
-        <div className="hidden lg:flex items-center bg-[#070710] border border-[#1e1e30] rounded-full px-2 py-1 shadow-inner">
-          <button 
-            onClick={() => openStrategiesModal('my_strategies')}
-            className="px-4 py-1.5 text-gray-300 hover:text-white text-sm font-medium transition-colors flex items-center gap-2 border-r border-[#1e1e30] cursor-pointer"
-          >
-            <span className="text-yellow-500">📂</span> My Strategies
-          </button>
-          
-          <button 
-            onClick={() => openStrategiesModal('default_strategies')}
-            className="px-4 py-1.5 text-gray-300 hover:text-white text-sm font-medium transition-colors flex items-center gap-2 border-r border-[#1e1e30] cursor-pointer"
-          >
-            <span className="text-orange-400">📜</span> Default Templates
-          </button>
+      {/* RIGHT: actions */}
+      <div className="flex items-center gap-2 md:gap-3">
 
-          <button 
-            onClick={() => setShowProfileModal(true)}
-            className="px-4 py-1.5 text-gray-300 hover:text-white text-sm font-medium transition-colors flex items-center gap-2 cursor-pointer"
+        {/* Secondary actions (desktop) */}
+        <div className="hidden lg:flex items-center border border-slate-200 rounded-lg bg-white divide-x divide-slate-200">
+          <button
+            onClick={() => openStrategiesModal('my_strategies')}
+            className="px-3 py-1.5 text-slate-600 hover:text-[#0F1B2D] hover:bg-slate-50 text-xs font-medium transition-colors cursor-pointer rounded-l-lg"
           >
-            <span className="text-purple-500">👤</span> {user?.email || user?.displayName}
+            My strategies
+          </button>
+          <button
+            onClick={() => openStrategiesModal('default_strategies')}
+            className="px-3 py-1.5 text-slate-600 hover:text-[#0F1B2D] hover:bg-slate-50 text-xs font-medium transition-colors cursor-pointer"
+          >
+            Default templates
+          </button>
+          <button
+            onClick={() => setShowProfileModal(true)}
+            className="px-3 py-1.5 text-slate-600 hover:text-[#0F1B2D] hover:bg-slate-50 text-xs font-medium transition-colors cursor-pointer rounded-r-lg max-w-[200px] truncate"
+          >
+            {user?.email || user?.displayName}
           </button>
         </div>
 
-        {/* Fyers Login / Connection Badge */}
+        {/* Fyers badge */}
         {isFyersConnected ? (
-          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#001405] border border-green-600/40 rounded-full shadow-inner cursor-default">
-            <span className="text-green-500 text-sm">🟢</span>
-            <span className="text-xs font-bold text-green-500 tracking-wide hidden md:block">
-              FYERS CONNECTED
-            </span>
+          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 border border-emerald-200 rounded-full cursor-default">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            <span className="text-[11px] font-semibold text-emerald-700 hidden md:block">Fyers connected</span>
           </div>
         ) : (
-          <button 
+          <button
             onClick={handleFyersLogin}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#140500] hover:bg-[#240a00] border border-orange-600/40 rounded-full shadow-inner transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-2.5 py-1 bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded-full transition-all cursor-pointer"
           >
-            <span className="text-orange-500 text-sm">🔥</span>
-            <span className="text-xs font-bold text-orange-500 tracking-wide hidden md:block">
-              FYERS LOGIN
-            </span>
+            <span className="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
+            <span className="text-[11px] font-semibold text-orange-700 hidden md:block">Fyers login</span>
           </button>
         )}
 
-        {/* Credits / Pro Badge Button */}
-        <button 
+        {/* Credits / Pro badge */}
+        <button
           onClick={() => setShowPricingModal(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-[#141000] hover:bg-[#201a00] border border-yellow-600/40 rounded-full shadow-inner transition-all cursor-pointer"
+          className="flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-full transition-all cursor-pointer"
         >
-          <span className="text-yellow-500 text-sm">✨</span>
-          <span className="text-xs font-bold text-yellow-500 tracking-wide">
-            {isSubscribed ? `PRO: ${subscriptionPlan.toUpperCase()}` : `${userCredits} CREDITS`}
+          <span className="text-[11px] font-semibold text-amber-800 font-mono">
+            {isSubscribed ? `PRO: ${subscriptionPlan.toUpperCase()}` : `${userCredits} credits`}
           </span>
         </button>
 
-        {/* Logout Button (Neon Red Theme) */}
-        <button 
+        {/* Logout */}
+        <button
           onClick={() => signOut(auth)}
-          className="px-4 py-1.5 bg-transparent border border-[#e11d48] text-[#f43f5e] hover:bg-[#e11d48]/10 hover:shadow-[0_0_15px_rgba(225,29,72,0.4)] text-xs md:text-sm font-bold rounded-lg transition-all cursor-pointer"
+          className="px-3 py-1 bg-white border border-slate-300 text-slate-700 hover:border-rose-300 hover:text-rose-600 hover:bg-rose-50 text-xs font-semibold rounded-md transition-all cursor-pointer"
         >
           Logout
         </button>

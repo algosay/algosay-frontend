@@ -97,7 +97,7 @@ const DrawdownChart = ({ result, withTax }) => {
         maxPeak = currentPnl; // புதிய High வந்தால் Peak-ஐ அப்டேட் செய்
       }
       
-      // Drawdown = Current - Peak (இது எப்போதுமே 0 அல்லது நெகட்டிவ் ஆகத் தான் இருக்கும்)
+      // Drawdown = Current - Peak (எப்போதுமே 0 அல்லது நெகட்டிவ்)
       let drawdown = currentPnl - maxPeak;
 
       mappedDrawdown.push({
@@ -141,7 +141,7 @@ const DrawdownChart = ({ result, withTax }) => {
     };
 
     // Background Grid
-    ctx.strokeStyle = '#262626';
+    ctx.strokeStyle = '#E2E8F0';
     ctx.lineWidth = 1;
     ctx.setLineDash([4, 4]);
     
@@ -155,8 +155,8 @@ const DrawdownChart = ({ result, withTax }) => {
       ctx.stroke();
 
       ctx.setLineDash([]);
-      ctx.fillStyle = '#a3a3a3';
-      ctx.font = '12px sans-serif';
+      ctx.fillStyle = '#64748B';
+      ctx.font = '12px "IBM Plex Mono", ui-monospace, monospace';
       ctx.textAlign = 'right';
       ctx.textBaseline = 'middle';
       
@@ -171,7 +171,7 @@ const DrawdownChart = ({ result, withTax }) => {
 
     // Zero line (Top line for Drawdown chart)
     ctx.setLineDash([]);
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+    ctx.strokeStyle = 'rgba(15, 27, 45, 0.35)';
     ctx.lineWidth = 1.5;
     ctx.beginPath();
     ctx.moveTo(paddingLeft, getY(0));
@@ -180,8 +180,8 @@ const DrawdownChart = ({ result, withTax }) => {
 
     // Area Gradient (Red shades)
     const gradient = ctx.createLinearGradient(0, paddingTop, 0, paddingTop + plotHeight);
-    gradient.addColorStop(0, 'rgba(239, 68, 68, 0.05)'); // Light red at top
-    gradient.addColorStop(1, 'rgba(239, 68, 68, 0.35)'); // Darker red at bottom
+    gradient.addColorStop(0, 'rgba(244, 63, 94, 0.04)');
+    gradient.addColorStop(1, 'rgba(244, 63, 94, 0.28)');
 
     ctx.fillStyle = gradient;
     ctx.beginPath();
@@ -195,8 +195,8 @@ const DrawdownChart = ({ result, withTax }) => {
     ctx.fill();
 
     // Line Path (Red Line)
-    ctx.strokeStyle = '#ef4444'; // Tailwind red-500
-    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = '#e11d48';
+    ctx.lineWidth = 2.25;
     ctx.beginPath();
     for (let i = 0; i < dataPointsCount; i++) {
       if (i === 0) ctx.moveTo(getX(i), getY(mappedDrawdown[i].Drawdown));
@@ -205,7 +205,7 @@ const DrawdownChart = ({ result, withTax }) => {
     ctx.stroke();
 
     // X-Axis Text Labels
-    ctx.fillStyle = '#a3a3a3';
+    ctx.fillStyle = '#64748B';
     ctx.font = '11px sans-serif';
     ctx.textAlign = 'right';
     ctx.textBaseline = 'top';
@@ -254,12 +254,12 @@ const DrawdownChart = ({ result, withTax }) => {
   };
 
   if (!equityData || equityData.length === 0) {
-    return <div className="p-4 text-white font-semibold">No data available for chart</div>;
+    return <div className="p-4 text-slate-600 font-medium">No data available for chart</div>;
   }
 
   return (
-    <div className="bg-[#1e1e1e] border border-[#2d2d2d] p-5 md:p-6 rounded-xl shadow-lg w-full relative mt-6">
-      <h3 className="text-sm font-bold text-gray-300 mb-6">Drawdown Curve</h3>
+    <div className="bg-white border border-slate-200 p-4 md:p-5 rounded-xl shadow-[0_1px_2px_rgba(15,27,45,0.04)] w-full relative mt-4">
+      <h3 className="text-sm font-semibold text-[#0F1B2D] mb-4">Drawdown curve</h3>
       
       <div className="overflow-x-auto w-full custom-scrollbar-horizontal pb-2" ref={containerRef}>
         <div style={{ width: dynamicWidth + "px", height: chartHeight + "px", position: 'relative' }}>
@@ -275,18 +275,18 @@ const DrawdownChart = ({ result, withTax }) => {
 
           {hoverData && (
             <div 
-              className="absolute bg-[#111111] border border-gray-700 p-3 rounded-lg shadow-2xl text-white pointer-events-none z-50 min-w-[140px]"
+              className="absolute bg-[#0F1B2D] p-3 rounded-lg shadow-xl text-white pointer-events-none z-50 min-w-[140px]"
               style={{ 
                 left: hoverData.x + 15 + "px", 
                 top: Math.min(hoverData.y, chartHeight - 120) + "px",
                 transform: hoverData.x > (dynamicWidth * 0.7) ? 'translateX(-120%)' : 'none'
               }}
             >
-              <p className="text-xs text-red-400 font-bold mb-1 uppercase tracking-wide">
+              <p className="text-xs text-rose-300 font-semibold mb-1">
                 {hoverData.Label}
               </p>
-              <p className="text-[10px] text-gray-400">System Drawdown:</p>
-              <div className="text-base font-bold text-red-500">
+              <p className="text-[10px] text-slate-300">System drawdown</p>
+              <div className="text-base font-semibold font-mono text-rose-400">
                 -₹{Math.abs(Math.round(hoverData.Drawdown)).toLocaleString('en-IN')}
               </div>
             </div>
