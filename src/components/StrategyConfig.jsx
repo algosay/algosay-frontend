@@ -13,7 +13,7 @@ const normalizeUnit = (unit) => {
   return "Pts";
 };
 
-// Section heading sits OUTSIDE the card (like the reference)
+// Section heading sits OUTSIDE the box
 const Section = ({ title, hint, children }) => (
   <section>
     <div className="mb-1.5 flex items-baseline gap-2 px-0.5">
@@ -24,15 +24,16 @@ const Section = ({ title, hint, children }) => (
   </section>
 );
 
+// Main card: clear border + header strip
 const Card = ({ title, use, children, className = '' }) => (
-  <div className={`rounded-lg border border-[#E3E8EF] bg-white p-3 ${className}`}>
+  <div className={`overflow-hidden rounded-lg border border-[#C9D1DD] bg-white ${className}`}>
     {title && (
-      <div className="mb-2 border-b border-[#EEF1F5] pb-2">
+      <div className="border-b border-[#D5DBE5] bg-[#F7F8FA] px-3 py-2">
         <p className="text-[12px] font-semibold text-[#121A2B]">{title}</p>
         {use && <p className="text-[10.5px] leading-snug text-[#7C879A]">{use}</p>}
       </div>
     )}
-    {children}
+    <div className="space-y-2 p-3">{children}</div>
   </div>
 );
 
@@ -48,9 +49,9 @@ const Toggle = ({ on, onChange }) => (
   </button>
 );
 
-// One feature = label + one-line use + toggle. Off => fields greyed & locked
+// One feature = its own bordered box. Off => fields greyed & locked
 const Item = ({ label, use, on, onToggle, children }) => (
-  <div className="border-b border-dashed border-[#E3E8EF] py-2.5 first:pt-0 last:border-0 last:pb-0">
+  <div className={`rounded-md border p-2.5 transition-colors ${on ? 'border-[#B8C1D0] bg-[#FAFBFC]' : 'border-[#DDE2E9] bg-[#FAFBFC]'}`}>
     <div className="flex items-center justify-between gap-3">
       <div className="min-w-0">
         <p className="text-[11.5px] font-semibold text-[#2B3547]">{label}</p>
@@ -195,7 +196,7 @@ const StrategyConfig = ({
 
       {/* ───── OVERALL STRATEGY SETTINGS ───── */}
       <Section title="Overall strategy settings" hint="Applies to all legs together. Switch ON only what you need.">
-        <div className="grid gap-2.5 lg:grid-cols-[1fr_1fr_1.6fr]">
+        <div className="grid gap-3 lg:grid-cols-[1fr_1fr_1.6fr]">
 
           {/* Card 1: overall P&L */}
           <Card title="Overall P&L" use="Close every open leg when total profit / loss hits the limit.">
@@ -289,7 +290,7 @@ const StrategyConfig = ({
                 {rxField('Trail Y', 'overallLockTrailY', 'e.g. 500')}
                 <Field label="Unit">{rxUnit('overallLockUnit', 'Rs')}</Field>
               </div>
-              <div className="mt-2">
+              <div className="mt-2 rounded-md border border-[#E3E8EF] bg-white px-2.5 py-1.5">
                 <Check
                   label="Check overall SL / target on intrabar (High / Low)"
                   checked={!!rx.overallIntrabar}
@@ -319,7 +320,7 @@ const StrategyConfig = ({
       </Section>
 
       {/* ───── Live margin bar ───── */}
-      <div className="sticky bottom-2 z-10 flex items-center justify-between gap-4 rounded-xl bg-[#121A2B] px-4 py-2.5 text-white shadow-[0_8px_24px_rgba(18,26,43,0.28)]">
+      <div className="sticky bottom-2 z-10 flex items-center justify-between gap-4 rounded-xl border border-[#25314D] bg-[#121A2B] px-4 py-2.5 text-white shadow-[0_8px_24px_rgba(18,26,43,0.28)]">
         <div>
           <p className="text-[11.5px] font-semibold">Estimated margin required</p>
           <p className="text-[10.5px] text-[#9AA4B5]">

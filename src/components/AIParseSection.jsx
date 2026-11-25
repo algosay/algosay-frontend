@@ -64,12 +64,12 @@ const AIParseSection = ({
     }
   }, [aiPrompt]);
 
-  // Auto-grow textarea (max 360px, then scroll)
+    // Auto-grow textarea (max 480px, then scroll)
   const autoResize = () => {
     const el = textareaRef.current;
     if (!el) return;
     el.style.height = 'auto';
-    el.style.height = Math.min(el.scrollHeight, 360) + 'px';
+    el.style.height = Math.min(el.scrollHeight, 480) + 'px';
   };
 
   useEffect(() => {
@@ -334,10 +334,10 @@ const AIParseSection = ({
   return (
     <div className="font-ui mb-4 w-full space-y-4 rounded-2xl bg-[#F2F4F7] p-3 text-[#121A2B]">
 
-      {/* ═════════ 1. DESCRIBE YOUR STRATEGY ═════════ */}
+           {/* ═════════ 1. DESCRIBE YOUR STRATEGY ═════════ */}
       <Section
         title="Describe your strategy"
-        hint="Write your trading logic in plain language."
+        hint="Write your trading logic in your own language."
         right={
           <span className="flex items-center gap-1.5 rounded-full border border-[#DDE2E9] bg-white px-2.5 py-0.5 text-[10.5px] font-medium text-[#5B667A]">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#1F9D6B]" />
@@ -345,33 +345,34 @@ const AIParseSection = ({
           </span>
         }
       >
-        <Box>
-          <div className="flex flex-col gap-2.5 lg:flex-row">
-            <div className="flex w-full flex-grow flex-col">
-              <textarea
-                ref={textareaRef}
-                rows="5"
-                className="custom-scrollbar max-h-[360px] min-h-[120px] w-full resize-none overflow-y-auto rounded-md border border-[#DDE2E9] bg-white p-3 text-[13px] leading-relaxed text-[#121A2B] outline-none transition-colors placeholder:text-[#9AA4B5] focus:border-[#2F5BEA] focus:ring-2 focus:ring-[#2F5BEA]/15"
-                placeholder="e.g., Sell sensex option CE and PE every 15 mins. If 9.15-9.30 candle is green sell PE at 9.30 open price. Target 65% stop loss 22% exit at 3.15 PM."
-                value={localPrompt}
-                onChange={handleTextChange}
-                onKeyDown={handleKeyDown}
-              />
-              <div className="mt-1.5 flex items-center justify-between px-0.5 text-[10.5px] text-[#7C879A]">
-                <span className="font-num">{(localPrompt || '').length} chars · {wordCount} words</span>
-                <span className="hidden sm:inline">
-                  <kbd className="font-num rounded border border-[#DDE2E9] bg-[#F7F8FA] px-1 py-px text-[10px]">Ctrl</kbd>
-                  {' + '}
-                  <kbd className="font-num rounded border border-[#DDE2E9] bg-[#F7F8FA] px-1 py-px text-[10px]">Enter</kbd>
-                  {' to analyze'}
-                </span>
-              </div>
-            </div>
+        <Box className="p-4">
+          <textarea
+            ref={textareaRef}
+            rows="8"
+            className="custom-scrollbar max-h-[480px] min-h-[220px] w-full resize-none overflow-y-auto rounded-md border border-[#C9D1DD] bg-white p-4 text-[13.5px] leading-relaxed text-[#121A2B] outline-none transition-colors placeholder:text-[#9AA4B5] focus:border-[#2F5BEA] focus:ring-2 focus:ring-[#2F5BEA]/15"
+            placeholder="e.g., Sell sensex option CE and PE every 15 mins. If 9.15-9.30 candle is green sell PE at 9.30 open price. Target 65% stop loss 22% exit at 3.15 PM."
+            value={localPrompt}
+            onChange={handleTextChange}
+            onKeyDown={handleKeyDown}
+          />
 
+          {/* Counter + shortcut hint */}
+          <div className="mt-1.5 flex items-center justify-between px-0.5 text-[10.5px] text-[#7C879A]">
+            <span className="font-num">{(localPrompt || '').length} chars · {wordCount} words</span>
+            <span className="hidden sm:inline">
+              <kbd className="font-num rounded border border-[#DDE2E9] bg-[#F7F8FA] px-1 py-px text-[10px]">Ctrl</kbd>
+              {' + '}
+              <kbd className="font-num rounded border border-[#DDE2E9] bg-[#F7F8FA] px-1 py-px text-[10px]">Enter</kbd>
+              {' to analyze'}
+            </span>
+          </div>
+
+          {/* Analyze button: centered below the textarea */}
+          <div className="mt-3 flex justify-center">
             <button
               onClick={handleAIParse}
               disabled={isParsing || !localPrompt}
-              className={`flex h-9 items-center justify-center gap-2 rounded-md px-4 text-[12px] font-semibold transition-colors lg:w-40 lg:self-start ${
+              className={`flex h-10 min-w-[200px] items-center justify-center gap-2 rounded-md px-8 text-[13px] font-semibold transition-colors ${
                 isParsing || !localPrompt
                   ? 'cursor-not-allowed border border-[#DDE2E9] bg-[#F2F4F7] text-[#9AA4B5]'
                   : 'cursor-pointer bg-[#121A2B] text-white hover:bg-[#25314D]'
@@ -379,7 +380,7 @@ const AIParseSection = ({
             >
               {isParsing ? (
                 <>
-                  <svg className="h-3.5 w-3.5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <svg className="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
@@ -388,7 +389,7 @@ const AIParseSection = ({
               ) : (
                 <>
                   Analyze logic
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
                     <path d="M5 12h14" />
                     <path d="M13 6l6 6-6 6" />
                   </svg>
@@ -399,7 +400,7 @@ const AIParseSection = ({
 
           {/* Status message */}
           {aiMessage && (
-            <div className={`mt-2.5 flex items-center gap-2 rounded-md border px-3 py-2 text-[12px] font-medium ${
+            <div className={`mt-3 flex items-center gap-2 rounded-md border px-3 py-2 text-[12px] font-medium ${
               needsInfoQuestion
                 ? 'border-[#F0D9A8] bg-[#FFF8E6] text-[#8A5A00]'
                 : 'border-[#BFE5D3] bg-[#E4F6EE] text-[#157550]'
