@@ -9,7 +9,7 @@ import {
   drawXLabels,
   useContainerWidth,
   useFontsReady
-} from './chartUtils';
+} from './ChartUtils';
 
 const HEIGHT = 340;
 const PAD = { top: 24, right: 28, bottom: 44, left: 76 };
