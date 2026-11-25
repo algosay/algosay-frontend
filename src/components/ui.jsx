@@ -62,10 +62,10 @@ export const SubHead = ({ title, caption }) => (
 
 export const Panel = ({ title, caption, right, className = '', bodyClass = 'p-3', children }) => (
   <section className={`rounded-xl border border-[#DDE2E9] bg-white ${className}`}>
-    {(title || right) && (
+    {(title || caption || right) && (
       <header className="flex items-center justify-between gap-3 border-b border-[#E9EDF2] px-3 py-2">
         <div className="flex min-w-0 items-baseline gap-2">
-          <h3 className="text-[12px] font-semibold text-[#121A2B]">{title}</h3>
+          {title && <h3 className="text-[12px] font-semibold text-[#121A2B]">{title}</h3>}
           {caption && <span className="truncate text-[11px] text-[#7C879A]">{caption}</span>}
         </div>
         {right}

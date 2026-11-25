@@ -6,7 +6,7 @@ const on = (v) => Number(v) > 0;
 
 // ─────────────────────────────────────────────────────────────
 // One leg = one compact card. Entry is always visible; Risk,
-// Trail & lock, Exit & re-entry live in tabs (count badge shows
+// Trail & lock, Exit rules live in tabs (count badge shows
 // how many rules are set, so nothing is hidden by accident).
 // ─────────────────────────────────────────────────────────────
 const LegCard = ({ leg, index, updateLeg, removeLeg }) => {
@@ -69,18 +69,25 @@ const LegCard = ({ leg, index, updateLeg, removeLeg }) => {
   ].filter(Boolean);
 
   // ── Count of rules set per tab ──
-  const riskCount = [leg.stopLoss ?? leg.stop_loss, leg.target, leg.spotSL ?? leg.spot_sl, leg.spotTarget ?? leg.spot_target].filter(on).length;
+  const riskCount = [
+    leg.stopLoss ?? leg.stop_loss,
+    leg.target,
+    leg.spotSL ?? leg.spot_sl,
+    leg.spotTarget ?? leg.spot_target,
+    slReentryVal,
+    targetReexVal,
+  ].filter(on).length;
   const trailCount =
     [currentTrailX, currentTrailY, leg.slToCostTrigger ?? leg.sl_to_cost_trigger, leg.lockTrigger ?? leg.lock_trigger].filter(on).length +
     ((leg.costToCost ?? leg.cost_to_cost) ? 1 : 0);
   const exitCount =
-    (leg.slOnClose ? 1 : 0) + (leg.moveOtherToCost ? 1 : 0) + (leg.noProfitExitTime ? 1 : 0) + (on(slReentryVal) ? 1 : 0) + (on(targetReexVal) ? 1 : 0);
+    (leg.slOnClose ? 1 : 0) + (leg.moveOtherToCost ? 1 : 0) + (leg.noProfitExitTime ? 1 : 0);
 
   const tabs = [
     { id: 'entry', label: 'Entry', n: 0 },
     { id: 'risk', label: 'Risk', n: riskCount },
     { id: 'trail', label: 'Trail & lock', n: trailCount },
-    { id: 'exit', label: 'Exit & re-entry', n: exitCount },
+    { id: 'exit', label: 'Exit rules', n: exitCount },
   ];
 
   return (
@@ -143,7 +150,7 @@ const LegCard = ({ leg, index, updateLeg, removeLeg }) => {
                     <option value="1D">1 Day</option>
                   </select>
                 </Field>
-                {/* 🚨 UPDATED: Segment Data Perfectly Matched to AI Backend */}
+                {/* 🚨 Segment Data Perfectly Matched to AI Backend */}
                 <Field label="Segment">
                   <select value={currentSegment} onChange={(e) => updateLeg(leg.id, 'segment', e.target.value)} className={`${SELECT} font-medium`}>
                     <option value="Spot">Spot (Cash)</option>
@@ -339,7 +346,7 @@ const LegCard = ({ leg, index, updateLeg, removeLeg }) => {
             </div>
           )}
 
-          {/* ═════════ RISK ═════════ */}
+          {/* ═════════ RISK (SL + SL re-entry, Target + Target re-execute) ═════════ */}
           {tab === 'risk' && (
             <div className="grid gap-4 md:grid-cols-2">
               {/* 🎚️ Premium based SL & Target */}
@@ -359,6 +366,20 @@ const LegCard = ({ leg, index, updateLeg, removeLeg }) => {
                       }}
                     />
                   </Field>
+                  <Field label="Stop loss re-entry (times)">
+                    <input
+                      type="number"
+                      min="0"
+                      value={slReentryVal}
+                      onChange={(e) => {
+                        const val = Number(e.target.value);
+                        updateLeg(leg.id, 'sl_reentry_count', val); // Strictly updating JSON Key
+                        updateLeg(leg.id, 'slReentry', val); // State Fallback
+                      }}
+                      className={NUM}
+                      placeholder="0"
+                    />
+                  </Field>
                   <Field label="Target">
                     <UnitField
                       units={['%', 'Pts', 'Rs']}
@@ -370,6 +391,20 @@ const LegCard = ({ leg, index, updateLeg, removeLeg }) => {
                         updateLeg(leg.id, 'targetUnit', val);
                         updateLeg(leg.id, 'target_unit', val);
                       }}
+                    />
+                  </Field>
+                  <Field label="Target re-execute (times)">
+                    <input
+                      type="number"
+                      min="0"
+                      value={targetReexVal}
+                      onChange={(e) => {
+                        const val = Number(e.target.value);
+                        updateLeg(leg.id, 'target_reexecute', val); // Strictly updating JSON Key
+                        updateLeg(leg.id, 'targetReexecute', val); // State Fallback
+                      }}
+                      className={NUM}
+                      placeholder="0"
                     />
                   </Field>
                 </div>
@@ -471,9 +506,9 @@ const LegCard = ({ leg, index, updateLeg, removeLeg }) => {
             </div>
           )}
 
-          {/* ═════════ EXIT & RE-ENTRY ═════════ */}
+          {/* ═════════ EXIT RULES ═════════ */}
           {tab === 'exit' && (
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-2">
               {/* ⑧ Exit conditions */}
               <div>
                 <SubHead title="Exit rules" caption="Extra ways this leg can close." />
@@ -497,39 +532,6 @@ const LegCard = ({ leg, index, updateLeg, removeLeg }) => {
                   </div>
                 </div>
               </div>
-
-              {/* ⑨ Re-entry (synced with AI JSON keys) */}
-              <div>
-                <SubHead title="Re-entry" caption="How many times to re-enter after SL or target." />
-                <div className="grid grid-cols-2 gap-2">
-                  <Field label="After SL">
-                    <input
-                      type="number"
-                      value={slReentryVal}
-                      onChange={(e) => {
-                        const val = Number(e.target.value);
-                        updateLeg(leg.id, 'sl_reentry_count', val); // Strictly updating JSON Key
-                        updateLeg(leg.id, 'slReentry', val); // State Fallback
-                      }}
-                      className={NUM}
-                      placeholder="0"
-                    />
-                  </Field>
-                  <Field label="After target">
-                    <input
-                      type="number"
-                      value={targetReexVal}
-                      onChange={(e) => {
-                        const val = Number(e.target.value);
-                        updateLeg(leg.id, 'target_reexecute', val); // Strictly updating JSON Key
-                        updateLeg(leg.id, 'targetReexecute', val); // State Fallback
-                      }}
-                      className={NUM}
-                      placeholder="0"
-                    />
-                  </Field>
-                </div>
-              </div>
             </div>
           )}
         </div>
@@ -548,9 +550,7 @@ const LegsPanel = ({
 }) => {
   return (
     <Panel
-      title="Legs"
       caption={`${legs.length} configured`}
-      className="mb-2.5"
       right={
         <button onClick={addLeg} className="h-7 rounded-md bg-[#121A2B] px-3 text-[11.5px] font-semibold text-white transition-colors hover:bg-[#25314D]">
           + Add leg
