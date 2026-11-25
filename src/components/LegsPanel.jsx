@@ -1,6 +1,18 @@
 import React from 'react';
 import { normalizeCriteria, normalizeUnit, normalizeSegment, INDEX_STEP_SIZES } from './utils';
 
+// 🎨 Shared compact UI helpers (layout only - no logic changes)
+const Group = ({ title, titleColor = 'text-gray-400', className = '', children }) => (
+  <div className={`bg-[#181818] border border-[#222] rounded-lg p-2 ${className}`}>
+    <div className={`text-[9px] font-bold uppercase tracking-wider mb-1.5 ${titleColor}`}>{title}</div>
+    {children}
+  </div>
+);
+
+const Lbl = ({ color = 'text-gray-500', children }) => (
+  <label className={`block text-[9px] uppercase tracking-wide mb-0.5 ${color}`}>{children}</label>
+);
+
 const LegsPanel = ({ 
   legs, addLeg, updateLeg, removeLeg,
   // 🟢 NEW UPDATE: Combined Premium Props added to LegsPanel (WITH UNITS)
@@ -23,7 +35,8 @@ const LegsPanel = ({
           No trading legs configured. Prompt the AI assistant or click "+ Add New Leg" to populate setup parameters.
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        // 🚀 HORIZONTAL LAYOUT: each leg is now a full-width card (one leg per row)
+        <div className="flex flex-col gap-3">
           {legs.map((leg, index) => {
             // Normalized Values (Auto-handles snake_case, camelCase, and String variation mismatches)
             const currentCriteria = normalizeCriteria(leg.strikeCriteria || leg.strike_criteria);
@@ -51,20 +64,34 @@ const LegsPanel = ({
             const currentDistance = leg.strikeDistance || leg.strike_distance || 1;
             const currentStrikeType = leg.strikeType || leg.strike_type || 'OTM';
 
+            // Option type (used for the header badge + dropdown)
+            const currentOptionType = leg.optionType || leg.option_type || leg.type || 'CE';
+
             return (
-              <div key={leg.id || index} className="bg-[#121212] p-4 rounded-xl border border-[#333] relative hover:border-gray-800 transition-all flex flex-col justify-between shadow-inner">
-                <div>
-                  <div className="flex justify-between items-center mb-3 pb-1.5 border-b border-[#222]">
+              <div key={leg.id || index} className="bg-[#121212] rounded-xl border border-[#333] relative hover:border-gray-700 transition-all shadow-inner">
+
+                {/* ───── LEG HEADER STRIP ───── */}
+                <div className="flex justify-between items-center px-3 py-1.5 border-b border-[#222]">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-[11px] font-bold text-blue-400 tracking-wider">LEG ACCELERATION #{index + 1}</span>
-                    <button onClick={() => removeLeg(leg.id)} className="text-gray-500 hover:text-red-400 text-xs transition-colors p-0.5">✕</button>
+                    <span className={`text-[9px] font-bold px-2 py-0.5 rounded ${currentPosition === 'SELL' ? 'bg-red-900/40 text-red-300' : 'bg-green-900/40 text-green-300'}`}>
+                      {currentPosition}
+                    </span>
+                    <span className="text-[9px] font-semibold px-2 py-0.5 rounded bg-[#222] text-gray-300">
+                      {currentAsset} · {currentSegment}{currentSegment === 'Options' ? ` · ${currentOptionType}` : ''}
+                    </span>
                   </div>
-                  
-                  <div className="grid grid-cols-2 gap-2">
-                    
-                    {/* INTEGRATED LEG FIELDS */}
-                    <div className="col-span-2 grid grid-cols-2 gap-2 mb-2 pb-2 border-b border-[#222]">
+                  <button onClick={() => removeLeg(leg.id)} className="text-gray-500 hover:text-red-400 text-xs transition-colors p-0.5">✕</button>
+                </div>
+
+                {/* ───── LEG BODY: groups laid out side-by-side ───── */}
+                <div className="p-2 grid grid-cols-1 lg:grid-cols-12 gap-2">
+
+                  {/* ① BASIC SETUP (Integrated leg fields + Segment + Position + Lots) */}
+                  <Group title="① Basic Setup" titleColor="text-blue-400" className="lg:col-span-12">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
                       <div>
-                        <label className="block text-[9px] text-gray-500 uppercase tracking-wide mb-1">Asset</label>
+                        <Lbl>Asset</Lbl>
                         <select value={currentAsset} onChange={(e) => updateLeg(leg.id, 'ticker', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500">
                           <option value="NIFTY">NIFTY 50</option>
                           <option value="BANKNIFTY">BANKNIFTY</option>
@@ -74,7 +101,7 @@ const LegsPanel = ({
                         </select>
                       </div>
                       <div>
-                        <label className="block text-[9px] text-gray-500 uppercase tracking-wide mb-1">Timeframe</label>
+                        <Lbl>Timeframe</Lbl>
                         <select value={leg.timeframe || '15m'} onChange={(e) => updateLeg(leg.id, 'timeframe', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500">
                           <option value="1m">1 Min</option>
                           <option value="5m">5 Min</option>
@@ -89,7 +116,7 @@ const LegsPanel = ({
                         </select>
                       </div>
                       <div>
-                        <label className="block text-[9px] text-gray-500 uppercase tracking-wide mb-1">Entry Time</label>
+                        <Lbl>Entry Time</Lbl>
                         {/* 🚨 CONDITION-BASED DYNAMIC FIELD RENDERER 🚨 */}
                         {isDynamicLeg ? (
                           <input 
@@ -109,38 +136,45 @@ const LegsPanel = ({
                         )}
                       </div>
                       <div>
-                        <label className="block text-[9px] text-gray-500 uppercase tracking-wide mb-1">Exit Time</label>
+                        <Lbl>Exit Time</Lbl>
                         <input type="text" value={leg.exitTime || leg.exit_time || ''} onChange={(e) => updateLeg(leg.id, 'exitTime', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500" placeholder="e.g. 15:15" />
                       </div>
-                    </div>
 
-                    {/* 🚨 UPDATED: Segment Data Perfectly Matched to AI Backend */}
-                    <div>
-                      <label className="block text-[9px] text-gray-500 uppercase tracking-wide mb-1">Segment</label>
-                      <select 
-                        value={currentSegment} 
-                        onChange={(e) => updateLeg(leg.id, 'segment', e.target.value)} 
-                        className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500 font-semibold"
-                      >
-                        <option value="Spot">Spot (Cash)</option>
-                        <option value="Futures">Futures</option>
-                        <option value="Options">Options</option>
-                      </select>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-[9px] text-gray-500 uppercase tracking-wide mb-1">Position</label>
-                      <select value={currentPosition} onChange={(e) => updateLeg(leg.id, 'position', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500">
-                        <option value="BUY">Buy</option>
-                        <option value="SELL">Sell</option>
-                      </select>
-                    </div>
+                      {/* 🚨 UPDATED: Segment Data Perfectly Matched to AI Backend */}
+                      <div>
+                        <Lbl>Segment</Lbl>
+                        <select 
+                          value={currentSegment} 
+                          onChange={(e) => updateLeg(leg.id, 'segment', e.target.value)} 
+                          className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500 font-semibold"
+                        >
+                          <option value="Spot">Spot (Cash)</option>
+                          <option value="Futures">Futures</option>
+                          <option value="Options">Options</option>
+                        </select>
+                      </div>
 
-                    {/* 🚨 UPDATED: Display Options configuration when currentSegment is Options */}
-                    {currentSegment === 'Options' && (
-                      <>
-                        <div className="col-span-2 mt-1">
-                          <label className="block text-[9px] text-gray-500 uppercase tracking-wide mb-1">Expiry Type</label>
+                      <div>
+                        <Lbl>Position</Lbl>
+                        <select value={currentPosition} onChange={(e) => updateLeg(leg.id, 'position', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500">
+                          <option value="BUY">Buy</option>
+                          <option value="SELL">Sell</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <Lbl>Lots Allocation</Lbl>
+                        <input type="number" value={leg.lots || 1} onChange={(e) => updateLeg(leg.id, 'lots', Number(e.target.value))} className="w-full bg-[#121212] border border-[#333] rounded p-1.5 text-center text-xs text-gray-200 font-bold outline-none focus:border-blue-500" />
+                      </div>
+                    </div>
+                  </Group>
+
+                  {/* ② OPTIONS CONTRACT - 🚨 UPDATED: Display Options configuration when currentSegment is Options */}
+                  {currentSegment === 'Options' && (
+                    <Group title="② Options Contract (Expiry · Type · Strike)" titleColor="text-cyan-400" className="lg:col-span-12">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-2 items-end">
+                        <div className="lg:col-span-2">
+                          <Lbl>Expiry Type</Lbl>
                           <select value={leg.expiryType || leg.expiry_type || 'Current Week'} onChange={(e) => updateLeg(leg.id, 'expiryType', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500">
                             <option value="Current Week">Current Week</option>
                             <option value="Next Week">Next Week</option>
@@ -148,20 +182,20 @@ const LegsPanel = ({
                           </select>
                         </div>
 
-                        <div>
-                          <label className="block text-[9px] text-gray-500 uppercase tracking-wide mb-1">Option Type</label>
-                          <select value={leg.optionType || leg.option_type || leg.type || 'CE'} onChange={(e) => updateLeg(leg.id, 'optionType', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500">
+                        <div className="lg:col-span-2">
+                          <Lbl>Option Type</Lbl>
+                          <select value={currentOptionType} onChange={(e) => updateLeg(leg.id, 'optionType', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500">
                             <option value="CE">CE (Call)</option>
                             <option value="PE">PE (Put)</option>
                           </select>
                         </div>
-                        
+
                         {/* 🎯 SMART STRIKE CRITERIA SECTION */}
-                        <div className="col-span-2 mt-1 p-2 bg-[#181818] border border-[#222] rounded shadow-sm">
-                         <label className="flex text-[9px] text-gray-500 uppercase tracking-wide mb-2 items-center gap-1">
+                        <div className="sm:col-span-2 lg:col-span-8">
+                          <label className="flex text-[9px] text-gray-500 uppercase tracking-wide mb-0.5 items-center gap-1">
                             Select Strike Criteria <span className="text-gray-400 cursor-help" title="Select how to choose the strike price">ⓘ</span>
                           </label>
-                          
+
                           {/* 🚨 UPDATED: PERFECTLY ALIGNED 3-BOX LAYOUT */}
                           <div className="flex flex-col sm:flex-row gap-2 items-center w-full">
                             
@@ -247,7 +281,7 @@ const LegsPanel = ({
                                     onChange={(e) => updateLeg(leg.id, 'spotPercent', e.target.value === '' ? '' : Number(e.target.value))}
                                     className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500"
                                   />
-                                  <span className="text-[10px] text-gray-400">% of Spot</span>
+                                  <span className="text-[10px] text-gray-400 whitespace-nowrap">% of Spot</span>
                                 </div>
                               </>
                             )}
@@ -324,18 +358,15 @@ const LegsPanel = ({
                             )}
                           </div>
                         </div>
-                      </>
-                    )}
+                      </div>
+                    </Group>
+                  )}
 
-                    <div className="col-span-2 flex items-center justify-between gap-2 mt-1 bg-[#181818] px-2.5 py-1.5 rounded border border-[#222]">
-                      <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Lots Allocation:</span>
-                      <input type="number" value={leg.lots || 1} onChange={(e) => updateLeg(leg.id, 'lots', Number(e.target.value))} className="w-20 bg-[#121212] border border-[#333] rounded p-1 text-center text-xs text-gray-200 font-bold outline-none focus:border-blue-500" />
-                    </div>
-
-                    {/* 🎚️ STOP LOSS & TARGET WITH SMART UNIT DETECTOR */}
-                    <div className="col-span-2 grid grid-cols-2 gap-2 mt-2 border-t border-[#222] pt-2">
+                  {/* ③ 🎚️ STOP LOSS & TARGET WITH SMART UNIT DETECTOR */}
+                  <Group title="③ Leg Stop Loss & Target (premium based)" titleColor="text-red-400" className="lg:col-span-6">
+                    <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <label className="block text-[9px] text-red-400 uppercase tracking-wide mb-1">Stop Loss</label>
+                        <Lbl color="text-red-400">Stop Loss</Lbl>
                         <div className="flex gap-1">
                           <input type="number" value={leg.stopLoss ?? leg.stop_loss ?? ''} onChange={(e) => updateLeg(leg.id, 'stopLoss', Number(e.target.value))} className="w-2/3 bg-[#1e1e1e] border border-red-900/30 focus:border-red-500 rounded p-1.5 text-xs text-gray-300 outline-none" placeholder="0" />
                           <select 
@@ -355,7 +386,7 @@ const LegsPanel = ({
                       </div>
                       
                       <div>
-                        <label className="block text-[9px] text-green-400 uppercase tracking-wide mb-1">Target</label>
+                        <Lbl color="text-green-400">Target</Lbl>
                         <div className="flex gap-1">
                           <input type="number" value={leg.target ?? ''} onChange={(e) => updateLeg(leg.id, 'target', Number(e.target.value))} className="w-2/3 bg-[#1e1e1e] border border-green-900/30 focus:border-green-500 rounded p-1.5 text-xs text-gray-300 outline-none" placeholder="0" />
                           <select 
@@ -374,11 +405,13 @@ const LegsPanel = ({
                         </div>
                       </div>
                     </div>
+                  </Group>
 
-                    {/* 🎯 SPOT / UNDERLYING SL & TARGET */}
-                    <div className="col-span-2 grid grid-cols-2 gap-2 mt-1.5">
+                  {/* ④ 🎯 SPOT / UNDERLYING SL & TARGET */}
+                  <Group title="④ Spot / Underlying SL & Target (index based)" titleColor="text-orange-400" className="lg:col-span-6">
+                    <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <label className="block text-[9px] text-orange-400 uppercase tracking-wide mb-1">Spot / Underlying SL</label>
+                        <Lbl color="text-orange-400">Spot / Underlying SL</Lbl>
                         <div className="flex gap-1">
                           <input type="number" value={leg.spotSL ?? leg.spot_sl ?? ''} onChange={(e) => updateLeg(leg.id, 'spotSL', Number(e.target.value))} className="w-2/3 bg-[#1e1e1e] border border-[#222] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-orange-500" placeholder="0" />
                           <select value={leg.spotSLUnit || leg.spot_sl_unit || 'Pts'} onChange={(e) => updateLeg(leg.id, 'spotSLUnit', e.target.value)} className="w-1/3 bg-[#1e1e1e] border border-[#222] focus:border-orange-500 rounded p-1 text-[10px] text-gray-300 outline-none">
@@ -388,7 +421,7 @@ const LegsPanel = ({
                         </div>
                       </div>
                       <div>
-                        <label className="block text-[9px] text-lime-400 uppercase tracking-wide mb-1">Spot / Underlying Target</label>
+                        <Lbl color="text-lime-400">Spot / Underlying Target</Lbl>
                         <div className="flex gap-1">
                           <input type="number" value={leg.spotTarget ?? leg.spot_target ?? ''} onChange={(e) => updateLeg(leg.id, 'spotTarget', Number(e.target.value))} className="w-2/3 bg-[#1e1e1e] border border-[#222] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-lime-500" placeholder="0" />
                           <select value={leg.spotTargetUnit || leg.spot_target_unit || 'Pts'} onChange={(e) => updateLeg(leg.id, 'spotTargetUnit', e.target.value)} className="w-1/3 bg-[#1e1e1e] border border-[#222] focus:border-lime-500 rounded p-1 text-[10px] text-gray-300 outline-none">
@@ -398,11 +431,13 @@ const LegsPanel = ({
                         </div>
                       </div>
                     </div>
+                  </Group>
 
-                    {/* Trailing SL Inputs */}
-                    <div className="col-span-2 grid grid-cols-2 gap-2 mt-1.5">
+                  {/* ⑤ Trailing SL Inputs */}
+                  <Group title="⑤ Trailing SL (every X move → SL moves Y)" titleColor="text-yellow-500" className="lg:col-span-6">
+                    <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <label className="block text-[9px] text-yellow-500 uppercase tracking-wide mb-1">Trail SL (Move X)</label>
+                        <Lbl color="text-yellow-500">Trail SL (Move X)</Lbl>
                         <div className="flex gap-1">
                           <input type="number" value={currentTrailX} onChange={(e) => updateLeg(leg.id, 'trailX', Number(e.target.value))} className="w-2/3 bg-[#1e1e1e] border border-[#222] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-yellow-600" placeholder="0" />
                           <select 
@@ -416,7 +451,7 @@ const LegsPanel = ({
                         </div>
                       </div>
                       <div>
-                        <label className="block text-[9px] text-yellow-500 uppercase tracking-wide mb-1">Trail SL (Move Y)</label>
+                        <Lbl color="text-yellow-500">Trail SL (Move Y)</Lbl>
                         <div className="flex gap-1">
                           <input type="number" value={currentTrailY} onChange={(e) => updateLeg(leg.id, 'trailY', Number(e.target.value))} className="w-2/3 bg-[#1e1e1e] border border-[#222] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-yellow-600" placeholder="0" />
                           <select 
@@ -430,41 +465,13 @@ const LegsPanel = ({
                         </div>
                       </div>
                     </div>
+                  </Group>
 
-                    {/* 🔒 LOCK AND TRAIL (leg level): profit >= Trigger -> Lock Profit, apparam X move-ku Y trail */}
-                    <div className="col-span-2 mt-1.5 p-2 bg-[#181818] border border-[#222] rounded">
-                      <label className="block text-[9px] text-violet-400 uppercase tracking-wide mb-1.5">🔒 Lock and Trail (Trigger → Lock, then X → Y)</label>
-                      <div className="grid grid-cols-5 gap-1">
-                        <div>
-                          <span className="block text-[8px] text-gray-500 uppercase mb-0.5">Trigger</span>
-                          <input type="number" value={leg.lockTrigger ?? leg.lock_trigger ?? ''} onChange={(e) => updateLeg(leg.id, 'lockTrigger', Number(e.target.value))} className="w-full bg-[#1e1e1e] border border-[#222] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-violet-500" placeholder="0" />
-                        </div>
-                        <div>
-                          <span className="block text-[8px] text-gray-500 uppercase mb-0.5">Lock</span>
-                          <input type="number" value={leg.lockProfit ?? leg.lock_profit ?? ''} onChange={(e) => updateLeg(leg.id, 'lockProfit', Number(e.target.value))} className="w-full bg-[#1e1e1e] border border-[#222] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-violet-500" placeholder="0" />
-                        </div>
-                        <div>
-                          <span className="block text-[8px] text-gray-500 uppercase mb-0.5">Trail X</span>
-                          <input type="number" value={leg.lockTrailX ?? leg.lock_trail_x ?? ''} onChange={(e) => updateLeg(leg.id, 'lockTrailX', Number(e.target.value))} className="w-full bg-[#1e1e1e] border border-[#222] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-violet-500" placeholder="0" />
-                        </div>
-                        <div>
-                          <span className="block text-[8px] text-gray-500 uppercase mb-0.5">Trail Y</span>
-                          <input type="number" value={leg.lockTrailY ?? leg.lock_trail_y ?? ''} onChange={(e) => updateLeg(leg.id, 'lockTrailY', Number(e.target.value))} className="w-full bg-[#1e1e1e] border border-[#222] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-violet-500" placeholder="0" />
-                        </div>
-                        <div>
-                          <span className="block text-[8px] text-gray-500 uppercase mb-0.5">Unit</span>
-                          <select value={leg.lockUnit || leg.lock_unit || 'Pts'} onChange={(e) => updateLeg(leg.id, 'lockUnit', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#222] focus:border-violet-500 rounded p-1.5 text-[10px] text-gray-300 outline-none">
-                            <option value="Pts">Pts</option>
-                            <option value="%">%</option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* 🎯 SL TO COST (trigger) + COST-TO-COST */}
-                    <div className="col-span-2 mt-1.5 p-2 bg-[#181818] border border-[#222] rounded grid grid-cols-2 gap-2">
+                  {/* ⑥ 🎯 SL TO COST (trigger) + COST-TO-COST */}
+                  <Group title="⑥ SL to Cost" titleColor="text-sky-400" className="lg:col-span-6">
+                    <div className="grid grid-cols-2 gap-2 items-end">
                       <div>
-                        <label className="block text-[9px] text-sky-400 uppercase tracking-wide mb-1">SL to Cost (profit trigger)</label>
+                        <Lbl color="text-sky-400">SL to Cost (profit trigger)</Lbl>
                         <div className="flex gap-1">
                           <input type="number" value={leg.slToCostTrigger ?? leg.sl_to_cost_trigger ?? ''} onChange={(e) => updateLeg(leg.id, 'slToCostTrigger', Number(e.target.value))} className="w-2/3 bg-[#1e1e1e] border border-[#222] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-sky-500" placeholder="0" />
                           <select value={leg.slToCostUnit || leg.sl_to_cost_unit || 'Pts'} onChange={(e) => updateLeg(leg.id, 'slToCostUnit', e.target.value)} className="w-1/3 bg-[#1e1e1e] border border-[#222] focus:border-sky-500 rounded p-1 text-[10px] text-gray-300 outline-none">
@@ -473,24 +480,57 @@ const LegsPanel = ({
                           </select>
                         </div>
                       </div>
-                      <label className="flex items-center gap-2 text-[10px] text-gray-300 cursor-pointer mt-4">
+                      <label className="flex items-center gap-2 text-[10px] text-gray-300 cursor-pointer pb-1.5">
                         <input type="checkbox" className="accent-sky-500" checked={!!(leg.costToCost ?? leg.cost_to_cost)} onChange={(e) => updateLeg(leg.id, 'costToCost', e.target.checked)} />
                         Cost-to-Cost (SL → entry)
                       </label>
                     </div>
+                  </Group>
 
-                    {/* 🧩 SL ON CLOSE / NO-PROFIT EXIT / MOVE OTHER LEG TO COST */}
-                    <div className="col-span-2 mt-1.5 p-2 bg-[#181818] border border-[#222] rounded grid grid-cols-2 gap-2">
-                      <label className="flex items-center gap-2 text-[10px] text-gray-300 cursor-pointer">
-                        <input type="checkbox" className="accent-orange-500" checked={!!leg.slOnClose} onChange={(e) => updateLeg(leg.id, 'slOnClose', e.target.checked)} />
-                        SL on candle close
-                      </label>
-                      <label className="flex items-center gap-2 text-[10px] text-gray-300 cursor-pointer">
-                        <input type="checkbox" className="accent-cyan-500" checked={!!leg.moveOtherToCost} onChange={(e) => updateLeg(leg.id, 'moveOtherToCost', e.target.checked)} />
-                        Other leg SL hit → my SL to cost
-                      </label>
-                      <div className="col-span-2">
-                        <label className="block text-[9px] text-rose-400 uppercase tracking-wide mb-1">No-profit exit (time, min profit)</label>
+                  {/* ⑦ 🔒 LOCK AND TRAIL (leg level): profit >= Trigger -> Lock Profit, apparam X move-ku Y trail */}
+                  <Group title="⑦ 🔒 Lock and Trail (Trigger → Lock, then X → Y)" titleColor="text-violet-400" className="lg:col-span-12">
+                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                      <div>
+                        <Lbl>Trigger</Lbl>
+                        <input type="number" value={leg.lockTrigger ?? leg.lock_trigger ?? ''} onChange={(e) => updateLeg(leg.id, 'lockTrigger', Number(e.target.value))} className="w-full bg-[#1e1e1e] border border-[#222] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-violet-500" placeholder="0" />
+                      </div>
+                      <div>
+                        <Lbl>Lock</Lbl>
+                        <input type="number" value={leg.lockProfit ?? leg.lock_profit ?? ''} onChange={(e) => updateLeg(leg.id, 'lockProfit', Number(e.target.value))} className="w-full bg-[#1e1e1e] border border-[#222] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-violet-500" placeholder="0" />
+                      </div>
+                      <div>
+                        <Lbl>Trail X</Lbl>
+                        <input type="number" value={leg.lockTrailX ?? leg.lock_trail_x ?? ''} onChange={(e) => updateLeg(leg.id, 'lockTrailX', Number(e.target.value))} className="w-full bg-[#1e1e1e] border border-[#222] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-violet-500" placeholder="0" />
+                      </div>
+                      <div>
+                        <Lbl>Trail Y</Lbl>
+                        <input type="number" value={leg.lockTrailY ?? leg.lock_trail_y ?? ''} onChange={(e) => updateLeg(leg.id, 'lockTrailY', Number(e.target.value))} className="w-full bg-[#1e1e1e] border border-[#222] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-violet-500" placeholder="0" />
+                      </div>
+                      <div>
+                        <Lbl>Unit</Lbl>
+                        <select value={leg.lockUnit || leg.lock_unit || 'Pts'} onChange={(e) => updateLeg(leg.id, 'lockUnit', e.target.value)} className="w-full bg-[#1e1e1e] border border-[#222] focus:border-violet-500 rounded p-1.5 text-[10px] text-gray-300 outline-none">
+                          <option value="Pts">Pts</option>
+                          <option value="%">%</option>
+                        </select>
+                      </div>
+                    </div>
+                  </Group>
+
+                  {/* ⑧ 🧩 SL ON CLOSE / NO-PROFIT EXIT / MOVE OTHER LEG TO COST */}
+                  <Group title="⑧ Exit Conditions" titleColor="text-rose-400" className="lg:col-span-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 items-end">
+                      <div className="flex flex-col gap-1.5">
+                        <label className="flex items-center gap-2 text-[10px] text-gray-300 cursor-pointer">
+                          <input type="checkbox" className="accent-orange-500" checked={!!leg.slOnClose} onChange={(e) => updateLeg(leg.id, 'slOnClose', e.target.checked)} />
+                          SL on candle close
+                        </label>
+                        <label className="flex items-center gap-2 text-[10px] text-gray-300 cursor-pointer">
+                          <input type="checkbox" className="accent-cyan-500" checked={!!leg.moveOtherToCost} onChange={(e) => updateLeg(leg.id, 'moveOtherToCost', e.target.checked)} />
+                          Other leg SL hit → my SL to cost
+                        </label>
+                      </div>
+                      <div>
+                        <Lbl color="text-rose-400">No-profit exit (time, min profit)</Lbl>
                         <div className="flex gap-1">
                           <input type="time" value={leg.noProfitExitTime || ''} onChange={(e) => updateLeg(leg.id, 'noProfitExitTime', e.target.value)} className="w-1/2 bg-[#1e1e1e] border border-[#222] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-rose-500" />
                           <input type="number" value={leg.noProfitMin ?? 0} onChange={(e) => updateLeg(leg.id, 'noProfitMin', Number(e.target.value))} className="w-1/4 bg-[#1e1e1e] border border-[#222] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-rose-500" placeholder="0" />
@@ -501,11 +541,13 @@ const LegsPanel = ({
                         </div>
                       </div>
                     </div>
+                  </Group>
 
-                    {/* 🚨 CORRECTED: SL Re-entry & Target Re-execute (Perfectly synced with AI JSON keys) */}
-                    <div className="col-span-2 grid grid-cols-2 gap-2 mt-1.5">
+                  {/* ⑨ 🚨 CORRECTED: SL Re-entry & Target Re-execute (Perfectly synced with AI JSON keys) */}
+                  <Group title="⑨ Re-entry" titleColor="text-amber-500" className="lg:col-span-4">
+                    <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <label className="block text-[9px] text-amber-500 uppercase tracking-wide mb-1">SL Re-entry Count</label>
+                        <Lbl color="text-amber-500">SL Re-entry Count</Lbl>
                         <input 
                           type="number" 
                           value={leg.sl_reentry_count ?? leg.sl_reentry ?? leg.slReentry ?? 0} 
@@ -519,7 +561,7 @@ const LegsPanel = ({
                         />
                       </div>
                       <div>
-                        <label className="block text-[9px] text-emerald-500 uppercase tracking-wide mb-1">Target Re-execute</label>
+                        <Lbl color="text-emerald-500">Target Re-execute</Lbl>
                         <input 
                           type="number" 
                           value={leg.target_reexecute ?? leg.targetReexecute ?? leg.target_reentry ?? 0} 
@@ -533,8 +575,8 @@ const LegsPanel = ({
                         />
                       </div>
                     </div>
+                  </Group>
 
-                  </div>
                 </div>
               </div>
             );

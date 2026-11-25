@@ -17,6 +17,15 @@ const normalizeUnit = (unit) => {
   
   return "Pts"; // Default fallback for everything else (including Points, Pts)
 };
+
+// 🎨 Compact layout helper (layout only - no logic)
+const Section = ({ title, titleColor = 'text-gray-300', borderColor = 'border-gray-700/50', className = '', children }) => (
+  <div className={`p-3 bg-[#1e1e1e] border ${borderColor} rounded-lg shadow-sm ${className}`}>
+    <h3 className={`text-[11px] font-bold mb-2 uppercase tracking-wider flex items-center gap-2 ${titleColor}`}>{title}</h3>
+    {children}
+  </div>
+);
+
 const StrategyConfig = ({
   // ✨ SELLING CONFIGURATIONS
   sellTicker, setSellTicker, sellTimeframe, setSellTimeframe, sellUnderlyingFrom, setSellUnderlyingFrom,
@@ -75,10 +84,10 @@ const StrategyConfig = ({
   };
   const rxField = (label, key, ph) => (
     <div className="flex flex-col">
-      <label className="text-[10px] text-gray-400 mb-1 uppercase tracking-wide">{label}</label>
+      <label className="text-[9px] text-gray-400 mb-0.5 uppercase tracking-wide">{label}</label>
       <input
         type="number"
-        className="bg-[#2a2a2a] text-white p-2 rounded border border-gray-600 focus:border-violet-500 focus:outline-none text-sm transition-colors"
+        className="bg-[#2a2a2a] text-white p-1.5 rounded border border-gray-600 focus:border-violet-500 focus:outline-none text-xs transition-colors"
         placeholder={ph}
         value={rx[key] ?? ''}
         onChange={(e) => setRX(key, e.target.value)}
@@ -87,7 +96,7 @@ const StrategyConfig = ({
   );
   const rxUnit = (key, defaultUnit) => (
     <select
-      className="bg-[#2a2a2a] text-white p-2 rounded border border-gray-600 focus:border-violet-500 focus:outline-none text-sm cursor-pointer"
+      className="bg-[#2a2a2a] text-white p-1.5 rounded border border-gray-600 focus:border-violet-500 focus:outline-none text-xs cursor-pointer"
       value={normalizeUnit(rx[key] || defaultUnit)}
       onChange={(e) => setRX(key, e.target.value)}
     >
@@ -114,161 +123,165 @@ const StrategyConfig = ({
         handleConfigChange={handleConfigChange} 
       />
 
-      {/* 🔄 NEW UPDATE: DYNAMIC LOOP SETTINGS */}
-      <div className="mb-4 p-4 bg-[#1e1e1e] border border-purple-700/50 rounded-lg shadow-sm">
-        <h3 className="text-sm font-bold text-gray-300 mb-3 uppercase tracking-wider flex items-center gap-2">
-          🔄 Dynamic Execution Settings
-        </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* 🚀 HORIZONTAL ROW: Dynamic Loop Settings (left) + Overall Risk Management (right) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 mb-3">
+
+        {/* 🔄 NEW UPDATE: DYNAMIC LOOP SETTINGS */}
+        <Section title="🔄 Dynamic Execution Settings" borderColor="border-purple-700/50" className="lg:col-span-3">
           <div className="flex flex-col">
-            <label className="text-xs text-gray-400 mb-1">Max Loop Limit (Multiplier)</label>
+            <label className="text-[10px] text-gray-400 mb-1">Max Loop Limit (Multiplier)</label>
             <input
               type="number"
-              className="bg-[#2a2a2a] text-white p-2 rounded border border-gray-600 focus:border-purple-500 focus:outline-none text-sm transition-colors"
+              className="bg-[#2a2a2a] text-white p-1.5 rounded border border-gray-600 focus:border-purple-500 focus:outline-none text-xs transition-colors"
               placeholder="E.g., 10"
               value={timeLoopLimit || 1}
               onChange={(e) => setTimeLoopLimit(Number(e.target.value))}
             />
           </div>
-        </div>
-      </div>
+        </Section>
 
-      {/* 🛡️ NEW UPDATE: OVERALL RISK MANAGEMENT PANEL */}
-      <div className="mb-4 p-4 bg-[#1e1e1e] border border-gray-700/50 rounded-lg shadow-sm">
-        <h3 className="text-sm font-bold text-gray-300 mb-3 uppercase tracking-wider flex items-center gap-2">
-          🛡️ Overall Risk Management (Price Based)
-        </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          
-          {/* Overall Strategy Target */}
-          <div className="flex flex-col">
-            <label className="text-xs text-gray-400 mb-1">Overall Target</label>
-            <div className="flex gap-2">
-              <input
-                type="number"
-                className="bg-[#2a2a2a] w-full text-white p-2 rounded border border-gray-600 focus:border-green-500 focus:outline-none text-sm transition-colors"
-                placeholder="E.g., 5000"
-                value={overallStrategyTarget || ""}
-                onChange={(e) => handleConfigChange(setOverallStrategyTarget, e.target.value)}
-              />
-              <select
-                className="bg-[#2a2a2a] text-white p-2 rounded border border-gray-600 focus:border-green-500 focus:outline-none text-sm cursor-pointer"
-                value={normalizeUnit(overallStrategyTargetUnit || "Rs")}
-                onChange={(e) => handleConfigChange(setOverallStrategyTargetUnit, e.target.value)}
-              >
-                <option value="Rs">Rs</option>
-                <option value="Pts">Pts</option>
-                <option value="%">%</option>
-              </select>
+        {/* 🛡️ NEW UPDATE: OVERALL RISK MANAGEMENT PANEL */}
+        <Section title="🛡️ Overall Risk Management (Price Based)" borderColor="border-gray-700/50" className="lg:col-span-9">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            
+            {/* Overall Strategy Target */}
+            <div className="flex flex-col">
+              <label className="text-[10px] text-green-400 mb-1">Overall Target</label>
+              <div className="flex gap-1.5">
+                <input
+                  type="number"
+                  className="bg-[#2a2a2a] w-full text-white p-1.5 rounded border border-gray-600 focus:border-green-500 focus:outline-none text-xs transition-colors"
+                  placeholder="E.g., 5000"
+                  value={overallStrategyTarget || ""}
+                  onChange={(e) => handleConfigChange(setOverallStrategyTarget, e.target.value)}
+                />
+                <select
+                  className="bg-[#2a2a2a] text-white p-1.5 rounded border border-gray-600 focus:border-green-500 focus:outline-none text-xs cursor-pointer"
+                  value={normalizeUnit(overallStrategyTargetUnit || "Rs")}
+                  onChange={(e) => handleConfigChange(setOverallStrategyTargetUnit, e.target.value)}
+                >
+                  <option value="Rs">Rs</option>
+                  <option value="Pts">Pts</option>
+                  <option value="%">%</option>
+                </select>
+              </div>
             </div>
-          </div>
 
-          {/* Overall Strategy SL */}
-          <div className="flex flex-col">
-            <label className="text-xs text-gray-400 mb-1">Overall SL</label>
-            <div className="flex gap-2">
-              <input
-                type="number"
-                className="bg-[#2a2a2a] w-full text-white p-2 rounded border border-gray-600 focus:border-red-500 focus:outline-none text-sm transition-colors"
-                placeholder="E.g., 2000"
-                value={overallStrategySL || ""}
-                onChange={(e) => handleConfigChange(setOverallStrategySL, e.target.value)}
-              />
-              <select
-                className="bg-[#2a2a2a] text-white p-2 rounded border border-gray-600 focus:border-red-500 focus:outline-none text-sm cursor-pointer"
-                value={normalizeUnit(overallStrategySLUnit || "Rs")}
-                onChange={(e) => handleConfigChange(setOverallStrategySLUnit, e.target.value)}
-              >
-                <option value="Rs">Rs</option>
-                <option value="Pts">Pts</option>
-                <option value="%">%</option>
-              </select>
+            {/* Overall Strategy SL */}
+            <div className="flex flex-col">
+              <label className="text-[10px] text-red-400 mb-1">Overall SL</label>
+              <div className="flex gap-1.5">
+                <input
+                  type="number"
+                  className="bg-[#2a2a2a] w-full text-white p-1.5 rounded border border-gray-600 focus:border-red-500 focus:outline-none text-xs transition-colors"
+                  placeholder="E.g., 2000"
+                  value={overallStrategySL || ""}
+                  onChange={(e) => handleConfigChange(setOverallStrategySL, e.target.value)}
+                />
+                <select
+                  className="bg-[#2a2a2a] text-white p-1.5 rounded border border-gray-600 focus:border-red-500 focus:outline-none text-xs cursor-pointer"
+                  value={normalizeUnit(overallStrategySLUnit || "Rs")}
+                  onChange={(e) => handleConfigChange(setOverallStrategySLUnit, e.target.value)}
+                >
+                  <option value="Rs">Rs</option>
+                  <option value="Pts">Pts</option>
+                  <option value="%">%</option>
+                </select>
+              </div>
             </div>
-          </div>
 
-          {/* Combined Premium Target & Unit (🚀 UPDATED WITH DYNAMIC DROPDOWN) */}
-          <div className="flex flex-col">
-            <label className="text-xs text-gray-400 mb-1">Combined Premium Target</label>
-            <div className="flex gap-2">
-              <input
-                type="number"
-                className="bg-[#2a2a2a] w-full text-white p-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none text-sm transition-colors"
-                placeholder="E.g., 150"
-                value={combinedPremiumTarget || ""}
-                onChange={(e) => handleConfigChange(setCombinedPremiumTarget, e.target.value)}
-              />
-              <select
-                className="bg-[#2a2a2a] text-white p-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none text-sm transition-colors cursor-pointer"
-                value={normalizeUnit(combinedPremiumTargetUnit)}
-                onChange={(e) => handleConfigChange(setCombinedPremiumTargetUnit, e.target.value)}
-              >
-                <option value="Pts">Pts</option>
-                <option value="%">%</option>
-                <option value="Rs">Rs</option>
-              </select>
+            {/* Combined Premium Target & Unit (🚀 UPDATED WITH DYNAMIC DROPDOWN) */}
+            <div className="flex flex-col">
+              <label className="text-[10px] text-blue-400 mb-1">Combined Premium Target</label>
+              <div className="flex gap-1.5">
+                <input
+                  type="number"
+                  className="bg-[#2a2a2a] w-full text-white p-1.5 rounded border border-gray-600 focus:border-blue-500 focus:outline-none text-xs transition-colors"
+                  placeholder="E.g., 150"
+                  value={combinedPremiumTarget || ""}
+                  onChange={(e) => handleConfigChange(setCombinedPremiumTarget, e.target.value)}
+                />
+                <select
+                  className="bg-[#2a2a2a] text-white p-1.5 rounded border border-gray-600 focus:border-blue-500 focus:outline-none text-xs transition-colors cursor-pointer"
+                  value={normalizeUnit(combinedPremiumTargetUnit)}
+                  onChange={(e) => handleConfigChange(setCombinedPremiumTargetUnit, e.target.value)}
+                >
+                  <option value="Pts">Pts</option>
+                  <option value="%">%</option>
+                  <option value="Rs">Rs</option>
+                </select>
+              </div>
             </div>
-          </div>
 
-          {/* Combined Premium SL & Unit (🚀 UPDATED WITH DYNAMIC DROPDOWN) */}
-          <div className="flex flex-col">
-            <label className="text-xs text-gray-400 mb-1">Combined Premium SL</label>
-            <div className="flex gap-2">
-              <input
-                type="number"
-                className="bg-[#2a2a2a] w-full text-white p-2 rounded border border-gray-600 focus:border-orange-500 focus:outline-none text-sm transition-colors"
-                placeholder="E.g., 50"
-                value={combinedPremiumSL || ""}
-                onChange={(e) => handleConfigChange(setCombinedPremiumSL, e.target.value)}
-              />
-              <select
-                className="bg-[#2a2a2a] text-white p-2 rounded border border-gray-600 focus:border-orange-500 focus:outline-none text-sm transition-colors cursor-pointer"
-                value={normalizeUnit(combinedPremiumSLUnit)}
-                onChange={(e) => handleConfigChange(setCombinedPremiumSLUnit, e.target.value)}
-              >
-                <option value="Pts">Pts</option>
-                <option value="%">%</option>
-                <option value="Rs">Rs</option>
-              </select>
+            {/* Combined Premium SL & Unit (🚀 UPDATED WITH DYNAMIC DROPDOWN) */}
+            <div className="flex flex-col">
+              <label className="text-[10px] text-orange-400 mb-1">Combined Premium SL</label>
+              <div className="flex gap-1.5">
+                <input
+                  type="number"
+                  className="bg-[#2a2a2a] w-full text-white p-1.5 rounded border border-gray-600 focus:border-orange-500 focus:outline-none text-xs transition-colors"
+                  placeholder="E.g., 50"
+                  value={combinedPremiumSL || ""}
+                  onChange={(e) => handleConfigChange(setCombinedPremiumSL, e.target.value)}
+                />
+                <select
+                  className="bg-[#2a2a2a] text-white p-1.5 rounded border border-gray-600 focus:border-orange-500 focus:outline-none text-xs transition-colors cursor-pointer"
+                  value={normalizeUnit(combinedPremiumSLUnit)}
+                  onChange={(e) => handleConfigChange(setCombinedPremiumSLUnit, e.target.value)}
+                >
+                  <option value="Pts">Pts</option>
+                  <option value="%">%</option>
+                  <option value="Rs">Rs</option>
+                </select>
+              </div>
             </div>
-          </div>
 
-        </div>
+          </div>
+        </Section>
       </div>
 
       {/* 🔒 LOCK & TRAIL (OVERALL + COMBINED) */}
-      <div className="mb-4 p-4 bg-[#1e1e1e] border border-violet-700/40 rounded-lg shadow-sm">
-        <h3 className="text-sm font-bold text-gray-300 mb-3 uppercase tracking-wider">🔒 Lock & Trail (Overall MTM / Combined Premium)</h3>
+      <Section title="🔒 Lock & Trail (Overall MTM / Combined Premium)" borderColor="border-violet-700/40" className="mb-3">
+        <div className="flex flex-col gap-2">
 
-        <p className="text-[11px] text-violet-300 mb-2">Overall (day MTM): profit Trigger-ku vandha Lock lock aagum, apparam Trail X move-ku Y trail aagum.</p>
-        <div className="grid grid-cols-2 lg:grid-cols-6 gap-3 mb-3">
-          {rxField('Trigger', 'overallLockTrigger', 'e.g. 5000')}
-          {rxField('Lock Profit', 'overallLockProfit', 'e.g. 2000')}
-          {rxField('Trail X', 'overallLockTrailX', 'e.g. 1000')}
-          {rxField('Trail Y', 'overallLockTrailY', 'e.g. 500')}
-          <div className="flex flex-col">
-            <label className="text-[10px] text-gray-400 mb-1 uppercase tracking-wide">Unit</label>
-            {rxUnit('overallLockUnit', 'Rs')}
+          {/* Overall (day MTM) */}
+          <div className="bg-[#181818] border border-[#222] rounded-lg p-2">
+            <p className="text-[10px] text-violet-300 mb-1.5">Overall (day MTM): once profit reaches the trigger, it gets locked in, and after that it trails by Y for every X move.</p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2 items-end">
+              {rxField('Trigger', 'overallLockTrigger', 'e.g. 5000')}
+              {rxField('Lock Profit', 'overallLockProfit', 'e.g. 2000')}
+              {rxField('Trail X', 'overallLockTrailX', 'e.g. 1000')}
+              {rxField('Trail Y', 'overallLockTrailY', 'e.g. 500')}
+              <div className="flex flex-col">
+                <label className="text-[9px] text-gray-400 mb-0.5 uppercase tracking-wide">Unit</label>
+                {rxUnit('overallLockUnit', 'Rs')}
+              </div>
+              <label className="flex items-center gap-2 text-[10px] text-gray-300 pb-1.5 cursor-pointer">
+                <input type="checkbox" className="accent-violet-500" checked={!!rx.overallIntrabar} onChange={(e) => setRX('overallIntrabar', e.target.checked)} />
+                Overall SL/Target intrabar (High/Low)
+              </label>
+            </div>
           </div>
-          <label className="flex items-center gap-2 text-[11px] text-gray-300 mt-5 cursor-pointer">
-            <input type="checkbox" className="accent-violet-500" checked={!!rx.overallIntrabar} onChange={(e) => setRX('overallIntrabar', e.target.checked)} />
-            Overall SL/Target intrabar (High/Low)
-          </label>
-        </div>
 
-        <p className="text-[11px] text-cyan-300 mb-2">Combined premium (2+ legs basket): Lock & Trail and Trail SL.</p>
-        <div className="grid grid-cols-2 lg:grid-cols-7 gap-3">
-          {rxField('Lock Trigger', 'combinedLockTrigger', 'e.g. 30')}
-          {rxField('Lock Profit', 'combinedLockProfit', 'e.g. 10')}
-          {rxField('Lock Trail X', 'combinedLockTrailX', 'e.g. 10')}
-          {rxField('Lock Trail Y', 'combinedLockTrailY', 'e.g. 5')}
-          {rxField('Trail SL X', 'combinedTrailX', 'e.g. 20')}
-          {rxField('Trail SL Y', 'combinedTrailY', 'e.g. 10')}
-          <div className="flex flex-col">
-            <label className="text-[10px] text-gray-400 mb-1 uppercase tracking-wide">Unit</label>
-            {rxUnit('combinedLockUnit', 'Pts')}
+          {/* Combined premium */}
+          <div className="bg-[#181818] border border-[#222] rounded-lg p-2">
+            <p className="text-[10px] text-cyan-300 mb-1.5">Combined premium (2+ legs basket): Lock & Trail and Trail SL.</p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+              {rxField('Lock Trigger', 'combinedLockTrigger', 'e.g. 30')}
+              {rxField('Lock Profit', 'combinedLockProfit', 'e.g. 10')}
+              {rxField('Lock Trail X', 'combinedLockTrailX', 'e.g. 10')}
+              {rxField('Lock Trail Y', 'combinedLockTrailY', 'e.g. 5')}
+              {rxField('Trail SL X', 'combinedTrailX', 'e.g. 20')}
+              {rxField('Trail SL Y', 'combinedTrailY', 'e.g. 10')}
+              <div className="flex flex-col">
+                <label className="text-[9px] text-gray-400 mb-0.5 uppercase tracking-wide">Unit</label>
+                {rxUnit('combinedLockUnit', 'Pts')}
+              </div>
+            </div>
           </div>
+
         </div>
-      </div>
+      </Section>
 
       {/* 📊 INDICATORS PANEL */}
       <IndicatorsPanel 
