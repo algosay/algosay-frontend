@@ -172,19 +172,26 @@ const LegsPanel = ({
                                 onChange={(e) => {
                                   const newCriteria = e.target.value;
                                   updateLeg(leg.id, 'strikeCriteria', newCriteria);
-                                  if (newCriteria !== 'Strike Type') {
-                                    updateLeg(leg.id, 'strikeType', '');
-                                    updateLeg(leg.id, 'strikeDistance', 0);
-                                  } else {
+                                  if (newCriteria === 'Strike Type') {
                                     updateLeg(leg.id, 'strikeType', 'ATM');
                                     updateLeg(leg.id, 'strikeDistance', 1);
+                                  } else if (newCriteria === '% of Spot' || newCriteria === 'Straddle Width') {
+                                    updateLeg(leg.id, 'strikeType', 'OTM');
+                                    updateLeg(leg.id, 'strikeDistance', 0);
+                                    if (newCriteria === '% of Spot') updateLeg(leg.id, 'spotPercent', 1);
+                                    else updateLeg(leg.id, 'straddleMultiplier', 1);
+                                  } else {
+                                    updateLeg(leg.id, 'strikeType', '');
+                                    updateLeg(leg.id, 'strikeDistance', 0);
                                   }
                                 }}
                                 className="w-full bg-[#1e1e1e] border border-blue-600 rounded p-1.5 text-xs text-blue-100 font-medium outline-none focus:border-blue-400"
                               >
                                 <option value="Strike Type">Strike Type (ATM/ITM/OTM)</option>
+                                <option value="% of Spot">% of Spot</option>
                                 <option value="Closest Premium">Closest Premium</option>
                                 <option value="Premium Range">Premium Range</option>
+                                <option value="Straddle Width">Straddle Width</option>
                               </select>
                             </div>
 
@@ -218,6 +225,58 @@ const LegsPanel = ({
                                   ))}
                                 </select>
                               </div>
+                            )}
+
+                            {/* % of Spot */}
+                            {currentCriteria === '% of Spot' && (
+                              <>
+                                <div className="w-full flex-1">
+                                  <select
+                                    value={currentStrikeType === 'ITM' ? 'ITM' : 'OTM'}
+                                    onChange={(e) => updateLeg(leg.id, 'strikeType', e.target.value)}
+                                    className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500"
+                                  >
+                                    <option value="OTM">OTM</option>
+                                    <option value="ITM">ITM</option>
+                                  </select>
+                                </div>
+                                <div className="w-full flex-1 flex items-center gap-2">
+                                  <input
+                                    type="number" step="0.1" min="0"
+                                    value={leg.spotPercent ?? ''}
+                                    onChange={(e) => updateLeg(leg.id, 'spotPercent', e.target.value === '' ? '' : Number(e.target.value))}
+                                    className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500"
+                                  />
+                                  <span className="text-[10px] text-gray-400">% of Spot</span>
+                                </div>
+                              </>
+                            )}
+
+                            {/* Straddle Width */}
+                            {currentCriteria === 'Straddle Width' && (
+                              <>
+                                <div className="w-full flex-1">
+                                  <select
+                                    value={currentStrikeType === 'ITM' ? 'ITM' : 'OTM'}
+                                    onChange={(e) => updateLeg(leg.id, 'strikeType', e.target.value)}
+                                    className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500"
+                                  >
+                                    <option value="OTM">OTM</option>
+                                    <option value="ITM">ITM</option>
+                                  </select>
+                                </div>
+                                <div className="w-full flex-1 flex items-center gap-2">
+                                  <select
+                                    value={leg.straddleMultiplier ?? 1}
+                                    onChange={(e) => updateLeg(leg.id, 'straddleMultiplier', Number(e.target.value))}
+                                    className="w-full bg-[#1e1e1e] border border-[#333] rounded p-1.5 text-xs text-gray-300 outline-none focus:border-blue-500"
+                                  >
+                                    {[0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 2.5, 3].map((m) => (
+                                      <option key={m} value={m}>{m}x Straddle</option>
+                                    ))}
+                                  </select>
+                                </div>
+                              </>
                             )}
 
                             {/* Option 2: Closest Premium Target */}

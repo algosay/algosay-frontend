@@ -346,6 +346,8 @@ export const useAppLogic = () => {
           targetPremium: isOptions ? (leg.targetPremium || leg.target_premium || leg.premium || '') : '',
           lowerPremium: isOptions ? (leg.lowerPremium || leg.lower_premium || '') : '',
           upperPremium: isOptions ? (leg.upperPremium || leg.upper_premium || '') : '',
+          spotPercent: isOptions ? (leg.spotPercent ?? leg.spot_percent ?? '') : '',
+          straddleMultiplier: isOptions ? (leg.straddleMultiplier ?? leg.straddle_multiplier ?? 1) : '',
           
           strikeType: isOptions ? (leg.strikeType || leg.strike_type || '') : '',
           strikeDistance: isOptions ? resolvedDistance : '',
@@ -391,6 +393,7 @@ export const useAppLogic = () => {
       id: Date.now(), ticker: ticker, timeframe: timeframe, entryTime: '', exitTime: '', 
       segment: 'Options', position: 'BUY', 
       lots: 1, optionType: 'CE', expiry: 'CURRENT_WEEK', expiryType: 'CURRENT_WEEK', strikeType: 'ATM', 
+      strikeCriteria: 'Strike Type', spotPercent: 1, targetPremium: 0, lowerPremium: 0, upperPremium: 0, straddleMultiplier: 1,
       strikeDistance: 0, strike_offset: 0, 
       stopLoss: '', target: '', slUnit: '%', targetUnit: '%', 
       trailX: 0, trailY: 0, trailUnitX: 'Pts', trailUnitY: 'Pts', 
@@ -399,7 +402,7 @@ export const useAppLogic = () => {
     }]); 
     setIsConfirmed(false); 
   };
-  const updateLeg = (id, field, value) => { setLegs(legs.map(leg => leg.id === id ? { ...leg, [field]: value } : leg)); setIsConfirmed(false); };
+  const updateLeg = (id, field, value) => { setLegs(prev => prev.map(leg => leg.id === id ? { ...leg, [field]: value } : leg)); setIsConfirmed(false); };
   const removeLeg = (id) => { setLegs(legs.filter(leg => leg.id !== id)); setIsConfirmed(false); };
 
   const addIndicator = () => { setIndicators([...indicators, { id: Date.now(), name: 'RSI', settings: 'Period: 14' }]); setIsConfirmed(false); };
@@ -546,6 +549,13 @@ export const useAppLogic = () => {
         position: leg.position ? leg.position.toString().toUpperCase() : '', 
         option_type: leg.segment && leg.segment.toUpperCase() === 'OPTIONS' ? (leg.option_type || leg.optionType || "").toString().toUpperCase() : '', 
         strike_type: leg.segment && leg.segment.toUpperCase() === 'OPTIONS' ? (leg.strike_type || leg.strikeType || "").toString().toUpperCase() : '', 
+        strike_criteria: leg.segment && leg.segment.toUpperCase() === 'OPTIONS' ? (leg.strikeCriteria || 'Strike Type') : '',
+        strikeCriteria: leg.segment && leg.segment.toUpperCase() === 'OPTIONS' ? (leg.strikeCriteria || 'Strike Type') : '',
+        spotPercent: Number(leg.spotPercent) || 0,
+        targetPremium: Number(leg.targetPremium ?? leg.target_premium) || 0,
+        lowerPremium: Number(leg.lowerPremium) || 0,
+        upperPremium: Number(leg.upperPremium) || 0,
+        straddleMultiplier: Number(leg.straddleMultiplier) || 1,
         expiry: leg.segment && leg.segment.toUpperCase() === 'OPTIONS' ? (leg.expiry || leg.expiryType || '') : '', 
         expiry_type: leg.segment && leg.segment.toUpperCase() === 'OPTIONS' ? (leg.expiryType || leg.expiry || '') : '', 
         
