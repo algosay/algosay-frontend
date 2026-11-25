@@ -43,12 +43,12 @@ const isPnlKey = (k) => k.includes('PnL') || k === 'Net Real';
 const isNumericKey = (k) => isPnlKey(k) || k === 'Gap Value';
 
 const selectCls =
-  'h-8 bg-white text-xs font-medium text-slate-700 border border-slate-200 rounded-lg px-2.5 outline-none cursor-pointer hover:border-slate-300 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-colors';
+  'h-7 bg-white text-[11px] font-medium text-slate-700 border border-slate-200 rounded-md px-2 outline-none cursor-pointer hover:border-slate-300 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-colors';
 
 const Kpi = ({ label, value, valueClass = 'text-slate-800' }) => (
-  <div className="flex-1 min-w-[140px] px-5 py-3.5">
-    <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{label}</div>
-    <div className={`mt-0.5 text-lg font-bold leading-tight ${valueClass}`}>{value}</div>
+  <div className="flex-1 min-w-[130px] px-4 py-2.5">
+    <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">{label}</div>
+    <div className={`mt-0.5 text-[15px] font-semibold leading-tight tabular-nums ${valueClass}`}>{value}</div>
   </div>
 );
 
@@ -213,22 +213,22 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
   ).length;
 
   const totalColumnsCount = orderedKeys.length + (hasAnyReentries ? 2 : 0) + 1;
-  const thBase = 'px-3.5 py-3 text-[11px] font-semibold uppercase tracking-wider whitespace-nowrap';
-  const tdBase = 'px-3.5 py-3 whitespace-nowrap text-[13px]';
+  const thBase = 'px-3 py-2 text-[10px] font-semibold uppercase tracking-wider whitespace-nowrap';
+  const tdBase = 'px-3 py-1.5 whitespace-nowrap text-[11.5px] leading-snug';
 
   return (
     <div className="bg-white border border-slate-200 rounded-xl overflow-hidden flex flex-col shadow-[0_1px_3px_rgba(15,27,45,0.06)]">
       {/* Header */}
-      <div className="px-5 py-4 flex flex-wrap justify-between items-center gap-3">
+      <div className="px-4 py-3 flex flex-wrap justify-between items-center gap-3">
         <div>
-          <h3 className="text-base font-semibold text-[#0F1B2D]">Execution ledger</h3>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <h3 className="text-sm font-semibold text-[#0F1B2D]">Execution ledger</h3>
+          <p className="text-[11px] text-slate-500 mt-0.5">
             {filteredLedger.length} executions · {pnlModeLabel} P&amp;L
           </p>
         </div>
         <button
           onClick={() => setShowLogs(!showLogs)}
-          className="text-xs bg-[#0F1B2D] hover:bg-[#1c2d47] text-white px-4 py-2 rounded-lg transition-colors font-semibold cursor-pointer"
+          className="text-[11px] bg-[#0F1B2D] hover:bg-[#1c2d47] text-white px-3.5 py-1.5 rounded-md transition-colors font-semibold cursor-pointer"
         >
           {showLogs ? 'Hide ledger' : 'View ledger'}
         </button>
@@ -244,8 +244,8 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
       {showLogs && (
         <div className="flex flex-col border-t border-slate-200">
           {/* Filters */}
-          <div className="px-5 py-3 bg-white border-b border-slate-200 flex flex-wrap gap-2.5 items-center">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mr-1">Filters</span>
+          <div className="px-4 py-2.5 bg-white border-b border-slate-200 flex flex-wrap gap-2 items-center">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mr-1">Filters</span>
 
             {uniqueSegments.length > 0 && (
               <select className={selectCls} value={filterSegment} onChange={(e) => setFilterSegment(e.target.value)}>
@@ -293,7 +293,7 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
                   setFilterDTE('All');
                   setFilterResult('All');
                 }}
-                className="ml-auto h-8 px-3 text-xs font-semibold text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-lg transition-colors cursor-pointer"
+                className="ml-auto h-7 px-2.5 text-[11px] font-semibold text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-md transition-colors cursor-pointer"
               >
                 Clear filters ({activeFilters})
               </button>
@@ -301,7 +301,7 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
           </div>
 
           {/* Table */}
-          <div className="w-full overflow-x-auto max-h-[560px] overflow-y-auto">
+          <div className="w-full overflow-x-auto max-h-[520px] overflow-y-auto">
             <table className="w-full text-left border-collapse min-w-[900px]">
               <thead className="sticky top-0 z-10 bg-slate-50 shadow-[0_1px_0_#E2E8F0]">
                 <tr>
@@ -345,7 +345,7 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
                             return (
                               <td key={i} className={tdBase}>
                                 <span
-                                  className={`inline-block text-[11px] px-2.5 py-0.5 rounded-full border font-semibold ${typeBadge(valStr)}`}
+                                  className={`inline-block text-[10px] px-2 py-0.5 rounded-full border font-semibold ${typeBadge(valStr)}`}
                                 >
                                   {valStr}
                                 </span>
@@ -361,7 +361,7 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
                             return (
                               <td key={i} className={tdBase}>
                                 <span
-                                  className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${
+                                  className={`inline-flex items-center gap-1.5 text-[10px] font-semibold px-2 py-0.5 rounded-full ${
                                     isLong ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'
                                   }`}
                                 >
@@ -375,7 +375,7 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
                           if (key === 'Exit_Reason' || key === 'Reason') {
                             return (
                               <td key={i} className={tdBase}>
-                                <span className="text-[11px] font-medium text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md">
+                                <span className="text-[10px] font-medium text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded">
                                   {val || '-'}
                                 </span>
                               </td>
@@ -391,7 +391,7 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
                                 : 'bg-slate-100 text-slate-500';
                             return (
                               <td key={i} className={tdBase}>
-                                <span className={`inline-block text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${cls}`}>
+                                <span className={`inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full ${cls}`}>
                                   {val || '-'}
                                 </span>
                               </td>
@@ -405,7 +405,7 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
                             return (
                               <td key={i} className={tdBase}>
                                 <span
-                                  className={`font-semibold ${
+                                  className={`font-medium ${
                                     isPositive ? 'text-emerald-600' : isNegative ? 'text-rose-600' : 'text-slate-600'
                                   }`}
                                 >
@@ -446,7 +446,7 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
                         {hasAnyReentries && (
                           <td className={tdBase}>
                             {group.reentries.length > 0 ? (
-                              <div className="flex flex-col gap-1.5">
+                              <div className="flex flex-col gap-1">
                                 {group.reentries.map((re, rIdx) => {
                                   const rType = re.Trade_Type || re['Trade Type'] || 'Re-entry';
                                   const rReason = re.Exit_Reason || re.Reason || 'Exit';
@@ -457,22 +457,22 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
                                   const rPnl = getPnl(re, withTax);
 
                                   return (
-                                    <div key={rIdx} className="flex items-center gap-2">
+                                    <div key={rIdx} className="flex items-center gap-1.5">
                                       <span
-                                        className={`text-[10px] px-2 py-0.5 rounded-full border font-semibold min-w-[34px] text-center ${typeBadge(rType)}`}
+                                        className={`text-[9px] px-1.5 py-0.5 rounded-full border font-semibold min-w-[28px] text-center ${typeBadge(rType)}`}
                                       >
                                         {rType.replace('Re-entry', 'RE').replace('Re-execute', 'RX')}
                                       </span>
-                                      <span className="text-[11px] text-slate-500">
+                                      <span className="text-[10px] text-slate-500">
                                         {re.Entry_Time || re['Entry Time']} ➔ {re.Exit_Time || re['Exit Time']}
                                       </span>
-                                      <span className="text-[11px] text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 tabular-nums">
+                                      <span className="text-[10px] text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 tabular-nums">
                                         ₹{rEntryPrice} ➔ ₹{rExitPrice}
                                       </span>
-                                      <span className="text-[10px] font-medium bg-slate-100 px-1.5 py-0.5 rounded text-slate-600">
+                                      <span className="text-[9px] font-medium bg-slate-100 px-1.5 py-0.5 rounded text-slate-600">
                                         {rReason}
                                       </span>
-                                      <span className={`text-[11px] font-semibold tabular-nums ${tone(rPnl)}`}>
+                                      <span className={`text-[10px] font-semibold tabular-nums ${tone(rPnl)}`}>
                                         {fmtMoney(rPnl, true)}
                                       </span>
                                     </div>
@@ -480,7 +480,7 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
                                 })}
                               </div>
                             ) : (
-                              <span className="text-slate-400 text-[11px] italic">No re-entries</span>
+                              <span className="text-slate-400 text-[10px] italic">No re-entries</span>
                             )}
                           </td>
                         )}
@@ -488,11 +488,11 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
                         {/* Combined trade PnL */}
                         {hasAnyReentries && (
                           <td className={`${tdBase} text-right`}>
-                            <span className={`text-sm font-bold tabular-nums ${tone(group.totalPnl)}`}>
+                            <span className={`text-[12px] font-semibold tabular-nums ${tone(group.totalPnl)}`}>
                               {fmtMoney(group.totalPnl)}
                             </span>
                             {group.totalTrades > 1 && (
-                              <span className="block text-[10px] font-medium text-slate-400 mt-0.5">
+                              <span className="block text-[9px] font-medium text-slate-400 mt-0.5">
                                 {group.totalTrades} trades
                               </span>
                             )}
@@ -503,18 +503,18 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
                         {isFirstOfDate && (
                           <td
                             rowSpan={dateRowCounts[currentTradeDate]}
-                            className="px-3 py-2.5 whitespace-nowrap align-middle border-l border-slate-200 bg-slate-50/70"
+                            className="px-2.5 py-2 whitespace-nowrap align-middle border-l border-slate-200 bg-slate-50/70"
                           >
                             <div
-                              className={`flex flex-col items-center justify-center px-4 py-3 rounded-xl border ${
+                              className={`flex flex-col items-center justify-center px-3 py-2 rounded-lg border ${
                                 dayTotal >= 0 ? 'bg-emerald-50 border-emerald-200' : 'bg-rose-50 border-rose-200'
                               }`}
                             >
-                              <span className="text-[11px] font-medium text-slate-500">{currentTradeDate}</span>
-                              <span className={`mt-0.5 text-base font-bold tabular-nums ${tone(dayTotal)}`}>
+                              <span className="text-[10px] font-medium text-slate-500">{currentTradeDate}</span>
+                              <span className={`mt-0.5 text-[13px] font-semibold tabular-nums ${tone(dayTotal)}`}>
                                 {fmtMoney(dayTotal, true)}
                               </span>
-                              <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mt-0.5">
+                              <span className="text-[9px] font-semibold uppercase tracking-wider text-slate-400 mt-0.5">
                                 {pnlModeLabel}
                               </span>
                             </div>
@@ -525,7 +525,7 @@ const ExecutionLedger = ({ result, onFilterChange, withTax = false }) => {
                   })
                 ) : (
                   <tr>
-                    <td colSpan={totalColumnsCount} className="p-10 text-center text-sm text-slate-400">
+                    <td colSpan={totalColumnsCount} className="p-8 text-center text-xs text-slate-400">
                       No trades match the selected filters.
                     </td>
                   </tr>

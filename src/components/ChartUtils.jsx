@@ -146,8 +146,10 @@ export const setupCanvas = (canvas, w, h) => {
   return ctx;
 };
 
+export const AXIS_FONT_SIZE = 10.5;
+
 export const drawGrid = (ctx, { w, pad, ticks, yOf }) => {
-  ctx.font = `500 11.5px ${FONT}`;
+  ctx.font = `500 ${AXIS_FONT_SIZE}px ${FONT}`;
   ctx.textAlign = 'right';
   ctx.textBaseline = 'middle';
   ticks.forEach((t) => {
@@ -161,15 +163,15 @@ export const drawGrid = (ctx, { w, pad, ticks, yOf }) => {
     ctx.stroke();
     ctx.setLineDash([]);
     ctx.fillStyle = t < 0 ? COLORS.loss : COLORS.muted;
-    ctx.fillText(fmtAxis(t), pad.left - 12, y);
+    ctx.fillText(fmtAxis(t), pad.left - 10, y);
   });
 };
 
 export const drawXLabels = (ctx, { points, xOf, plotW, h, pad }) => {
   const n = points.length;
-  const maxLabels = Math.max(2, Math.floor(plotW / 80));
+  const maxLabels = Math.max(2, Math.floor(plotW / 72));
   const step = Math.max(1, Math.ceil(n / maxLabels));
-  ctx.font = `500 11.5px ${FONT}`;
+  ctx.font = `500 ${AXIS_FONT_SIZE}px ${FONT}`;
   ctx.fillStyle = COLORS.muted;
   ctx.textBaseline = 'top';
   let lastDrawn = -Infinity;
@@ -178,7 +180,7 @@ export const drawXLabels = (ctx, { points, xOf, plotW, h, pad }) => {
     const onStep = i % step === 0;
     if (!onStep && !(isLast && i - lastDrawn >= step * 0.6)) return;
     ctx.textAlign = i === 0 ? 'left' : isLast ? 'right' : 'center';
-    ctx.fillText(p.short, xOf(i), h - pad.bottom + 14);
+    ctx.fillText(p.short, xOf(i), h - pad.bottom + 12);
     lastDrawn = i;
   });
 };

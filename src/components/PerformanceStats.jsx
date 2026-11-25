@@ -4,7 +4,15 @@ const TONES = {
   neg: { bar: 'bg-rose-400', text: 'text-rose-600', dot: 'bg-rose-500' },
   pos: { bar: 'bg-emerald-400', text: 'text-emerald-600', dot: 'bg-emerald-500' },
   neutral: { bar: 'bg-slate-200', text: 'text-[#0F1B2D]', dot: 'bg-slate-300' },
+  // CHANGED: estimated margin uses the same white card, only the colour is different (indigo)
+  margin: { bar: 'bg-indigo-400', text: 'text-indigo-600', dot: 'bg-indigo-500' },
 };
+
+// CHANGED: one shared card layout so every metric (incl. margin) has the same size
+const CARD =
+  'group relative overflow-hidden rounded-xl border border-slate-200/80 bg-white px-4 py-3.5 transition-all duration-200 hover:border-slate-300 hover:shadow-[0_6px_18px_-10px_rgba(15,27,45,0.18)]';
+const LABEL = 'truncate text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-400';
+const VALUE = 'mt-2 text-base font-semibold tabular-nums tracking-tight'; // 16px (was 19px / 26px)
 
 const PerformanceStats = ({ result, withTax }) => {
   // Loading state
@@ -64,13 +72,13 @@ const PerformanceStats = ({ result, withTax }) => {
       <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-indigo-500">Overview</p>
-          <h3 className="mt-1 text-lg font-semibold tracking-tight text-[#0F1B2D]">Performance statistics</h3>
+          <h3 className="mt-1 text-[15px] font-semibold tracking-tight text-[#0F1B2D]">Performance statistics</h3>
         </div>
         <div className="flex items-center gap-2">
-          <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1 font-mono text-[10px] font-semibold text-slate-500">
+          <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[10px] font-semibold text-slate-500">
             {finalStats.length + 1} metrics
           </span>
-          <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 font-mono text-[10px] font-semibold tracking-wider text-slate-600">
+          <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[10px] font-semibold tracking-wider text-slate-600">
             <span className={`h-1.5 w-1.5 rounded-full ${withTax ? 'bg-amber-500' : 'bg-indigo-500'}`} />
             {withTax ? 'NET · AFTER TAX' : 'GROSS'}
           </span>
@@ -81,7 +89,7 @@ const PerformanceStats = ({ result, withTax }) => {
       {withTax && totalTax > 0 && (
         <div className="relative mb-4 overflow-hidden rounded-xl border border-rose-200/80 bg-gradient-to-r from-rose-50 via-white to-white">
           <div className="absolute inset-y-0 left-0 w-1 bg-rose-400" />
-          <div className="flex flex-wrap items-center justify-between gap-4 px-5 py-4 pl-6">
+          <div className="flex flex-wrap items-center justify-between gap-4 px-5 py-3.5 pl-6">
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-rose-600">Costs deducted</p>
               <p className="mt-1 text-sm font-semibold text-[#0F1B2D]">Total brokerage &amp; taxes</p>
@@ -89,7 +97,7 @@ const PerformanceStats = ({ result, withTax }) => {
                 This amount has been removed from your gross profit to show the real net metrics below.
               </p>
             </div>
-            <p className="shrink-0 font-mono text-2xl font-semibold tabular-nums text-rose-600">
+            <p className="shrink-0 text-lg font-semibold tabular-nums text-rose-600">
               −₹{Math.round(totalTax).toLocaleString('en-IN')}
             </p>
           </div>
@@ -98,17 +106,16 @@ const PerformanceStats = ({ result, withTax }) => {
 
       {/* Metrics grid */}
       <div className="mb-4 grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-5">
-        {/* Featured: estimated margin */}
-        <div className="relative col-span-2 overflow-hidden rounded-xl bg-gradient-to-br from-[#0F1B2D] via-[#17274A] to-[#2B2F6B] px-5 py-4 text-white shadow-[0_10px_30px_-12px_rgba(15,27,45,0.55)]">
-          <div className="pointer-events-none absolute -right-8 -top-10 h-32 w-32 rounded-full bg-indigo-400/20 blur-2xl" />
-          <div className="pointer-events-none absolute -bottom-12 left-1/3 h-28 w-28 rounded-full bg-amber-300/10 blur-2xl" />
-          <p className="relative text-[10px] font-semibold uppercase tracking-[0.18em] text-indigo-200/80" title="Estimated Margin Required">
-            Estimated margin
-          </p>
-          <p className="relative mt-2 font-mono text-[26px] font-semibold tabular-nums tracking-tight">
+        {/* Estimated margin: same size / white base as every other card, only font colour differs */}
+        <div className={CARD} title="Estimated margin required: capital needed to run this strategy">
+          <div className={`absolute inset-x-0 top-0 h-[2px] ${TONES.margin.bar} opacity-70 transition-opacity group-hover:opacity-100`} />
+          <div className="flex items-center gap-1.5">
+            <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${TONES.margin.dot}`} />
+            <p className={LABEL}>estimated margin</p>
+          </div>
+          <p className={`${VALUE} ${TONES.margin.text}`}>
             {marginOk ? `₹${Math.round(margin).toLocaleString('en-IN')}` : 'N/A'}
           </p>
-          <p className="relative mt-1 text-[11px] text-slate-300/80">Capital required to run this strategy</p>
         </div>
 
         {finalStats.map(([key, value]) => {
@@ -158,23 +165,15 @@ const PerformanceStats = ({ result, withTax }) => {
           }
 
           return (
-            <div
-              key={key}
-              className="group relative overflow-hidden rounded-xl border border-slate-200/80 bg-white px-4 py-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_8px_24px_-10px_rgba(15,27,45,0.18)]"
-            >
+            <div key={key} className={CARD}>
               <div className={`absolute inset-x-0 top-0 h-[2px] ${tone.bar} opacity-70 transition-opacity group-hover:opacity-100`} />
               <div className="flex items-center gap-1.5">
                 <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${tone.dot}`} />
-                <p
-                  className="truncate text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-400"
-                  title={key}
-                >
+                <p className={LABEL} title={key}>
                   {key.replace(/_/g, ' ').toLowerCase()}
                 </p>
               </div>
-              <p className={`mt-2 font-mono text-[19px] font-semibold tabular-nums tracking-tight ${tone.text}`}>
-                {strVal}
-              </p>
+              <p className={`${VALUE} ${tone.text}`}>{strVal}</p>
             </div>
           );
         })}

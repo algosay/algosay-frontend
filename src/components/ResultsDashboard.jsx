@@ -762,6 +762,40 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
             font-variant-numeric: tabular-nums lining-nums;
           }
 
+          /* =====================================================
+             PROFESSIONAL TYPE SCALE (caps oversized numbers/text
+             in every child component, incl. ledger tables)
+             ===================================================== */
+          .rd-root .text-6xl,
+          .rd-root .text-5xl,
+          .rd-root .text-4xl,
+          .rd-root .text-3xl,
+          .rd-root [class*="text-[2"],
+          .rd-root [class*="text-[3"],
+          .rd-root [class*="text-[4"] {
+            font-size: 20px !important;
+            line-height: 1.25 !important;
+            letter-spacing: -0.01em;
+          }
+          .rd-root .text-2xl { font-size: 18px !important; line-height: 1.3 !important; }
+          .rd-root .text-xl  { font-size: 16px !important; line-height: 1.35 !important; }
+          .rd-root .text-lg  { font-size: 15px !important; line-height: 1.4 !important; }
+
+          /* Ledger / data tables: compact, readable, consistent */
+          .rd-root table td,
+          .rd-root table td * {
+            font-size: 12.5px !important;
+            line-height: 1.4 !important;
+          }
+          .rd-root table th,
+          .rd-root table th * {
+            font-size: 10.5px !important;
+            line-height: 1.3 !important;
+            letter-spacing: 0.04em;
+          }
+          .rd-root table td { padding-top: 7px !important; padding-bottom: 7px !important; }
+          .rd-root table th { padding-top: 8px !important; padding-bottom: 8px !important; }
+
           /* Loss / negative values -> always red */
           .rd-root .neg-red,
           .rd-root .loss-red,
@@ -777,28 +811,20 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
             color: #DC2626 !important;
           }
 
-          /* ================= AI Diagnostics (premium) ================= */
+          /* ================= AI Diagnostics (WHITE base) ================= */
           .ai-card {
             position: relative;
             overflow: hidden;
-            border-radius: 20px;
-            background:
-              radial-gradient(1200px 400px at 85% -10%, rgba(99,102,241,0.28), transparent 60%),
-              radial-gradient(900px 400px at -10% 110%, rgba(16,185,129,0.18), transparent 55%),
-              linear-gradient(160deg, #0B1220 0%, #0F1B2D 55%, #111C33 100%);
-            border: 1px solid rgba(148,163,184,0.18);
-            box-shadow: 0 20px 50px -20px rgba(15,27,45,0.55), inset 0 1px 0 rgba(255,255,255,0.05);
-            color: #E2E8F0;
+            border-radius: 12px;
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            box-shadow: 0 1px 3px rgba(15,27,45,0.06);
+            color: #0F172A;
           }
           .ai-card::before {
             content: '';
-            position: absolute; inset: 0;
-            background-image:
-              linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-            background-size: 36px 36px;
-            mask-image: radial-gradient(ellipse at 70% 0%, #000 0%, transparent 70%);
-            -webkit-mask-image: radial-gradient(ellipse at 70% 0%, #000 0%, transparent 70%);
+            position: absolute; left: 0; right: 0; top: 0; height: 3px;
+            background: linear-gradient(90deg, #6366F1 0%, #8B5CF6 50%, #06B6D4 100%);
             pointer-events: none;
           }
           .ai-inner { position: relative; z-index: 1; }
@@ -806,94 +832,96 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
           .ai-badge {
             display: inline-flex; align-items: center; gap: 6px;
             padding: 3px 10px; border-radius: 999px;
-            font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
-            color: #A5B4FC;
-            background: rgba(99,102,241,0.12);
-            border: 1px solid rgba(129,140,248,0.35);
+            font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+            color: #4338CA;
+            background: #EEF2FF;
+            border: 1px solid #C7D2FE;
           }
-          .ai-dot { width: 6px; height: 6px; border-radius: 50%; background: #34D399; box-shadow: 0 0 10px #34D399; animation: aiPulse 1.8s ease-in-out infinite; }
+          .ai-dot { width: 6px; height: 6px; border-radius: 50%; background: #10B981; animation: aiPulse 1.8s ease-in-out infinite; }
           @keyframes aiPulse { 0%,100%{opacity:1; transform:scale(1);} 50%{opacity:.4; transform:scale(.8);} }
 
           .ai-logo {
-            width: 44px; height: 44px; border-radius: 14px;
+            width: 38px; height: 38px; border-radius: 10px;
             display: flex; align-items: center; justify-content: center;
             color: #fff;
             background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #06B6D4 100%);
-            box-shadow: 0 8px 24px -6px rgba(99,102,241,0.7), inset 0 1px 0 rgba(255,255,255,0.35);
           }
 
           .ai-title {
-            font-size: 20px; font-weight: 700; letter-spacing: -0.01em;
-            background: linear-gradient(90deg, #FFFFFF 0%, #C7D2FE 60%, #67E8F9 100%);
-            -webkit-background-clip: text; background-clip: text; color: transparent;
+            font-size: 16px; font-weight: 700; letter-spacing: -0.01em;
+            color: #0F1B2D;
           }
 
-          .ai-seg { display: inline-flex; padding: 3px; border-radius: 12px; background: rgba(15,23,42,0.7); border: 1px solid rgba(148,163,184,0.2); }
+          .ai-seg { display: inline-flex; padding: 3px; border-radius: 10px; background: #F1F5F9; border: 1px solid #E2E8F0; }
           .ai-seg button {
-            padding: 6px 14px; font-size: 12px; font-weight: 600; border-radius: 9px; cursor: pointer;
-            color: #94A3B8; border: 1px solid transparent; transition: all .2s ease; background: transparent;
+            padding: 5px 13px; font-size: 12px; font-weight: 600; border-radius: 8px; cursor: pointer;
+            color: #64748B; border: 1px solid transparent; transition: all .2s ease; background: transparent;
           }
-          .ai-seg button:hover { color: #E2E8F0; }
+          .ai-seg button:hover { color: #0F172A; }
           .ai-seg button.active {
             color: #fff;
-            background: linear-gradient(135deg, rgba(99,102,241,0.9), rgba(139,92,246,0.9));
-            box-shadow: 0 4px 14px -4px rgba(99,102,241,0.8);
+            background: #0F1B2D;
+            box-shadow: 0 2px 6px rgba(15,27,45,0.25);
           }
 
           .ai-chip {
             display: inline-flex; align-items: center; gap: 6px;
             padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 600;
-            background: rgba(30,41,59,0.7); border: 1px solid rgba(148,163,184,0.18); color: #94A3B8;
+            background: #F8FAFC; border: 1px solid #E2E8F0; color: #64748B;
           }
-          .ai-chip.on { color: #A7F3D0; border-color: rgba(52,211,153,0.35); background: rgba(16,185,129,0.1); }
-          .ai-chip .d { width: 6px; height: 6px; border-radius: 50%; background: #475569; }
-          .ai-chip.on .d { background: #34D399; box-shadow: 0 0 8px #34D399; }
-          .ai-chip b { color: #E2E8F0; font-weight: 700; }
+          .ai-chip.on { color: #047857; border-color: #A7F3D0; background: #ECFDF5; }
+          .ai-chip .d { width: 6px; height: 6px; border-radius: 50%; background: #CBD5E1; }
+          .ai-chip.on .d { background: #10B981; }
+          .ai-chip b { color: #0F172A; font-weight: 700; }
 
           .ai-input-wrap {
-            border-radius: 16px; padding: 1px;
-            background: linear-gradient(135deg, rgba(99,102,241,0.55), rgba(148,163,184,0.15), rgba(6,182,212,0.45));
+            border-radius: 12px; padding: 1px;
+            background: #E2E8F0;
+            transition: background .2s ease;
+          }
+          .ai-input-wrap:focus-within {
+            background: linear-gradient(135deg, #6366F1, #06B6D4);
           }
           .ai-input {
-            border-radius: 15px; background: rgba(8,13,24,0.92); padding: 14px 14px 10px;
+            border-radius: 11px; background: #F8FAFC; padding: 12px 14px 10px;
           }
           .ai-input textarea {
-            width: 100%; background: transparent; color: #E2E8F0; font-size: 14px; line-height: 1.6;
+            width: 100%; background: transparent; color: #0F172A; font-size: 13.5px; line-height: 1.6;
             outline: none; resize: none; border: none;
           }
-          .ai-input textarea::placeholder { color: #64748B; }
+          .ai-input textarea::placeholder { color: #94A3B8; }
 
           .ai-quick {
             padding: 5px 12px; border-radius: 999px; font-size: 11.5px; font-weight: 600; cursor: pointer;
-            color: #C7D2FE; background: rgba(99,102,241,0.1); border: 1px solid rgba(129,140,248,0.3);
+            color: #4338CA; background: #EEF2FF; border: 1px solid #C7D2FE;
             transition: all .2s ease;
           }
-          .ai-quick:hover { background: rgba(99,102,241,0.25); transform: translateY(-1px); color: #fff; }
+          .ai-quick:hover { background: #E0E7FF; color: #3730A3; }
 
           .ai-cta {
             position: relative; display: inline-flex; align-items: center; gap: 8px;
-            padding: 9px 20px; border-radius: 12px; font-size: 13px; font-weight: 700; color: #fff; cursor: pointer;
-            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #06B6D4 100%);
-            box-shadow: 0 10px 26px -8px rgba(99,102,241,0.85), inset 0 1px 0 rgba(255,255,255,0.3);
-            transition: transform .2s ease, box-shadow .2s ease, opacity .2s ease; border: none;
+            padding: 8px 18px; border-radius: 10px; font-size: 13px; font-weight: 600; color: #fff; cursor: pointer;
+            background: #0F1B2D;
+            box-shadow: 0 4px 12px -4px rgba(15,27,45,0.5);
+            transition: background .2s ease, opacity .2s ease; border: none;
           }
-          .ai-cta:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 14px 30px -8px rgba(139,92,246,0.9), inset 0 1px 0 rgba(255,255,255,0.35); }
+          .ai-cta:hover:not(:disabled) { background: #1C2D47; }
           .ai-cta:disabled { opacity: .6; cursor: not-allowed; }
 
           .ai-result {
-            border-radius: 16px; padding: 22px 24px;
-            background: linear-gradient(180deg, rgba(15,23,42,0.75), rgba(15,23,42,0.5));
-            border: 1px solid rgba(148,163,184,0.16);
-            border-left: 3px solid #8B5CF6;
+            border-radius: 12px; padding: 20px 22px;
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-left: 3px solid #6366F1;
           }
-          .ai-prose { color: #CBD5E1; font-size: 14px; line-height: 1.75; }
+          .ai-prose { color: #334155; font-size: 13.5px; line-height: 1.75; }
           .ai-h {
-            margin: 18px 0 8px; font-size: 14px; font-weight: 700; letter-spacing: .02em; color: #fff;
+            margin: 18px 0 8px; font-size: 13.5px; font-weight: 700; letter-spacing: .01em; color: #0F1B2D;
             display: flex; align-items: center; gap: 8px;
           }
           .ai-h::before {
-            content: ''; width: 6px; height: 16px; border-radius: 3px;
-            background: linear-gradient(180deg, #818CF8, #22D3EE);
+            content: ''; width: 5px; height: 15px; border-radius: 3px;
+            background: linear-gradient(180deg, #6366F1, #06B6D4);
           }
           .ai-h:first-child { margin-top: 0; }
           .ai-p { margin: 0 0 10px; }
@@ -901,27 +929,27 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
           .ai-ul li { position: relative; padding: 4px 0 4px 20px; }
           .ai-ul li::before {
             content: ''; position: absolute; left: 4px; top: 13px; width: 6px; height: 6px; border-radius: 50%;
-            background: #818CF8; box-shadow: 0 0 8px rgba(129,140,248,0.9);
+            background: #6366F1;
           }
-          .ai-strong { color: #F8FAFC; font-weight: 700; }
+          .ai-strong { color: #0F172A; font-weight: 700; }
 
           .ai-empty {
-            display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 14px;
-            background: rgba(30,41,59,0.45); border: 1px dashed rgba(148,163,184,0.25);
-            color: #94A3B8; font-size: 13px; line-height: 1.6;
+            display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 12px;
+            background: #F8FAFC; border: 1px dashed #CBD5E1;
+            color: #64748B; font-size: 13px; line-height: 1.6;
           }
 
           .ai-skel { height: 12px; border-radius: 6px; margin-bottom: 12px;
-            background: linear-gradient(90deg, rgba(51,65,85,0.5) 25%, rgba(99,102,241,0.35) 50%, rgba(51,65,85,0.5) 75%);
+            background: linear-gradient(90deg, #F1F5F9 25%, #E0E7FF 50%, #F1F5F9 75%);
             background-size: 200% 100%; animation: aiShimmer 1.4s linear infinite; }
           @keyframes aiShimmer { 0%{background-position:200% 0;} 100%{background-position:-200% 0;} }
 
           .ai-ghost {
             display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 8px; cursor: pointer;
-            font-size: 11px; font-weight: 600; color: #94A3B8; background: rgba(30,41,59,0.6);
-            border: 1px solid rgba(148,163,184,0.2); transition: all .2s ease;
+            font-size: 11px; font-weight: 600; color: #475569; background: #fff;
+            border: 1px solid #E2E8F0; transition: all .2s ease;
           }
-          .ai-ghost:hover { color: #fff; border-color: rgba(129,140,248,0.5); }
+          .ai-ghost:hover { color: #0F172A; border-color: #A5B4FC; }
         `}
       </style>
 
@@ -953,10 +981,10 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
 
       {isExporting && (
         <div className="mb-6 pb-3 border-b border-slate-200 text-center">
-          <h1 className="text-2xl font-semibold text-[#0F1B2D]">
+          <h1 className="text-xl font-semibold text-[#0F1B2D]">
             AlgoSay · Strategy pro report
           </h1>
-          <p className="text-slate-500 mt-1 text-sm">
+          <p className="text-slate-500 mt-1 text-xs">
             Generated on: {new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}
           </p>
         </div>
@@ -1045,7 +1073,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
       </div>
 
       <div className="flex flex-col sm:flex-row justify-between items-end sm:items-center mb-4">
-        <h2 className="text-lg font-semibold text-[#0F1B2D] tracking-tight">
+        <h2 className="text-[15px] font-semibold text-[#0F1B2D] tracking-tight">
           Performance metrics
         </h2>
         <div className="flex items-center gap-2.5 bg-white border border-slate-200 px-3 py-1.5 rounded-lg" data-html2canvas-ignore="true">
@@ -1105,12 +1133,12 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
 
           {/* ================= AI strategy diagnostics (below ledger) ================= */}
           <section className="ai-card" data-no-neg="true">
-            <div className="ai-inner p-5 sm:p-7">
+            <div className="ai-inner p-5 sm:p-6">
               {/* Header */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
                 <div className="flex items-center gap-3.5">
                   <div className="ai-logo">
-                    <SparkIcon className="w-6 h-6" />
+                    <SparkIcon className="w-5 h-5" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2.5 mb-1">
@@ -1135,7 +1163,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
 
               {/* Data context chips */}
               <div className="mb-5" data-html2canvas-ignore="true">
-                <p className="text-[11px] uppercase tracking-[0.14em] font-semibold text-slate-500 mb-2">
+                <p className="text-[11px] uppercase tracking-[0.12em] font-semibold text-slate-500 mb-2">
                   Data fed to AI
                 </p>
                 <div className="flex flex-wrap gap-2">
@@ -1166,7 +1194,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
                     ))}
                   </div>
 
-                  <div className="flex items-center justify-between pt-3 border-t border-slate-700/60">
+                  <div className="flex items-center justify-between pt-3 border-t border-slate-200">
                     <span className="text-[11px] text-slate-500">
                       Analyzing {analysisContext?.total_trades ?? 0} trades · {aiLanguage}
                     </span>
@@ -1209,7 +1237,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
               {/* Empty state */}
               {!isLoadingAI && !aiAdvice && (
                 <div className="ai-empty">
-                  <SparkIcon className="w-5 h-5 shrink-0 text-indigo-300" />
+                  <SparkIcon className="w-5 h-5 shrink-0 text-indigo-500" />
                   <span>
                     Review the ledger above, then let the AI study your day-wise, DTE-wise and monthly behaviour
                     to suggest actionable improvements.

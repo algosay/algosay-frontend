@@ -16,10 +16,11 @@ const PAD = { top: 24, right: 28, bottom: 44, left: 76 };
 const MIN_STEP = 34;
 const LINE = '#E11D48';
 
+// CHANGED: label 10.5px, value 15px (was text-lg), tighter min-width
 const Stat = ({ label, value, valueClass = 'text-slate-800' }) => (
-  <div className="min-w-[110px]">
-    <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{label}</div>
-    <div className={`mt-0.5 text-lg font-bold leading-tight ${valueClass}`}>{value}</div>
+  <div className="min-w-[96px]">
+    <div className="text-[10.5px] font-semibold uppercase tracking-wider text-slate-500">{label}</div>
+    <div className={`mt-0.5 text-[15px] font-semibold leading-tight ${valueClass}`}>{value}</div>
   </div>
 );
 
@@ -107,7 +108,7 @@ const DrawdownChart = ({ result, withTax }) => {
       ctx.fill();
 
       const label = `Max DD ${fmtINR(stats.max)}`;
-      ctx.font = '600 11.5px "Inter", -apple-system, "Segoe UI", Arial, sans-serif';
+      ctx.font = '600 11px "Inter", -apple-system, "Segoe UI", Arial, sans-serif';
       const tw = ctx.measureText(label).width;
       const flip = mx + tw + 24 > chartW - PAD.right;
       ctx.textBaseline = 'middle';
@@ -167,7 +168,7 @@ const DrawdownChart = ({ result, withTax }) => {
     <div className="bg-white border border-slate-200 rounded-xl p-5 md:p-6 shadow-[0_1px_3px_rgba(15,27,45,0.06)] w-full relative">
       <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-5">
         <div>
-          <h3 className="text-base font-semibold text-[#0F1B2D]">Drawdown curve</h3>
+          <h3 className="text-[15px] font-semibold text-[#0F1B2D]">Drawdown curve</h3>
           <p className="text-xs text-slate-500 mt-0.5">
             Distance from the running equity peak ({withTax ? 'net' : 'gross'})
           </p>
@@ -203,18 +204,18 @@ const DrawdownChart = ({ result, withTax }) => {
             const flip = x > chartW - 210;
             return (
               <div
-                className="absolute pointer-events-none z-20 min-w-[170px] rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 shadow-[0_10px_30px_rgba(15,27,45,0.18)]"
+                className="absolute pointer-events-none z-20 min-w-[160px] rounded-lg border border-slate-200 bg-white px-3 py-2 shadow-[0_10px_30px_rgba(15,27,45,0.18)]"
                 style={{
                   left: x,
                   top: Math.max(8, Math.min(y - 24, HEIGHT - 110)),
                   transform: flip ? 'translateX(calc(-100% - 14px))' : 'translateX(14px)'
                 }}
               >
-                <div className="text-xs font-medium text-slate-500">{p.full}</div>
+                <div className="text-[11px] font-medium text-slate-500">{p.full}</div>
                 <div className="mt-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
                   Drawdown from peak
                 </div>
-                <div className={`text-lg font-bold leading-tight ${p.value < 0 ? 'text-rose-600' : 'text-emerald-600'}`}>
+                <div className={`text-[15px] font-semibold leading-tight ${p.value < 0 ? 'text-rose-600' : 'text-emerald-600'}`}>
                   {p.value < 0 ? fmtINR(p.value) : 'At peak'}
                 </div>
               </div>
