@@ -27,6 +27,45 @@ const isNegativeText = (raw) => {
   return parseFloat(m[0].replace(/,/g, '')) !== 0; // -0.00 is not a loss
 };
 
+// ---------- Loss metrics -> always red (even if the value is positive) ----------
+const LOSS_LABELS = [
+  /^(average|avg\.?) loss (on|in|per) losing/,
+  /^loss ?(%|rate) ?\((periods?|days?|trades?|weeks?|months?)\)/,
+  /^(max(imum)?\.? )?duration of max(imum)?\.? (drawdown|dd)/,
+  /^max(imum)?\.? (losing|loss) streak/
+];
+
+// true -> label text also red; false -> only the value is red
+const PAINT_LABEL = true;
+
+// Looks like a value: "12", "45.5%", "-₹1,234", "8 periods"
+const VALUE_RE = /^[-−–+₹$()\s\d.,%]*\d[-−–+₹$()\s\d.,%]*(periods?|days?|trades?|weeks?|months?)?\)?$/i;
+
+const normalize = (s) => (s || '').replace(/\s+/g, ' ').trim().toLowerCase();
+
+const isLossLabel = (text) => {
+  const t = normalize(text);
+  return t.length <= 70 && LOSS_LABELS.some((re) => re.test(t));
+};
+
+const findValueElement = (labelEl, root) => {
+  let el = labelEl;
+  // climb up to 3 levels, checking the neighbouring elements for the value
+  for (let i = 0; i < 3 && el && el !== root; i += 1) {
+    const siblings = [el.nextElementSibling, el.previousElementSibling];
+    const match = siblings.find((s) => s && VALUE_RE.test(normalize(s.textContent)));
+    if (match) return match;
+    el = el.parentElement;
+  }
+  return null;
+};
+
+const paintLossMetric = (labelEl, root) => {
+  const valueEl = findValueElement(labelEl, root);
+  if (valueEl) valueEl.classList.add('loss-red');
+  if (PAINT_LABEL) labelEl.classList.add('loss-red');
+};
+
 const paintNegatives = (root) => {
   if (!root) return;
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
@@ -46,6 +85,11 @@ const paintNegatives = (root) => {
     const text = node.nodeValue;
     if (!text || !text.trim()) continue;
 
+    // Loss metric labels (textContent handles JSX-split text like "Loss % ({unit})")
+    if (isLossLabel(parent.textContent)) {
+      paintLossMetric(parent, root);
+    }
+
     if (isNegativeText(text)) {
       parent.classList.add('neg-red');
     } else if (parent.classList.contains('neg-red') && !isNegativeText(parent.textContent)) {
@@ -55,6 +99,190 @@ const paintNegatives = (root) => {
   }
 };
 
+// =====================================================================
+// AI helpers: build analysis context (PnL / day / DTE / month)
+// =====================================================================
+const toNum = (v) => {
+  if (v === null || v === undefined || v === '') return null;
+  const n = parseFloat(String(v).replace(/[₹$,\s%]/g, '').replace(/[−–]/g, '-'));
+  return Number.isNaN(n) ? null : n;
+};
+
+const cleanKey = (k) => String(k).toLowerCase().replace(/[^a-z]/g, '');
+
+const findKey = (row, exact = [], includes = []) => {
+  const keys = Object.keys(row || {});
+  return (
+    keys.find((k) => exact.includes(cleanKey(k))) ||
+    keys.find((k) => includes.some((inc) => cleanKey(k).includes(inc)))
+  );
+};
+
+const avg = (arr) => (arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null);
+const sum = (arr) => arr.reduce((a, b) => a + b, 0);
+const fmt = (n, d = 2) => (n === null || n === undefined ? 'n/a' : Number(n).toFixed(d));
+
+const buildAnalysisContext = (ledger = [], dayMtm = {}) => {
+  if (!ledger.length) return null;
+  const sample = ledger[0];
+
+  const pnlKey = findKey(sample, ['netpnl', 'pnl', 'grosspnl', 'profit', 'pl', 'pnlnet'], ['pnl']);
+  const dayKey = findKey(sample, ['day'], []);
+  const dteKey = findKey(sample, ['dte'], []);
+  const dateKey = findKey(sample, ['date', 'entrydate', 'tradedate'], ['date']);
+
+  const rows = ledger.map((r) => ({
+    pnl: pnlKey ? toNum(r[pnlKey]) : null,
+    day: dayKey ? r[dayKey] : null,
+    dte: dteKey ? r[dteKey] : null,
+    date: dateKey ? String(r[dateKey]) : null
+  }));
+
+  const pnls = rows.map((r) => r.pnl).filter((v) => v !== null);
+  const wins = pnls.filter((v) => v > 0);
+  const losses = pnls.filter((v) => v < 0);
+
+  const groupBy = (keyFn) => {
+    const g = {};
+    rows.forEach((r) => {
+      const k = keyFn(r);
+      if (k === null || k === undefined || r.pnl === null) return;
+      if (!g[k]) g[k] = [];
+      g[k].push(r.pnl);
+    });
+    return Object.entries(g).map(([k, v]) => ({
+      group: k,
+      trades: v.length,
+      total_pnl: Math.round(sum(v)),
+      win_rate: Math.round((v.filter((x) => x > 0).length / v.length) * 100)
+    }));
+  };
+
+  const byMonth = groupBy((r) => (r.date && r.date.length >= 7 ? r.date.slice(0, 7) : null));
+
+  return {
+    detected_columns: { pnl: pnlKey || null },
+    total_trades: ledger.length,
+    total_pnl: Math.round(sum(pnls)),
+    win_rate_pct: pnls.length ? Math.round((wins.length / pnls.length) * 100) : null,
+    avg_win: wins.length ? Math.round(avg(wins)) : null,
+    avg_loss: losses.length ? Math.round(avg(losses)) : null,
+    largest_win: wins.length ? Math.round(Math.max(...wins)) : null,
+    largest_loss: losses.length ? Math.round(Math.min(...losses)) : null,
+    by_day: groupBy((r) => r.day),
+    by_dte: groupBy((r) => r.dte),
+    by_month: byMonth,
+    has_minute_mtm: !!dayMtm && Object.keys(dayMtm).length > 0
+  };
+};
+
+const contextToText = (ctx) => {
+  if (!ctx) return '';
+  const lines = [
+    `Trades: ${ctx.total_trades}, Total PnL: ${ctx.total_pnl}, Win rate: ${fmt(ctx.win_rate_pct, 0)}%`,
+    `Avg win: ${fmt(ctx.avg_win, 0)}, Avg loss: ${fmt(ctx.avg_loss, 0)}, Largest win: ${fmt(ctx.largest_win, 0)}, Largest loss: ${fmt(ctx.largest_loss, 0)}`
+  ];
+  if (ctx.by_day.length) lines.push(`By day: ${JSON.stringify(ctx.by_day)}`);
+  if (ctx.by_dte.length) lines.push(`By DTE: ${JSON.stringify(ctx.by_dte)}`);
+  if (ctx.by_month.length) lines.push(`By month: ${JSON.stringify(ctx.by_month)}`);
+  return lines.join('\n');
+};
+
+const DEFAULT_QUERY =
+  'Give a complete, deep backtest diagnosis. Cover: edge & consistency, best/worst weekdays and DTE, drawdown & risk of ruin, monthly behaviour, win/loss distribution, and a prioritised list of concrete improvements.';
+
+const QUICK_PROMPTS = [
+  { label: 'Full diagnosis', q: DEFAULT_QUERY },
+  { label: 'Best days & DTE', q: 'Which weekdays and DTE should I trade or avoid? Show the evidence.' },
+  { label: 'Drawdown & risk', q: 'Analyse drawdown, losing streaks and give position sizing / risk advice.' },
+  { label: 'Monthly behaviour', q: 'How does the strategy behave month to month? Point out weak periods and what to change.' }
+];
+
+// ---------- Lightweight markdown renderer for AI text ----------
+const renderInline = (text, keyPrefix) => {
+  const parts = String(text).split(/(\*\*[^*]+\*\*)/g);
+  return parts.map((p, i) =>
+    p.startsWith('**') && p.endsWith('**') ? (
+      <strong key={`${keyPrefix}-${i}`} className="ai-strong">{p.slice(2, -2)}</strong>
+    ) : (
+      <React.Fragment key={`${keyPrefix}-${i}`}>{p}</React.Fragment>
+    )
+  );
+};
+
+const AdviceRenderer = ({ text }) => {
+  const blocks = [];
+  const lines = String(text || '').split('\n');
+  let list = null;
+
+  const flushList = () => {
+    if (list) {
+      blocks.push(list);
+      list = null;
+    }
+  };
+
+  lines.forEach((raw, idx) => {
+    const line = raw.trim();
+    if (!line) {
+      flushList();
+      return;
+    }
+    const heading = line.match(/^#{1,4}\s+(.*)$/);
+    const boldOnly = line.match(/^\*\*([^*]+)\*\*:?$/);
+    const numHeading = line.match(/^(\d+)[.)]\s+\*\*([^*]+)\*\*:?\s*(.*)$/);
+    const bullet = line.match(/^[-*•]\s+(.*)$/);
+    const numbered = line.match(/^(\d+)[.)]\s+(.*)$/);
+
+    if (heading || boldOnly) {
+      flushList();
+      blocks.push({ type: 'h', text: (heading ? heading[1] : boldOnly[1]).replace(/\*\*/g, ''), key: idx });
+    } else if (numHeading && !numHeading[3]) {
+      flushList();
+      blocks.push({ type: 'h', text: `${numHeading[1]}. ${numHeading[2]}`, key: idx });
+    } else if (bullet || numbered) {
+      if (!list) list = { type: 'ul', items: [], key: idx };
+      list.items.push((bullet ? bullet[1] : numbered[2]));
+    } else {
+      flushList();
+      blocks.push({ type: 'p', text: line, key: idx });
+    }
+  });
+  flushList();
+
+  return (
+    <div className="ai-prose">
+      {blocks.map((b) => {
+        if (b.type === 'h') return <h4 key={b.key} className="ai-h">{b.text}</h4>;
+        if (b.type === 'ul')
+          return (
+            <ul key={b.key} className="ai-ul">
+              {b.items.map((it, i) => (
+                <li key={`${b.key}-${i}`}>{renderInline(it, `${b.key}-${i}`)}</li>
+              ))}
+            </ul>
+          );
+        return <p key={b.key} className="ai-p">{renderInline(b.text, b.key)}</p>;
+      })}
+    </div>
+  );
+};
+
+// ---------- Small icons ----------
+const SparkIcon = ({ className = 'w-5 h-5' }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 3l1.9 4.6L18.5 9.5l-4.6 1.9L12 16l-1.9-4.6L5.5 9.5l4.6-1.9L12 3z" />
+    <path d="M19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9L19 15z" />
+  </svg>
+);
+
+const CopyIcon = () => (
+  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="9" y="9" width="13" height="13" rx="2" />
+    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+  </svg>
+);
+
 const ResultsDashboard = ({ result, withTax, setWithTax }) => {
   const [aiAdvice, setAiAdvice] = useState(result?.ai_advice || null);
   const [isLoadingAI, setIsLoadingAI] = useState(false);
@@ -62,6 +290,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
   const [isDownloadingExcel, setIsDownloadingExcel] = useState(false);
   const [isDownloadingMtm, setIsDownloadingMtm] = useState(false);
   const [isDownloadingProPDF, setIsDownloadingProPDF] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   // Filtered ledger data coming from ExecutionLedger
   const [filteredLedgerData, setFilteredLedgerData] = useState(null);
@@ -166,7 +395,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDays, selectedDTEs]);
 
-  // Paint every negative number red (tables, cards, charts, tooltips)
+  // Paint negative numbers and loss metrics red (tables, cards, charts, tooltips)
   useEffect(() => {
     const root = dashboardRef.current;
     if (!root) return undefined;
@@ -203,14 +432,32 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
     );
   };
 
+  const getLedgerData = () =>
+    filteredLedgerData || activeResult.Trade_Ledger || activeResult.ledger;
+
+  // Context that the AI will see (follows the ledger the user is currently viewing)
+  const analysisContext = useMemo(
+    () => buildAnalysisContext(getLedgerData() || [], activeResult?.Day_MTM || {}),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [filteredLedgerData, activeResult]
+  );
+
   const fetchAIInsights = async () => {
     setIsLoadingAI(true);
     try {
+      const ledger = getLedgerData();
+      const userQuery = customPrompt.trim() || DEFAULT_QUERY;
+      const ctxText = contextToText(analysisContext);
+
       const payload = {
         metrics: activeResult.Strategy_Stats || activeResult.metrics,
-        ledger: activeResult.Trade_Ledger || activeResult.ledger,
+        ledger,
+        day_mtm: activeResult.Day_MTM || {},
+        analysis_context: analysisContext,
         target_language: aiLanguage,
-        custom_user_query: customPrompt
+        custom_user_query: ctxText
+          ? `${userQuery}\n\n[Pre-computed analysis context - use the day-wise, DTE-wise and monthly data below]\n${ctxText}`
+          : userQuery
       };
 
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/get_strategy_insights`, {
@@ -227,8 +474,15 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
     setIsLoadingAI(false);
   };
 
-  const getLedgerData = () =>
-    filteredLedgerData || activeResult.Trade_Ledger || activeResult.ledger;
+  const copyAdvice = async () => {
+    try {
+      await navigator.clipboard.writeText(aiAdvice || '');
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch (e) {
+      console.error('Copy failed', e);
+    }
+  };
 
   const triggerDownload = (blob, filename) => {
     const url = URL.createObjectURL(blob);
@@ -258,7 +512,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
     triggerDownload(blob, 'Trade_Ledger_Filtered.csv');
   };
 
-  // Excel report (Summary / All Trades / By Leg + MFE/MAE)
+  // Excel report (Summary / All Trades / By Leg)
   const downloadExcel = async () => {
     const ledgerData = getLedgerData();
 
@@ -428,12 +682,21 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
 
   const btnBase = 'flex items-center gap-2 px-3.5 py-1.5 text-xs font-semibold rounded-md transition-colors disabled:opacity-50 cursor-pointer';
 
+  const ctxChips = [
+    { label: 'Trades', value: analysisContext?.total_trades ?? 0, on: true },
+    { label: 'Win / Loss stats', value: analysisContext?.win_rate_pct !== null && analysisContext?.win_rate_pct !== undefined ? 'Included' : 'n/a', on: analysisContext?.win_rate_pct !== null && analysisContext?.win_rate_pct !== undefined },
+    { label: 'Day-wise', value: analysisContext?.by_day?.length ? 'Included' : 'n/a', on: !!analysisContext?.by_day?.length },
+    { label: 'DTE', value: analysisContext?.by_dte?.length ? 'Included' : 'n/a', on: !!analysisContext?.by_dte?.length },
+    { label: 'Monthly', value: analysisContext?.by_month?.length ? 'Included' : 'n/a', on: !!analysisContext?.by_month?.length },
+    { label: 'Minute MTM', value: analysisContext?.has_minute_mtm ? 'Included' : 'n/a', on: !!analysisContext?.has_minute_mtm }
+  ];
+
   return (
     <div
       className={`rd-root w-full animate-fade-in pb-16 ${isExporting ? 'pdf-export-mode' : ''}`}
       ref={dashboardRef}
     >
-      {/* Global typography + negative (loss) red styling */}
+      {/* Global typography + negative (loss) red styling + AI card styling */}
       <style>
         {`
           @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -473,16 +736,165 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
           }
 
           /* Loss / negative values -> always red */
-          .rd-root .neg-red {
+          .rd-root .neg-red,
+          .rd-root .loss-red,
+          .rd-root .loss-red * {
             color: #DC2626 !important;
           }
           .rd-root svg .neg-red,
           .rd-root svg text.neg-red,
           .rd-root svg tspan.neg-red,
-          .rd-root svg text .neg-red {
+          .rd-root svg text .neg-red,
+          .rd-root svg .loss-red {
             fill: #DC2626 !important;
             color: #DC2626 !important;
           }
+
+          /* ================= AI Diagnostics (premium) ================= */
+          .ai-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 20px;
+            background:
+              radial-gradient(1200px 400px at 85% -10%, rgba(99,102,241,0.28), transparent 60%),
+              radial-gradient(900px 400px at -10% 110%, rgba(16,185,129,0.18), transparent 55%),
+              linear-gradient(160deg, #0B1220 0%, #0F1B2D 55%, #111C33 100%);
+            border: 1px solid rgba(148,163,184,0.18);
+            box-shadow: 0 20px 50px -20px rgba(15,27,45,0.55), inset 0 1px 0 rgba(255,255,255,0.05);
+            color: #E2E8F0;
+          }
+          .ai-card::before {
+            content: '';
+            position: absolute; inset: 0;
+            background-image:
+              linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 36px 36px;
+            mask-image: radial-gradient(ellipse at 70% 0%, #000 0%, transparent 70%);
+            -webkit-mask-image: radial-gradient(ellipse at 70% 0%, #000 0%, transparent 70%);
+            pointer-events: none;
+          }
+          .ai-inner { position: relative; z-index: 1; }
+
+          .ai-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 3px 10px; border-radius: 999px;
+            font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+            color: #A5B4FC;
+            background: rgba(99,102,241,0.12);
+            border: 1px solid rgba(129,140,248,0.35);
+          }
+          .ai-dot { width: 6px; height: 6px; border-radius: 50%; background: #34D399; box-shadow: 0 0 10px #34D399; animation: aiPulse 1.8s ease-in-out infinite; }
+          @keyframes aiPulse { 0%,100%{opacity:1; transform:scale(1);} 50%{opacity:.4; transform:scale(.8);} }
+
+          .ai-logo {
+            width: 44px; height: 44px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            color: #fff;
+            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #06B6D4 100%);
+            box-shadow: 0 8px 24px -6px rgba(99,102,241,0.7), inset 0 1px 0 rgba(255,255,255,0.35);
+          }
+
+          .ai-title {
+            font-size: 20px; font-weight: 700; letter-spacing: -0.01em;
+            background: linear-gradient(90deg, #FFFFFF 0%, #C7D2FE 60%, #67E8F9 100%);
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+          }
+
+          .ai-seg { display: inline-flex; padding: 3px; border-radius: 12px; background: rgba(15,23,42,0.7); border: 1px solid rgba(148,163,184,0.2); }
+          .ai-seg button {
+            padding: 6px 14px; font-size: 12px; font-weight: 600; border-radius: 9px; cursor: pointer;
+            color: #94A3B8; border: 1px solid transparent; transition: all .2s ease; background: transparent;
+          }
+          .ai-seg button:hover { color: #E2E8F0; }
+          .ai-seg button.active {
+            color: #fff;
+            background: linear-gradient(135deg, rgba(99,102,241,0.9), rgba(139,92,246,0.9));
+            box-shadow: 0 4px 14px -4px rgba(99,102,241,0.8);
+          }
+
+          .ai-chip {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 600;
+            background: rgba(30,41,59,0.7); border: 1px solid rgba(148,163,184,0.18); color: #94A3B8;
+          }
+          .ai-chip.on { color: #A7F3D0; border-color: rgba(52,211,153,0.35); background: rgba(16,185,129,0.1); }
+          .ai-chip .d { width: 6px; height: 6px; border-radius: 50%; background: #475569; }
+          .ai-chip.on .d { background: #34D399; box-shadow: 0 0 8px #34D399; }
+          .ai-chip b { color: #E2E8F0; font-weight: 700; }
+
+          .ai-input-wrap {
+            border-radius: 16px; padding: 1px;
+            background: linear-gradient(135deg, rgba(99,102,241,0.55), rgba(148,163,184,0.15), rgba(6,182,212,0.45));
+          }
+          .ai-input {
+            border-radius: 15px; background: rgba(8,13,24,0.92); padding: 14px 14px 10px;
+          }
+          .ai-input textarea {
+            width: 100%; background: transparent; color: #E2E8F0; font-size: 14px; line-height: 1.6;
+            outline: none; resize: none; border: none;
+          }
+          .ai-input textarea::placeholder { color: #64748B; }
+
+          .ai-quick {
+            padding: 5px 12px; border-radius: 999px; font-size: 11.5px; font-weight: 600; cursor: pointer;
+            color: #C7D2FE; background: rgba(99,102,241,0.1); border: 1px solid rgba(129,140,248,0.3);
+            transition: all .2s ease;
+          }
+          .ai-quick:hover { background: rgba(99,102,241,0.25); transform: translateY(-1px); color: #fff; }
+
+          .ai-cta {
+            position: relative; display: inline-flex; align-items: center; gap: 8px;
+            padding: 9px 20px; border-radius: 12px; font-size: 13px; font-weight: 700; color: #fff; cursor: pointer;
+            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #06B6D4 100%);
+            box-shadow: 0 10px 26px -8px rgba(99,102,241,0.85), inset 0 1px 0 rgba(255,255,255,0.3);
+            transition: transform .2s ease, box-shadow .2s ease, opacity .2s ease; border: none;
+          }
+          .ai-cta:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 14px 30px -8px rgba(139,92,246,0.9), inset 0 1px 0 rgba(255,255,255,0.35); }
+          .ai-cta:disabled { opacity: .6; cursor: not-allowed; }
+
+          .ai-result {
+            border-radius: 16px; padding: 22px 24px;
+            background: linear-gradient(180deg, rgba(15,23,42,0.75), rgba(15,23,42,0.5));
+            border: 1px solid rgba(148,163,184,0.16);
+            border-left: 3px solid #8B5CF6;
+          }
+          .ai-prose { color: #CBD5E1; font-size: 14px; line-height: 1.75; }
+          .ai-h {
+            margin: 18px 0 8px; font-size: 14px; font-weight: 700; letter-spacing: .02em; color: #fff;
+            display: flex; align-items: center; gap: 8px;
+          }
+          .ai-h::before {
+            content: ''; width: 6px; height: 16px; border-radius: 3px;
+            background: linear-gradient(180deg, #818CF8, #22D3EE);
+          }
+          .ai-h:first-child { margin-top: 0; }
+          .ai-p { margin: 0 0 10px; }
+          .ai-ul { margin: 0 0 12px; padding: 0; list-style: none; }
+          .ai-ul li { position: relative; padding: 4px 0 4px 20px; }
+          .ai-ul li::before {
+            content: ''; position: absolute; left: 4px; top: 13px; width: 6px; height: 6px; border-radius: 50%;
+            background: #818CF8; box-shadow: 0 0 8px rgba(129,140,248,0.9);
+          }
+          .ai-strong { color: #F8FAFC; font-weight: 700; }
+
+          .ai-empty {
+            display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 14px;
+            background: rgba(30,41,59,0.45); border: 1px dashed rgba(148,163,184,0.25);
+            color: #94A3B8; font-size: 13px; line-height: 1.6;
+          }
+
+          .ai-skel { height: 12px; border-radius: 6px; margin-bottom: 12px;
+            background: linear-gradient(90deg, rgba(51,65,85,0.5) 25%, rgba(99,102,241,0.35) 50%, rgba(51,65,85,0.5) 75%);
+            background-size: 200% 100%; animation: aiShimmer 1.4s linear infinite; }
+          @keyframes aiShimmer { 0%{background-position:200% 0;} 100%{background-position:-200% 0;} }
+
+          .ai-ghost {
+            display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 8px; cursor: pointer;
+            font-size: 11px; font-weight: 600; color: #94A3B8; background: rgba(30,41,59,0.6);
+            border: 1px solid rgba(148,163,184,0.2); transition: all .2s ease;
+          }
+          .ai-ghost:hover { color: #fff; border-color: rgba(129,140,248,0.5); }
         `}
       </style>
 
@@ -628,68 +1040,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
         <PerformanceStats result={activeResult} withTax={withTax} />
         <TaxBreakdown result={activeResult} />
 
-        {/* AI diagnostics */}
-        <div className="mt-4 mb-4 p-4 bg-white border border-slate-200 rounded-xl shadow-[0_1px_2px_rgba(15,27,45,0.04)]">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 gap-3">
-            <h3 className="text-base font-semibold text-[#0F1B2D]">
-              AI strategy diagnostics
-            </h3>
-
-            {/* Language selector */}
-            <div className="flex items-center gap-0.5 bg-slate-100 p-0.5 rounded-lg border border-slate-200" data-html2canvas-ignore="true">
-              {['English', 'Tamil', 'Hindi'].map(lang => (
-                <button
-                  key={lang}
-                  onClick={() => setAiLanguage(lang)}
-                  className={`px-3 py-1 text-xs font-semibold rounded-md transition-all cursor-pointer ${
-                    aiLanguage === lang
-                      ? 'bg-white text-[#0F1B2D] shadow-sm border border-slate-200'
-                      : 'text-slate-500 hover:text-[#0F1B2D] border border-transparent'
-                  }`}
-                >
-                  {lang}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Custom prompt */}
-          <div className="mb-3 bg-slate-50 p-3 rounded-lg border border-slate-200" data-html2canvas-ignore="true">
-            <textarea
-              value={customPrompt}
-              onChange={(e) => setCustomPrompt(e.target.value)}
-              placeholder="Clicking the Ask AI button will instantly generate a comprehensive, detailed backtest analysis report with deep insights for your strategy"
-              className="w-full bg-transparent text-slate-700 text-sm focus:outline-none resize-none placeholder-slate-400 mb-2"
-              rows="2"
-            />
-            <div className="flex justify-end border-t border-slate-200 pt-2 mt-1">
-              <button
-                onClick={fetchAIInsights}
-                disabled={isLoadingAI}
-                className="px-4 py-1.5 bg-[#0F1B2D] hover:bg-[#1c2d47] text-white text-xs font-semibold rounded-md transition-colors disabled:opacity-50 cursor-pointer"
-              >
-                {isLoadingAI ? 'Analyzing strategy...' : (aiAdvice ? 'Regenerate analysis' : 'Ask AI')}
-              </button>
-            </div>
-          </div>
-
-          {aiAdvice && (
-            <div
-              data-no-neg="true"
-              className="p-4 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 text-sm whitespace-pre-wrap leading-relaxed"
-            >
-              {aiAdvice}
-            </div>
-          )}
-
-          {!aiAdvice && !isLoadingAI && (
-            <p className="text-slate-500 text-sm mt-2">
-              Type your specific queries above or simply click "Ask AI" to let our engine analyze your MFE, MAE, and historical sequences to suggest actionable improvements.
-            </p>
-          )}
-        </div>
-
-        <div className="space-y-4">
+        <div className="space-y-4 mt-4">
           <EquityCurveChart result={activeResult} withTax={withTax} />
 
           <DrawdownChart result={activeResult} withTax={withTax} />
@@ -707,6 +1058,120 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
             withTax={withTax}
             onFilterChange={setFilteredLedgerData}
           />
+
+          {/* ================= AI strategy diagnostics (below ledger) ================= */}
+          <section className="ai-card" data-no-neg="true">
+            <div className="ai-inner p-5 sm:p-7">
+              {/* Header */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+                <div className="flex items-center gap-3.5">
+                  <div className="ai-logo">
+                    <SparkIcon className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2.5 mb-1">
+                      <span className="ai-badge"><span className="ai-dot" /> AI Engine</span>
+                    </div>
+                    <h3 className="ai-title">AI strategy diagnostics</h3>
+                  </div>
+                </div>
+
+                <div className="ai-seg" data-html2canvas-ignore="true">
+                  {['English', 'Tamil', 'Hindi'].map((lang) => (
+                    <button
+                      key={lang}
+                      onClick={() => setAiLanguage(lang)}
+                      className={aiLanguage === lang ? 'active' : ''}
+                    >
+                      {lang}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Data context chips */}
+              <div className="mb-5" data-html2canvas-ignore="true">
+                <p className="text-[11px] uppercase tracking-[0.14em] font-semibold text-slate-500 mb-2">
+                  Data fed to AI
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {ctxChips.map((c) => (
+                    <span key={c.label} className={`ai-chip ${c.on ? 'on' : ''}`}>
+                      <span className="d" />
+                      {c.label}: <b>{c.value}</b>
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Prompt box */}
+              <div className="ai-input-wrap mb-5" data-html2canvas-ignore="true">
+                <div className="ai-input">
+                  <textarea
+                    value={customPrompt}
+                    onChange={(e) => setCustomPrompt(e.target.value)}
+                    placeholder="Ask anything about this backtest... or just hit Analyze for a full, deep diagnosis (edge, day & DTE performance, drawdown, monthly behaviour, improvements)"
+                    rows="3"
+                  />
+
+                  <div className="flex flex-wrap gap-2 mt-2 mb-3">
+                    {QUICK_PROMPTS.map((p) => (
+                      <button key={p.label} className="ai-quick" onClick={() => setCustomPrompt(p.q)}>
+                        {p.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center justify-between pt-3 border-t border-slate-700/60">
+                    <span className="text-[11px] text-slate-500">
+                      Analyzing {analysisContext?.total_trades ?? 0} trades · {aiLanguage}
+                    </span>
+                    <button onClick={fetchAIInsights} disabled={isLoadingAI} className="ai-cta">
+                      <SparkIcon className="w-4 h-4" />
+                      {isLoadingAI ? 'Analyzing strategy...' : (aiAdvice ? 'Regenerate analysis' : 'Analyze with AI')}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Loading skeleton */}
+              {isLoadingAI && (
+                <div className="ai-result">
+                  <div className="ai-skel" style={{ width: '38%' }} />
+                  <div className="ai-skel" style={{ width: '96%' }} />
+                  <div className="ai-skel" style={{ width: '88%' }} />
+                  <div className="ai-skel" style={{ width: '92%' }} />
+                  <div className="ai-skel" style={{ width: '30%', marginTop: 20 }} />
+                  <div className="ai-skel" style={{ width: '84%' }} />
+                  <div className="ai-skel" style={{ width: '70%', marginBottom: 0 }} />
+                </div>
+              )}
+
+              {/* Result */}
+              {!isLoadingAI && aiAdvice && (
+                <div className="ai-result">
+                  <div className="flex items-center justify-between mb-4" data-html2canvas-ignore="true">
+                    <span className="ai-badge">Analysis report</span>
+                    <button className="ai-ghost" onClick={copyAdvice}>
+                      <CopyIcon /> {copied ? 'Copied' : 'Copy'}
+                    </button>
+                  </div>
+                  <AdviceRenderer text={aiAdvice} />
+                </div>
+              )}
+
+              {/* Empty state */}
+              {!isLoadingAI && !aiAdvice && (
+                <div className="ai-empty">
+                  <SparkIcon className="w-5 h-5 shrink-0 text-indigo-300" />
+                  <span>
+                    Review the ledger above, then let the AI study your day-wise, DTE-wise and monthly behaviour
+                    to suggest actionable improvements.
+                  </span>
+                </div>
+              )}
+            </div>
+          </section>
         </div>
       </div>
     </div>

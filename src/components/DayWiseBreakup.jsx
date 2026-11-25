@@ -1,7 +1,22 @@
 import React, { useMemo } from 'react';
 
-// 'mode' prop (idhu "GROSS" or "NET" aagavum irukkalam)
-const DayWiseBreakup = ({ ledger, mode = "NET" }) => {
+const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+const DAY_FULL = { Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday' };
+
+const fmt = (n) => Math.round(Math.abs(n)).toLocaleString('en-IN');
+const signedINR = (n) => `${n < 0 ? '−' : '+'}₹${fmt(n)}`;
+
+const heat = (val, maxAbs) => {
+  if (!val || !maxAbs) return {};
+  const t = Math.min(1, Math.abs(val) / maxAbs);
+  const a = 0.08 + Math.pow(t, 0.7) * 0.5;
+  return val > 0
+    ? { backgroundColor: `rgba(16,185,129,${a})`, color: '#065F46' }
+    : { backgroundColor: `rgba(244,63,94,${a})`, color: '#9F1239' };
+};
+
+// mode: "GROSS" or "NET"
+const DayWiseBreakup = ({ ledger, mode = 'NET' }) => {
   const data = useMemo(() => {
     if (!ledger || !Array.isArray(ledger) || ledger.length === 0) return null;
 
@@ -10,34 +25,34 @@ const DayWiseBreakup = ({ ledger, mode = "NET" }) => {
 
     ledger.forEach((trade) => {
       const keys = Object.keys(trade);
-      
-      const dayKey = keys.find(k => k.toLowerCase().trim() === 'day');
-      const entryTimeKey = keys.find(k => k.toLowerCase().includes('entry time') || k.toLowerCase().includes('entry_time'));
-      const exitTimeKey = keys.find(k => k.toLowerCase().includes('exit time') || k.toLowerCase().includes('exit_time'));
-      
+
+      const dayKey = keys.find((k) => k.toLowerCase().trim() === 'day');
+      const entryTimeKey = keys.find((k) => k.toLowerCase().includes('entry time') || k.toLowerCase().includes('entry_time'));
+      const exitTimeKey = keys.find((k) => k.toLowerCase().includes('exit time') || k.toLowerCase().includes('exit_time'));
+
       // --- DYNAMIC MODE TOGGLE LOGIC ---
       let pnlKey;
       if (mode === 'GROSS') {
-        pnlKey = keys.find(k => k.toLowerCase().includes('gross'));
+        pnlKey = keys.find((k) => k.toLowerCase().includes('gross'));
       } else {
-        pnlKey = keys.find(k => k.toLowerCase().includes('net real')) || keys.find(k => k.toLowerCase().includes('net'));
+        pnlKey = keys.find((k) => k.toLowerCase().includes('net real')) || keys.find((k) => k.toLowerCase().includes('net'));
       }
 
       // Fallback
       if (!pnlKey) {
-        pnlKey = keys.find(k => k.toLowerCase().includes('pnl')) || keys.find(k => k.toLowerCase().includes('profit'));
+        pnlKey = keys.find((k) => k.toLowerCase().includes('pnl')) || keys.find((k) => k.toLowerCase().includes('profit'));
       }
 
       // --- SMART YEAR EXTRACTION ---
       const dateStr = String(trade[exitTimeKey] || trade[entryTimeKey] || '');
       let year = new Date().getFullYear();
-      
+
       if (dateStr) {
         const yearMatch = dateStr.match(/\b(20\d{2})\b/);
         if (yearMatch) {
           year = yearMatch[1];
         } else {
-          const d = new Date(dateStr.replace(" ", "T")); 
+          const d = new Date(dateStr.replace(' ', 'T'));
           if (!isNaN(d)) year = d.getFullYear();
         }
       }
@@ -45,112 +60,206 @@ const DayWiseBreakup = ({ ledger, mode = "NET" }) => {
       // --- SMART DAY EXTRACTION ---
       let dayName = null;
       const rawDay = trade[dayKey] || '';
-      
+
       if (rawDay) {
         const shortDay = String(rawDay).trim().substring(0, 3);
         const formattedDay = shortDay.charAt(0).toUpperCase() + shortDay.substring(1).toLowerCase();
-        if (['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].includes(formattedDay)) {
-          dayName = formattedDay;
-        }
+        if (DAYS.includes(formattedDay)) dayName = formattedDay;
       }
 
       if (!dayName && dateStr) {
-        const d = new Date(dateStr.replace(" ", "T"));
+        const d = new Date(dateStr.replace(' ', 'T'));
         if (!isNaN(d)) {
           const daysMap = { 1: 'Mon', 2: 'Tue', 3: 'Wed', 4: 'Thu', 5: 'Fri' };
           dayName = daysMap[d.getDay()];
         }
       }
 
-      if (!dayName) return; 
+      if (!dayName) return;
 
       // --- BULLETPROOF PNL EXTRACTION ---
-      let rawPnl = pnlKey ? trade[pnlKey] : 0;
-      
-      const pnlString = String(rawPnl).replace(/[^\d.-]/g, '');
-      const pnl = parseFloat(pnlString) || 0;
+      const rawPnl = pnlKey ? trade[pnlKey] : 0;
+      const pnl = parseFloat(String(rawPnl).replace(/[^\d.-]/g, '')) || 0;
 
-      // --- AGGREGATE PNL ---
+      // --- AGGREGATE ---
       if (!summary[year]) {
-        summary[year] = { Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0, Total: 0 };
+        summary[year] = { Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0, Total: 0, Trades: 0 };
       }
-
       summary[year][dayName] += pnl;
       summary[year].Total += pnl;
+      summary[year].Trades += 1;
 
       totals[dayName] += pnl;
       totals.Total += pnl;
     });
 
     return { summary, totals };
-  }, [ledger, mode]); // mode dependency, so toggle pannum bodhu re-calculate aagum.
+  }, [ledger, mode]); // re-calculates whenever the GROSS / NET toggle changes
 
-  if (!data) return <div style={{ padding: '20px', textAlign: 'center', color: '#64748B' }}>No trading data available for Day Wise Breakup.</div>;
+  if (!data) {
+    return (
+      <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50/60 px-6 py-10 text-center">
+        <p className="text-sm font-medium text-slate-600">No trading data available</p>
+        <p className="mt-1 text-xs text-slate-400">Day wise breakup will appear once trades are loaded.</p>
+      </div>
+    );
+  }
 
-  const formatPnL = (val) => {
-    const num = Number(val).toFixed(0); 
-    if (num > 0) return <span style={{ color: '#059669', fontWeight: '600' }}>{num}</span>;
-    if (num < 0) return <span style={{ color: '#e11d48', fontWeight: '600' }}>{num}</span>;
-    return <span style={{ color: '#94A3B8' }}>0</span>; 
-  };
+  const years = Object.keys(data.summary).sort((a, b) => b - a);
+  const dayTotals = DAYS.map((d) => ({ day: d, val: data.totals[d] }));
+  const maxDayAbs = Math.max(0, ...dayTotals.map((d) => Math.abs(d.val)));
+  const maxCellAbs = Math.max(0, ...years.flatMap((y) => DAYS.map((d) => Math.abs(data.summary[y][d]))));
+  const hasSpread = dayTotals.some((d) => d.val !== 0);
+  const bestDay = hasSpread ? dayTotals.reduce((a, b) => (b.val > a.val ? b : a)) : null;
+  const worstDay = hasSpread ? dayTotals.reduce((a, b) => (b.val < a.val ? b : a)) : null;
+  const grand = data.totals.Total;
+
+  const th = 'px-3 py-3 text-center text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-400';
 
   return (
-    <div style={{ margin: '16px 0' }}>
-      <h3 style={{ marginBottom: '10px', color: '#0F1B2D', fontSize: '14px', fontWeight: 600 }}>Day wise breakup</h3>
-      
-      <div style={{ overflowX: 'auto', borderRadius: '10px', border: '1px solid #E2E8F0', backgroundColor: '#FFFFFF' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', backgroundColor: '#FFFFFF', fontFamily: '"IBM Plex Mono", ui-monospace, monospace' }}>
-          <thead>
-            <tr style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
-              <th style={styles.th}>Year</th>
-              <th style={styles.th}>Mon</th>
-              <th style={styles.th}>Tue</th>
-              <th style={styles.th}>Wed</th>
-              <th style={styles.th}>Thu</th>
-              <th style={styles.th}>Fri</th>
-              <th style={styles.th}>Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            {Object.keys(data.summary).map((year) => (
-              <tr key={year} style={{ borderBottom: '1px solid #E2E8F0' }}>
-                <td style={styles.td}><strong>{year}</strong></td>
-                <td style={styles.td}>{formatPnL(data.summary[year].Mon)}</td>
-                <td style={styles.td}>{formatPnL(data.summary[year].Tue)}</td>
-                <td style={styles.td}>{formatPnL(data.summary[year].Wed)}</td>
-                <td style={styles.td}>{formatPnL(data.summary[year].Thu)}</td>
-                <td style={styles.td}>{formatPnL(data.summary[year].Fri)}</td>
-                <td style={{ ...styles.td, backgroundColor: '#F8FAFC' }}><strong>{formatPnL(data.summary[year].Total)}</strong></td>
+    <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-[0_1px_2px_rgba(15,27,45,0.04),0_12px_32px_-12px_rgba(15,27,45,0.10)]">
+      <div className="h-[3px] w-full bg-gradient-to-r from-amber-400 via-violet-500 to-indigo-500" />
+
+      <div className="p-5 md:p-6">
+        {/* Header */}
+        <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-indigo-500">Edge by weekday</p>
+            <h3 className="mt-1 text-lg font-semibold tracking-tight text-[#0F1B2D]">Day wise breakup</h3>
+            <p className="mt-0.5 text-xs text-slate-500">Which weekdays make — and lose — your money · values in ₹</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">Total</p>
+              <p className={`font-mono text-base font-bold tabular-nums ${grand >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                {signedINR(grand)}
+              </p>
+            </div>
+            <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 font-mono text-[10px] font-semibold tracking-wider text-slate-600">
+              <span className={`h-1.5 w-1.5 rounded-full ${mode === 'GROSS' ? 'bg-indigo-500' : 'bg-amber-500'}`} />
+              {mode === 'GROSS' ? 'GROSS' : 'NET'}
+            </span>
+          </div>
+        </div>
+
+        {/* Weekday cards */}
+        <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          {dayTotals.map(({ day, val }) => {
+            const isBest = bestDay && bestDay.day === day && val > 0;
+            const isWorst = worstDay && worstDay.day === day && val < 0;
+            const w = maxDayAbs ? Math.max(val !== 0 ? 6 : 0, (Math.abs(val) / maxDayAbs) * 100) : 0;
+            return (
+              <div
+                key={day}
+                className={`relative rounded-xl border px-4 py-3 transition-shadow hover:shadow-md ${
+                  isBest
+                    ? 'border-emerald-200 bg-gradient-to-b from-emerald-50/70 to-white'
+                    : isWorst
+                    ? 'border-rose-200 bg-gradient-to-b from-rose-50/70 to-white'
+                    : 'border-slate-200/80 bg-gradient-to-b from-white to-slate-50/70'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">{DAY_FULL[day]}</p>
+                  {isBest && (
+                    <span className="rounded bg-emerald-100 px-1.5 py-0.5 text-[9px] font-bold tracking-wider text-emerald-700">BEST</span>
+                  )}
+                  {isWorst && (
+                    <span className="rounded bg-rose-100 px-1.5 py-0.5 text-[9px] font-bold tracking-wider text-rose-700">WEAK</span>
+                  )}
+                </div>
+                <p className={`mt-1.5 font-mono text-[17px] font-semibold tabular-nums ${val > 0 ? 'text-emerald-600' : val < 0 ? 'text-rose-600' : 'text-slate-400'}`}>
+                  {val === 0 ? '0' : signedINR(val)}
+                </p>
+                <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-slate-100">
+                  <div
+                    className={`h-full rounded-full ${val >= 0 ? 'bg-emerald-400' : 'bg-rose-400'}`}
+                    style={{ width: `${w}%` }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Table */}
+        <div className="overflow-x-auto rounded-xl border border-slate-200/80">
+          <table className="w-full min-w-[640px] border-collapse text-center">
+            <thead>
+              <tr className="bg-slate-50/80">
+                <th className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-400">Year</th>
+                {DAYS.map((d) => <th key={d} className={th}>{d}</th>)}
+                <th className={`${th} border-l border-slate-200 text-indigo-500`}>Total</th>
               </tr>
-            ))}
-            <tr style={{ backgroundColor: '#F8FAFC', borderTop: '1px solid #CBD5E1' }}>
-              <td style={styles.td}><strong>Total</strong></td>
-              <td style={styles.td}><strong>{formatPnL(data.totals.Mon)}</strong></td>
-              <td style={styles.td}><strong>{formatPnL(data.totals.Tue)}</strong></td>
-              <td style={styles.td}><strong>{formatPnL(data.totals.Wed)}</strong></td>
-              <td style={styles.td}><strong>{formatPnL(data.totals.Thu)}</strong></td>
-              <td style={styles.td}><strong>{formatPnL(data.totals.Fri)}</strong></td>
-              <td style={{ ...styles.td, backgroundColor: '#EEF2FF' }}><strong>{formatPnL(data.totals.Total)}</strong></td>
-            </tr>
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {years.map((year) => {
+                const row = data.summary[year];
+                return (
+                  <tr key={year} className="border-t border-slate-100 transition-colors hover:bg-indigo-50/30">
+                    <td className="px-4 py-2.5 text-left">
+                      <span className="font-mono text-[13px] font-semibold text-[#0F1B2D]">{year}</span>
+                      <span className="ml-2 text-[10px] text-slate-400">{row.Trades} trades</span>
+                    </td>
+                    {DAYS.map((d) => (
+                      <td key={d} className="px-1.5 py-1.5">
+                        {row[d] !== 0 ? (
+                          <div
+                            style={heat(row[d], maxCellAbs)}
+                            className="mx-auto min-w-[72px] rounded-md px-2 py-1.5 font-mono text-[12px] font-semibold tabular-nums transition-transform duration-150 hover:scale-[1.06]"
+                            title={`${DAY_FULL[d]} ${year}: ${signedINR(row[d])}`}
+                          >
+                            {row[d] < 0 ? '−' : ''}{fmt(row[d])}
+                          </div>
+                        ) : (
+                          <span className="font-mono text-slate-300">—</span>
+                        )}
+                      </td>
+                    ))}
+                    <td className="border-l border-slate-100 bg-slate-50/50 px-3 py-2.5">
+                      <span className={`font-mono text-[12.5px] font-bold tabular-nums ${row.Total >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                        {signedINR(row.Total)}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+            <tfoot>
+              <tr className="border-t-2 border-slate-200 bg-slate-50/80">
+                <td className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">All years</td>
+                {DAYS.map((d) => (
+                  <td key={d} className="px-2 py-3 font-mono text-[12px] font-bold tabular-nums">
+                    <span className={data.totals[d] > 0 ? 'text-emerald-700' : data.totals[d] < 0 ? 'text-rose-700' : 'text-slate-400'}>
+                      {data.totals[d] < 0 ? '−' : ''}{fmt(data.totals[d])}
+                    </span>
+                  </td>
+                ))}
+                <td className="border-l border-slate-200 bg-indigo-50/70 px-3 py-3">
+                  <span className={`font-mono text-[13px] font-bold tabular-nums ${grand >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                    {signedINR(grand)}
+                  </span>
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        {/* Legend */}
+        <div className="mt-4 flex items-center gap-2 text-[11px] text-slate-500">
+          <span>Loss</span>
+          <div
+            className="h-2 w-40 rounded-full"
+            style={{
+              background:
+                'linear-gradient(90deg, rgba(244,63,94,0.58), rgba(244,63,94,0.12), #F1F5F9, rgba(16,185,129,0.12), rgba(16,185,129,0.58))',
+            }}
+          />
+          <span>Profit</span>
+        </div>
       </div>
     </div>
   );
-};
-
-const styles = {
-  th: {
-    padding: '9px 14px',
-    color: '#64748B',
-    fontWeight: '600',
-    fontSize: '12px'
-  },
-  td: {
-    padding: '9px 14px',
-    fontSize: '13px',
-    color: '#0F1B2D'
-  }
 };
 
 export default DayWiseBreakup;

@@ -1,102 +1,180 @@
 import React from 'react';
 
+const TONES = {
+  neg: { bar: 'bg-rose-400', text: 'text-rose-600', dot: 'bg-rose-500' },
+  pos: { bar: 'bg-emerald-400', text: 'text-emerald-600', dot: 'bg-emerald-500' },
+  neutral: { bar: 'bg-slate-200', text: 'text-[#0F1B2D]', dot: 'bg-slate-300' },
+};
+
 const PerformanceStats = ({ result, withTax }) => {
-  // 1. Console-la data epdi varuthu nu check panna (Debugging)
-  console.log("BACKEND DATA RECEIVED:", result);
-
-  // 2. Data varalana loading kaata
+  // Loading state
   if (!result) {
-    return <div className="p-4 text-slate-500 font-medium">Loading metrics...</div>;
-  }
-
-  // 🚨 Extract Strategy_Stats from the result object securely
-  const strategyStats = result.Strategy_Stats || {};
-
-  // 3. Mismatch aana error kaata
-  if (!strategyStats.NET && !strategyStats.GROSS) {
     return (
-      <div className="mt-4 p-4 bg-rose-50 border border-rose-200 rounded-lg text-rose-700">
-        <p className="font-semibold mb-1">Data structure mismatch</p>
-        <p className="text-sm">Backend is not sending 'NET' and 'GROSS' keys inside Strategy_Stats.</p>
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-5">
+        {Array.from({ length: 10 }).map((_, i) => (
+          <div key={i} className="animate-pulse rounded-xl border border-slate-200/80 bg-white px-4 py-4">
+            <div className="h-2 w-16 rounded bg-slate-100" />
+            <div className="mt-3 h-5 w-24 rounded bg-slate-100" />
+          </div>
+        ))}
       </div>
     );
   }
 
-  // 🚨 SIMPLE SOURCE SELECTION (Targeting the nested Strategy_Stats)
+  // Strategy_Stats extraction
+  const strategyStats = result.Strategy_Stats || {};
+
+  // Structure mismatch
+  if (!strategyStats.NET && !strategyStats.GROSS) {
+    return (
+      <div className="mt-4 flex items-start gap-3 rounded-xl border border-rose-200 bg-gradient-to-r from-rose-50 to-white p-4">
+        <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-rose-100 text-xs font-bold text-rose-600">!</span>
+        <div>
+          <p className="text-sm font-semibold text-rose-700">Data structure mismatch</p>
+          <p className="mt-0.5 text-xs text-rose-600/80">
+            Backend is not sending 'NET' and 'GROSS' keys inside Strategy_Stats.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   const statsSource = withTax ? strategyStats.NET : strategyStats.GROSS;
-  const totalTax = strategyStats["Total Tax & Charges"] || 0;
+  const totalTax = strategyStats['Total Tax & Charges'] || 0;
 
   if (!statsSource) return null;
 
-  // 2. EXCLUDE UNWANTED KEYS
-  const excludedKeys = ['sharpe', 'max days in any drawdown', 'gross pnl', 'net pnl', 'recovery speed', 'system edge', 'equity smoothness'];
-  
+  // Excluded keys
+  const excludedKeys = [
+    'sharpe', 'max days in any drawdown', 'gross pnl', 'net pnl',
+    'recovery speed', 'system edge', 'equity smoothness',
+  ];
+
   const finalStats = Object.entries(statsSource).filter(([key]) => {
     const lowerKey = key.toLowerCase();
-    return !excludedKeys.some(exclude => lowerKey.includes(exclude));
+    return !excludedKeys.some((exclude) => lowerKey.includes(exclude));
   });
+
+  const margin = strategyStats.estimated_margin;
+  const marginOk = margin !== undefined && margin !== null;
 
   return (
     <div className="w-full">
-      {/* TOTAL TAX HIGHLIGHT (Shows only when toggle is NET) */}
+      {/* Section header */}
+      <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-indigo-500">Overview</p>
+          <h3 className="mt-1 text-lg font-semibold tracking-tight text-[#0F1B2D]">Performance statistics</h3>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1 font-mono text-[10px] font-semibold text-slate-500">
+            {finalStats.length + 1} metrics
+          </span>
+          <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 font-mono text-[10px] font-semibold tracking-wider text-slate-600">
+            <span className={`h-1.5 w-1.5 rounded-full ${withTax ? 'bg-amber-500' : 'bg-indigo-500'}`} />
+            {withTax ? 'NET · AFTER TAX' : 'GROSS'}
+          </span>
+        </div>
+      </div>
+
+      {/* Total tax highlight (NET mode only) */}
       {withTax && totalTax > 0 && (
-        <div className="mb-4 px-4 py-3 bg-rose-50 border border-rose-200 rounded-lg flex items-center justify-between gap-4">
-          <div>
-            <p className="text-xs text-rose-700 font-semibold">Total brokerage & taxes deducted</p>
-            <p className="text-xs text-slate-500 mt-0.5">This amount has been removed from your gross profit to show the real net metrics below.</p>
+        <div className="relative mb-4 overflow-hidden rounded-xl border border-rose-200/80 bg-gradient-to-r from-rose-50 via-white to-white">
+          <div className="absolute inset-y-0 left-0 w-1 bg-rose-400" />
+          <div className="flex flex-wrap items-center justify-between gap-4 px-5 py-4 pl-6">
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-rose-600">Costs deducted</p>
+              <p className="mt-1 text-sm font-semibold text-[#0F1B2D]">Total brokerage &amp; taxes</p>
+              <p className="mt-0.5 max-w-md text-xs text-slate-500">
+                This amount has been removed from your gross profit to show the real net metrics below.
+              </p>
+            </div>
+            <p className="shrink-0 font-mono text-2xl font-semibold tabular-nums text-rose-600">
+              −₹{Math.round(totalTax).toLocaleString('en-IN')}
+            </p>
           </div>
-          <p className="text-xl font-semibold font-mono text-rose-600 shrink-0">-₹{Math.round(totalTax).toLocaleString('en-IN')}</p>
         </div>
       )}
 
-      {/* METRICS GRID */}
-      <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5 gap-3 mb-4">
-        
-        {/* ESTIMATED MARGIN AS 1ST ITEM */}
-        <div className="bg-white border border-slate-200 border-t-2 border-t-indigo-500 px-3.5 py-3 rounded-lg flex flex-col justify-center hover:border-slate-300 transition-all">
-          <p className="text-[11px] text-slate-500 font-medium mb-1 truncate" title="Estimated Margin Required">Estimated margin</p>
-          <p className="text-lg font-semibold font-mono text-indigo-600">
-            {/* 🚨 FIX: Checking if it's undefined instead of truthy to prevent 0 from becoming N/A */}
-            {strategyStats.estimated_margin !== undefined && strategyStats.estimated_margin !== null
-               ? `₹${Math.round(strategyStats.estimated_margin).toLocaleString('en-IN')}` 
-               : 'N/A'}
+      {/* Metrics grid */}
+      <div className="mb-4 grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-5">
+        {/* Featured: estimated margin */}
+        <div className="relative col-span-2 overflow-hidden rounded-xl bg-gradient-to-br from-[#0F1B2D] via-[#17274A] to-[#2B2F6B] px-5 py-4 text-white shadow-[0_10px_30px_-12px_rgba(15,27,45,0.55)]">
+          <div className="pointer-events-none absolute -right-8 -top-10 h-32 w-32 rounded-full bg-indigo-400/20 blur-2xl" />
+          <div className="pointer-events-none absolute -bottom-12 left-1/3 h-28 w-28 rounded-full bg-amber-300/10 blur-2xl" />
+          <p className="relative text-[10px] font-semibold uppercase tracking-[0.18em] text-indigo-200/80" title="Estimated Margin Required">
+            Estimated margin
           </p>
+          <p className="relative mt-2 font-mono text-[26px] font-semibold tabular-nums tracking-tight">
+            {marginOk ? `₹${Math.round(margin).toLocaleString('en-IN')}` : 'N/A'}
+          </p>
+          <p className="relative mt-1 text-[11px] text-slate-300/80">Capital required to run this strategy</p>
         </div>
 
         {finalStats.map(([key, value]) => {
           let strVal = String(value);
           const lowerKey = key.toLowerCase().replace(/[^a-z0-9]/g, '');
-          let numericVal = parseFloat(strVal.replace(/[^0-9.-]+/g, ""));
-          
-          const isNotMoney = lowerKey.includes('factor') || lowerKey.includes('ratio') || lowerKey.includes('%') || lowerKey.includes('days') || lowerKey.includes('periods') || lowerKey.includes('probability') || lowerKey.includes('index') || lowerKey.includes('streak') || lowerKey.includes('return') || lowerKey.includes('smoothness') || lowerKey.includes('kelly') || lowerKey.includes('sizing') || lowerKey.includes('scalability');
+          const numericVal = parseFloat(strVal.replace(/[^0-9.-]+/g, ''));
+
+          const isNotMoney =
+            lowerKey.includes('factor') || lowerKey.includes('ratio') || lowerKey.includes('%') ||
+            lowerKey.includes('days') || lowerKey.includes('periods') || lowerKey.includes('probability') ||
+            lowerKey.includes('index') || lowerKey.includes('streak') || lowerKey.includes('return') ||
+            lowerKey.includes('smoothness') || lowerKey.includes('kelly') || lowerKey.includes('sizing') ||
+            lowerKey.includes('scalability');
           const isMoney = !isNotMoney && !isNaN(numericVal);
 
-          // 3. CLEAN FORMATTING LOGIC
-          if (lowerKey.includes('duration') || lowerKey.includes('streak') || lowerKey.includes('occurrence') || lowerKey.includes('trades') || lowerKey.includes('periods')) {
+          // Formatting
+          if (
+            lowerKey.includes('duration') || lowerKey.includes('streak') || lowerKey.includes('occurrence') ||
+            lowerKey.includes('trades') || lowerKey.includes('periods')
+          ) {
             strVal = isNaN(numericVal) ? strVal : Math.round(numericVal).toString();
           } else if (isMoney && !lowerKey.includes('totaltrades')) {
-            strVal = numericVal >= 0 ? `₹${Math.round(numericVal).toLocaleString('en-IN')}` : `-₹${Math.round(Math.abs(numericVal)).toLocaleString('en-IN')}`;
+            strVal =
+              numericVal >= 0
+                ? `₹${Math.round(numericVal).toLocaleString('en-IN')}`
+                : `-₹${Math.round(Math.abs(numericVal)).toLocaleString('en-IN')}`;
           } else if (lowerKey.includes('factor') || lowerKey.includes('ratio') || lowerKey.includes('return')) {
             strVal = isNaN(numericVal) ? strVal : numericVal.toFixed(2);
           } else if (lowerKey.includes('%') && !strVal.includes('%')) {
             strVal = `${strVal}%`;
           }
 
-          // 4. COLOR LOGIC
+          // Colour logic
           const isNegative = strVal.includes('-');
-          const isPositiveNumber = !isNegative && /[1-9]/.test(strVal) && !isNaN(parseFloat(strVal.replace(/[^0-9.-]+/g,"")));
-          
-          let colorClass = 'text-[#0F1B2D]';
+          const isPositiveNumber =
+            !isNegative && /[1-9]/.test(strVal) && !isNaN(parseFloat(strVal.replace(/[^0-9.-]+/g, '')));
+
+          let tone = TONES.neutral;
           if (isNegative) {
-             colorClass = 'text-rose-600';
-          } else if (isPositiveNumber && (lowerKey.includes('pnl') || lowerKey.includes('profit') || lowerKey.includes('win') || lowerKey.includes('factor') || lowerKey.includes('ratio') || lowerKey.includes('return'))) {
-            colorClass = 'text-emerald-600';
+            tone = TONES.neg;
+          } else if (
+            isPositiveNumber &&
+            (lowerKey.includes('pnl') || lowerKey.includes('profit') || lowerKey.includes('win') ||
+              lowerKey.includes('factor') || lowerKey.includes('ratio') || lowerKey.includes('return'))
+          ) {
+            tone = TONES.pos;
           }
 
           return (
-            <div key={key} className="bg-white border border-slate-200 px-3.5 py-3 rounded-lg flex flex-col justify-center hover:border-slate-300 transition-all">
-              <p className="text-[11px] text-slate-500 font-medium mb-1 truncate capitalize" title={key}>{key.replace(/_/g, ' ').toLowerCase()}</p>
-              <p className={`text-lg font-semibold font-mono ${colorClass}`}>{strVal}</p>
+            <div
+              key={key}
+              className="group relative overflow-hidden rounded-xl border border-slate-200/80 bg-white px-4 py-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_8px_24px_-10px_rgba(15,27,45,0.18)]"
+            >
+              <div className={`absolute inset-x-0 top-0 h-[2px] ${tone.bar} opacity-70 transition-opacity group-hover:opacity-100`} />
+              <div className="flex items-center gap-1.5">
+                <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${tone.dot}`} />
+                <p
+                  className="truncate text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-400"
+                  title={key}
+                >
+                  {key.replace(/_/g, ' ').toLowerCase()}
+                </p>
+              </div>
+              <p className={`mt-2 font-mono text-[19px] font-semibold tabular-nums tracking-tight ${tone.text}`}>
+                {strVal}
+              </p>
             </div>
           );
         })}

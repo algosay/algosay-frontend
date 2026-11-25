@@ -1,297 +1,225 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  buildSeries,
+  fmtINR,
+  niceScale,
+  makeGeo,
+  setupCanvas,
+  drawGrid,
+  drawXLabels,
+  useContainerWidth,
+  useFontsReady
+} from './chartUtils';
+
+const HEIGHT = 340;
+const PAD = { top: 24, right: 28, bottom: 44, left: 76 };
+const MIN_STEP = 34;
+const LINE = '#E11D48';
+
+const Stat = ({ label, value, valueClass = 'text-slate-800' }) => (
+  <div className="min-w-[110px]">
+    <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{label}</div>
+    <div className={`mt-0.5 text-lg font-bold leading-tight ${valueClass}`}>{value}</div>
+  </div>
+);
 
 const DrawdownChart = ({ result, withTax }) => {
+  const wrapRef = useRef(null);
   const canvasRef = useRef(null);
-  const containerRef = useRef(null);
-  const [hoverData, setHoverData] = useState(null);
+  const [hover, setHover] = useState(null);
 
-  const findKeyInsensitive = (obj, searchTerms) => {
-    if (!obj || typeof obj !== 'object') return undefined;
-    const objectKeys = Object.keys(obj);
-    for (let term of searchTerms) {
-      const cleanTerm = term.toLowerCase().replace(/[_ ]/g, "");
-      const found = objectKeys.find(k => k.toLowerCase().replace(/[_ ]/g, "") === cleanTerm);
-      if (found !== undefined) return obj[found];
-    }
-    return undefined;
-  };
-
-  const mappedDrawdown = [{ Drawdown: 0, Date: 'Start', Label: 'Start' }];
-  let maxPeak = 0; // Drawdown கணக்கிட இதுவரை வந்த அதிகபட்ச லாபத்தை சேமிக்க
-
-  // 1. Equity_Curve டேட்டாவை மாற்றுதல்
-  let equityData = [];
-  if (result && result.Equity_Curve) {
-    if (typeof result.Equity_Curve === 'string') {
-      try {
-        equityData = JSON.parse(result.Equity_Curve);
-      } catch (error) {
-        console.error("Error parsing Equity_Curve JSON:", error);
-      }
-    } else if (Array.isArray(result.Equity_Curve)) {
-      equityData = result.Equity_Curve;
-    }
-  }
-
-  // 2. Trade_Ledger டேட்டாவை எடுப்பது (தேதிக்கு)
-  let ledgerData = [];
-  if (result && result.Trade_Ledger) {
-    if (typeof result.Trade_Ledger === 'string') {
-      try {
-        ledgerData = JSON.parse(result.Trade_Ledger);
-      } catch (error) {
-        console.error("Error parsing Trade_Ledger JSON:", error);
-      }
-    } else if (Array.isArray(result.Trade_Ledger)) {
-      ledgerData = result.Trade_Ledger;
-    }
-  }
-
-  // 3. Map through the data & Calculate Drawdown
-  if (equityData && equityData.length > 0) {
-    equityData.forEach((pt, i) => {
-      let rawPnl = findKeyInsensitive(pt, ['Cumulative_PnL', 'cumulative_pnl', 'cumulativePnl', 'pnl', 'profit']);
-      let pnl = 0;
-      if (rawPnl !== undefined && rawPnl !== null) {
-        pnl = typeof rawPnl === 'string' ? parseFloat(rawPnl.replace(/[^0-9.-]+/g, "")) : Number(rawPnl);
-      }
-      if (isNaN(pnl)) pnl = 0;
-
-      let rawNet = findKeyInsensitive(pt, ['Cumulative_Net_PnL', 'cumulative_net_pnl', 'netPnl', 'net_pnl']);
-      let netPnl = 0;
-      if (rawNet !== undefined && rawNet !== null) {
-        netPnl = typeof rawNet === 'string' ? parseFloat(rawNet.replace(/[^0-9.-]+/g, "")) : Number(rawNet);
-      } else {
-        netPnl = pnl * 0.94;
-      }
-      if (isNaN(netPnl)) netPnl = 0;
-
-      let rawDate = findKeyInsensitive(pt, ['Date', 'TradeDate', 'trade_date', 'Exit_Time', 'time', 'timestamp', 'trade_time', 'date']);
-      
-      if (!rawDate && ledgerData && ledgerData.length > 0) {
-        let ledgerPt = ledgerData[i] || ledgerData[i - 1] || ledgerData[ledgerData.length - 1];
-        if (ledgerPt) {
-          rawDate = findKeyInsensitive(ledgerPt, ['Date', 'TradeDate', 'trade_date', 'Exit_Time', 'ExitTime', 'time', 'timestamp', 'trade_time', 'date', 'Entry_Time']);
-        }
-      }
-
-      let displayLabel = "";
-      let isFallback = false;
-
-      if (rawDate) {
-        let dateStr = String(rawDate);
-        const d = new Date(dateStr);
-        if (!isNaN(d.getTime())) {
-          displayLabel = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
-        } else {
-          displayLabel = dateStr.includes(' ') ? dateStr.split(' ')[0] : dateStr;
-        }
-      } else {
-        displayLabel = (i + 1).toString();
-        isFallback = true;
-      }
-
-      // Drawdown Calculation Logic
-      let currentPnl = withTax ? netPnl : pnl;
-      if (currentPnl > maxPeak) {
-        maxPeak = currentPnl; // புதிய High வந்தால் Peak-ஐ அப்டேட் செய்
-      }
-      
-      // Drawdown = Current - Peak (எப்போதுமே 0 அல்லது நெகட்டிவ்)
-      let drawdown = currentPnl - maxPeak;
-
-      mappedDrawdown.push({
-        Drawdown: drawdown,
-        Date: isFallback ? "T-" + displayLabel : displayLabel, 
-        Label: isFallback ? "Trade " + (i + 1) : displayLabel
-      });
+  const { points, hasData } = useMemo(() => {
+    const series = buildSeries(result, withTax);
+    let peak = 0;
+    const dd = series.points.map((p) => {
+      if (p.value > peak) peak = p.value;
+      return { ...p, value: p.value - peak }; // always 0 or negative
     });
-  }
+    return { points: dd, hasData: series.hasData };
+  }, [result, withTax]);
 
-  const dataPointsCount = mappedDrawdown.length;
-  const dynamicWidth = Math.max(1000, dataPointsCount * 55);
-  const chartHeight = 400;
+  const n = points.length;
+  const containerW = useContainerWidth(wrapRef, hasData);
+  const fontsReady = useFontsReady();
+  const chartW = Math.max(containerW, n * MIN_STEP + PAD.left + PAD.right);
 
-  // Find max drawdown for Y-Axis limits
-  const drawdownValues = mappedDrawdown.map(d => d.Drawdown);
-  const minDrawdownValue = Math.min(...drawdownValues); 
-  const domainLimit = minDrawdownValue === 0 ? 1000 : Math.abs(minDrawdownValue) * 1.15;
+  const stats = useMemo(() => {
+    const vals = points.map((p) => p.value);
+    const min = Math.min(...vals);
+    const minIdx = vals.indexOf(min);
+    const underwater = vals.slice(1).filter((v) => v < 0).length;
+    return {
+      max: min,
+      maxIdx: minIdx,
+      current: vals[vals.length - 1],
+      underwaterPct: n > 1 ? (underwater / (n - 1)) * 100 : 0
+    };
+  }, [points, n]);
+
+  const scale = useMemo(() => niceScale(stats.max === 0 ? -1000 : stats.max, 0, 6), [stats.max]);
+  const geo = useMemo(() => makeGeo(chartW, HEIGHT, PAD, n, scale.lo, scale.hi), [chartW, n, scale]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas || dataPointsCount <= 1) return;
+    if (!canvas || n < 2 || !chartW) return;
 
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, dynamicWidth, chartHeight);
+    const ctx = setupCanvas(canvas, chartW, HEIGHT);
+    const { xOf, yOf, plotW } = geo;
+    const zeroY = yOf(0);
+    const bottomY = HEIGHT - PAD.bottom;
 
-    const paddingLeft = 100;
-    const paddingRight = 50;
-    const paddingTop = 50; // Top limit is 0
-    const paddingBottom = 75; 
+    drawGrid(ctx, { w: chartW, pad: PAD, ticks: scale.ticks, yOf });
 
-    const plotWidth = dynamicWidth - paddingLeft - paddingRight;
-    const plotHeight = chartHeight - paddingTop - paddingBottom;
-
-    const getX = (index) => paddingLeft + (index / (dataPointsCount - 1)) * plotWidth;
-    
-    // Y Axis: 0 is at Top, Max Drawdown is at Bottom
-    const getY = (value) => {
-      const ratio = Math.abs(value) / domainLimit; 
-      return paddingTop + (plotHeight * ratio);
-    };
-
-    // Background Grid
-    ctx.strokeStyle = '#E2E8F0';
-    ctx.lineWidth = 1;
-    ctx.setLineDash([4, 4]);
-    
-    const gridLines = 5;
-    for (let i = 0; i <= gridLines; i++) {
-      const val = - (i / gridLines) * domainLimit;
-      const y = getY(val);
-      ctx.beginPath();
-      ctx.moveTo(paddingLeft, y);
-      ctx.lineTo(dynamicWidth - paddingRight, y);
-      ctx.stroke();
-
-      ctx.setLineDash([]);
-      ctx.fillStyle = '#64748B';
-      ctx.font = '12px "IBM Plex Mono", ui-monospace, monospace';
-      ctx.textAlign = 'right';
-      ctx.textBaseline = 'middle';
-      
-      let label = '₹0';
-      if (val !== 0) {
-        const formatted = Math.abs(val) >= 1000 ? (Math.abs(val) / 1000).toFixed(1) + "k" : Math.round(Math.abs(val));
-        label = "-₹" + formatted;
-      }
-      ctx.fillText(label, paddingLeft - 15, y);
-      ctx.setLineDash([4, 4]);
-    }
-
-    // Zero line (Top line for Drawdown chart)
-    ctx.setLineDash([]);
-    ctx.strokeStyle = 'rgba(15, 27, 45, 0.35)';
-    ctx.lineWidth = 1.5;
+    // Underwater area
+    const g = ctx.createLinearGradient(0, zeroY, 0, bottomY);
+    g.addColorStop(0, 'rgba(225,29,72,0.04)');
+    g.addColorStop(1, 'rgba(225,29,72,0.30)');
+    ctx.fillStyle = g;
     ctx.beginPath();
-    ctx.moveTo(paddingLeft, getY(0));
-    ctx.lineTo(dynamicWidth - paddingRight, getY(0));
-    ctx.stroke();
-
-    // Area Gradient (Red shades)
-    const gradient = ctx.createLinearGradient(0, paddingTop, 0, paddingTop + plotHeight);
-    gradient.addColorStop(0, 'rgba(244, 63, 94, 0.04)');
-    gradient.addColorStop(1, 'rgba(244, 63, 94, 0.28)');
-
-    ctx.fillStyle = gradient;
-    ctx.beginPath();
-    ctx.moveTo(getX(0), getY(0));
-    for (let i = 0; i < dataPointsCount; i++) {
-      ctx.lineTo(getX(i), getY(mappedDrawdown[i].Drawdown));
-    }
-    // Fill back up to the zero line
-    ctx.lineTo(getX(dataPointsCount - 1), getY(0));
+    ctx.moveTo(xOf(0), zeroY);
+    points.forEach((p, i) => ctx.lineTo(xOf(i), yOf(p.value)));
+    ctx.lineTo(xOf(n - 1), zeroY);
     ctx.closePath();
     ctx.fill();
 
-    // Line Path (Red Line)
-    ctx.strokeStyle = '#e11d48';
+    // Line
+    ctx.strokeStyle = LINE;
     ctx.lineWidth = 2.25;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
     ctx.beginPath();
-    for (let i = 0; i < dataPointsCount; i++) {
-      if (i === 0) ctx.moveTo(getX(i), getY(mappedDrawdown[i].Drawdown));
-      else ctx.lineTo(getX(i), getY(mappedDrawdown[i].Drawdown));
-    }
+    points.forEach((p, i) => (i === 0 ? ctx.moveTo(xOf(i), yOf(p.value)) : ctx.lineTo(xOf(i), yOf(p.value))));
     ctx.stroke();
 
-    // X-Axis Text Labels
-    ctx.fillStyle = '#64748B';
-    ctx.font = '11px sans-serif';
-    ctx.textAlign = 'right';
-    ctx.textBaseline = 'top';
+    drawXLabels(ctx, { points, xOf, plotW, h: HEIGHT, pad: PAD });
 
-    mappedDrawdown.forEach((pt, i) => {
-      if (dataPointsCount > 20 && i % Math.ceil(dataPointsCount / 12) !== 0 && i !== dataPointsCount - 1) return;
-      
-      const x = getX(i);
-      const y = chartHeight - paddingBottom + 12;
+    // Max drawdown marker
+    if (stats.max < 0) {
+      const mx = xOf(stats.maxIdx);
+      const my = yOf(stats.max);
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.arc(mx, my, 6.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = LINE;
+      ctx.beginPath();
+      ctx.arc(mx, my, 4, 0, Math.PI * 2);
+      ctx.fill();
 
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.rotate(-Math.PI / 4);
-      ctx.fillText(pt.Date, 0, 0);
-      ctx.restore();
-    });
+      const label = `Max DD ${fmtINR(stats.max)}`;
+      ctx.font = '600 11.5px "Inter", -apple-system, "Segoe UI", Arial, sans-serif';
+      const tw = ctx.measureText(label).width;
+      const flip = mx + tw + 24 > chartW - PAD.right;
+      ctx.textBaseline = 'middle';
+      ctx.textAlign = flip ? 'right' : 'left';
+      ctx.fillStyle = '#B91C1C';
+      ctx.fillText(label, flip ? mx - 12 : mx + 12, Math.max(my - 14, PAD.top + 8));
+    }
 
-  }, [mappedDrawdown, dynamicWidth, domainLimit, dataPointsCount]);
+    // Hover crosshair
+    if (hover !== null && points[hover]) {
+      const hx = xOf(hover);
+      const hy = yOf(points[hover].value);
+      ctx.strokeStyle = 'rgba(15,27,45,0.35)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.moveTo(hx, PAD.top);
+      ctx.lineTo(hx, bottomY);
+      ctx.stroke();
+      ctx.setLineDash([]);
 
-  const handleMouseMove = (e) => {
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.arc(hx, hy, 7, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = LINE;
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+      ctx.fillStyle = LINE;
+      ctx.beginPath();
+      ctx.arc(hx, hy, 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }, [points, n, chartW, geo, scale, stats, hover, fontsReady]);
+
+  const handleMove = (e) => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
-
+    if (!canvas || n < 2) return;
     const rect = canvas.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-
-    const paddingLeft = 100;
-    const paddingRight = 50;
-    const plotWidth = dynamicWidth - paddingLeft - paddingRight;
-
-    const relativeX = mouseX - paddingLeft;
-    if (relativeX < 0 || relativeX > plotWidth) {
-      setHoverData(null);
+    const rel = (e.clientX - rect.left - PAD.left) / geo.plotW;
+    if (rel < -0.02 || rel > 1.02) {
+      setHover(null);
       return;
     }
-
-    const index = Math.round((relativeX / plotWidth) * (dataPointsCount - 1));
-    if (index >= 0 && index < dataPointsCount) {
-      setHoverData({
-        ...mappedDrawdown[index],
-        x: (relativeX / plotWidth) * (rect.width - (paddingLeft * (rect.width / dynamicWidth)) - (paddingRight * (rect.width / dynamicWidth))) + (paddingLeft * (rect.width / dynamicWidth)),
-        y: mouseY
-      });
-    }
+    setHover(Math.max(0, Math.min(n - 1, Math.round(rel * (n - 1)))));
   };
 
-  if (!equityData || equityData.length === 0) {
-    return <div className="p-4 text-slate-600 font-medium">No data available for chart</div>;
+  if (!hasData) {
+    return (
+      <div className="bg-white border border-slate-200 rounded-xl p-6 text-sm text-slate-500 shadow-[0_1px_3px_rgba(15,27,45,0.06)]">
+        No drawdown data available for the selected filters.
+      </div>
+    );
   }
 
   return (
-    <div className="bg-white border border-slate-200 p-4 md:p-5 rounded-xl shadow-[0_1px_2px_rgba(15,27,45,0.04)] w-full relative mt-4">
-      <h3 className="text-sm font-semibold text-[#0F1B2D] mb-4">Drawdown curve</h3>
-      
-      <div className="overflow-x-auto w-full custom-scrollbar-horizontal pb-2" ref={containerRef}>
-        <div style={{ width: dynamicWidth + "px", height: chartHeight + "px", position: 'relative' }}>
-          
+    <div className="bg-white border border-slate-200 rounded-xl p-5 md:p-6 shadow-[0_1px_3px_rgba(15,27,45,0.06)] w-full relative">
+      <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-5">
+        <div>
+          <h3 className="text-base font-semibold text-[#0F1B2D]">Drawdown curve</h3>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Distance from the running equity peak ({withTax ? 'net' : 'gross'})
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-x-8 gap-y-3">
+          <Stat
+            label="Max drawdown"
+            value={fmtINR(stats.max)}
+            valueClass={stats.max < 0 ? 'text-rose-600' : 'text-slate-800'}
+          />
+          <Stat
+            label="Current drawdown"
+            value={fmtINR(stats.current)}
+            valueClass={stats.current < 0 ? 'text-rose-600' : 'text-emerald-600'}
+          />
+          <Stat label="Time underwater" value={`${stats.underwaterPct.toFixed(0)}%`} />
+        </div>
+      </div>
+
+      <div ref={wrapRef} className="overflow-x-auto w-full pb-1">
+        <div style={{ width: chartW, height: HEIGHT, position: 'relative' }}>
           <canvas
             ref={canvasRef}
-            width={dynamicWidth}
-            height={chartHeight}
             className="block cursor-crosshair"
-            onMouseMove={handleMouseMove}
-            onMouseLeave={() => setHoverData(null)}
+            onMouseMove={handleMove}
+            onMouseLeave={() => setHover(null)}
           />
 
-          {hoverData && (
-            <div 
-              className="absolute bg-[#0F1B2D] p-3 rounded-lg shadow-xl text-white pointer-events-none z-50 min-w-[140px]"
-              style={{ 
-                left: hoverData.x + 15 + "px", 
-                top: Math.min(hoverData.y, chartHeight - 120) + "px",
-                transform: hoverData.x > (dynamicWidth * 0.7) ? 'translateX(-120%)' : 'none'
-              }}
-            >
-              <p className="text-xs text-rose-300 font-semibold mb-1">
-                {hoverData.Label}
-              </p>
-              <p className="text-[10px] text-slate-300">System drawdown</p>
-              <div className="text-base font-semibold font-mono text-rose-400">
-                -₹{Math.abs(Math.round(hoverData.Drawdown)).toLocaleString('en-IN')}
+          {hover !== null && points[hover] && (() => {
+            const p = points[hover];
+            const x = geo.xOf(hover);
+            const y = geo.yOf(p.value);
+            const flip = x > chartW - 210;
+            return (
+              <div
+                className="absolute pointer-events-none z-20 min-w-[170px] rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 shadow-[0_10px_30px_rgba(15,27,45,0.18)]"
+                style={{
+                  left: x,
+                  top: Math.max(8, Math.min(y - 24, HEIGHT - 110)),
+                  transform: flip ? 'translateX(calc(-100% - 14px))' : 'translateX(14px)'
+                }}
+              >
+                <div className="text-xs font-medium text-slate-500">{p.full}</div>
+                <div className="mt-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                  Drawdown from peak
+                </div>
+                <div className={`text-lg font-bold leading-tight ${p.value < 0 ? 'text-rose-600' : 'text-emerald-600'}`}>
+                  {p.value < 0 ? fmtINR(p.value) : 'At peak'}
+                </div>
               </div>
-            </div>
-          )}
-
+            );
+          })()}
         </div>
       </div>
     </div>
