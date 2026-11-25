@@ -280,111 +280,173 @@ const AIParseSection = ({
     }
   };
 
-  const chip = "bg-white px-2 py-0.5 rounded border border-slate-200 text-slate-500";
+  // ⌨️ Ctrl+Enter / ⌘+Enter = Analyze logic shortcut
+  const handleKeyDown = (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && !isParsing && localPrompt) {
+      e.preventDefault();
+      handleAIParse();
+    }
+  };
+
+  // Spec-cell styles for leg cards (label on top, value below)
+  const chip = "bg-white px-2.5 py-1.5 rounded-md border border-slate-200 flex flex-col gap-0.5 min-w-0";
+  const chipLabel = "text-[10px] font-semibold uppercase tracking-wider text-slate-500";
+  const chipValue = "text-[12.5px] font-semibold text-[#0B1220] font-mono truncate";
+
+  const wordCount = (localPrompt || '').trim() ? (localPrompt || '').trim().split(/\s+/).length : 0;
 
   return (
     <>
+      {/* Font setup (Inter for UI, JetBrains Mono for numbers) */}
+      <style>
+        {`
+          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap');
+
+          .ap-root {
+            font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+            -webkit-font-smoothing: antialiased;
+          }
+          .ap-root .font-mono {
+            font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-variant-numeric: tabular-nums;
+          }
+        `}
+      </style>
+
       {/* MAIN AI INPUT SECTION */}
-      <div className="w-full bg-white border border-slate-200 rounded-xl p-4 mb-4 shadow-[0_1px_2px_rgba(15,27,45,0.04)] relative z-10">
+      <div className="ap-root w-full bg-white border border-slate-200 rounded-2xl mb-4 shadow-[0_1px_3px_rgba(11,18,32,0.06),0_8px_24px_rgba(11,18,32,0.04)] relative z-10 overflow-hidden">
 
-        {/* Header row */}
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3 mb-3">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-[#0F1B2D] shrink-0">
-              <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
-                <g stroke="#A5B4FC">
-                  <path d="M9.5 3a4.5 4.5 0 0 0-4.492 4.02A4.5 4.5 0 0 0 3 11.5c0 1.556.786 2.926 2 3.734a4.5 4.5 0 0 0 2.474 6.75M14.5 3a4.5 4.5 0 0 1 4.492 4.02 4.5 4.5 0 0 1 2.008 4.48c0 1.556-.786 2.926-2 3.734a4.5 4.5 0 0 1-2.474 6.75" />
-                  <path d="M12 3v16" />
-                  <circle cx="8" cy="9" r="1" />
-                  <circle cx="16" cy="9" r="1" />
-                  <circle cx="7" cy="14" r="1" />
-                  <circle cx="17" cy="14" r="1" />
-                  <path d="M12 9H9" />
-                  <path d="M12 14H8" />
-                  <path d="M12 9h3" />
-                  <path d="M12 14h4" />
-                </g>
-              </svg>
-            </div>
+        {/* Top accent bar */}
+        <div className="h-1 w-full bg-gradient-to-r from-indigo-500 via-violet-500 to-sky-500"></div>
 
-            <div>
-              <h2 className="text-base font-semibold text-[#0F1B2D] tracking-tight">Describe your strategy</h2>
-              <p className="text-xs text-slate-500 mt-0.5">Write your trading logic in plain language. Previous candle colour triggers and open-price execution are supported.</p>
-            </div>
-          </div>
+        <div className="p-5">
 
-          {/* Status */}
-          <div className="flex items-center gap-2 w-full lg:w-auto">
-            <div className="px-2.5 py-1 rounded-full border border-indigo-200 bg-indigo-50 text-indigo-700 text-[11px] font-semibold">
-              AlgoSay AI
-            </div>
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-slate-200 bg-slate-50">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span className="text-[11px] font-medium text-slate-600">All systems operational</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Textarea + button */}
-        <div className="flex flex-col lg:flex-row gap-3">
-          <textarea
-            ref={textareaRef}
-            className="flex-grow w-full min-h-[160px] max-h-[480px] overflow-y-auto bg-slate-50 border border-slate-200 rounded-lg p-3 text-[#0F1B2D] focus:outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 text-sm placeholder:text-slate-400 transition-all resize-none custom-scrollbar"
-            rows="6"
-            placeholder="e.g., Sell sensex option CE and PE every 15 mins. If 9.15-9.30 candle is green sell PE at 9.30 open price. Target 65% stop loss 22% exit at 3.15 PM."
-            value={localPrompt}
-            onChange={handleTextChange}
-          ></textarea>
-
-          <button
-            onClick={handleAIParse}
-            disabled={isParsing || !localPrompt}
-            className={`lg:w-44 lg:self-start lg:h-12 px-5 py-3 rounded-lg font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 ${
-              isParsing || !localPrompt
-              ? 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed'
-              : 'bg-[#0F1B2D] hover:bg-[#1c2d47] text-white shadow-sm cursor-pointer'
-            }`}
-          >
-            {isParsing ? (
-              <>
-                <svg className="animate-spin h-4 w-4 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          {/* Header row */}
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3 mb-4">
+            <div className="flex items-center gap-3.5">
+              <div className="flex items-center justify-center w-11 h-11 rounded-xl bg-gradient-to-br from-[#0B1220] to-[#1E2B4D] shrink-0 ring-4 ring-indigo-50 shadow-sm">
+                <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
+                  <g stroke="#A5B4FC">
+                    <path d="M9.5 3a4.5 4.5 0 0 0-4.492 4.02A4.5 4.5 0 0 0 3 11.5c0 1.556.786 2.926 2 3.734a4.5 4.5 0 0 0 2.474 6.75M14.5 3a4.5 4.5 0 0 1 4.492 4.02 4.5 4.5 0 0 1 2.008 4.48c0 1.556-.786 2.926-2 3.734a4.5 4.5 0 0 1-2.474 6.75" />
+                    <path d="M12 3v16" />
+                    <circle cx="8" cy="9" r="1" />
+                    <circle cx="16" cy="9" r="1" />
+                    <circle cx="7" cy="14" r="1" />
+                    <circle cx="17" cy="14" r="1" />
+                    <path d="M12 9H9" />
+                    <path d="M12 14H8" />
+                    <path d="M12 9h3" />
+                    <path d="M12 14h4" />
+                  </g>
                 </svg>
-                Analyzing...
-              </>
-            ) : 'Analyze logic'}
-          </button>
-        </div>
+              </div>
 
-        {/* AI status message */}
-        {aiMessage && (
-          <div className={`mt-3 px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-2 ${
-            needsInfoQuestion ? 'bg-amber-50 text-amber-800 border border-amber-200' : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-          }`}>
-            {aiMessage}
+              <div>
+                <h2 className="text-[17px] font-bold text-[#0B1220] tracking-[-0.015em]">Describe your strategy</h2>
+                <p className="text-[13px] text-slate-600 mt-0.5 leading-snug">Write your trading logic in plain language. Previous candle colour triggers and open-price execution are supported.</p>
+              </div>
+            </div>
+
+            {/* Status */}
+            <div className="flex items-center gap-2 w-full lg:w-auto">
+              <div className="px-3 py-1 rounded-full border border-indigo-200 bg-indigo-50 text-indigo-700 text-[11px] font-bold tracking-wide">
+                AlgoSay AI
+              </div>
+              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-slate-200 bg-slate-50">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span className="text-[11px] font-medium text-slate-700">All systems operational</span>
+              </div>
+            </div>
           </div>
-        )}
+
+          {/* Textarea + button */}
+          <div className="flex flex-col lg:flex-row gap-3">
+            <div className="flex-grow w-full flex flex-col">
+              <textarea
+                ref={textareaRef}
+                className="w-full min-h-[160px] max-h-[480px] overflow-y-auto bg-slate-50/70 border border-slate-300 rounded-xl p-4 text-[#0B1220] focus:outline-none focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 text-[15px] leading-relaxed placeholder:text-slate-400 transition-all resize-none custom-scrollbar"
+                rows="6"
+                placeholder="e.g., Sell sensex option CE and PE every 15 mins. If 9.15-9.30 candle is green sell PE at 9.30 open price. Target 65% stop loss 22% exit at 3.15 PM."
+                value={localPrompt}
+                onChange={handleTextChange}
+                onKeyDown={handleKeyDown}
+              ></textarea>
+
+              {/* Counter + shortcut hint */}
+              <div className="flex items-center justify-between mt-1.5 px-1 text-[11px] text-slate-500">
+                <span className="font-mono">{(localPrompt || '').length} chars · {wordCount} words</span>
+                <span className="hidden sm:inline">
+                  <kbd className="px-1.5 py-0.5 rounded border border-slate-300 bg-white text-[10px] font-mono text-slate-600">Ctrl</kbd>
+                  {' + '}
+                  <kbd className="px-1.5 py-0.5 rounded border border-slate-300 bg-white text-[10px] font-mono text-slate-600">Enter</kbd>
+                  {' to analyze'}
+                </span>
+              </div>
+            </div>
+
+            <button
+              onClick={handleAIParse}
+              disabled={isParsing || !localPrompt}
+              className={`lg:w-44 lg:self-start lg:h-12 px-5 py-3 rounded-xl font-semibold text-sm tracking-wide transition-all duration-200 flex items-center justify-center gap-2 ${
+                isParsing || !localPrompt
+                ? 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed'
+                : 'bg-gradient-to-r from-[#0B1220] to-[#1E2B4D] hover:from-[#16213a] hover:to-[#2a3a63] text-white shadow-[0_6px_16px_rgba(11,18,32,0.25)] hover:-translate-y-px cursor-pointer'
+              }`}
+            >
+              {isParsing ? (
+                <>
+                  <svg className="animate-spin h-4 w-4 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Analyzing...
+                </>
+              ) : (
+                <>
+                  Analyze logic
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                    <path d="M5 12h14" />
+                    <path d="M13 6l6 6-6 6" />
+                  </svg>
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* AI status message */}
+          {aiMessage && (
+            <div className={`mt-4 px-3.5 py-2.5 rounded-xl text-[13px] font-medium flex items-center gap-2 ${
+              needsInfoQuestion ? 'bg-amber-50 text-amber-900 border border-amber-200' : 'bg-emerald-50 text-emerald-900 border border-emerald-200'
+            }`}>
+              <span className={`w-2 h-2 rounded-full shrink-0 ${needsInfoQuestion ? 'bg-amber-500' : 'bg-emerald-500'}`}></span>
+              {aiMessage}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Clarification question */}
       {needsInfoQuestion && (
-        <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl mb-4 flex flex-col gap-1">
-          <h3 className="text-sm font-semibold text-amber-900">Clarification needed</h3>
-          <p className="text-sm text-amber-900/80">{needsInfoQuestion}</p>
+        <div className="ap-root bg-amber-50 border border-amber-200 border-l-4 border-l-amber-500 p-4 rounded-xl mb-4 flex flex-col gap-1">
+          <h3 className="text-sm font-bold text-amber-900">Clarification needed</h3>
+          <p className="text-[14px] text-amber-900/90 leading-relaxed">{needsInfoQuestion}</p>
         </div>
       )}
 
       {/* AI interpretation */}
       {aiExplanation && (
-        <div className="bg-white border border-slate-200 p-4 rounded-xl mb-4 shadow-[0_1px_2px_rgba(15,27,45,0.04)] animate-fade-in">
-          <h3 className="text-sm font-semibold text-[#0F1B2D] mb-2">How the AI read your strategy</h3>
-          <div className="space-y-1.5 mb-3 bg-slate-50 p-3 rounded-lg border border-slate-200">
+        <div className="ap-root bg-white border border-slate-200 p-5 rounded-2xl mb-4 shadow-[0_1px_3px_rgba(11,18,32,0.06),0_8px_24px_rgba(11,18,32,0.04)] animate-fade-in">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="w-1 h-5 rounded-full bg-gradient-to-b from-indigo-500 to-sky-500"></span>
+            <h3 className="text-[15px] font-bold text-[#0B1220] tracking-[-0.01em]">How the AI read your strategy</h3>
+          </div>
+
+          <div className="space-y-2 mb-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
             {aiExplanation.split('\n').filter(line => line.trim().length > 0).map((line, index) => {
               const cleanLine = line.replace(/^[\s*\-•\d.]+\s*/, '');
               return (
-                <div key={index} className="flex items-start gap-2 text-[13px] text-slate-700">
-                  <span className="mt-[7px] w-1 h-1 rounded-full bg-indigo-500 shrink-0"></span>
+                <div key={index} className="flex items-start gap-2.5 text-[14px] text-slate-800">
+                  <span className="mt-[2px] flex items-center justify-center w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 text-[10px] font-bold font-mono shrink-0">{index + 1}</span>
                   <p className="flex-1 leading-relaxed">{cleanLine}</p>
                 </div>
               );
@@ -392,16 +454,20 @@ const AIParseSection = ({
 
             {/* Detected legs */}
             {parsedLegs && parsedLegs.length > 0 && (
-              <div className="mt-3 pt-3 border-t border-slate-200 flex flex-col gap-2">
-                <span className="text-xs font-semibold text-slate-500 mb-0.5">Detected legs</span>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-2.5">
+              <div className="mt-4 pt-4 border-t border-slate-200 flex flex-col gap-2.5">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Detected legs</span>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                   {parsedLegs.map((leg, idx) => {
                     const isOptions = (leg.segment || 'Options').toUpperCase() === 'OPTIONS';
                     const isBuy = (leg.position || leg.action || 'BUY').toUpperCase() === 'BUY';
 
-                    const legTypeColor = isOptions
-                      ? 'border-indigo-200 bg-indigo-50/50'
-                      : 'border-sky-200 bg-sky-50/50';
+                    const legTypeColor = isBuy
+                      ? 'border-slate-200 border-l-4 border-l-emerald-500 bg-white'
+                      : 'border-slate-200 border-l-4 border-l-rose-500 bg-white';
+
+                    const segmentPill = isOptions
+                      ? 'text-indigo-700 bg-indigo-50 border-indigo-200'
+                      : 'text-sky-700 bg-sky-50 border-sky-200';
 
                     const actionColor = isBuy
                       ? 'text-emerald-700 bg-emerald-50 border-emerald-200'
@@ -419,29 +485,32 @@ const AIParseSection = ({
                     }
 
                     return (
-                      <div key={idx} className={`p-2.5 rounded-lg border ${legTypeColor} flex flex-col gap-1.5`}>
-                        <div className="flex justify-between items-center border-b border-slate-200/80 pb-1.5">
-                          <span className="text-xs font-semibold font-mono text-[#0F1B2D]">
-                            Leg {idx + 1} · {(leg.segment || 'OPTIONS').toUpperCase()}
+                      <div key={idx} className={`p-3 rounded-xl border ${legTypeColor} shadow-[0_1px_2px_rgba(11,18,32,0.04)] flex flex-col gap-2`}>
+                        <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+                          <span className="flex items-center gap-2 text-[13px] font-bold text-[#0B1220]">
+                            Leg {idx + 1}
+                            <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border ${segmentPill}`}>
+                              {(leg.segment || 'OPTIONS').toUpperCase()}
+                            </span>
                           </span>
-                          <span className={`text-[11px] font-semibold px-2 py-0.5 rounded border ${actionColor}`}>
+                          <span className={`text-[11px] font-bold font-mono px-2 py-0.5 rounded border ${actionColor}`}>
                             {(leg.position || leg.action || 'BUY').toUpperCase()} {leg.lots || 1} lot(s)
                           </span>
                         </div>
 
                         {conditionDisplay && (
-                          <div className="bg-violet-50 border border-violet-200 text-violet-800 text-[11px] font-mono px-2 py-1 rounded flex items-center gap-1.5">
-                            <span className="w-1.5 h-1.5 rounded-full bg-violet-500 animate-pulse"></span>
+                          <div className="bg-violet-50 border border-violet-200 text-violet-900 text-[11.5px] font-mono px-2.5 py-1.5 rounded-md flex items-center gap-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-violet-500 animate-pulse shrink-0"></span>
                             <span>{conditionDisplay}</span>
                           </div>
                         )}
 
-                        <div className="text-[11px] flex flex-wrap gap-1.5">
+                        <div className="grid grid-cols-2 gap-1.5">
                           {isOptions ? (
                             <>
-                              <span className={chip}>Asset <strong className="text-[#0F1B2D] font-semibold">{leg.displayTicker}</strong></span>
-                              <span className={chip}>Type <strong className="text-[#0F1B2D] font-semibold">{leg.optionType || leg.option_type || 'CE'}</strong></span>
-                              <span className={chip}>Strike <strong className="text-[#0F1B2D] font-semibold">{
+                              <div className={chip}><span className={chipLabel}>Asset</span><strong className={chipValue}>{leg.displayTicker}</strong></div>
+                              <div className={chip}><span className={chipLabel}>Type</span><strong className={chipValue}>{leg.optionType || leg.option_type || 'CE'}</strong></div>
+                              <div className={chip}><span className={chipLabel}>Strike</span><strong className={chipValue}>{
                                 (() => {
                                   const c = leg.strikeCriteria || 'Strike Type';
                                   if (c === 'Closest Premium') return `Closest Premium ₹${leg.targetPremium || 0}`;
@@ -450,14 +519,14 @@ const AIParseSection = ({
                                   if (c === 'Straddle Width') return `${leg.straddleMultiplier || 1}x Straddle ${leg.strikeType || 'OTM'}`;
                                   return `${leg.strikeType || leg.strike_type || 'ATM'}${leg.distance ? ' ' + leg.distance : ''}`;
                                 })()
-                              }</strong></span>
-                              <span className={chip}>Expiry <strong className="text-[#0F1B2D] font-semibold">{leg.expiryType || leg.expiry || 'CURRENT_WEEK'}</strong></span>
+                              }</strong></div>
+                              <div className={chip}><span className={chipLabel}>Expiry</span><strong className={chipValue}>{leg.expiryType || leg.expiry || 'CURRENT_WEEK'}</strong></div>
                             </>
                           ) : (
                             <>
-                              <span className={chip}>Asset <strong className="text-[#0F1B2D] font-semibold">{leg.displayTicker} FUT</strong></span>
-                              <span className={chip}>Target <strong className="text-[#0F1B2D] font-semibold">{leg.displayTarget || '-'} {leg.displayTargetUnit}</strong></span>
-                              <span className={chip}>SL <strong className="text-[#0F1B2D] font-semibold">{leg.displaySl || '-'} {leg.displaySlUnit}</strong></span>
+                              <div className={chip}><span className={chipLabel}>Asset</span><strong className={chipValue}>{leg.displayTicker} FUT</strong></div>
+                              <div className={chip}><span className={chipLabel}>Target</span><strong className={chipValue}>{leg.displayTarget || '-'} {leg.displayTargetUnit}</strong></div>
+                              <div className={chip}><span className={chipLabel}>SL</span><strong className={chipValue}>{leg.displaySl || '-'} {leg.displaySlUnit}</strong></div>
                             </>
                           )}
                         </div>
@@ -470,39 +539,39 @@ const AIParseSection = ({
 
             {/* Detected risk management */}
             {parsedRisk && (parsedRisk.combinedPremiumTarget || parsedRisk.combinedPremiumSL || parsedRisk.overallTarget || parsedRisk.overallSL) && (
-              <div className="mt-3 pt-3 border-t border-slate-200 flex flex-col gap-2">
-                <span className="text-xs font-semibold text-slate-500 mb-0.5">Detected risk management</span>
-                <div className="flex flex-wrap gap-2">
+              <div className="mt-4 pt-4 border-t border-slate-200 flex flex-col gap-2.5">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Detected risk management</span>
+                <div className="flex flex-wrap gap-2.5">
 
                   {parsedRisk.combinedPremiumTarget && (
-                    <div className="bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg flex flex-col">
-                      <span className="text-[10px] text-slate-500 font-medium">Combined target</span>
-                      <span className="text-sm font-semibold font-mono text-emerald-700">
-                        {parsedRisk.combinedPremiumTarget} {parsedRisk.combinedPremiumTargetUnit}
+                    <div className="bg-white border border-slate-200 border-t-4 border-t-emerald-500 px-3.5 py-2 rounded-xl flex flex-col min-w-[140px] shadow-[0_1px_2px_rgba(11,18,32,0.04)]">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Combined target</span>
+                      <span className="text-[17px] font-bold font-mono text-emerald-700 mt-0.5">
+                        {parsedRisk.combinedPremiumTarget} <span className="text-[11px] font-semibold">{parsedRisk.combinedPremiumTargetUnit}</span>
                       </span>
                     </div>
                   )}
 
                   {parsedRisk.combinedPremiumSL && (
-                    <div className="bg-rose-50 border border-rose-200 px-2.5 py-1 rounded-lg flex flex-col">
-                      <span className="text-[10px] text-slate-500 font-medium">Combined SL</span>
-                      <span className="text-sm font-semibold font-mono text-rose-700">
-                        {parsedRisk.combinedPremiumSL} {parsedRisk.combinedPremiumSLUnit}
+                    <div className="bg-white border border-slate-200 border-t-4 border-t-rose-500 px-3.5 py-2 rounded-xl flex flex-col min-w-[140px] shadow-[0_1px_2px_rgba(11,18,32,0.04)]">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Combined SL</span>
+                      <span className="text-[17px] font-bold font-mono text-rose-700 mt-0.5">
+                        {parsedRisk.combinedPremiumSL} <span className="text-[11px] font-semibold">{parsedRisk.combinedPremiumSLUnit}</span>
                       </span>
                     </div>
                   )}
 
                   {parsedRisk.overallTarget && (
-                    <div className="bg-sky-50 border border-sky-200 px-2.5 py-1 rounded-lg flex flex-col">
-                      <span className="text-[10px] text-slate-500 font-medium">Overall strategy target</span>
-                      <span className="text-sm font-semibold font-mono text-sky-700">{parsedRisk.overallTarget} {parsedRisk.overallTargetUnit}</span>
+                    <div className="bg-white border border-slate-200 border-t-4 border-t-sky-500 px-3.5 py-2 rounded-xl flex flex-col min-w-[140px] shadow-[0_1px_2px_rgba(11,18,32,0.04)]">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Overall strategy target</span>
+                      <span className="text-[17px] font-bold font-mono text-sky-700 mt-0.5">{parsedRisk.overallTarget} <span className="text-[11px] font-semibold">{parsedRisk.overallTargetUnit}</span></span>
                     </div>
                   )}
 
                   {parsedRisk.overallSL && (
-                    <div className="bg-orange-50 border border-orange-200 px-2.5 py-1 rounded-lg flex flex-col">
-                      <span className="text-[10px] text-slate-500 font-medium">Overall strategy SL</span>
-                      <span className="text-sm font-semibold font-mono text-orange-700">{parsedRisk.overallSL} {parsedRisk.overallSLUnit}</span>
+                    <div className="bg-white border border-slate-200 border-t-4 border-t-orange-500 px-3.5 py-2 rounded-xl flex flex-col min-w-[140px] shadow-[0_1px_2px_rgba(11,18,32,0.04)]">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Overall strategy SL</span>
+                      <span className="text-[17px] font-bold font-mono text-orange-700 mt-0.5">{parsedRisk.overallSL} <span className="text-[11px] font-semibold">{parsedRisk.overallSLUnit}</span></span>
                     </div>
                   )}
 
@@ -512,14 +581,14 @@ const AIParseSection = ({
           </div>
 
           {/* Confirm footer */}
-          <div className="flex items-center justify-between bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg">
-            <span className="text-xs text-slate-500">
-              {isConfirmed ? <span className="text-emerald-700 font-medium">✓ Logic validated. Ready for execution.</span> : 'Review the buying and selling parameters below, then confirm.'}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-slate-50 border border-slate-200 px-4 py-2.5 rounded-xl">
+            <span className="text-[13px] text-slate-600">
+              {isConfirmed ? <span className="text-emerald-700 font-semibold">✓ Logic validated. Ready for execution.</span> : 'Review the buying and selling parameters below, then confirm.'}
             </span>
             <button
               onClick={() => setIsConfirmed(!isConfirmed)}
-              className={`px-3.5 py-1.5 rounded-md text-xs font-semibold transition-colors cursor-pointer ${
-                isConfirmed ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100' : 'bg-[#0F1B2D] text-white hover:bg-[#1c2d47]'
+              className={`px-4 py-2 rounded-lg text-[13px] font-semibold transition-all cursor-pointer ${
+                isConfirmed ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100' : 'bg-gradient-to-r from-[#0B1220] to-[#1E2B4D] text-white shadow-sm hover:shadow-md'
               }`}
             >
               {isConfirmed ? 'Edit parameters' : 'Confirm settings'}
