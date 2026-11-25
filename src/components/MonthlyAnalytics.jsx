@@ -326,4 +326,4 @@ const MonthlyAnalytics = ({ result, withTax }) => {
   );
 };
 
-export default MonthlyAnalytics;s
+export default MonthlyAnalytics;
