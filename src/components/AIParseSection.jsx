@@ -2,8 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 
 // ─────────────────────────────────────────────────────────────
-// Small UI helpers (same look as StrategyConfig / LegsPanel)
-// Section heading sits OUTSIDE the box, every box has its own border
+// Small UI helpers
 // ─────────────────────────────────────────────────────────────
 const Section = ({ title, hint, right, children }) => (
   <section>
@@ -22,7 +21,6 @@ const Box = ({ className = '', children }) => (
   <div className={`rounded-lg border border-[#DDE2E9] bg-white p-3 ${className}`}>{children}</div>
 );
 
-// label on top, value below – used inside leg cards
 const Cell = ({ label, value, tone }) => (
   <div className="min-w-0 rounded-md border border-[#E9EDF2] bg-[#FAFBFC] px-2 py-1.5">
     <p className="text-[10px] font-medium uppercase tracking-wide text-[#7C879A]">{label}</p>
@@ -30,7 +28,6 @@ const Cell = ({ label, value, tone }) => (
   </div>
 );
 
-// risk tile
 const RiskTile = ({ label, value, unit, accent, text }) => (
   <div className={`min-w-[150px] flex-1 rounded-lg border border-[#DDE2E9] border-t-[3px] bg-white px-3 py-2 ${accent}`}>
     <p className="text-[10.5px] font-medium text-[#5B667A]">{label}</p>
@@ -39,6 +36,41 @@ const RiskTile = ({ label, value, unit, accent, text }) => (
     </p>
   </div>
 );
+
+// ─────────────────────────────────────────────────────────────
+// Helpers
+// ─────────────────────────────────────────────────────────────
+
+// Returns true only for a real, non-zero value ("", null, undefined, 0, "0", "00" => false)
+const isFilled = (v) => {
+  if (v === null || v === undefined) return false;
+  const s = String(v).trim();
+  if (s === '') return false;
+  const n = parseFloat(s);
+  if (!isNaN(n)) return n !== 0;
+  return true;
+};
+
+// Turns "65%" / "20 pts" / "500" into a number when possible
+const toNumberIfPossible = (v) => {
+  if (typeof v !== 'string') return v;
+  const n = parseFloat(v);
+  return isNaN(n) ? v : n;
+};
+
+// Detects the unit from a string value and cleans the value itself
+const parseValueUnit = (rawValue, rawUnit, defaultUnit) => {
+  let value = rawValue ?? '';
+  let unit = rawUnit || '';
+  if (typeof value === 'string') {
+    const lower = value.toLowerCase();
+    if (lower.includes('%')) unit = '%';
+    else if (lower.includes('pt') || lower.includes('point')) unit = 'Pts';
+    else if (lower.includes('rs') || lower.includes('rupee') || lower.includes('₹')) unit = 'Rs';
+    value = toNumberIfPossible(value);
+  }
+  return { value, unit: unit || defaultUnit };
+};
 
 const AIParseSection = ({
   aiPrompt, setAiPrompt, isParsing, setIsParsing,
@@ -62,9 +94,10 @@ const AIParseSection = ({
     if (aiPrompt !== localPrompt) {
       setLocalPrompt(aiPrompt || "");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [aiPrompt]);
 
-    // Auto-grow textarea (max 480px, then scroll)
+  // Auto-grow textarea (max 480px, then scroll)
   const autoResize = () => {
     const el = textareaRef.current;
     if (!el) return;
@@ -89,6 +122,7 @@ const AIParseSection = ({
     if (setAiMessage) setAiMessage(null);
     if (setAiExplanation) setAiExplanation(null);
     if (setNeedsInfoQuestion) setNeedsInfoQuestion(null);
+    if (setIsConfirmed) setIsConfirmed(false);
     setParsedLegs([]);
     setParsedRisk(null);
 
@@ -128,7 +162,7 @@ const AIParseSection = ({
               if (rawSlVal.toLowerCase().includes('pt') || rawSlVal.toLowerCase().includes('point')) slUnit = 'Pts';
               else if (rawSlVal.includes('%')) slUnit = '%';
               else if (rawSlVal.toLowerCase().includes('rs') || rawSlVal.toLowerCase().includes('rupee')) slUnit = 'Rs';
-              rawSlVal = parseFloat(rawSlVal) || rawSlVal;
+              rawSlVal = toNumberIfPossible(rawSlVal);
             }
 
             // Target value + unit
@@ -138,7 +172,7 @@ const AIParseSection = ({
               if (rawTargetVal.toLowerCase().includes('pt') || rawTargetVal.toLowerCase().includes('point')) targetUnit = 'Pts';
               else if (rawTargetVal.includes('%')) targetUnit = '%';
               else if (rawTargetVal.toLowerCase().includes('rs') || rawTargetVal.toLowerCase().includes('rupee')) targetUnit = 'Rs';
-              rawTargetVal = parseFloat(rawTargetVal) || rawTargetVal;
+              rawTargetVal = toNumberIfPossible(rawTargetVal);
             }
 
             // Fallback: exact word match for Pts
@@ -165,72 +199,56 @@ const AIParseSection = ({
         const riskObj = data.risk_management || {};
 
         // Combined target + unit
-        let rawCombTarget = data.combinedPremiumTarget ?? data.combined_premium_target ?? riskObj.combinedPremiumTarget ?? riskObj.combined_premium_target ?? '';
-        let combTargetUnit = data.combinedPremiumTargetUnit ?? data.combined_premium_target_unit ?? riskObj.combinedPremiumTargetUnit ?? riskObj.combined_premium_target_unit ?? '';
-
-        if (typeof rawCombTarget === 'string') {
-          const lowerTarget = rawCombTarget.toLowerCase();
-          if (lowerTarget.includes('%')) combTargetUnit = '%';
-          else if (lowerTarget.includes('pt') || lowerTarget.includes('point')) combTargetUnit = 'Pts';
-          else if (lowerTarget.includes('rs') || lowerTarget.includes('rupee')) combTargetUnit = 'Rs';
-          rawCombTarget = parseFloat(rawCombTarget) || rawCombTarget;
-        }
+        const combT = parseValueUnit(
+          data.combinedPremiumTarget ?? data.combined_premium_target ?? riskObj.combinedPremiumTarget ?? riskObj.combined_premium_target ?? '',
+          data.combinedPremiumTargetUnit ?? data.combined_premium_target_unit ?? riskObj.combinedPremiumTargetUnit ?? riskObj.combined_premium_target_unit ?? '',
+          ''
+        );
+        let rawCombTarget = combT.value;
+        let combTargetUnit = combT.unit;
 
         // Combined SL + unit
-        let rawCombSL = data.combinedPremiumSL ?? data.combined_premium_sl ?? riskObj.combinedPremiumSL ?? riskObj.combined_premium_sl ?? '';
-        let combSLUnit = data.combinedPremiumSLUnit ?? data.combined_premium_sl_unit ?? riskObj.combinedPremiumSLUnit ?? riskObj.combined_premium_sl_unit ?? '';
+        const combS = parseValueUnit(
+          data.combinedPremiumSL ?? data.combined_premium_sl ?? riskObj.combinedPremiumSL ?? riskObj.combined_premium_sl ?? '',
+          data.combinedPremiumSLUnit ?? data.combined_premium_sl_unit ?? riskObj.combinedPremiumSLUnit ?? riskObj.combined_premium_sl_unit ?? '',
+          ''
+        );
+        let rawCombSL = combS.value;
+        let combSLUnit = combS.unit;
 
-        if (typeof rawCombSL === 'string') {
-          const lowerSL = rawCombSL.toLowerCase();
-          if (lowerSL.includes('%')) combSLUnit = '%';
-          else if (lowerSL.includes('pt') || lowerSL.includes('point')) combSLUnit = 'Pts';
-          else if (lowerSL.includes('rs') || lowerSL.includes('rupee')) combSLUnit = 'Rs';
-          rawCombSL = parseFloat(rawCombSL) || rawCombSL;
-        }
-
-        // AI hallucination fixer: exact word match (\b) so "UniveRSal" / "oPTions" are ignored
+        // AI hallucination fixer: exact word match (\b)
         const hasPts = /\b(PT|PTS|POINT|POINTS)\b/.test(promptText);
         const hasRs = /\b(RS|RUPEE|RUPEES)\b/.test(promptText);
         const hasPercent = /(%|\bPERCENT\b)/.test(promptText);
 
         if (hasPts && !hasPercent) {
-          if (rawCombTarget) combTargetUnit = 'Pts';
-          if (rawCombSL) combSLUnit = 'Pts';
+          if (isFilled(rawCombTarget)) combTargetUnit = 'Pts';
+          if (isFilled(rawCombSL)) combSLUnit = 'Pts';
         } else if (hasRs && !hasPercent) {
-          if (rawCombTarget) combTargetUnit = 'Rs';
-          if (rawCombSL) combSLUnit = 'Rs';
+          if (isFilled(rawCombTarget)) combTargetUnit = 'Rs';
+          if (isFilled(rawCombSL)) combSLUnit = 'Rs';
         }
 
         combTargetUnit = combTargetUnit || 'Pts';
         combSLUnit = combSLUnit || 'Pts';
 
         // Overall strategy target + unit
-        let rawOverallTarget = data.overallStrategyTarget ?? data.overall_strategy_target ?? data.overallTarget ?? data.overall_target ?? riskObj.overallTarget ?? riskObj.overallStrategyTarget ?? riskObj.overall_strategy_target ?? riskObj.overall_target ?? '';
-        let overallTargetUnit = data.overallStrategyTargetUnit ?? data.overall_strategy_target_unit ?? data.overallTargetUnit ?? data.overall_target_unit ?? riskObj.overallTargetUnit ?? riskObj.overallStrategyTargetUnit ?? riskObj.overall_strategy_target_unit ?? riskObj.overall_target_unit ?? '';
-
-        if (typeof rawOverallTarget === 'string') {
-          const lowerOT = rawOverallTarget.toLowerCase();
-          if (lowerOT.includes('%')) overallTargetUnit = '%';
-          else if (lowerOT.includes('pt') || lowerOT.includes('point')) overallTargetUnit = 'Pts';
-          else if (lowerOT.includes('rs') || lowerOT.includes('rupee') || lowerOT.includes('₹')) overallTargetUnit = 'Rs';
-          rawOverallTarget = parseFloat(rawOverallTarget) || rawOverallTarget;
-        }
+        const overT = parseValueUnit(
+          data.overallStrategyTarget ?? data.overall_strategy_target ?? data.overallTarget ?? data.overall_target ?? riskObj.overallTarget ?? riskObj.overallStrategyTarget ?? riskObj.overall_strategy_target ?? riskObj.overall_target ?? '',
+          data.overallStrategyTargetUnit ?? data.overall_strategy_target_unit ?? data.overallTargetUnit ?? data.overall_target_unit ?? riskObj.overallTargetUnit ?? riskObj.overallStrategyTargetUnit ?? riskObj.overall_strategy_target_unit ?? riskObj.overall_target_unit ?? '',
+          'Rs'
+        );
+        const rawOverallTarget = overT.value;
+        const overallTargetUnit = overT.unit;
 
         // Overall strategy SL + unit
-        let rawOverallSL = data.overallStrategySL ?? data.overall_strategy_sl ?? data.overallSL ?? data.overall_sl ?? riskObj.overallSL ?? riskObj.overallStrategySL ?? riskObj.overall_strategy_sl ?? riskObj.overall_sl ?? '';
-        let overallSLUnit = data.overallStrategySLUnit ?? data.overall_strategy_sl_unit ?? data.overallSLUnit ?? data.overall_sl_unit ?? riskObj.overallSLUnit ?? riskObj.overallStrategySLUnit ?? riskObj.overall_strategy_sl_unit ?? riskObj.overall_sl_unit ?? '';
-
-        if (typeof rawOverallSL === 'string') {
-          const lowerOSL = rawOverallSL.toLowerCase();
-          if (lowerOSL.includes('%')) overallSLUnit = '%';
-          else if (lowerOSL.includes('pt') || lowerOSL.includes('point')) overallSLUnit = 'Pts';
-          else if (lowerOSL.includes('rs') || lowerOSL.includes('rupee') || lowerOSL.includes('₹')) overallSLUnit = 'Rs';
-          rawOverallSL = parseFloat(rawOverallSL) || rawOverallSL;
-        }
-
-        // Overall defaults to Rs
-        overallTargetUnit = overallTargetUnit || 'Rs';
-        overallSLUnit = overallSLUnit || 'Rs';
+        const overS = parseValueUnit(
+          data.overallStrategySL ?? data.overall_strategy_sl ?? data.overallSL ?? data.overall_sl ?? riskObj.overallSL ?? riskObj.overallStrategySL ?? riskObj.overall_strategy_sl ?? riskObj.overall_sl ?? '',
+          data.overallStrategySLUnit ?? data.overall_strategy_sl_unit ?? data.overallSLUnit ?? data.overall_sl_unit ?? riskObj.overallSLUnit ?? riskObj.overallStrategySLUnit ?? riskObj.overall_strategy_sl_unit ?? riskObj.overall_sl_unit ?? '',
+          'Rs'
+        );
+        const rawOverallSL = overS.value;
+        const overallSLUnit = overS.unit;
 
         setParsedRisk({
           combinedPremiumTarget: rawCombTarget,
@@ -320,10 +338,14 @@ const AIParseSection = ({
 
   const wordCount = (localPrompt || '').trim() ? (localPrompt || '').trim().split(/\s+/).length : 0;
 
-  const hasRisk = parsedRisk && (
-    parsedRisk.combinedPremiumTarget || parsedRisk.combinedPremiumSL ||
-    parsedRisk.overallTarget || parsedRisk.overallSL
-  );
+  // ✅ FIX: always a real boolean (never 0 / "" / null) so React never prints "0"
+  const showCombTarget = !!parsedRisk && isFilled(parsedRisk.combinedPremiumTarget);
+  const showCombSL = !!parsedRisk && isFilled(parsedRisk.combinedPremiumSL);
+  const showOverallTarget = !!parsedRisk && isFilled(parsedRisk.overallTarget);
+  const showOverallSL = !!parsedRisk && isFilled(parsedRisk.overallSL);
+  const hasRisk = showCombTarget || showCombSL || showOverallTarget || showOverallSL;
+  const hasCombined = showCombTarget || showCombSL;
+  const hasOverall = showOverallTarget || showOverallSL;
 
   // Clean the explanation into numbered steps
   const explanationLines = (aiExplanation || '')
@@ -334,7 +356,7 @@ const AIParseSection = ({
   return (
     <div className="font-ui mb-4 w-full space-y-4 rounded-2xl bg-[#F2F4F7] p-3 text-[#121A2B]">
 
-           {/* ═════════ 1. DESCRIBE YOUR STRATEGY ═════════ */}
+      {/* ═════════ 1. DESCRIBE YOUR STRATEGY ═════════ */}
       <Section
         title="Describe your strategy"
         hint="Write your trading logic in your own language."
@@ -367,7 +389,7 @@ const AIParseSection = ({
             </span>
           </div>
 
-          {/* Analyze button: centered below the textarea */}
+          {/* Analyze button */}
           <div className="mt-3 flex justify-center">
             <button
               onClick={handleAIParse}
@@ -399,7 +421,7 @@ const AIParseSection = ({
           </div>
 
           {/* Status message */}
-          {aiMessage && (
+          {aiMessage ? (
             <div className={`mt-3 flex items-center gap-2 rounded-md border px-3 py-2 text-[12px] font-medium ${
               needsInfoQuestion
                 ? 'border-[#F0D9A8] bg-[#FFF8E6] text-[#8A5A00]'
@@ -408,20 +430,20 @@ const AIParseSection = ({
               <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${needsInfoQuestion ? 'bg-[#E2B04A]' : 'bg-[#1F9D6B]'}`} />
               {aiMessage}
             </div>
-          )}
+          ) : null}
         </Box>
       </Section>
 
       {/* ═════════ CLARIFICATION NEEDED ═════════ */}
-      {needsInfoQuestion && (
+      {needsInfoQuestion ? (
         <Section title="Clarification needed" hint="AI needs one more detail to continue.">
           <div className="rounded-lg border border-[#F0D9A8] border-l-[3px] border-l-[#E2B04A] bg-[#FFF8E6] p-3">
             <p className="text-[12.5px] leading-relaxed text-[#8A5A00]">{needsInfoQuestion}</p>
           </div>
         </Section>
-      )}
+      ) : null}
 
-      {aiExplanation && (
+      {aiExplanation ? (
         <>
           {/* ═════════ 2. HOW THE AI READ IT ═════════ */}
           <Section title="How the AI read your strategy" hint="Check each line matches what you meant.">
@@ -440,7 +462,7 @@ const AIParseSection = ({
           </Section>
 
           {/* ═════════ 3. DETECTED LEGS ═════════ */}
-          {parsedLegs && parsedLegs.length > 0 && (
+          {parsedLegs.length > 0 ? (
             <Section title="Detected legs" hint={`${parsedLegs.length} leg${parsedLegs.length > 1 ? 's' : ''} found`}>
               <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-2">
                 {parsedLegs.map((leg, idx) => {
@@ -469,6 +491,9 @@ const AIParseSection = ({
                   else if (c === 'Straddle Width') strikeText = `${leg.straddleMultiplier || 1}x ${leg.strikeType || 'OTM'}`;
                   else strikeText = `${leg.strikeType || leg.strike_type || 'ATM'}${leg.distance ? ' ' + leg.distance : ''}`;
 
+                  const hasTarget = isFilled(leg.displayTarget);
+                  const hasSl = isFilled(leg.displaySl);
+
                   return (
                     <div key={idx} className="flex overflow-hidden rounded-lg border border-[#DDE2E9] bg-white">
                       {/* side colour = BUY / SELL */}
@@ -492,28 +517,28 @@ const AIParseSection = ({
                         </div>
 
                         {/* Entry condition */}
-                        {conditionDisplay && (
+                        {conditionDisplay ? (
                           <div className="mb-2 flex items-center gap-2 rounded-md border border-[#D9D3F5] bg-[#F5F3FF] px-2.5 py-1.5 text-[11.5px] font-medium text-[#4B3BA8]">
                             <span className="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-[#7C5CFF]" />
                             <span>{conditionDisplay}</span>
                           </div>
-                        )}
+                        ) : null}
 
                         {/* Details */}
                         <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">
                           <Cell label="Asset" value={isOptions ? leg.displayTicker : `${leg.displayTicker} FUT`} />
-                          {isOptions && <Cell label="Type" value={optType} />}
-                          {isOptions && <Cell label="Strike" value={strikeText} />}
-                          {isOptions && <Cell label="Expiry" value={leg.expiryType || leg.expiry || 'CURRENT_WEEK'} />}
+                          {isOptions ? <Cell label="Type" value={optType} /> : null}
+                          {isOptions ? <Cell label="Strike" value={strikeText} /> : null}
+                          {isOptions ? <Cell label="Expiry" value={leg.expiryType || leg.expiry || 'CURRENT_WEEK'} /> : null}
                           <Cell
                             label="Target"
-                            value={leg.displayTarget ? `${leg.displayTarget} ${leg.displayTargetUnit}` : '-'}
-                            tone={leg.displayTarget ? 'text-[#157550]' : 'text-[#9AA4B5]'}
+                            value={hasTarget ? `${leg.displayTarget} ${leg.displayTargetUnit}` : '-'}
+                            tone={hasTarget ? 'text-[#157550]' : 'text-[#9AA4B5]'}
                           />
                           <Cell
                             label="Stop loss"
-                            value={leg.displaySl ? `${leg.displaySl} ${leg.displaySlUnit}` : '-'}
-                            tone={leg.displaySl ? 'text-[#B42F2F]' : 'text-[#9AA4B5]'}
+                            value={hasSl ? `${leg.displaySl} ${leg.displaySlUnit}` : '-'}
+                            tone={hasSl ? 'text-[#B42F2F]' : 'text-[#9AA4B5]'}
                           />
                         </div>
                       </div>
@@ -522,54 +547,93 @@ const AIParseSection = ({
                 })}
               </div>
             </Section>
-          )}
+          ) : null}
 
           {/* ═════════ 4. DETECTED RISK MANAGEMENT ═════════ */}
-          {hasRisk && (
-            <Section title="Detected risk management" hint="Applied across all legs together.">
+          {hasRisk ? (
+            <Section title="Detected risk management" hint="Only values found in your strategy are shown.">
               <Box>
-                <div className="flex flex-wrap gap-2">
-                  {parsedRisk.combinedPremiumTarget && (
-                    <RiskTile label="Combined target" value={parsedRisk.combinedPremiumTarget} unit={parsedRisk.combinedPremiumTargetUnit} accent="border-t-[#1F9D6B]" text="text-[#157550]" />
-                  )}
-                  {parsedRisk.combinedPremiumSL && (
-                    <RiskTile label="Combined SL" value={parsedRisk.combinedPremiumSL} unit={parsedRisk.combinedPremiumSLUnit} accent="border-t-[#D64545]" text="text-[#B42F2F]" />
-                  )}
-                  {parsedRisk.overallTarget && (
-                    <RiskTile label="Overall strategy target" value={parsedRisk.overallTarget} unit={parsedRisk.overallTargetUnit} accent="border-t-[#2F5BEA]" text="text-[#2F5BEA]" />
-                  )}
-                  {parsedRisk.overallSL && (
-                    <RiskTile label="Overall strategy SL" value={parsedRisk.overallSL} unit={parsedRisk.overallSLUnit} accent="border-t-[#E2862A]" text="text-[#B8620F]" />
-                  )}
+                <div className="space-y-3">
+                  {hasCombined ? (
+                    <div>
+                      <p className="mb-1.5 text-[10.5px] font-semibold uppercase tracking-wide text-[#7C879A]">
+                        Combined premium
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {showCombTarget ? (
+                          <RiskTile
+                            label="Combined target"
+                            value={parsedRisk.combinedPremiumTarget}
+                            unit={parsedRisk.combinedPremiumTargetUnit}
+                            accent="border-t-[#1F9D6B]"
+                            text="text-[#157550]"
+                          />
+                        ) : null}
+                        {showCombSL ? (
+                          <RiskTile
+                            label="Combined stop loss"
+                            value={parsedRisk.combinedPremiumSL}
+                            unit={parsedRisk.combinedPremiumSLUnit}
+                            accent="border-t-[#D64545]"
+                            text="text-[#B42F2F]"
+                          />
+                        ) : null}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {hasOverall ? (
+                    <div>
+                      <p className="mb-1.5 text-[10.5px] font-semibold uppercase tracking-wide text-[#7C879A]">
+                        Overall strategy
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {showOverallTarget ? (
+                          <RiskTile
+                            label="Overall target"
+                            value={parsedRisk.overallTarget}
+                            unit={parsedRisk.overallTargetUnit}
+                            accent="border-t-[#1F9D6B]"
+                            text="text-[#157550]"
+                          />
+                        ) : null}
+                        {showOverallSL ? (
+                          <RiskTile
+                            label="Overall stop loss"
+                            value={parsedRisk.overallSL}
+                            unit={parsedRisk.overallSLUnit}
+                            accent="border-t-[#D64545]"
+                            text="text-[#B42F2F]"
+                          />
+                        ) : null}
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
               </Box>
             </Section>
-          )}
+          ) : null}
 
           {/* ═════════ 5. CONFIRM ═════════ */}
-          <div className={`flex flex-col justify-between gap-2 rounded-lg border px-3 py-2.5 sm:flex-row sm:items-center ${
-            isConfirmed ? 'border-[#BFE5D3] bg-[#E4F6EE]' : 'border-[#DDE2E9] bg-white'
-          }`}>
-            <span className="text-[12px]">
-              {isConfirmed
-                ? <span className="font-semibold text-[#157550]">✓ Logic validated. Ready for execution.</span>
-                : <span className="text-[#5B667A]">Review the buying and selling parameters below, then confirm.</span>}
-            </span>
-            <button
-              onClick={() => setIsConfirmed(!isConfirmed)}
-              className={`h-8 cursor-pointer rounded-md px-4 text-[12px] font-semibold transition-colors ${
-                isConfirmed
-                  ? 'border border-[#BFE5D3] bg-white text-[#157550] hover:bg-[#F2FBF7]'
-                  : 'bg-[#121A2B] text-white hover:bg-[#25314D]'
-              }`}
-            >
-              {isConfirmed ? 'Edit parameters' : 'Confirm settings'}
-            </button>
-          </div>
+          {setIsConfirmed ? (
+            <div className="flex justify-center">
+              <button
+                onClick={() => setIsConfirmed(true)}
+                disabled={isConfirmed}
+                className={`flex h-10 min-w-[200px] items-center justify-center gap-2 rounded-md px-8 text-[13px] font-semibold transition-colors ${
+                  isConfirmed
+                    ? 'cursor-default border border-[#BFE5D3] bg-[#E4F6EE] text-[#157550]'
+                    : 'cursor-pointer bg-[#1F9D6B] text-white hover:bg-[#178159]'
+                }`}
+              >
+                {isConfirmed ? '✓ Strategy confirmed' : 'Looks correct – Confirm'}
+              </button>
+            </div>
+          ) : null}
         </>
-      )}
+      ) : null}
     </div>
   );
 };
 
-export default React.memo(AIParseSection);
+export default AIParseSection;

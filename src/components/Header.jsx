@@ -1,30 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
 const Header = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
-
-  useEffect(() => {
-    // Hysteresis: collapse and expand ku vera vera threshold (blink / flicker loop thadukka)
-    const COLLAPSE_AT = 80; // 80px thaandina mattum chinna aagum
-    const EXPAND_AT = 10;   // 10px ku keela vandha mattum thirumba perusa aagum
-
-    const handleScroll = () => {
-      const y = window.scrollY;
-      setIsScrolled((prev) => {
-        if (!prev && y > COLLAPSE_AT) return true;
-        if (prev && y < EXPAND_AT) return false;
-        return prev;
-      });
-    };
-
-    handleScroll();
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   return (
     <>
-      {/* Smooth Floating Animations (subtle, and switched off for reduced-motion users) */}
+      {/* Smooth floating animations (subtle, switched off for reduced-motion users) */}
       <style>
         {`
           @keyframes floatSlow {
@@ -44,13 +23,8 @@ const Header = () => {
         `}
       </style>
 
-      {/* sticky just below the 56px top nav */}
-      <header
-        className={`sticky top-14 z-40 mb-3 w-full rounded-xl border border-[#DDE2E9] bg-white/90 backdrop-blur-md transition-all duration-300 ease-in-out ${
-          isScrolled ? 'py-1.5 shadow-[0_6px_20px_rgba(18,26,43,0.08)]' : 'py-3'
-        }`}
-      >
-        {/* MAIN CONTAINER */}
+      {/* Normal (non-sticky) header: scrolls away with the page so it never covers content */}
+      <header className="relative mb-3 w-full rounded-xl border border-[#DDE2E9] bg-white py-3">
         <div className="relative z-10 mx-auto flex w-full max-w-[1500px] flex-row items-center justify-between gap-3 px-4 sm:gap-6 md:px-8">
 
           {/* Left Image (Brain) */}
@@ -58,28 +32,17 @@ const Header = () => {
             <img
               src="/image/header left.png"
               alt="AI Brain"
-              className={`object-contain drop-shadow-[0_4px_10px_rgba(18,26,43,0.18)] transition-all duration-300 ${
-                isScrolled ? 'h-10 w-10 sm:h-12 sm:w-12' : 'h-16 w-16 sm:h-20 sm:w-20 lg:h-24 lg:w-24'
-              }`}
+              className="h-16 w-16 object-contain drop-shadow-[0_4px_10px_rgba(18,26,43,0.18)] sm:h-20 sm:w-20 lg:h-24 lg:w-24"
             />
           </div>
 
           {/* Center Text Content */}
           <div className="mx-auto flex max-w-2xl flex-1 flex-col items-center justify-center px-2 text-center">
-            <h2
-              className={`font-semibold leading-tight tracking-[-0.01em] text-[#121A2B] transition-all duration-300 ${
-                isScrolled ? 'text-sm sm:text-base lg:text-lg' : 'text-base sm:text-xl lg:text-[24px]'
-              }`}
-            >
+            <h2 className="text-base font-semibold leading-tight tracking-[-0.01em] text-[#121A2B] sm:text-xl lg:text-[24px]">
               Code-free custom strategies, powered by AI.
             </h2>
 
-            {/* Subtext & Badge - Smooth max-height transition to avoid scroll bugs */}
-            <div
-              className={`overflow-hidden transition-all duration-500 ease-in-out ${
-                isScrolled ? 'pointer-events-none mt-0 max-h-0 opacity-0' : 'mt-1.5 max-h-[300px] opacity-100'
-              }`}
-            >
+            <div className="mt-1.5">
               <p className="mb-2 text-[12px] font-normal leading-relaxed text-[#5B667A] sm:text-[13px]">
                 Explain your strategy in your own words, in English, Tamil or Tanglish. The AI engine builds a professional-grade Python backtest in seconds.
               </p>
@@ -95,9 +58,7 @@ const Header = () => {
             <img
               src="/image/header right.png"
               alt="Bull Market"
-              className={`object-contain drop-shadow-[0_4px_10px_rgba(18,26,43,0.18)] transition-all duration-300 ${
-                isScrolled ? 'h-10 w-10 sm:h-12 sm:w-12' : 'h-16 w-16 sm:h-20 sm:w-20 lg:h-24 lg:w-24'
-              }`}
+              className="h-16 w-16 object-contain drop-shadow-[0_4px_10px_rgba(18,26,43,0.18)] sm:h-20 sm:w-20 lg:h-24 lg:w-24"
             />
           </div>
 

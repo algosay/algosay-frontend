@@ -151,6 +151,7 @@ const StrategyConfig = ({
   };
 
   const { totalMargin, ceQty, peQty } = calculateLiveMargin(legs, { timeLoopLimit });
+  const marginText = Number(totalMargin || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 });
 
   return (
     <div className="font-ui w-full animate-fade-in space-y-4 rounded-2xl bg-[#F2F4F7] p-3 text-[#121A2B]">
@@ -319,15 +320,15 @@ const StrategyConfig = ({
         </div>
       </Section>
 
-      {/* ───── Live margin bar ───── */}
-      <div className="sticky bottom-2 z-10 flex items-center justify-between gap-4 rounded-xl border border-[#25314D] bg-[#121A2B] px-4 py-2.5 text-white shadow-[0_8px_24px_rgba(18,26,43,0.28)]">
+      {/* ───── Live margin bar (normal flow – NOT sticky, so it never covers the screen) ───── */}
+      <div className="flex items-center justify-between gap-4 rounded-xl border border-[#25314D] bg-[#121A2B] px-4 py-2.5 text-white">
         <div>
           <p className="text-[11.5px] font-semibold">Estimated margin required</p>
-          <p className="text-[10.5px] text-[#9AA4B5]">
-            Based on your current legs · CE qty <span className="font-num font-semibold text-white">{ceQty}</span> · PE qty <span className="font-num font-semibold text-white">{peQty}</span>
+          <p className="font-num text-[10.5px] text-[#AEB8CC]">
+            CE qty {ceQty || 0} · PE qty {peQty || 0} · Loop limit {timeLoopLimit || 1}
           </p>
         </div>
-        <p className="font-num text-[20px] font-semibold tabular-nums">₹{totalMargin.toLocaleString('en-IN')}</p>
+        <p className="font-num text-[18px] font-semibold tabular-nums">₹ {marginText}</p>
       </div>
 
     </div>
