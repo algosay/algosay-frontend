@@ -4,15 +4,20 @@ const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
+    // Hysteresis: collapse and expand ku vera vera threshold (blink / flicker loop thadukka)
+    const COLLAPSE_AT = 80; // 80px thaandina mattum chinna aagum
+    const EXPAND_AT = 10;   // 10px ku keela vandha mattum thirumba perusa aagum
+
     const handleScroll = () => {
-      // 30px scroll panna mattum trigger aagum
-      if (window.scrollY > 30) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
+      const y = window.scrollY;
+      setIsScrolled((prev) => {
+        if (!prev && y > COLLAPSE_AT) return true;
+        if (prev && y < EXPAND_AT) return false;
+        return prev;
+      });
     };
 
+    handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
