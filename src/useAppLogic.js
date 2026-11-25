@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { auth, db, getUserCredits, deductUserCredit, saveUserStrategy, getUserStrategies, deleteUserStrategy } from './firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore'; 
+import { normalizeCriteria } from './components/utils';
 
 // 🎯 INDEX STEP SIZE LOOKUP FOR DYNAMIC DISTANCE CALCULATIONS
 const INDEX_STEP_SIZES = {
@@ -319,6 +320,7 @@ export const useAppLogic = () => {
 
         const currentAsset = finalTicker || leg.ticker || leg.asset || 'NIFTY';
         const stepSize = INDEX_STEP_SIZES[currentAsset] || 50;
+        const resolvedCriteria = isOptions ? normalizeCriteria(leg.strikeCriteria || leg.strike_criteria) : '';
 
         let resolvedDistance = leg.distance !== undefined ? leg.distance : (leg.strikeDistance !== undefined ? leg.strikeDistance : (leg.strike_distance !== undefined ? leg.strike_distance : '')); 
         
@@ -342,14 +344,14 @@ export const useAppLogic = () => {
           optionType: isOptions ? (leg.optionType || leg.option_type || '') : '', 
           expiry: isOptions ? resolvedExpiryType : '', 
           expiryType: isOptions ? resolvedExpiryType : '',
-          strikeCriteria: isOptions ? (leg.strikeCriteria || leg.strike_criteria || '') : '',
+          strikeCriteria: resolvedCriteria,
           targetPremium: isOptions ? (leg.targetPremium || leg.target_premium || leg.premium || '') : '',
           lowerPremium: isOptions ? (leg.lowerPremium || leg.lower_premium || '') : '',
           upperPremium: isOptions ? (leg.upperPremium || leg.upper_premium || '') : '',
           spotPercent: isOptions ? (leg.spotPercent ?? leg.spot_percent ?? '') : '',
           straddleMultiplier: isOptions ? (leg.straddleMultiplier ?? leg.straddle_multiplier ?? 1) : '',
           
-          strikeType: isOptions ? (leg.strikeType || leg.strike_type || '') : '',
+          strikeType: isOptions ? (leg.strikeType || leg.strike_type || (resolvedCriteria === '% of Spot' || resolvedCriteria === 'Straddle Width' ? 'OTM' : '')) : '',
           strikeDistance: isOptions ? resolvedDistance : '',
           strike_offset: 0, 
 
@@ -588,7 +590,7 @@ export const useAppLogic = () => {
       user_id: user?.uid || "guest_123", 
       data_source: dataSource,            
       fyers_access_token: fyersToken,     
-       strategy_text: "",
+      strategy_text: aiPrompt,
       is_dynamic: conditionBasedLoop, 
       timeframe: timeframe, 
       instrument_settings: { ticker, timeframe, underlyingFrom, qty, transactionType },

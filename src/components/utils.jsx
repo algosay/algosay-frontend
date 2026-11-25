@@ -2,8 +2,10 @@
 export const normalizeCriteria = (criteria) => {
   if (!criteria) return 'Strike Type';
   const c = criteria.toString().toLowerCase().trim();
-  if (c.includes('closest') || c.includes('premium')) return 'Closest Premium';
   if (c.includes('range')) return 'Premium Range';
+  if (c.includes('closest') || c.includes('premium')) return 'Closest Premium';
+  if (c.includes('straddle')) return 'Straddle Width';
+  if (c.includes('spot') || c.includes('percent') || c.includes('%')) return '% of Spot';
   return 'Strike Type';
 };
 
