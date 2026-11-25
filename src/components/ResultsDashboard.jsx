@@ -12,6 +12,49 @@ import DayWiseBreakup from './DayWiseBreakup';
 
 const allDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
+// ---------- Negative value detection (loss -> red) ----------
+// Matches: -1,234 | -₹1,234 | ₹-1,234 | −5.2% | (1,234) | (-5%)
+const NEG_RE = /^\(?\s*(?:[₹$]\s*)?[-−–]\s*(?:[₹$]\s*)?\d/;
+const PAREN_RE = /^\(\s*(?:[₹$]\s*)?\d[\d,]*\.?\d*\s*\)\s*%?$/;
+const SKIP_TAGS = new Set(['STYLE', 'SCRIPT', 'TEXTAREA', 'INPUT']);
+
+const isNegativeText = (raw) => {
+  const t = (raw || '').trim();
+  if (!t) return false;
+  if (!(NEG_RE.test(t) || PAREN_RE.test(t))) return false;
+  const m = t.match(/\d[\d,]*\.?\d*/);
+  if (!m) return false;
+  return parseFloat(m[0].replace(/,/g, '')) !== 0; // -0.00 is not a loss
+};
+
+const paintNegatives = (root) => {
+  if (!root) return;
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode: (node) => {
+      const p = node.parentElement;
+      if (!p) return NodeFilter.FILTER_REJECT;
+      if (SKIP_TAGS.has(p.tagName)) return NodeFilter.FILTER_REJECT;
+      if (p.closest('[data-no-neg]')) return NodeFilter.FILTER_REJECT;
+      return NodeFilter.FILTER_ACCEPT;
+    }
+  });
+
+  let node;
+  while ((node = walker.nextNode())) {
+    const parent = node.parentElement;
+    if (!parent || parent === root) continue;
+    const text = node.nodeValue;
+    if (!text || !text.trim()) continue;
+
+    if (isNegativeText(text)) {
+      parent.classList.add('neg-red');
+    } else if (parent.classList.contains('neg-red') && !isNegativeText(parent.textContent)) {
+      // value changed from negative to positive/other -> remove stale red
+      parent.classList.remove('neg-red');
+    }
+  }
+};
+
 const ResultsDashboard = ({ result, withTax, setWithTax }) => {
   const [aiAdvice, setAiAdvice] = useState(result?.ai_advice || null);
   const [isLoadingAI, setIsLoadingAI] = useState(false);
@@ -36,6 +79,8 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
   const availableDTEs = useMemo(() => {
     return [...new Set(originalLedger.map(row => row.DTE))].sort((a, b) => a - b);
   }, [originalLedger]);
+
+  const hasData = !!result && originalLedger.length > 0;
 
   const [selectedDays, setSelectedDays] = useState(allDays);
 
@@ -120,6 +165,31 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
     filterAndRecalculate();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDays, selectedDTEs]);
+
+  // Paint every negative number red (tables, cards, charts, tooltips)
+  useEffect(() => {
+    const root = dashboardRef.current;
+    if (!root) return undefined;
+
+    let rafId = null;
+    const schedule = () => {
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => paintNegatives(root));
+    };
+
+    schedule();
+
+    // Re-run whenever child components re-render / hover tooltips appear.
+    // Only childList + characterData are observed (class changes are not),
+    // so adding the red class can never trigger an infinite loop.
+    const observer = new MutationObserver(schedule);
+    observer.observe(root, { childList: true, subtree: true, characterData: true });
+
+    return () => {
+      observer.disconnect();
+      if (rafId) cancelAnimationFrame(rafId);
+    };
+  }, [hasData]);
 
   const handleDayToggle = (day) => {
     setSelectedDays(prev =>
@@ -352,7 +422,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
   };
 
   // No result / zero trades -> render nothing (empty-state card removed)
-  if (!result || originalLedger.length === 0) {
+  if (!hasData) {
     return null;
   }
 
@@ -363,7 +433,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
       className={`rd-root w-full animate-fade-in pb-16 ${isExporting ? 'pdf-export-mode' : ''}`}
       ref={dashboardRef}
     >
-      {/* Global typography: clean professional font + aligned (tabular) numbers */}
+      {/* Global typography + negative (loss) red styling */}
       <style>
         {`
           @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -373,7 +443,6 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
           }
 
-          /* Override any monospace/terminal-style font used in child components */
           .rd-root .font-mono,
           .rd-root code,
           .rd-root pre,
@@ -382,7 +451,6 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
           }
 
-          /* Numbers stay perfectly aligned in columns, but look clean */
           .rd-root {
             font-variant-numeric: tabular-nums lining-nums;
             font-feature-settings: 'tnum' 1, 'lnum' 1, 'cv11' 1;
@@ -391,7 +459,6 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
             text-rendering: optimizeLegibility;
           }
 
-          /* Chart axis labels, tooltips, ticks (SVG text) */
           .rd-root svg text,
           .rd-root .recharts-text,
           .rd-root .recharts-tooltip-wrapper,
@@ -403,6 +470,18 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
           .rd-root table td,
           .rd-root table th {
             font-variant-numeric: tabular-nums lining-nums;
+          }
+
+          /* Loss / negative values -> always red */
+          .rd-root .neg-red {
+            color: #DC2626 !important;
+          }
+          .rd-root svg .neg-red,
+          .rd-root svg text.neg-red,
+          .rd-root svg tspan.neg-red,
+          .rd-root svg text .neg-red {
+            fill: #DC2626 !important;
+            color: #DC2626 !important;
           }
         `}
       </style>
@@ -595,7 +674,10 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
           </div>
 
           {aiAdvice && (
-            <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 text-sm whitespace-pre-wrap leading-relaxed">
+            <div
+              data-no-neg="true"
+              className="p-4 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 text-sm whitespace-pre-wrap leading-relaxed"
+            >
               {aiAdvice}
             </div>
           )}
