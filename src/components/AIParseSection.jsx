@@ -1,38 +1,75 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 
-const AIParseSection = ({ 
-  aiPrompt, setAiPrompt, isParsing, setIsParsing, 
-  aiMessage, setAiMessage,             
-  needsInfoQuestion, setNeedsInfoQuestion, 
-  aiExplanation, setAiExplanation,         
+// ─────────────────────────────────────────────────────────────
+// Small UI helpers (same look as StrategyConfig / LegsPanel)
+// Section heading sits OUTSIDE the box, every box has its own border
+// ─────────────────────────────────────────────────────────────
+const Section = ({ title, hint, right, children }) => (
+  <section>
+    <div className="mb-1.5 flex items-center justify-between gap-2 px-0.5">
+      <div className="flex min-w-0 items-baseline gap-2">
+        <h3 className="text-[13px] font-semibold text-[#121A2B]">{title}</h3>
+        {hint && <span className="truncate text-[11px] text-[#7C879A]">{hint}</span>}
+      </div>
+      {right}
+    </div>
+    {children}
+  </section>
+);
+
+const Box = ({ className = '', children }) => (
+  <div className={`rounded-lg border border-[#DDE2E9] bg-white p-3 ${className}`}>{children}</div>
+);
+
+// label on top, value below – used inside leg cards
+const Cell = ({ label, value, tone }) => (
+  <div className="min-w-0 rounded-md border border-[#E9EDF2] bg-[#FAFBFC] px-2 py-1.5">
+    <p className="text-[10px] font-medium uppercase tracking-wide text-[#7C879A]">{label}</p>
+    <p className={`font-num truncate text-[12px] font-semibold ${tone || 'text-[#121A2B]'}`}>{value}</p>
+  </div>
+);
+
+// risk tile
+const RiskTile = ({ label, value, unit, accent, text }) => (
+  <div className={`min-w-[150px] flex-1 rounded-lg border border-[#DDE2E9] border-t-[3px] bg-white px-3 py-2 ${accent}`}>
+    <p className="text-[10.5px] font-medium text-[#5B667A]">{label}</p>
+    <p className={`font-num mt-0.5 text-[16px] font-semibold tabular-nums ${text}`}>
+      {value} <span className="text-[11px] font-medium">{unit}</span>
+    </p>
+  </div>
+);
+
+const AIParseSection = ({
+  aiPrompt, setAiPrompt, isParsing, setIsParsing,
+  aiMessage, setAiMessage,
+  needsInfoQuestion, setNeedsInfoQuestion,
+  aiExplanation, setAiExplanation,
   isConfirmed, setIsConfirmed,
-  onParsedDataSuccess                  
+  onParsedDataSuccess
 }) => {
 
-  // 🛠️ FIX: Local state added to prevent focus loss during heavy parent re-renders
+  // Local state prevents focus loss during heavy parent re-renders
   const [localPrompt, setLocalPrompt] = useState(aiPrompt || "");
   const textareaRef = useRef(null);
 
-  // 🚨 State to hold and display parsed legs clearly before confirmation
+  // Parsed legs + risk for preview before confirmation
   const [parsedLegs, setParsedLegs] = useState([]);
-  
-  // 🟢 State to hold Risk Management (Combined SL/Target) for Dynamic UI Preview
   const [parsedRisk, setParsedRisk] = useState(null);
 
-  // Sync external prompt changes (e.g., if a template is loaded from parent) to local state
+  // Sync external prompt changes (e.g. template loaded by parent)
   useEffect(() => {
     if (aiPrompt !== localPrompt) {
       setLocalPrompt(aiPrompt || "");
     }
   }, [aiPrompt]);
 
-  // 📏 Auto-grow textarea: content ku thagundha maari height maarum (max 480px, adhukku mela scroll)
+  // Auto-grow textarea (max 360px, then scroll)
   const autoResize = () => {
     const el = textareaRef.current;
     if (!el) return;
     el.style.height = 'auto';
-    el.style.height = Math.min(el.scrollHeight, 480) + 'px';
+    el.style.height = Math.min(el.scrollHeight, 360) + 'px';
   };
 
   useEffect(() => {
@@ -41,39 +78,39 @@ const AIParseSection = ({
 
   const handleTextChange = (e) => {
     const val = e.target.value;
-    setLocalPrompt(val); // Update local state instantly so typing is smooth
-    if (setAiPrompt) setAiPrompt(val); // Pass to parent silently
+    setLocalPrompt(val);
+    if (setAiPrompt) setAiPrompt(val);
   };
 
   const handleAIParse = async () => {
     setIsParsing(true);
-    
+
     // Clear previous results
-    if(setAiMessage) setAiMessage(null);
-    if(setAiExplanation) setAiExplanation(null);
-    if(setNeedsInfoQuestion) setNeedsInfoQuestion(null);
-    setParsedLegs([]); 
-    setParsedRisk(null); // 🟢 Clear previous risk data
+    if (setAiMessage) setAiMessage(null);
+    if (setAiExplanation) setAiExplanation(null);
+    if (setNeedsInfoQuestion) setNeedsInfoQuestion(null);
+    setParsedLegs([]);
+    setParsedRisk(null);
 
     try {
       const response = await axios.post("https://algosay-backend.onrender.com/parse_strategy", {
-        prompt: localPrompt // using localPrompt here for safety
+        prompt: localPrompt
       });
-      
+
       const data = response.data;
-      const promptText = (localPrompt || '').toUpperCase(); // 🚀 Declared early for global use
+      const promptText = (localPrompt || '').toUpperCase();
 
       if (data.status === "success") {
-        if(setAiExplanation) setAiExplanation(data.explanation);
-        if(setAiMessage) setAiMessage("Strategy Auto-Mapped Successfully! ✨");
-        
-        // 🚨 SMART EXTRACTION LOGIC FOR UI PREVIEW
+        if (setAiExplanation) setAiExplanation(data.explanation);
+        if (setAiMessage) setAiMessage("Strategy auto-mapped successfully");
+
+        // ── Smart extraction for UI preview ──
         let enhancedLegs = [];
-        if(data.legs && Array.isArray(data.legs)) {
-          
+        if (data.legs && Array.isArray(data.legs)) {
+
           let extractedTicker = '';
-          
-          // Identify EXACT asset from User Prompt dynamically
+
+          // Identify exact asset from the user prompt
           if (promptText.includes('MIDCPNIFTY') || promptText.includes('MIDCAP')) extractedTicker = 'MIDCPNIFTY';
           else if (promptText.includes('FINNIFTY') || promptText.includes('FIN NIFTY')) extractedTicker = 'FINNIFTY';
           else if (promptText.includes('BANKNIFTY') || promptText.includes('BANK NIFTY')) extractedTicker = 'BANKNIFTY';
@@ -82,10 +119,9 @@ const AIParseSection = ({
           else if (promptText.includes('NIFTY')) extractedTicker = 'NIFTY';
 
           enhancedLegs = data.legs.map(leg => {
-            // Force the exact ticker user asked for
             const finalTicker = extractedTicker || leg.ticker || leg.asset || 'NIFTY';
-            
-            // Smart Extraction for Stoploss Units (Pts vs %)
+
+            // Stoploss value + unit
             let rawSlVal = leg.stopLoss ?? leg.stop_loss ?? '';
             let slUnit = leg.slUnit || leg.sl_unit || leg.stopLossUnit || leg.stop_loss_unit || 'Pts';
             if (typeof rawSlVal === 'string') {
@@ -95,7 +131,7 @@ const AIParseSection = ({
               rawSlVal = parseFloat(rawSlVal) || rawSlVal;
             }
 
-            // Smart Extraction for Target Units (Pts vs %)
+            // Target value + unit
             let rawTargetVal = leg.target ?? '';
             let targetUnit = leg.targetUnit || leg.target_unit || 'Pts';
             if (typeof rawTargetVal === 'string') {
@@ -105,7 +141,7 @@ const AIParseSection = ({
               rawTargetVal = parseFloat(rawTargetVal) || rawTargetVal;
             }
 
-            // Fallback: Exact word matching for Pts in Legs
+            // Fallback: exact word match for Pts
             const hasPtsLeg = /\b(PT|PTS|POINT|POINTS)\b/.test(promptText);
             if (hasPtsLeg) {
               if (!leg.target_unit && !leg.targetUnit && typeof leg.target !== 'string') targetUnit = 'Pts';
@@ -125,14 +161,13 @@ const AIParseSection = ({
           setParsedLegs(enhancedLegs);
         }
 
-        // 🟢 DYNAMIC RISK MANAGEMENT EXTRACTION FOR PREVIEW UI 
+        // ── Risk management extraction ──
         const riskObj = data.risk_management || {};
-        
-        // 🚀 SMART EXTRACTION FOR COMBINED TARGET & UNIT
+
+        // Combined target + unit
         let rawCombTarget = data.combinedPremiumTarget ?? data.combined_premium_target ?? riskObj.combinedPremiumTarget ?? riskObj.combined_premium_target ?? '';
         let combTargetUnit = data.combinedPremiumTargetUnit ?? data.combined_premium_target_unit ?? riskObj.combinedPremiumTargetUnit ?? riskObj.combined_premium_target_unit ?? '';
-        
-        // Check inside string if backend sends value + unit together (e.g., "50 pts")
+
         if (typeof rawCombTarget === 'string') {
           const lowerTarget = rawCombTarget.toLowerCase();
           if (lowerTarget.includes('%')) combTargetUnit = '%';
@@ -141,11 +176,10 @@ const AIParseSection = ({
           rawCombTarget = parseFloat(rawCombTarget) || rawCombTarget;
         }
 
-        // 🚀 SMART EXTRACTION FOR COMBINED SL & UNIT
+        // Combined SL + unit
         let rawCombSL = data.combinedPremiumSL ?? data.combined_premium_sl ?? riskObj.combinedPremiumSL ?? riskObj.combined_premium_sl ?? '';
         let combSLUnit = data.combinedPremiumSLUnit ?? data.combined_premium_sl_unit ?? riskObj.combinedPremiumSLUnit ?? riskObj.combined_premium_sl_unit ?? '';
-        
-        // Check inside string if backend sends value + unit together (e.g., "20 %")
+
         if (typeof rawCombSL === 'string') {
           const lowerSL = rawCombSL.toLowerCase();
           if (lowerSL.includes('%')) combSLUnit = '%';
@@ -154,8 +188,7 @@ const AIParseSection = ({
           rawCombSL = parseFloat(rawCombSL) || rawCombSL;
         }
 
-        // 🧠 AI HALLUCINATION FIXER: FORCE OVERRIDE (🚀 EXACT WORD MATCH FIX)
-        // \b (Word Boundary) செக் செய்வதால் "UniveRSal" அல்லது "oPTions" என்ற வார்த்தைகளுக்குள் உள்ள RS, PT-ஐ எடுக்காது.
+        // AI hallucination fixer: exact word match (\b) so "UniveRSal" / "oPTions" are ignored
         const hasPts = /\b(PT|PTS|POINT|POINTS)\b/.test(promptText);
         const hasRs = /\b(RS|RUPEE|RUPEES)\b/.test(promptText);
         const hasPercent = /(%|\bPERCENT\b)/.test(promptText);
@@ -168,11 +201,10 @@ const AIParseSection = ({
           if (rawCombSL) combSLUnit = 'Rs';
         }
 
-        // Final safety fallback
         combTargetUnit = combTargetUnit || 'Pts';
         combSLUnit = combSLUnit || 'Pts';
 
-        // 🚀 SMART EXTRACTION FOR OVERALL STRATEGY TARGET & UNIT (top-level + risk_management, camel + snake case)
+        // Overall strategy target + unit
         let rawOverallTarget = data.overallStrategyTarget ?? data.overall_strategy_target ?? data.overallTarget ?? data.overall_target ?? riskObj.overallTarget ?? riskObj.overallStrategyTarget ?? riskObj.overall_strategy_target ?? riskObj.overall_target ?? '';
         let overallTargetUnit = data.overallStrategyTargetUnit ?? data.overall_strategy_target_unit ?? data.overallTargetUnit ?? data.overall_target_unit ?? riskObj.overallTargetUnit ?? riskObj.overallStrategyTargetUnit ?? riskObj.overall_strategy_target_unit ?? riskObj.overall_target_unit ?? '';
 
@@ -184,7 +216,7 @@ const AIParseSection = ({
           rawOverallTarget = parseFloat(rawOverallTarget) || rawOverallTarget;
         }
 
-        // 🚀 SMART EXTRACTION FOR OVERALL STRATEGY SL & UNIT
+        // Overall strategy SL + unit
         let rawOverallSL = data.overallStrategySL ?? data.overall_strategy_sl ?? data.overallSL ?? data.overall_sl ?? riskObj.overallSL ?? riskObj.overallStrategySL ?? riskObj.overall_strategy_sl ?? riskObj.overall_sl ?? '';
         let overallSLUnit = data.overallStrategySLUnit ?? data.overall_strategy_sl_unit ?? data.overallSLUnit ?? data.overall_sl_unit ?? riskObj.overallSLUnit ?? riskObj.overallStrategySLUnit ?? riskObj.overall_strategy_sl_unit ?? riskObj.overall_sl_unit ?? '';
 
@@ -196,11 +228,11 @@ const AIParseSection = ({
           rawOverallSL = parseFloat(rawOverallSL) || rawOverallSL;
         }
 
-        // Final safety fallback (Overall defaults to Rs)
+        // Overall defaults to Rs
         overallTargetUnit = overallTargetUnit || 'Rs';
         overallSLUnit = overallSLUnit || 'Rs';
 
-        const extractedRisk = {
+        setParsedRisk({
           combinedPremiumTarget: rawCombTarget,
           combinedPremiumTargetUnit: combTargetUnit,
           combinedPremiumSL: rawCombSL,
@@ -209,10 +241,9 @@ const AIParseSection = ({
           overallTargetUnit: overallTargetUnit,
           overallSL: rawOverallSL,
           overallSLUnit: overallSLUnit
-        };
-        setParsedRisk(extractedRisk);
+        });
 
-        // 🚨 CRITICAL FIX: INJECT FIXED UNITS BACK INTO `data` BEFORE PASSING TO PARENT!
+        // Inject fixed units back into `data` BEFORE passing to parent
         data.combined_premium_target = rawCombTarget;
         data.combined_premium_target_unit = combTargetUnit;
         data.combinedPremiumTarget = rawCombTarget;
@@ -222,7 +253,7 @@ const AIParseSection = ({
         data.combined_premium_sl_unit = combSLUnit;
         data.combinedPremiumSL = rawCombSL;
         data.combinedPremiumSLUnit = combSLUnit;
-        
+
         if (!data.risk_management) data.risk_management = {};
         data.risk_management.combined_premium_target = rawCombTarget;
         data.risk_management.combined_premium_target_unit = combTargetUnit;
@@ -234,7 +265,7 @@ const AIParseSection = ({
         data.risk_management.combinedPremiumSL = rawCombSL;
         data.risk_management.combinedPremiumSLUnit = combSLUnit;
 
-        // 🚨 INJECT OVERALL TARGET / SL (+ UNITS) INTO `data` SO PARENT AUTO-FILLS THE OVERALL RISK UI
+        // Overall target / SL (+ units) so parent auto-fills the overall risk UI
         data.overall_strategy_target = rawOverallTarget;
         data.overallStrategyTarget = rawOverallTarget;
         data.overall_strategy_target_unit = overallTargetUnit;
@@ -261,26 +292,25 @@ const AIParseSection = ({
         data.risk_management.overallStrategySLUnit = overallSLUnit;
         data.risk_management.overallSLUnit = overallSLUnit;
 
-        // Enhanced Legs details passed back to parent
         if (enhancedLegs.length > 0) {
           data.legs = enhancedLegs;
         }
 
-        if(onParsedDataSuccess) onParsedDataSuccess(data);
-        
+        if (onParsedDataSuccess) onParsedDataSuccess(data);
+
       } else {
-        if(setNeedsInfoQuestion) setNeedsInfoQuestion(data.message || "Can you specify the timeframe?");
+        if (setNeedsInfoQuestion) setNeedsInfoQuestion(data.message || "Can you specify the timeframe?");
       }
-      
+
     } catch (error) {
       console.error("Error connecting to AI:", error);
-      if(setAiMessage) setAiMessage("Failed to parse strategy. Please try again.");
+      if (setAiMessage) setAiMessage("Failed to parse strategy. Please try again.");
     } finally {
       setIsParsing(false);
     }
   };
 
-  // ⌨️ Ctrl+Enter / ⌘+Enter = Analyze logic shortcut
+  // Ctrl+Enter / Cmd+Enter = Analyze
   const handleKeyDown = (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && !isParsing && localPrompt) {
       e.preventDefault();
@@ -288,97 +318,51 @@ const AIParseSection = ({
     }
   };
 
-  // Spec-cell styles for leg cards (label on top, value below)
-  const chip = "bg-white px-2.5 py-1.5 rounded-md border border-slate-200 flex flex-col gap-0.5 min-w-0";
-  const chipLabel = "text-[10px] font-semibold uppercase tracking-wider text-slate-500";
-  const chipValue = "text-[12.5px] font-semibold text-[#0B1220] font-mono truncate";
-
   const wordCount = (localPrompt || '').trim() ? (localPrompt || '').trim().split(/\s+/).length : 0;
 
+  const hasRisk = parsedRisk && (
+    parsedRisk.combinedPremiumTarget || parsedRisk.combinedPremiumSL ||
+    parsedRisk.overallTarget || parsedRisk.overallSL
+  );
+
+  // Clean the explanation into numbered steps
+  const explanationLines = (aiExplanation || '')
+    .split('\n')
+    .filter((line) => line.trim().length > 0)
+    .map((line) => line.replace(/^[\s*\-•\d.]+\s*/, ''));
+
   return (
-    <>
-      {/* Font setup (Inter for UI, JetBrains Mono for numbers) */}
-      <style>
-        {`
-          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap');
+    <div className="font-ui mb-4 w-full space-y-4 rounded-2xl bg-[#F2F4F7] p-3 text-[#121A2B]">
 
-          .ap-root {
-            font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-            -webkit-font-smoothing: antialiased;
-          }
-          .ap-root .font-mono {
-            font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-            font-variant-numeric: tabular-nums;
-          }
-        `}
-      </style>
-
-      {/* MAIN AI INPUT SECTION */}
-      <div className="ap-root w-full bg-white border border-slate-200 rounded-2xl mb-4 shadow-[0_1px_3px_rgba(11,18,32,0.06),0_8px_24px_rgba(11,18,32,0.04)] relative z-10 overflow-hidden">
-
-        {/* Top accent bar */}
-        <div className="h-1 w-full bg-gradient-to-r from-indigo-500 via-violet-500 to-sky-500"></div>
-
-        <div className="p-5">
-
-          {/* Header row */}
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3 mb-4">
-            <div className="flex items-center gap-3.5">
-              <div className="flex items-center justify-center w-11 h-11 rounded-xl bg-gradient-to-br from-[#0B1220] to-[#1E2B4D] shrink-0 ring-4 ring-indigo-50 shadow-sm">
-                <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
-                  <g stroke="#A5B4FC">
-                    <path d="M9.5 3a4.5 4.5 0 0 0-4.492 4.02A4.5 4.5 0 0 0 3 11.5c0 1.556.786 2.926 2 3.734a4.5 4.5 0 0 0 2.474 6.75M14.5 3a4.5 4.5 0 0 1 4.492 4.02 4.5 4.5 0 0 1 2.008 4.48c0 1.556-.786 2.926-2 3.734a4.5 4.5 0 0 1-2.474 6.75" />
-                    <path d="M12 3v16" />
-                    <circle cx="8" cy="9" r="1" />
-                    <circle cx="16" cy="9" r="1" />
-                    <circle cx="7" cy="14" r="1" />
-                    <circle cx="17" cy="14" r="1" />
-                    <path d="M12 9H9" />
-                    <path d="M12 14H8" />
-                    <path d="M12 9h3" />
-                    <path d="M12 14h4" />
-                  </g>
-                </svg>
-              </div>
-
-              <div>
-                <h2 className="text-[17px] font-bold text-[#0B1220] tracking-[-0.015em]">Describe your strategy</h2>
-                <p className="text-[13px] text-slate-600 mt-0.5 leading-snug">Write your trading logic in plain language. Previous candle colour triggers and open-price execution are supported.</p>
-              </div>
-            </div>
-
-            {/* Status */}
-            <div className="flex items-center gap-2 w-full lg:w-auto">
-              <div className="px-3 py-1 rounded-full border border-indigo-200 bg-indigo-50 text-indigo-700 text-[11px] font-bold tracking-wide">
-                AlgoSay AI
-              </div>
-              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-slate-200 bg-slate-50">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span className="text-[11px] font-medium text-slate-700">All systems operational</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Textarea + button */}
-          <div className="flex flex-col lg:flex-row gap-3">
-            <div className="flex-grow w-full flex flex-col">
+      {/* ═════════ 1. DESCRIBE YOUR STRATEGY ═════════ */}
+      <Section
+        title="Describe your strategy"
+        hint="Write your trading logic in plain language."
+        right={
+          <span className="flex items-center gap-1.5 rounded-full border border-[#DDE2E9] bg-white px-2.5 py-0.5 text-[10.5px] font-medium text-[#5B667A]">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#1F9D6B]" />
+            AlgoSay AI · online
+          </span>
+        }
+      >
+        <Box>
+          <div className="flex flex-col gap-2.5 lg:flex-row">
+            <div className="flex w-full flex-grow flex-col">
               <textarea
                 ref={textareaRef}
-                className="w-full min-h-[160px] max-h-[480px] overflow-y-auto bg-slate-50/70 border border-slate-300 rounded-xl p-4 text-[#0B1220] focus:outline-none focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 text-[15px] leading-relaxed placeholder:text-slate-400 transition-all resize-none custom-scrollbar"
-                rows="6"
+                rows="5"
+                className="custom-scrollbar max-h-[360px] min-h-[120px] w-full resize-none overflow-y-auto rounded-md border border-[#DDE2E9] bg-white p-3 text-[13px] leading-relaxed text-[#121A2B] outline-none transition-colors placeholder:text-[#9AA4B5] focus:border-[#2F5BEA] focus:ring-2 focus:ring-[#2F5BEA]/15"
                 placeholder="e.g., Sell sensex option CE and PE every 15 mins. If 9.15-9.30 candle is green sell PE at 9.30 open price. Target 65% stop loss 22% exit at 3.15 PM."
                 value={localPrompt}
                 onChange={handleTextChange}
                 onKeyDown={handleKeyDown}
-              ></textarea>
-
-              {/* Counter + shortcut hint */}
-              <div className="flex items-center justify-between mt-1.5 px-1 text-[11px] text-slate-500">
-                <span className="font-mono">{(localPrompt || '').length} chars · {wordCount} words</span>
+              />
+              <div className="mt-1.5 flex items-center justify-between px-0.5 text-[10.5px] text-[#7C879A]">
+                <span className="font-num">{(localPrompt || '').length} chars · {wordCount} words</span>
                 <span className="hidden sm:inline">
-                  <kbd className="px-1.5 py-0.5 rounded border border-slate-300 bg-white text-[10px] font-mono text-slate-600">Ctrl</kbd>
+                  <kbd className="font-num rounded border border-[#DDE2E9] bg-[#F7F8FA] px-1 py-px text-[10px]">Ctrl</kbd>
                   {' + '}
-                  <kbd className="px-1.5 py-0.5 rounded border border-slate-300 bg-white text-[10px] font-mono text-slate-600">Enter</kbd>
+                  <kbd className="font-num rounded border border-[#DDE2E9] bg-[#F7F8FA] px-1 py-px text-[10px]">Enter</kbd>
                   {' to analyze'}
                 </span>
               </div>
@@ -387,15 +371,15 @@ const AIParseSection = ({
             <button
               onClick={handleAIParse}
               disabled={isParsing || !localPrompt}
-              className={`lg:w-44 lg:self-start lg:h-12 px-5 py-3 rounded-xl font-semibold text-sm tracking-wide transition-all duration-200 flex items-center justify-center gap-2 ${
+              className={`flex h-9 items-center justify-center gap-2 rounded-md px-4 text-[12px] font-semibold transition-colors lg:w-40 lg:self-start ${
                 isParsing || !localPrompt
-                ? 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed'
-                : 'bg-gradient-to-r from-[#0B1220] to-[#1E2B4D] hover:from-[#16213a] hover:to-[#2a3a63] text-white shadow-[0_6px_16px_rgba(11,18,32,0.25)] hover:-translate-y-px cursor-pointer'
+                  ? 'cursor-not-allowed border border-[#DDE2E9] bg-[#F2F4F7] text-[#9AA4B5]'
+                  : 'cursor-pointer bg-[#121A2B] text-white hover:bg-[#25314D]'
               }`}
             >
               {isParsing ? (
                 <>
-                  <svg className="animate-spin h-4 w-4 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <svg className="h-3.5 w-3.5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
@@ -404,7 +388,7 @@ const AIParseSection = ({
               ) : (
                 <>
                   Analyze logic
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5">
                     <path d="M5 12h14" />
                     <path d="M13 6l6 6-6 6" />
                   </svg>
@@ -413,190 +397,177 @@ const AIParseSection = ({
             </button>
           </div>
 
-          {/* AI status message */}
+          {/* Status message */}
           {aiMessage && (
-            <div className={`mt-4 px-3.5 py-2.5 rounded-xl text-[13px] font-medium flex items-center gap-2 ${
-              needsInfoQuestion ? 'bg-amber-50 text-amber-900 border border-amber-200' : 'bg-emerald-50 text-emerald-900 border border-emerald-200'
+            <div className={`mt-2.5 flex items-center gap-2 rounded-md border px-3 py-2 text-[12px] font-medium ${
+              needsInfoQuestion
+                ? 'border-[#F0D9A8] bg-[#FFF8E6] text-[#8A5A00]'
+                : 'border-[#BFE5D3] bg-[#E4F6EE] text-[#157550]'
             }`}>
-              <span className={`w-2 h-2 rounded-full shrink-0 ${needsInfoQuestion ? 'bg-amber-500' : 'bg-emerald-500'}`}></span>
+              <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${needsInfoQuestion ? 'bg-[#E2B04A]' : 'bg-[#1F9D6B]'}`} />
               {aiMessage}
             </div>
           )}
-        </div>
-      </div>
+        </Box>
+      </Section>
 
-      {/* Clarification question */}
+      {/* ═════════ CLARIFICATION NEEDED ═════════ */}
       {needsInfoQuestion && (
-        <div className="ap-root bg-amber-50 border border-amber-200 border-l-4 border-l-amber-500 p-4 rounded-xl mb-4 flex flex-col gap-1">
-          <h3 className="text-sm font-bold text-amber-900">Clarification needed</h3>
-          <p className="text-[14px] text-amber-900/90 leading-relaxed">{needsInfoQuestion}</p>
-        </div>
+        <Section title="Clarification needed" hint="AI needs one more detail to continue.">
+          <div className="rounded-lg border border-[#F0D9A8] border-l-[3px] border-l-[#E2B04A] bg-[#FFF8E6] p-3">
+            <p className="text-[12.5px] leading-relaxed text-[#8A5A00]">{needsInfoQuestion}</p>
+          </div>
+        </Section>
       )}
 
-      {/* AI interpretation */}
       {aiExplanation && (
-        <div className="ap-root bg-white border border-slate-200 p-5 rounded-2xl mb-4 shadow-[0_1px_3px_rgba(11,18,32,0.06),0_8px_24px_rgba(11,18,32,0.04)] animate-fade-in">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="w-1 h-5 rounded-full bg-gradient-to-b from-indigo-500 to-sky-500"></span>
-            <h3 className="text-[15px] font-bold text-[#0B1220] tracking-[-0.01em]">How the AI read your strategy</h3>
-          </div>
+        <>
+          {/* ═════════ 2. HOW THE AI READ IT ═════════ */}
+          <Section title="How the AI read your strategy" hint="Check each line matches what you meant.">
+            <Box>
+              <div className="flex flex-col gap-1.5">
+                {explanationLines.map((line, index) => (
+                  <div key={index} className="flex items-start gap-2.5 rounded-md border border-[#E9EDF2] bg-[#FAFBFC] px-2.5 py-2">
+                    <span className="font-num mt-px flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#121A2B] text-[10px] font-semibold text-white">
+                      {index + 1}
+                    </span>
+                    <p className="flex-1 text-[12.5px] leading-relaxed text-[#2B3547]">{line}</p>
+                  </div>
+                ))}
+              </div>
+            </Box>
+          </Section>
 
-          <div className="space-y-2 mb-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
-            {aiExplanation.split('\n').filter(line => line.trim().length > 0).map((line, index) => {
-              const cleanLine = line.replace(/^[\s*\-•\d.]+\s*/, '');
-              return (
-                <div key={index} className="flex items-start gap-2.5 text-[14px] text-slate-800">
-                  <span className="mt-[2px] flex items-center justify-center w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 text-[10px] font-bold font-mono shrink-0">{index + 1}</span>
-                  <p className="flex-1 leading-relaxed">{cleanLine}</p>
-                </div>
-              );
-            })}
+          {/* ═════════ 3. DETECTED LEGS ═════════ */}
+          {parsedLegs && parsedLegs.length > 0 && (
+            <Section title="Detected legs" hint={`${parsedLegs.length} leg${parsedLegs.length > 1 ? 's' : ''} found`}>
+              <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-2">
+                {parsedLegs.map((leg, idx) => {
+                  const isOptions = (leg.segment || 'Options').toUpperCase() === 'OPTIONS';
+                  const position = (leg.position || leg.action || 'BUY').toUpperCase();
+                  const isBuy = position === 'BUY';
+                  const optType = leg.optionType || leg.option_type || 'CE';
 
-            {/* Detected legs */}
-            {parsedLegs && parsedLegs.length > 0 && (
-              <div className="mt-4 pt-4 border-t border-slate-200 flex flex-col gap-2.5">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Detected legs</span>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                  {parsedLegs.map((leg, idx) => {
-                    const isOptions = (leg.segment || 'Options').toUpperCase() === 'OPTIONS';
-                    const isBuy = (leg.position || leg.action || 'BUY').toUpperCase() === 'BUY';
+                  // Entry-condition banner
+                  const conditionVal = (leg.condition || leg.trigger_condition || '').toUpperCase();
+                  let conditionDisplay = null;
+                  if (conditionVal.includes('GREEN')) {
+                    conditionDisplay = `Previous candle = Green → ${position} ${optType} at open`;
+                  } else if (conditionVal.includes('RED')) {
+                    conditionDisplay = `Previous candle = Red → ${position} ${optType} at open`;
+                  } else if (conditionVal) {
+                    conditionDisplay = conditionVal;
+                  }
 
-                    const legTypeColor = isBuy
-                      ? 'border-slate-200 border-l-4 border-l-emerald-500 bg-white'
-                      : 'border-slate-200 border-l-4 border-l-rose-500 bg-white';
+                  // Strike text
+                  const c = leg.strikeCriteria || 'Strike Type';
+                  let strikeText;
+                  if (c === 'Closest Premium') strikeText = `Premium ≈ ₹${leg.targetPremium || 0}`;
+                  else if (c === 'Premium Range') strikeText = `₹${leg.lowerPremium || 0} – ${leg.upperPremium || 0}`;
+                  else if (c === '% of Spot') strikeText = `${leg.spotPercent || 0}% ${leg.strikeType || 'OTM'}`;
+                  else if (c === 'Straddle Width') strikeText = `${leg.straddleMultiplier || 1}x ${leg.strikeType || 'OTM'}`;
+                  else strikeText = `${leg.strikeType || leg.strike_type || 'ATM'}${leg.distance ? ' ' + leg.distance : ''}`;
 
-                    const segmentPill = isOptions
-                      ? 'text-indigo-700 bg-indigo-50 border-indigo-200'
-                      : 'text-sky-700 bg-sky-50 border-sky-200';
+                  return (
+                    <div key={idx} className="flex overflow-hidden rounded-lg border border-[#DDE2E9] bg-white">
+                      {/* side colour = BUY / SELL */}
+                      <div className={`w-1 shrink-0 ${isBuy ? 'bg-[#1F9D6B]' : 'bg-[#D64545]'}`} />
 
-                    const actionColor = isBuy
-                      ? 'text-emerald-700 bg-emerald-50 border-emerald-200'
-                      : 'text-rose-700 bg-rose-50 border-rose-200';
-
-                    // Extract condition info for UI badge preview
-                    const conditionVal = (leg.condition || leg.trigger_condition || '').toUpperCase();
-                    let conditionDisplay = null;
-                    if (conditionVal.includes('GREEN')) {
-                      conditionDisplay = `Entry Condition: Previous Candle = Green -> ${(leg.position || leg.action || 'BUY').toUpperCase()} ${(leg.optionType || leg.option_type || 'CE')} at Open`;
-                    } else if (conditionVal.includes('RED')) {
-                      conditionDisplay = `Entry Condition: Previous Candle = Red -> ${(leg.position || leg.action || 'BUY').toUpperCase()} ${(leg.optionType || leg.option_type || 'CE')} at Open`;
-                    } else if (conditionVal) {
-                      conditionDisplay = `Entry Condition: ${conditionVal}`;
-                    }
-
-                    return (
-                      <div key={idx} className={`p-3 rounded-xl border ${legTypeColor} shadow-[0_1px_2px_rgba(11,18,32,0.04)] flex flex-col gap-2`}>
-                        <div className="flex justify-between items-center border-b border-slate-100 pb-2">
-                          <span className="flex items-center gap-2 text-[13px] font-bold text-[#0B1220]">
-                            Leg {idx + 1}
-                            <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border ${segmentPill}`}>
-                              {(leg.segment || 'OPTIONS').toUpperCase()}
-                            </span>
+                      <div className="min-w-0 flex-1 p-3">
+                        {/* Header */}
+                        <div className="mb-2 flex items-center gap-2 border-b border-[#EEF1F5] pb-2">
+                          <span className="font-num text-[11px] font-semibold text-[#7C879A]">L{idx + 1}</span>
+                          <span className={`rounded px-1.5 py-px text-[10.5px] font-bold ${isBuy ? 'bg-[#E4F6EE] text-[#157550]' : 'bg-[#FDECEC] text-[#B42F2F]'}`}>
+                            {position}
                           </span>
-                          <span className={`text-[11px] font-bold font-mono px-2 py-0.5 rounded border ${actionColor}`}>
-                            {(leg.position || leg.action || 'BUY').toUpperCase()} {leg.lots || 1} lot(s)
+                          <span className={`rounded border px-1.5 py-px text-[10px] font-semibold uppercase tracking-wide ${
+                            isOptions ? 'border-[#D5DEFA] bg-[#EEF2FF] text-[#2F5BEA]' : 'border-[#CFE6F3] bg-[#EAF6FC] text-[#1B7BA8]'
+                          }`}>
+                            {(leg.segment || 'OPTIONS').toUpperCase()}
+                          </span>
+                          <span className="font-num ml-auto text-[11.5px] font-semibold text-[#121A2B]">
+                            {leg.lots || 1} lot{(leg.lots || 1) > 1 ? 's' : ''}
                           </span>
                         </div>
 
+                        {/* Entry condition */}
                         {conditionDisplay && (
-                          <div className="bg-violet-50 border border-violet-200 text-violet-900 text-[11.5px] font-mono px-2.5 py-1.5 rounded-md flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 rounded-full bg-violet-500 animate-pulse shrink-0"></span>
+                          <div className="mb-2 flex items-center gap-2 rounded-md border border-[#D9D3F5] bg-[#F5F3FF] px-2.5 py-1.5 text-[11.5px] font-medium text-[#4B3BA8]">
+                            <span className="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-[#7C5CFF]" />
                             <span>{conditionDisplay}</span>
                           </div>
                         )}
 
-                        <div className="grid grid-cols-2 gap-1.5">
-                          {isOptions ? (
-                            <>
-                              <div className={chip}><span className={chipLabel}>Asset</span><strong className={chipValue}>{leg.displayTicker}</strong></div>
-                              <div className={chip}><span className={chipLabel}>Type</span><strong className={chipValue}>{leg.optionType || leg.option_type || 'CE'}</strong></div>
-                              <div className={chip}><span className={chipLabel}>Strike</span><strong className={chipValue}>{
-                                (() => {
-                                  const c = leg.strikeCriteria || 'Strike Type';
-                                  if (c === 'Closest Premium') return `Closest Premium ₹${leg.targetPremium || 0}`;
-                                  if (c === 'Premium Range') return `Premium ₹${leg.lowerPremium || 0}-${leg.upperPremium || 0}`;
-                                  if (c === '% of Spot') return `${leg.spotPercent || 0}% ${leg.strikeType || 'OTM'} of Spot`;
-                                  if (c === 'Straddle Width') return `${leg.straddleMultiplier || 1}x Straddle ${leg.strikeType || 'OTM'}`;
-                                  return `${leg.strikeType || leg.strike_type || 'ATM'}${leg.distance ? ' ' + leg.distance : ''}`;
-                                })()
-                              }</strong></div>
-                              <div className={chip}><span className={chipLabel}>Expiry</span><strong className={chipValue}>{leg.expiryType || leg.expiry || 'CURRENT_WEEK'}</strong></div>
-                            </>
-                          ) : (
-                            <>
-                              <div className={chip}><span className={chipLabel}>Asset</span><strong className={chipValue}>{leg.displayTicker} FUT</strong></div>
-                              <div className={chip}><span className={chipLabel}>Target</span><strong className={chipValue}>{leg.displayTarget || '-'} {leg.displayTargetUnit}</strong></div>
-                              <div className={chip}><span className={chipLabel}>SL</span><strong className={chipValue}>{leg.displaySl || '-'} {leg.displaySlUnit}</strong></div>
-                            </>
-                          )}
+                        {/* Details */}
+                        <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">
+                          <Cell label="Asset" value={isOptions ? leg.displayTicker : `${leg.displayTicker} FUT`} />
+                          {isOptions && <Cell label="Type" value={optType} />}
+                          {isOptions && <Cell label="Strike" value={strikeText} />}
+                          {isOptions && <Cell label="Expiry" value={leg.expiryType || leg.expiry || 'CURRENT_WEEK'} />}
+                          <Cell
+                            label="Target"
+                            value={leg.displayTarget ? `${leg.displayTarget} ${leg.displayTargetUnit}` : '-'}
+                            tone={leg.displayTarget ? 'text-[#157550]' : 'text-[#9AA4B5]'}
+                          />
+                          <Cell
+                            label="Stop loss"
+                            value={leg.displaySl ? `${leg.displaySl} ${leg.displaySlUnit}` : '-'}
+                            tone={leg.displaySl ? 'text-[#B42F2F]' : 'text-[#9AA4B5]'}
+                          />
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
+                    </div>
+                  );
+                })}
               </div>
-            )}
+            </Section>
+          )}
 
-            {/* Detected risk management */}
-            {parsedRisk && (parsedRisk.combinedPremiumTarget || parsedRisk.combinedPremiumSL || parsedRisk.overallTarget || parsedRisk.overallSL) && (
-              <div className="mt-4 pt-4 border-t border-slate-200 flex flex-col gap-2.5">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Detected risk management</span>
-                <div className="flex flex-wrap gap-2.5">
-
+          {/* ═════════ 4. DETECTED RISK MANAGEMENT ═════════ */}
+          {hasRisk && (
+            <Section title="Detected risk management" hint="Applied across all legs together.">
+              <Box>
+                <div className="flex flex-wrap gap-2">
                   {parsedRisk.combinedPremiumTarget && (
-                    <div className="bg-white border border-slate-200 border-t-4 border-t-emerald-500 px-3.5 py-2 rounded-xl flex flex-col min-w-[140px] shadow-[0_1px_2px_rgba(11,18,32,0.04)]">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Combined target</span>
-                      <span className="text-[17px] font-bold font-mono text-emerald-700 mt-0.5">
-                        {parsedRisk.combinedPremiumTarget} <span className="text-[11px] font-semibold">{parsedRisk.combinedPremiumTargetUnit}</span>
-                      </span>
-                    </div>
+                    <RiskTile label="Combined target" value={parsedRisk.combinedPremiumTarget} unit={parsedRisk.combinedPremiumTargetUnit} accent="border-t-[#1F9D6B]" text="text-[#157550]" />
                   )}
-
                   {parsedRisk.combinedPremiumSL && (
-                    <div className="bg-white border border-slate-200 border-t-4 border-t-rose-500 px-3.5 py-2 rounded-xl flex flex-col min-w-[140px] shadow-[0_1px_2px_rgba(11,18,32,0.04)]">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Combined SL</span>
-                      <span className="text-[17px] font-bold font-mono text-rose-700 mt-0.5">
-                        {parsedRisk.combinedPremiumSL} <span className="text-[11px] font-semibold">{parsedRisk.combinedPremiumSLUnit}</span>
-                      </span>
-                    </div>
+                    <RiskTile label="Combined SL" value={parsedRisk.combinedPremiumSL} unit={parsedRisk.combinedPremiumSLUnit} accent="border-t-[#D64545]" text="text-[#B42F2F]" />
                   )}
-
                   {parsedRisk.overallTarget && (
-                    <div className="bg-white border border-slate-200 border-t-4 border-t-sky-500 px-3.5 py-2 rounded-xl flex flex-col min-w-[140px] shadow-[0_1px_2px_rgba(11,18,32,0.04)]">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Overall strategy target</span>
-                      <span className="text-[17px] font-bold font-mono text-sky-700 mt-0.5">{parsedRisk.overallTarget} <span className="text-[11px] font-semibold">{parsedRisk.overallTargetUnit}</span></span>
-                    </div>
+                    <RiskTile label="Overall strategy target" value={parsedRisk.overallTarget} unit={parsedRisk.overallTargetUnit} accent="border-t-[#2F5BEA]" text="text-[#2F5BEA]" />
                   )}
-
                   {parsedRisk.overallSL && (
-                    <div className="bg-white border border-slate-200 border-t-4 border-t-orange-500 px-3.5 py-2 rounded-xl flex flex-col min-w-[140px] shadow-[0_1px_2px_rgba(11,18,32,0.04)]">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Overall strategy SL</span>
-                      <span className="text-[17px] font-bold font-mono text-orange-700 mt-0.5">{parsedRisk.overallSL} <span className="text-[11px] font-semibold">{parsedRisk.overallSLUnit}</span></span>
-                    </div>
+                    <RiskTile label="Overall strategy SL" value={parsedRisk.overallSL} unit={parsedRisk.overallSLUnit} accent="border-t-[#E2862A]" text="text-[#B8620F]" />
                   )}
-
                 </div>
-              </div>
-            )}
-          </div>
+              </Box>
+            </Section>
+          )}
 
-          {/* Confirm footer */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-slate-50 border border-slate-200 px-4 py-2.5 rounded-xl">
-            <span className="text-[13px] text-slate-600">
-              {isConfirmed ? <span className="text-emerald-700 font-semibold">✓ Logic validated. Ready for execution.</span> : 'Review the buying and selling parameters below, then confirm.'}
+          {/* ═════════ 5. CONFIRM ═════════ */}
+          <div className={`flex flex-col justify-between gap-2 rounded-lg border px-3 py-2.5 sm:flex-row sm:items-center ${
+            isConfirmed ? 'border-[#BFE5D3] bg-[#E4F6EE]' : 'border-[#DDE2E9] bg-white'
+          }`}>
+            <span className="text-[12px]">
+              {isConfirmed
+                ? <span className="font-semibold text-[#157550]">✓ Logic validated. Ready for execution.</span>
+                : <span className="text-[#5B667A]">Review the buying and selling parameters below, then confirm.</span>}
             </span>
             <button
               onClick={() => setIsConfirmed(!isConfirmed)}
-              className={`px-4 py-2 rounded-lg text-[13px] font-semibold transition-all cursor-pointer ${
-                isConfirmed ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100' : 'bg-gradient-to-r from-[#0B1220] to-[#1E2B4D] text-white shadow-sm hover:shadow-md'
+              className={`h-8 cursor-pointer rounded-md px-4 text-[12px] font-semibold transition-colors ${
+                isConfirmed
+                  ? 'border border-[#BFE5D3] bg-white text-[#157550] hover:bg-[#F2FBF7]'
+                  : 'bg-[#121A2B] text-white hover:bg-[#25314D]'
               }`}
             >
               {isConfirmed ? 'Edit parameters' : 'Confirm settings'}
             </button>
           </div>
-        </div>
+        </>
       )}
-    </>
+    </div>
   );
 };
 
