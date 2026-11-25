@@ -23,6 +23,13 @@ import RefundPolicy from './components/RefundPolicy';
 import ContactUs from './components/ContactUs';
 import Careers from './components/Careers';
 
+// 🎨 THEME SWITCH
+// true  = light page background (matches the new Strategy Builder)
+// false = old dark page background (Strategy Builder stays as a light sheet on it)
+// Header / AIParseSection / TopNavBar / ResultsDashboard are separate files. Until they are
+// converted to light colours, if any text looks invisible on the light page, set this to false.
+const LIGHT_PAGE = true;
+
 // 🛠️ FIX: ProtectedDashboard component-ah App function-ku VELIYA move pannitom.
 // Ithanaala type pannum pothu component re-mount aagi focus lose aagathu!
 const ProtectedDashboard = ({ logic }) => {
@@ -33,7 +40,7 @@ const ProtectedDashboard = ({ logic }) => {
 
   if (logic.loadingAuth) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#121212] text-white">
+      <div className={`flex items-center justify-center min-h-screen ${LIGHT_PAGE ? 'bg-[#E9ECF1] text-[#121A2B]' : 'bg-[#121212] text-white'}`}>
         <p className="text-lg animate-pulse font-semibold">Loading AlgoSay Environment...</p>
       </div>
     );
@@ -86,14 +93,14 @@ const ProtectedDashboard = ({ logic }) => {
         setActiveTab={setActiveTab}
       />
 
-      <div className="w-full max-w-[96%] xl:max-w-[98%] mx-auto p-4 md:p-6 lg:p-8">
+      <div className="w-full max-w-[96%] xl:max-w-[98%] mx-auto p-3 md:p-4 lg:p-5">
         
         {/* CONDITIONAL RENDERING BASED ON ACTIVE TAB */}
         {activeTab === 'wealth' ? (
           /* 💎 WEALTH ALLOCATOR ENGINE VIEW (Trading Header is strictly removed here) */
           <div className="animate-fade-in pt-4">
             {wealthError && (
-              <div className="max-w-4xl mx-auto mb-4 bg-red-500/10 text-red-500 p-4 rounded-xl border border-red-500/20 text-sm font-semibold text-center">
+              <div className="max-w-4xl mx-auto mb-4 bg-[#FDECEC] text-[#B42F2F] p-4 rounded-xl border border-[#F5C2C2] text-sm font-semibold text-center">
                 {wealthError}
               </div>
             )}
@@ -128,8 +135,8 @@ const ProtectedDashboard = ({ logic }) => {
             />
 
             {logic.aiExplanation && (
-              <div className="animate-fade-in w-full">
-                <h2 className="text-lg font-bold text-white mb-4 mt-8">Strategy Configuration</h2>
+              <div className="animate-fade-in w-full mt-4">
+                {/* (The "Strategy Configuration" heading now lives inside the builder's own header bar) */}
                 
                 <StrategyConfig 
                   ticker={logic.ticker} setTicker={logic.setTicker}
@@ -184,35 +191,36 @@ const ProtectedDashboard = ({ logic }) => {
                   setRiskExtra={logic.setRiskExtra}
                 />
 
-                <div className="flex flex-col md:flex-row gap-4 mb-8">
+                {/* 🎬 ACTION BAR: Save + Run (same logic, new look) */}
+                <div className="flex flex-col md:flex-row gap-2.5 my-3">
                   <button
                     onClick={logic.handleSaveStrategy}
                     disabled={!logic.isConfirmed}
-                    className={`w-full md:w-1/3 py-4 rounded-lg font-bold text-sm tracking-widest uppercase transition-all flex justify-center items-center gap-3 ${
+                    className={`w-full md:w-1/3 h-11 rounded-lg font-semibold text-[13px] transition-all flex justify-center items-center gap-2 ${
                       !logic.isConfirmed 
-                      ? 'bg-[#1a1a1a] text-gray-700 border border-[#2d2d2d] cursor-not-allowed' 
-                      : 'bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-300 hover:text-white border border-[#3d3d3d] shadow-lg cursor-pointer'
+                      ? 'bg-[#E9EDF2] text-[#9AA4B5] border border-[#DDE2E9] cursor-not-allowed' 
+                      : 'bg-white hover:bg-[#F2F4F7] text-[#121A2B] border border-[#C3CAD6] cursor-pointer'
                     }`}
                   >
-                    💾 Save Strategy
+                    💾 Save strategy
                   </button>
 
                   <button
                     onClick={logic.runBacktest}
                     disabled={logic.loading || !logic.isConfirmed}
-                    className={`w-full md:w-2/3 py-4 rounded-lg font-bold text-sm tracking-widest uppercase transition-all flex justify-center items-center gap-3 ${
+                    className={`w-full md:w-2/3 h-11 rounded-lg font-semibold text-[13px] transition-all flex justify-center items-center gap-2 ${
                       logic.loading || !logic.isConfirmed 
-                      ? 'bg-[#1e1e1e] text-gray-600 border border-[#2d2d2d] cursor-not-allowed' 
-                      : 'bg-green-600 hover:bg-green-500 text-white shadow-lg cursor-pointer'
+                      ? 'bg-[#E9EDF2] text-[#9AA4B5] border border-[#DDE2E9] cursor-not-allowed' 
+                      : 'bg-[#1F9D6B] hover:bg-[#188458] text-white shadow-[0_4px_14px_rgba(31,157,107,0.35)] cursor-pointer'
                     }`}
                   >
                     {logic.loading ? (
-                      <><svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Running Backtest...</>
-                    ) : !logic.isConfirmed ? 'Lock Parameters to Execute' : (logic.isSubscribed ? `Run Backtest (Free - ${logic.subscriptionPlan})` : 'Run Backtest (Cost: 1 Credit)')}
+                      <><svg className="animate-spin h-5 w-5 text-[#5B667A]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Running backtest...</>
+                    ) : !logic.isConfirmed ? 'Lock parameters to execute' : (logic.isSubscribed ? `Run backtest (Free - ${logic.subscriptionPlan})` : 'Run backtest (Cost: 1 Credit)')}
                   </button>
                 </div>
 
-                {logic.error && <div className="bg-red-500/10 text-red-500 p-4 rounded-lg border border-red-500/20 mb-8 text-sm font-semibold">{logic.error}</div>}
+                {logic.error && <div className="bg-[#FDECEC] text-[#B42F2F] p-3 rounded-lg border border-[#F5C2C2] mb-4 text-[13px] font-semibold">{logic.error}</div>}
 
                 <ResultsDashboard 
                   result={logic.result} 
@@ -235,7 +243,7 @@ function App() {
 
   return (
     <Router>
-      <div className="min-h-screen bg-[#121212] text-gray-300 font-sans selection:bg-blue-500/30 relative flex flex-col justify-between">
+      <div className={`min-h-screen font-ui selection:bg-blue-500/30 relative flex flex-col justify-between ${LIGHT_PAGE ? 'bg-[#E9ECF1] text-[#121A2B]' : 'bg-[#121212] text-gray-300'}`}>
         
         {/* Main Content Area */}
         <div className="flex-grow">
