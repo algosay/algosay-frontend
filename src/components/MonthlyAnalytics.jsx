@@ -18,7 +18,7 @@ const heat = (val, maxAbs) => {
 const STYLES = `
   .rd-root table.ma-table td,
   .rd-root table.ma-table td * { font-size: 10.5px !important; line-height: 1.3 !important; }
-  .rd-root table.ma-table td { padding: 4px 3px !important; }
+  .rd-root table.ma-table td { padding: 5px 3px !important; }
   .rd-root table.ma-table th,
   .rd-root table.ma-table th * { font-size: 9.5px !important; line-height: 1.2 !important; letter-spacing: .07em; }
   .rd-root table.ma-table th { padding: 6px 4px !important; }
@@ -209,24 +209,19 @@ const MonthlyAnalytics = ({ result, withTax }) => {
                       const val = monthlyPnL[year][month] || 0;
                       const isBest = showMarkers && best && best.year === year && best.month === month;
                       const isWorst = showMarkers && worst && worst.year === year && worst.month === month;
-                      const ring = isBest
-                        ? 'ring-[1.5px] ring-emerald-500/80 ring-offset-1'
+                      const edge = isBest
+                        ? 'inset 0 0 0 2px rgba(16,185,129,0.9)'
                         : isWorst
-                        ? 'ring-[1.5px] ring-rose-500/80 ring-offset-1'
-                        : '';
+                        ? 'inset 0 0 0 2px rgba(244,63,94,0.9)'
+                        : 'inset 0 0 0 1px #fff';
                       return (
-                        <td key={month} className="text-center">
-                          {val !== 0 ? (
-                            <div
-                              style={heat(val, maxAbs)}
-                              className={`mx-auto min-w-[50px] rounded px-1 py-0.5 font-semibold tabular-nums ${ring}`}
-                              title={`${month} ${year}: ${signedINR(val)}`}
-                            >
-                              {val < 0 ? '−' : ''}{fmt(val)}
-                            </div>
-                          ) : (
-                            <span className="text-slate-300">—</span>
-                          )}
+                        <td
+                          key={month}
+                          style={val !== 0 ? { ...heat(val, maxAbs), boxShadow: edge } : undefined}
+                          className="text-center font-semibold tabular-nums"
+                          title={`${month} ${year}: ${signedINR(val)}`}
+                        >
+                          {val !== 0 ? `${val < 0 ? '−' : ''}${fmt(val)}` : <span className="text-slate-300">—</span>}
                         </td>
                       );
                     })}
@@ -245,9 +240,7 @@ const MonthlyAnalytics = ({ result, withTax }) => {
 
                     <td className="text-center">
                       {r !== null ? (
-                        <span className="inline-block rounded bg-amber-50 px-1.5 py-px font-semibold tabular-nums text-amber-700 ring-1 ring-inset ring-amber-200/70">
-                          {r.toFixed(2)}%
-                        </span>
+                        <span className="font-semibold tabular-nums text-amber-700">{r.toFixed(2)}%</span>
                       ) : (
                         <span className="text-slate-300">—</span>
                       )}
@@ -261,13 +254,7 @@ const MonthlyAnalytics = ({ result, withTax }) => {
                     </td>
                     <td className="text-center">
                       {rmOk ? (
-                        <span
-                          className={`inline-block rounded px-1.5 py-px font-semibold tabular-nums ring-1 ring-inset ${
-                            rm >= 0
-                              ? 'bg-emerald-50 text-emerald-700 ring-emerald-200/70'
-                              : 'bg-rose-50 text-rose-700 ring-rose-200/70'
-                          }`}
-                        >
+                        <span className={`font-semibold tabular-nums ${rm >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>
                           {rm.toFixed(2)}
                         </span>
                       ) : (

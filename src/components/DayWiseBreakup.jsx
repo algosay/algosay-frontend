@@ -29,7 +29,7 @@ const heat = (val, maxAbs) => {
 const STYLES = `
   .rd-root table.dw-table td,
   .rd-root table.dw-table td * { font-size: 11px !important; line-height: 1.3 !important; }
-  .rd-root table.dw-table td { padding: 4px 6px !important; }
+  .rd-root table.dw-table td { padding: 5px 4px !important; }
   .rd-root table.dw-table th,
   .rd-root table.dw-table th * { font-size: 9.5px !important; line-height: 1.2 !important; letter-spacing: .08em; }
   .rd-root table.dw-table th { padding: 6px 8px !important; }
@@ -212,21 +212,19 @@ const DayWiseBreakup = ({ ledger, mode = 'NET' }) => {
                       <span className="font-semibold text-[#0F1B2D]">{year}</span>
                       <span className="dw-sub ml-1.5 text-slate-400">{row.Trades} trades</span>
                     </td>
-                    {DAYS.map((d) => (
-                      <td key={d}>
-                        {row[d] !== 0 ? (
-                          <div
-                            style={heat(row[d], maxCellAbs)}
-                            className="mx-auto min-w-[58px] rounded px-1.5 py-0.5 font-semibold tabular-nums"
-                            title={`${DAY_FULL[d]} ${year}: ${signedINR(row[d])}`}
-                          >
-                            {row[d] < 0 ? '−' : ''}{fmt(row[d])}
-                          </div>
-                        ) : (
-                          <span className="text-slate-300">—</span>
-                        )}
-                      </td>
-                    ))}
+                    {DAYS.map((d) => {
+                      const v = row[d];
+                      return (
+                        <td
+                          key={d}
+                          style={v !== 0 ? { ...heat(v, maxCellAbs), boxShadow: 'inset 0 0 0 1px #fff' } : undefined}
+                          className="font-semibold tabular-nums"
+                          title={`${DAY_FULL[d]} ${year}: ${signedINR(v)}`}
+                        >
+                          {v !== 0 ? `${v < 0 ? '−' : ''}${fmt(v)}` : <span className="text-slate-300">—</span>}
+                        </td>
+                      );
+                    })}
                     <td className="border-l border-slate-100 bg-slate-50/50">
                       <span className={`font-semibold tabular-nums ${row.Total >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
                         {signedINR(row.Total)}
