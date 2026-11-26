@@ -410,9 +410,13 @@ export const useAppLogic = () => {
           trailUnitY: extractedTrailUnitY,
           
           sl_reentry_count: leg.sl_reentry_count ?? leg.sl_reentry ?? leg.slReentry ?? 0,
-          target_reexecute: leg.target_reexecute ?? leg.target_reentry ?? leg.targetReexecute ?? 0,
           slReentry: leg.sl_reentry_count ?? leg.sl_reentry ?? leg.slReentry ?? 0,
-          targetReexecute: leg.target_reexecute ?? leg.target_reentry ?? leg.targetReexecute ?? 0,
+          sl_reexecute: leg.sl_reexecute ?? leg.sl_reexecute_count ?? leg.slReexecute ?? 0,
+          slReexecute: leg.sl_reexecute ?? leg.sl_reexecute_count ?? leg.slReexecute ?? 0,
+          target_reexecute: leg.target_reexecute ?? leg.targetReexecute ?? 0,
+          targetReexecute: leg.target_reexecute ?? leg.targetReexecute ?? 0,
+          target_reentry: leg.target_reentry ?? leg.targetReentry ?? 0,
+          targetReentry: leg.target_reentry ?? leg.targetReentry ?? 0,
           
           waitForCandleClose: leg.wait_for_candle_close || leg.waitForCandleClose || false, 
           waitAndTrade: leg.wait_and_trade || leg.waitAndTrade || false,
@@ -451,7 +455,8 @@ export const useAppLogic = () => {
       lockTrigger: 0, lockProfit: 0, lockTrailX: 0, lockTrailY: 0, lockUnit: 'Pts',
       slToCostTrigger: 0, slToCostUnit: 'Pts',
       trailX: 0, trailY: 0, trailUnitX: 'Pts', trailUnitY: 'Pts', 
-      sl_reentry_count: 0, target_reexecute: 0, slReentry: 0, targetReexecute: 0, 
+      sl_reentry_count: 0, target_reexecute: 0, slReentry: 0, targetReexecute: 0,
+      sl_reexecute: 0, slReexecute: 0, target_reentry: 0, targetReentry: 0,
       waitForCandleClose: false, waitAndTrade: false, costToCost: false, moveToStoploss: false,
       slOnClose: false, noProfitExitTime: '', noProfitMin: 0, noProfitUnit: 'Pts', moveOtherToCost: false
     }]); 
@@ -645,7 +650,9 @@ export const useAppLogic = () => {
         trail_sl: { x: leg.trailX || 0, y: leg.trailY || 0, unit_x: leg.trailUnitX || 'Pts', unit_y: leg.trailUnitY || 'Pts' }, 
         
         sl_reentry_count: parseInt(leg.sl_reentry_count || leg.sl_reentry || leg.slReentry || 0, 10),
-        target_reexecute: parseInt(leg.target_reexecute || leg.targetReexecute || leg.target_reentry || 0, 10),
+        sl_reexecute: parseInt(leg.sl_reexecute || leg.sl_reexecute_count || leg.slReexecute || 0, 10),
+        target_reexecute: parseInt(leg.target_reexecute || leg.targetReexecute || 0, 10),
+        target_reentry: parseInt((leg.target_reexecute || leg.targetReexecute) ? 0 : (leg.target_reentry || leg.targetReentry || 0), 10),
         
         wait_for_candle_close: leg.waitForCandleClose || false, 
         wait_and_trade: leg.waitAndTrade || false, 

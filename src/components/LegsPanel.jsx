@@ -72,7 +72,9 @@ const LegCard = ({ leg, index, updateLeg, removeLeg }) => {
   const currentOptionType = leg.optionType || leg.option_type || leg.type || 'CE';
 
   const slReentryVal = leg.sl_reentry_count ?? leg.sl_reentry ?? leg.slReentry ?? 0;
-  const targetReexVal = leg.target_reexecute ?? leg.targetReexecute ?? leg.target_reentry ?? 0;
+  const slReexecVal = leg.sl_reexecute ?? leg.sl_reexecute_count ?? leg.slReexecute ?? 0;
+  const targetReentryVal = leg.target_reentry ?? leg.targetReentry ?? 0;
+  const targetReexVal = leg.target_reexecute ?? leg.targetReexecute ?? 0;
 
   // ── Plain-language summary (shown as chips) ──
   let strikeText = '';
@@ -111,8 +113,8 @@ const LegCard = ({ leg, index, updateLeg, removeLeg }) => {
     leg.target,
     leg.spotSL ?? leg.spot_sl,
     leg.spotTarget ?? leg.spot_target,
-    slReentryVal,
-    targetReexVal,
+    Number(slReentryVal) || Number(slReexecVal),
+    Number(targetReexVal) || Number(targetReentryVal),
   ].filter(on).length;
   const trailCount =
     [currentTrailX, currentTrailY, leg.slToCostTrigger ?? leg.sl_to_cost_trigger, leg.lockTrigger ?? leg.lock_trigger].filter(on).length +
@@ -425,19 +427,40 @@ const LegCard = ({ leg, index, updateLeg, removeLeg }) => {
                       }}
                     />
                   </Field>
-                  <Field label="Stop loss re-entry (times)">
-                    <input
-                      type="number"
-                      min="0"
-                      value={slReentryVal}
-                      onChange={(e) => {
-                        const val = Number(e.target.value);
-                        updateLeg(leg.id, 'sl_reentry_count', val);
-                        updateLeg(leg.id, 'slReentry', val);
-                      }}
-                      className={NUM}
-                      placeholder="0"
-                    />
+                  <Field label="On stop loss">
+                    <div className="flex gap-1.5">
+                      <select
+                        value={slReexecVal > 0 ? 'reexecute' : slReentryVal > 0 ? 'reentry' : 'none'}
+                        onChange={(e) => {
+                          const mode = e.target.value;
+                          const count = Number(slReexecVal) || Number(slReentryVal) || 1;
+                          const re = mode === 'reentry' ? count : 0;
+                          const ex = mode === 'reexecute' ? count : 0;
+                          updateLeg(leg.id, 'sl_reentry_count', re); updateLeg(leg.id, 'sl_reentry', re); updateLeg(leg.id, 'slReentry', re);
+                          updateLeg(leg.id, 'sl_reexecute', ex); updateLeg(leg.id, 'sl_reexecute_count', ex); updateLeg(leg.id, 'slReexecute', ex);
+                        }}
+                        className={NUM}
+                      >
+                        <option value="none">None</option>
+                        <option value="reentry">Re-Entry</option>
+                        <option value="reexecute">Re-Execute</option>
+                      </select>
+                      <select
+                        value={Number(slReexecVal) || Number(slReentryVal) || 0}
+                        disabled={!(Number(slReexecVal) || Number(slReentryVal))}
+                        onChange={(e) => {
+                          const val = Number(e.target.value);
+                          if (Number(slReexecVal) > 0) { updateLeg(leg.id, 'sl_reexecute', val); updateLeg(leg.id, 'sl_reexecute_count', val); updateLeg(leg.id, 'slReexecute', val); }
+                          else { updateLeg(leg.id, 'sl_reentry_count', val); updateLeg(leg.id, 'sl_reentry', val); updateLeg(leg.id, 'slReentry', val); }
+                        }}
+                        className={NUM}
+                      >
+                        {!(Number(slReexecVal) || Number(slReentryVal)) && <option value={0}>-</option>}
+                        {Array.from({ length: Math.max(10, Number(slReexecVal) || 0, Number(slReentryVal) || 0) }, (_, i) => i + 1).map((n) => (
+                          <option key={n} value={n}>{n}x</option>
+                        ))}
+                      </select>
+                    </div>
                   </Field>
                   <Field label="Target">
                     <UnitField
@@ -452,19 +475,40 @@ const LegCard = ({ leg, index, updateLeg, removeLeg }) => {
                       }}
                     />
                   </Field>
-                  <Field label="Target re-execute (times)">
-                    <input
-                      type="number"
-                      min="0"
-                      value={targetReexVal}
-                      onChange={(e) => {
-                        const val = Number(e.target.value);
-                        updateLeg(leg.id, 'target_reexecute', val);
-                        updateLeg(leg.id, 'targetReexecute', val);
-                      }}
-                      className={NUM}
-                      placeholder="0"
-                    />
+                  <Field label="On target">
+                    <div className="flex gap-1.5">
+                      <select
+                        value={targetReexVal > 0 ? 'reexecute' : targetReentryVal > 0 ? 'reentry' : 'none'}
+                        onChange={(e) => {
+                          const mode = e.target.value;
+                          const count = Number(targetReexVal) || Number(targetReentryVal) || 1;
+                          const re = mode === 'reentry' ? count : 0;
+                          const ex = mode === 'reexecute' ? count : 0;
+                          updateLeg(leg.id, 'target_reentry', re); updateLeg(leg.id, 'targetReentry', re);
+                          updateLeg(leg.id, 'target_reexecute', ex); updateLeg(leg.id, 'targetReexecute', ex);
+                        }}
+                        className={NUM}
+                      >
+                        <option value="none">None</option>
+                        <option value="reentry">Re-Entry</option>
+                        <option value="reexecute">Re-Execute</option>
+                      </select>
+                      <select
+                        value={Number(targetReexVal) || Number(targetReentryVal) || 0}
+                        disabled={!(Number(targetReexVal) || Number(targetReentryVal))}
+                        onChange={(e) => {
+                          const val = Number(e.target.value);
+                          if (Number(targetReexVal) > 0) { updateLeg(leg.id, 'target_reexecute', val); updateLeg(leg.id, 'targetReexecute', val); }
+                          else { updateLeg(leg.id, 'target_reentry', val); updateLeg(leg.id, 'targetReentry', val); }
+                        }}
+                        className={NUM}
+                      >
+                        {!(Number(targetReexVal) || Number(targetReentryVal)) && <option value={0}>-</option>}
+                        {Array.from({ length: Math.max(10, Number(targetReexVal) || 0, Number(targetReentryVal) || 0) }, (_, i) => i + 1).map((n) => (
+                          <option key={n} value={n}>{n}x</option>
+                        ))}
+                      </select>
+                    </div>
                   </Field>
                 </div>
               </Group>
