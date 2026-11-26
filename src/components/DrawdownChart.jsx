@@ -11,16 +11,15 @@ import {
   useFontsReady
 } from './ChartUtils';
 
-const HEIGHT = 340;
-const PAD = { top: 24, right: 28, bottom: 44, left: 76 };
+const HEIGHT = 300;
+const PAD = { top: 22, right: 26, bottom: 40, left: 68 };
 const MIN_STEP = 34;
 const LINE = '#E11D48';
 
-// CHANGED: label 10.5px, value 15px (was text-lg), tighter min-width
 const Stat = ({ label, value, valueClass = 'text-slate-800' }) => (
-  <div className="min-w-[96px]">
-    <div className="text-[10.5px] font-semibold uppercase tracking-wider text-slate-500">{label}</div>
-    <div className={`mt-0.5 text-[15px] font-semibold leading-tight ${valueClass}`}>{value}</div>
+  <div className="min-w-[92px] px-3.5 py-1.5">
+    <div className="text-[9.5px] font-semibold uppercase tracking-[0.1em] text-slate-400">{label}</div>
+    <div className={`mt-0.5 text-[13px] font-semibold leading-tight tabular-nums ${valueClass}`}>{value}</div>
   </div>
 );
 
@@ -85,7 +84,7 @@ const DrawdownChart = ({ result, withTax }) => {
 
     // Line
     ctx.strokeStyle = LINE;
-    ctx.lineWidth = 2.25;
+    ctx.lineWidth = 2;
     ctx.lineJoin = 'round';
     ctx.lineCap = 'round';
     ctx.beginPath();
@@ -100,21 +99,21 @@ const DrawdownChart = ({ result, withTax }) => {
       const my = yOf(stats.max);
       ctx.fillStyle = '#fff';
       ctx.beginPath();
-      ctx.arc(mx, my, 6.5, 0, Math.PI * 2);
+      ctx.arc(mx, my, 6, 0, Math.PI * 2);
       ctx.fill();
       ctx.fillStyle = LINE;
       ctx.beginPath();
-      ctx.arc(mx, my, 4, 0, Math.PI * 2);
+      ctx.arc(mx, my, 3.6, 0, Math.PI * 2);
       ctx.fill();
 
       const label = `Max DD ${fmtINR(stats.max)}`;
-      ctx.font = '600 11px "Inter", -apple-system, "Segoe UI", Arial, sans-serif';
+      ctx.font = '600 10.5px "Inter", -apple-system, "Segoe UI", Arial, sans-serif';
       const tw = ctx.measureText(label).width;
       const flip = mx + tw + 24 > chartW - PAD.right;
       ctx.textBaseline = 'middle';
       ctx.textAlign = flip ? 'right' : 'left';
       ctx.fillStyle = '#B91C1C';
-      ctx.fillText(label, flip ? mx - 12 : mx + 12, Math.max(my - 14, PAD.top + 8));
+      ctx.fillText(label, flip ? mx - 11 : mx + 11, Math.max(my - 13, PAD.top + 8));
     }
 
     // Hover crosshair
@@ -132,14 +131,14 @@ const DrawdownChart = ({ result, withTax }) => {
 
       ctx.fillStyle = '#fff';
       ctx.beginPath();
-      ctx.arc(hx, hy, 7, 0, Math.PI * 2);
+      ctx.arc(hx, hy, 6.5, 0, Math.PI * 2);
       ctx.fill();
       ctx.strokeStyle = LINE;
-      ctx.lineWidth = 2.5;
+      ctx.lineWidth = 2.25;
       ctx.stroke();
       ctx.fillStyle = LINE;
       ctx.beginPath();
-      ctx.arc(hx, hy, 3, 0, Math.PI * 2);
+      ctx.arc(hx, hy, 2.8, 0, Math.PI * 2);
       ctx.fill();
     }
   }, [points, n, chartW, geo, scale, stats, hover, fontsReady]);
@@ -158,69 +157,85 @@ const DrawdownChart = ({ result, withTax }) => {
 
   if (!hasData) {
     return (
-      <div className="bg-white border border-slate-200 rounded-xl p-6 text-sm text-slate-500 shadow-[0_1px_3px_rgba(15,27,45,0.06)]">
+      <div className="rounded-xl border border-slate-200 bg-white p-5 text-xs text-slate-500 shadow-[0_1px_3px_rgba(15,27,45,0.06)]">
         No drawdown data available for the selected filters.
       </div>
     );
   }
 
   return (
-    <div className="bg-white border border-slate-200 rounded-xl p-5 md:p-6 shadow-[0_1px_3px_rgba(15,27,45,0.06)] w-full relative">
-      <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-5">
-        <div>
-          <h3 className="text-[15px] font-semibold text-[#0F1B2D]">Drawdown curve</h3>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Distance from the running equity peak ({withTax ? 'net' : 'gross'})
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-x-8 gap-y-3">
-          <Stat
-            label="Max drawdown"
-            value={fmtINR(stats.max)}
-            valueClass={stats.max < 0 ? 'text-rose-600' : 'text-slate-800'}
-          />
-          <Stat
-            label="Current drawdown"
-            value={fmtINR(stats.current)}
-            valueClass={stats.current < 0 ? 'text-rose-600' : 'text-emerald-600'}
-          />
-          <Stat label="Time underwater" value={`${stats.underwaterPct.toFixed(0)}%`} />
-        </div>
-      </div>
+    <div className="relative w-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-[0_1px_3px_rgba(15,27,45,0.06)]">
+      <div className="h-[3px] w-full bg-gradient-to-r from-rose-400 via-rose-500 to-orange-400" />
 
-      <div ref={wrapRef} className="overflow-x-auto w-full pb-1">
-        <div style={{ width: chartW, height: HEIGHT, position: 'relative' }}>
-          <canvas
-            ref={canvasRef}
-            className="block cursor-crosshair"
-            onMouseMove={handleMove}
-            onMouseLeave={() => setHover(null)}
-          />
+      <div className="p-4">
+        <div className="mb-3 flex flex-col gap-2.5 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex items-center gap-2.5">
+            <div>
+              <h3 className="text-[13px] font-semibold text-[#0F1B2D]">Drawdown curve</h3>
+              <p className="mt-0.5 text-[10.5px] text-slate-500">
+                Distance from the running equity peak
+              </p>
+            </div>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[9.5px] font-semibold tracking-wider text-slate-600">
+              <span className={`h-1.5 w-1.5 rounded-full ${withTax ? 'bg-amber-500' : 'bg-indigo-500'}`} />
+              {withTax ? 'NET' : 'GROSS'}
+            </span>
+          </div>
+          <div className="flex flex-wrap divide-x divide-slate-200 overflow-hidden rounded-lg border border-slate-200 bg-slate-50/60">
+            <Stat
+              label="Max drawdown"
+              value={fmtINR(stats.max)}
+              valueClass={stats.max < 0 ? 'text-rose-600' : 'text-slate-800'}
+            />
+            <Stat
+              label="Current drawdown"
+              value={fmtINR(stats.current)}
+              valueClass={stats.current < 0 ? 'text-rose-600' : 'text-emerald-600'}
+            />
+            <Stat label="Time underwater" value={`${stats.underwaterPct.toFixed(0)}%`} />
+          </div>
+        </div>
 
-          {hover !== null && points[hover] && (() => {
-            const p = points[hover];
-            const x = geo.xOf(hover);
-            const y = geo.yOf(p.value);
-            const flip = x > chartW - 210;
-            return (
-              <div
-                className="absolute pointer-events-none z-20 min-w-[160px] rounded-lg border border-slate-200 bg-white px-3 py-2 shadow-[0_10px_30px_rgba(15,27,45,0.18)]"
-                style={{
-                  left: x,
-                  top: Math.max(8, Math.min(y - 24, HEIGHT - 110)),
-                  transform: flip ? 'translateX(calc(-100% - 14px))' : 'translateX(14px)'
-                }}
-              >
-                <div className="text-[11px] font-medium text-slate-500">{p.full}</div>
-                <div className="mt-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                  Drawdown from peak
+        <div ref={wrapRef} className="w-full overflow-x-auto pb-1">
+          <div style={{ width: chartW, height: HEIGHT, position: 'relative' }}>
+            <canvas
+              ref={canvasRef}
+              className="block cursor-crosshair"
+              onMouseMove={handleMove}
+              onMouseLeave={() => setHover(null)}
+            />
+
+            {hover !== null && points[hover] && (() => {
+              const p = points[hover];
+              const x = geo.xOf(hover);
+              const y = geo.yOf(p.value);
+              const flip = x > chartW - 200;
+              return (
+                <div
+                  data-no-neg="true"
+                  className="pointer-events-none absolute z-20 min-w-[150px] rounded-lg px-2.5 py-1.5 shadow-[0_12px_30px_rgba(15,27,45,0.35)]"
+                  style={{
+                    left: x,
+                    top: Math.max(8, Math.min(y - 24, HEIGHT - 100)),
+                    transform: flip ? 'translateX(calc(-100% - 12px))' : 'translateX(12px)',
+                    background: 'rgba(15,27,45,0.94)',
+                    border: '1px solid rgba(255,255,255,0.08)'
+                  }}
+                >
+                  <div className="text-[10px] font-medium text-slate-300">{p.full}</div>
+                  <div className="mt-1 text-[9px] font-semibold uppercase tracking-wider text-slate-400">
+                    Drawdown from peak
+                  </div>
+                  <div
+                    className="text-[13px] font-semibold leading-tight tabular-nums"
+                    style={{ color: p.value < 0 ? '#FB7185' : '#34D399' }}
+                  >
+                    {p.value < 0 ? fmtINR(p.value) : 'At peak'}
+                  </div>
                 </div>
-                <div className={`text-[15px] font-semibold leading-tight ${p.value < 0 ? 'text-rose-600' : 'text-emerald-600'}`}>
-                  {p.value < 0 ? fmtINR(p.value) : 'At peak'}
-                </div>
-              </div>
-            );
-          })()}
+              );
+            })()}
+          </div>
         </div>
       </div>
     </div>

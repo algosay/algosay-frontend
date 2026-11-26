@@ -3,12 +3,13 @@ import React, { useMemo, useState } from 'react';
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-const CELL = 20;
-const GAP = 4;
+const CELL = 16;
+const GAP = 3;
+const MONTH_GAP = 8; // extra space where a new month starts
 
-const PROFIT_SHADES = ['#A7F3D0', '#34D399', '#10B981', '#047857'];
-const LOSS_SHADES = ['#FECACA', '#F87171', '#EF4444', '#B91C1C'];
-const EMPTY_COLOR = '#EEF1F5';
+const PROFIT_SHADES = ['#BBF7D0', '#4ADE80', '#16A34A', '#065F46'];
+const LOSS_SHADES = ['#FECDD3', '#FB7185', '#E11D48', '#881337'];
+const EMPTY_COLOR = '#F1F4F8';
 const FLAT_COLOR = '#CBD5E1';
 
 const pad = (n) => String(n).padStart(2, '0');
@@ -24,10 +25,22 @@ const fmtINR = (n, withSign = false) => {
   return `${sign}₹${Math.abs(v).toLocaleString('en-IN')}`;
 };
 
-const fmtDate = (d) =>
-  d.toLocaleDateString('en-IN', { weekday: 'long', day: '2-digit', month: 'short', year: 'numeric' });
+// Compact money: 1.2L / 45k
+const fmtCompact = (n, withSign = false) => {
+  const a = Math.abs(n);
+  const sign = n < 0 ? '-' : withSign && n > 0 ? '+' : '';
+  let t;
+  if (a >= 1e7) t = `${(a / 1e7).toFixed(2)}Cr`;
+  else if (a >= 1e5) t = `${(a / 1e5).toFixed(2)}L`;
+  else if (a >= 1e3) t = `${(a / 1e3).toFixed(1)}k`;
+  else t = String(Math.round(a));
+  return `${sign}₹${t}`;
+};
 
-const fmtShort = (d) => d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+const fmtDate = (d) =>
+  d.toLocaleDateString('en-IN', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
+
+const fmtShort = (d) => d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' });
 
 const shadeFor = (pnl, maxProfit, maxLoss) => {
   if (pnl === 0) return FLAT_COLOR;
@@ -38,18 +51,17 @@ const shadeFor = (pnl, maxProfit, maxLoss) => {
   return (isProfit ? PROFIT_SHADES : LOSS_SHADES)[level];
 };
 
-const StatCard = ({ label, value, sub, tone }) => {
-  const color = tone === 'profit' ? '#047857' : tone === 'loss' ? '#DC2626' : '#0F1B2D';
-  return (
-    <div className="rounded-lg border border-slate-200 bg-slate-50/60 px-3.5 py-2.5">
-      <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">{label}</div>
-      <div className="mt-0.5 text-[15px] font-semibold leading-tight tabular-nums" style={{ color }}>
-        {value}
-      </div>
-      {sub && <div className="mt-0.5 text-[11px] font-medium text-slate-500">{sub}</div>}
+const toneText = (v) => (v > 0 ? 'text-emerald-600' : v < 0 ? 'text-rose-600' : 'text-slate-700');
+
+const Kpi = ({ label, value, sub, tone }) => (
+  <div className="px-3.5 py-2">
+    <div className="text-[9.5px] font-semibold uppercase tracking-[0.1em] text-slate-400">{label}</div>
+    <div className={`mt-0.5 text-[13px] font-semibold leading-tight tabular-nums ${tone || 'text-[#0F1B2D]'}`}>
+      {value}
     </div>
-  );
-};
+    {sub && <div className="mt-0.5 text-[10px] font-medium text-slate-400">{sub}</div>}
+  </div>
+);
 
 const DailyHeatmap = ({ result, withTax }) => {
   const [tip, setTip] = useState(null);
@@ -112,7 +124,7 @@ const DailyHeatmap = ({ result, withTax }) => {
 
   const { weeks, maxProfit, maxLoss, total, winDays, lossDays, tradingDays, best, worst, first, last } = model;
   const winRate = tradingDays ? (winDays / tradingDays) * 100 : 0;
-  const toneOf = (v) => (v > 0 ? 'profit' : v < 0 ? 'loss' : undefined);
+  const avgDay = tradingDays ? total / tradingDays : 0;
 
   const showTip = (e, cell) => {
     const r = e.currentTarget.getBoundingClientRect();
@@ -120,146 +132,160 @@ const DailyHeatmap = ({ result, withTax }) => {
   };
 
   const restShadow = (has) =>
-    has ? 'inset 0 0 0 1px rgba(15,27,45,0.06)' : 'inset 0 0 0 1px rgba(15,27,45,0.03)';
+    has ? 'inset 0 0 0 1px rgba(15,27,45,0.07)' : 'inset 0 0 0 1px rgba(15,27,45,0.03)';
+
+  const monthStartsAt = (wi) => wi > 0 && weeks[wi][0].date.getMonth() !== weeks[wi - 1][0].date.getMonth();
 
   return (
-    <div className="bg-white border border-slate-200 rounded-xl p-4 md:p-5 shadow-[0_1px_3px_rgba(15,27,45,0.06)]">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-1 mb-4">
-        <div>
-          <h3 className="text-sm font-semibold text-[#0F1B2D]">Daily profit/loss heatmap</h3>
-          <p className="text-[11px] text-slate-500 mt-0.5">
-            {fmtShort(first)} to {fmtShort(last)} · {tradingDays} trading days
-          </p>
-        </div>
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
-          {withTax ? 'Net of brokerage & tax' : 'Gross P&L'}
-        </span>
-      </div>
+    <div className="relative overflow-hidden rounded-xl border border-slate-200 bg-white shadow-[0_1px_3px_rgba(15,27,45,0.06)]">
+      <div className="h-[3px] w-full bg-gradient-to-r from-emerald-400 via-teal-400 to-rose-400" />
 
-      {/* Summary strip */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 mb-5">
-        <StatCard
-          label="Total P&L"
-          value={fmtINR(total, true)}
-          sub={`${winDays} win · ${lossDays} loss days`}
-          tone={toneOf(total)}
-        />
-        <StatCard label="Win rate" value={`${winRate.toFixed(1)}%`} sub={`${winDays} of ${tradingDays} days`} />
-        <StatCard label="Best day" value={fmtINR(best.pnl, true)} sub={fmtShort(parseKey(best.date))} tone={toneOf(best.pnl)} />
-        <StatCard label="Worst day" value={fmtINR(worst.pnl, true)} sub={fmtShort(parseKey(worst.date))} tone={toneOf(worst.pnl)} />
-      </div>
-
-      {/* Heatmap grid */}
-      <div className="overflow-x-auto pb-1" onScroll={() => setTip(null)}>
-        <div className="inline-flex min-w-max">
-          <div className="flex flex-col pr-2.5 mr-1 border-r border-slate-200" style={{ paddingTop: 22, gap: GAP }}>
-            {WEEKDAYS.map((d) => (
-              <div key={d} className="flex items-center text-[11px] font-medium text-slate-600" style={{ height: CELL }}>
-                {d}
-              </div>
-            ))}
+      <div className="p-4">
+        {/* Header */}
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h3 className="text-[13px] font-semibold text-[#0F1B2D]">Daily P&amp;L heatmap</h3>
+            <p className="mt-0.5 text-[10.5px] text-slate-500">
+              {fmtShort(first)} to {fmtShort(last)} · {tradingDays} trading days
+            </p>
           </div>
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[9.5px] font-semibold tracking-wider text-slate-600">
+            <span className={`h-1.5 w-1.5 rounded-full ${withTax ? 'bg-amber-500' : 'bg-indigo-500'}`} />
+            {withTax ? 'NET' : 'GROSS'}
+          </span>
+        </div>
 
-          <div className="pl-2.5">
-            {/* Month labels */}
-            <div className="flex" style={{ gap: GAP, height: 18, marginBottom: 4 }}>
-              {weeks.map((week, wi) => {
-                const m = week[0].date.getMonth();
-                const prevM = wi > 0 ? weeks[wi - 1][0].date.getMonth() : -1;
-                const showLabel = wi === 0 || m !== prevM;
-                return (
-                  <div key={wi} className="relative" style={{ width: CELL }}>
-                    {showLabel && (
-                      <span className="absolute left-0 top-0 whitespace-nowrap text-[11px] font-medium text-slate-600">
-                        {MONTHS[m]}
-                        {m === 0 ? ` ${week[0].date.getFullYear()}` : ''}
-                      </span>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+        {/* KPI strip */}
+        <div className="mb-4 grid grid-cols-2 divide-x divide-y divide-slate-100 overflow-hidden rounded-lg border border-slate-200 bg-slate-50/60 sm:grid-cols-5 sm:divide-y-0">
+          <Kpi label="Total" value={fmtINR(total, true)} sub={`${winDays}W · ${lossDays}L days`} tone={toneText(total)} />
+          <Kpi label="Win rate" value={`${winRate.toFixed(1)}%`} sub={`${winDays}/${tradingDays} days`} />
+          <Kpi label="Avg / day" value={fmtCompact(avgDay, true)} tone={toneText(avgDay)} />
+          <Kpi label="Best day" value={fmtCompact(best.pnl, true)} sub={fmtShort(parseKey(best.date))} tone={toneText(best.pnl)} />
+          <Kpi label="Worst day" value={fmtCompact(worst.pnl, true)} sub={fmtShort(parseKey(worst.date))} tone={toneText(worst.pnl)} />
+        </div>
 
-            {/* Cells */}
-            <div className="flex" style={{ gap: GAP }}>
-              {weeks.map((week, wi) => (
-                <div key={wi} className="flex flex-col" style={{ gap: GAP }}>
-                  {week.map((cell) => {
-                    const bg = cell.hasTrade ? shadeFor(cell.pnl, maxProfit, maxLoss) : EMPTY_COLOR;
-                    return (
-                      <div
-                        key={cell.key}
-                        onMouseEnter={cell.hasTrade ? (e) => showTip(e, cell) : undefined}
-                        onMouseLeave={() => setTip(null)}
-                        style={{
-                          width: CELL,
-                          height: CELL,
-                          backgroundColor: bg,
-                          borderRadius: 5,
-                          boxShadow: restShadow(cell.hasTrade),
-                          cursor: cell.hasTrade ? 'pointer' : 'default',
-                          transition: 'transform 120ms ease, box-shadow 120ms ease'
-                        }}
-                        onMouseOver={(e) => {
-                          if (cell.hasTrade) {
-                            e.currentTarget.style.transform = 'scale(1.15)';
-                            e.currentTarget.style.boxShadow = '0 0 0 2px #0F1B2D';
-                          }
-                        }}
-                        onMouseOut={(e) => {
-                          e.currentTarget.style.transform = 'scale(1)';
-                          e.currentTarget.style.boxShadow = restShadow(cell.hasTrade);
-                        }}
-                      />
-                    );
-                  })}
+        {/* Heatmap grid */}
+        <div className="overflow-x-auto pb-1" onScroll={() => setTip(null)}>
+          <div className="inline-flex min-w-max">
+            <div className="mr-1 flex flex-col pr-2" style={{ paddingTop: 20, gap: GAP }}>
+              {WEEKDAYS.map((d) => (
+                <div key={d} className="flex items-center text-[10px] font-medium text-slate-500" style={{ height: CELL }}>
+                  {d}
                 </div>
               ))}
             </div>
+
+            <div>
+              {/* Month labels */}
+              <div className="flex" style={{ gap: GAP, height: 16, marginBottom: 4 }}>
+                {weeks.map((week, wi) => {
+                  const m = week[0].date.getMonth();
+                  const showLabel = wi === 0 || monthStartsAt(wi);
+                  return (
+                    <div
+                      key={wi}
+                      className="relative"
+                      style={{ width: CELL, marginLeft: monthStartsAt(wi) ? MONTH_GAP : 0 }}
+                    >
+                      {showLabel && (
+                        <span className="absolute left-0 top-0 whitespace-nowrap text-[10px] font-semibold text-slate-600">
+                          {MONTHS[m]}
+                          {m === 0 ? ` '${String(week[0].date.getFullYear()).slice(2)}` : ''}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Cells */}
+              <div className="flex" style={{ gap: GAP }}>
+                {weeks.map((week, wi) => (
+                  <div
+                    key={wi}
+                    className="flex flex-col"
+                    style={{ gap: GAP, marginLeft: monthStartsAt(wi) ? MONTH_GAP : 0 }}
+                  >
+                    {week.map((cell) => {
+                      const bg = cell.hasTrade ? shadeFor(cell.pnl, maxProfit, maxLoss) : EMPTY_COLOR;
+                      return (
+                        <div
+                          key={cell.key}
+                          onMouseEnter={cell.hasTrade ? (e) => showTip(e, cell) : undefined}
+                          onMouseLeave={() => setTip(null)}
+                          style={{
+                            width: CELL,
+                            height: CELL,
+                            backgroundColor: bg,
+                            borderRadius: 4,
+                            boxShadow: restShadow(cell.hasTrade),
+                            cursor: cell.hasTrade ? 'pointer' : 'default',
+                            transition: 'transform 120ms ease, box-shadow 120ms ease'
+                          }}
+                          onMouseOver={(e) => {
+                            if (cell.hasTrade) {
+                              e.currentTarget.style.transform = 'scale(1.22)';
+                              e.currentTarget.style.boxShadow = '0 0 0 1.5px #0F1B2D';
+                            }
+                          }}
+                          onMouseOut={(e) => {
+                            e.currentTarget.style.transform = 'scale(1)';
+                            e.currentTarget.style.boxShadow = restShadow(cell.hasTrade);
+                          }}
+                        />
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Legend */}
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-2.5">
+          <span className="text-[10px] text-slate-400">Intensity is relative to your biggest profit and loss day.</span>
+          <div className="flex items-center gap-2 text-[10px] font-medium text-slate-500">
+            <span>Loss</span>
+            <div className="flex gap-[3px]">
+              {[...LOSS_SHADES].reverse().map((c) => (
+                <span key={c} style={{ width: 11, height: 11, backgroundColor: c, borderRadius: 3, display: 'inline-block' }} />
+              ))}
+              <span style={{ width: 11, height: 11, backgroundColor: EMPTY_COLOR, borderRadius: 3, display: 'inline-block', boxShadow: 'inset 0 0 0 1px rgba(15,27,45,0.08)' }} />
+              {PROFIT_SHADES.map((c) => (
+                <span key={c} style={{ width: 11, height: 11, backgroundColor: c, borderRadius: 3, display: 'inline-block' }} />
+              ))}
+            </div>
+            <span>Profit</span>
           </div>
         </div>
       </div>
 
-      {/* Legend */}
-      <div className="flex flex-wrap items-center justify-between gap-3 mt-3 pt-3 border-t border-slate-100">
-        <span className="text-[11px] text-slate-500">Colour intensity is relative to your biggest profit and loss day.</span>
-        <div className="flex items-center gap-2 text-[11px] font-medium text-slate-600">
-          <span>Loss</span>
-          <div className="flex gap-1">
-            {[...LOSS_SHADES].reverse().map((c) => (
-              <span key={c} style={{ width: 14, height: 14, backgroundColor: c, borderRadius: 3, display: 'inline-block' }} />
-            ))}
-            <span style={{ width: 14, height: 14, backgroundColor: EMPTY_COLOR, borderRadius: 3, display: 'inline-block', boxShadow: 'inset 0 0 0 1px rgba(15,27,45,0.08)' }} />
-            {PROFIT_SHADES.map((c) => (
-              <span key={c} style={{ width: 14, height: 14, backgroundColor: c, borderRadius: 3, display: 'inline-block' }} />
-            ))}
-          </div>
-          <span>Profit</span>
-        </div>
-      </div>
-
-      {/* Floating tooltip */}
+      {/* Floating tooltip (dark glass) */}
       {tip && (
         <div
           className="pointer-events-none"
           style={{
             position: 'fixed',
             left: tip.x,
-            top: tip.y - 10,
+            top: tip.y - 8,
             transform: 'translate(-50%, -100%)',
             zIndex: 9999
           }}
         >
-          <div className="rounded-lg border border-slate-200 bg-white px-3 py-2 shadow-[0_10px_30px_rgba(15,27,45,0.16)] min-w-[150px]">
-            <div className="text-[11px] font-medium text-slate-500">{fmtDate(tip.cell.date)}</div>
+          <div
+            data-no-neg="true"
+            className="min-w-[130px] rounded-lg px-2.5 py-1.5 shadow-[0_12px_30px_rgba(15,27,45,0.35)]"
+            style={{ background: 'rgba(15,27,45,0.94)', border: '1px solid rgba(255,255,255,0.08)' }}
+          >
+            <div className="text-[10px] font-medium text-slate-300">{fmtDate(tip.cell.date)}</div>
             <div
-              className="mt-0.5 text-[14px] font-semibold tabular-nums"
-              style={{ color: tip.cell.pnl > 0 ? '#047857' : tip.cell.pnl < 0 ? '#DC2626' : '#475569' }}
+              className="mt-0.5 text-[13px] font-semibold tabular-nums"
+              style={{ color: tip.cell.pnl > 0 ? '#34D399' : tip.cell.pnl < 0 ? '#FB7185' : '#CBD5E1' }}
             >
               {fmtINR(tip.cell.pnl, true)}
             </div>
-            <div className="text-[10px] font-medium text-slate-400 mt-0.5">
+            <div className="mt-0.5 text-[9.5px] font-medium text-slate-400">
               {tip.cell.pnl > 0 ? 'Profit day' : tip.cell.pnl < 0 ? 'Loss day' : 'Flat day'}
               {' · '}{withTax ? 'Net' : 'Gross'}
             </div>

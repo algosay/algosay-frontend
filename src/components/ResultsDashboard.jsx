@@ -707,7 +707,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
     return null;
   }
 
-  const btnBase = 'flex items-center gap-2 px-3.5 py-1.5 text-xs font-semibold rounded-md transition-colors disabled:opacity-50 cursor-pointer';
+  const btnBase = 'flex items-center gap-1.5 px-3 py-1 text-[11px] font-semibold rounded-md transition-colors disabled:opacity-50 cursor-pointer';
 
   const ctxChips = [
     { label: 'Trades', value: analysisContext?.total_trades ?? 0, on: true },
@@ -764,7 +764,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
 
           /* =====================================================
              PROFESSIONAL TYPE SCALE (caps oversized numbers/text
-             in every child component, incl. ledger tables)
+             in every child component)
              ===================================================== */
           .rd-root .text-6xl,
           .rd-root .text-5xl,
@@ -773,28 +773,28 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
           .rd-root [class*="text-[2"],
           .rd-root [class*="text-[3"],
           .rd-root [class*="text-[4"] {
-            font-size: 20px !important;
+            font-size: 18px !important;
             line-height: 1.25 !important;
             letter-spacing: -0.01em;
           }
-          .rd-root .text-2xl { font-size: 18px !important; line-height: 1.3 !important; }
-          .rd-root .text-xl  { font-size: 16px !important; line-height: 1.35 !important; }
-          .rd-root .text-lg  { font-size: 15px !important; line-height: 1.4 !important; }
+          .rd-root .text-2xl { font-size: 16px !important; line-height: 1.3 !important; }
+          .rd-root .text-xl  { font-size: 15px !important; line-height: 1.35 !important; }
+          .rd-root .text-lg  { font-size: 14px !important; line-height: 1.4 !important; }
 
-          /* Ledger / data tables: compact, readable, consistent */
-          .rd-root table td,
-          .rd-root table td * {
-            font-size: 12.5px !important;
+          /* Generic data tables (compact tables like el-table / dw-table / ma-table set their own scoped sizes) */
+          .rd-root table:not(.el-table):not(.dw-table):not(.ma-table) td,
+          .rd-root table:not(.el-table):not(.dw-table):not(.ma-table) td * {
+            font-size: 12px !important;
             line-height: 1.4 !important;
           }
-          .rd-root table th,
-          .rd-root table th * {
-            font-size: 10.5px !important;
+          .rd-root table:not(.el-table):not(.dw-table):not(.ma-table) th,
+          .rd-root table:not(.el-table):not(.dw-table):not(.ma-table) th * {
+            font-size: 10px !important;
             line-height: 1.3 !important;
-            letter-spacing: 0.04em;
+            letter-spacing: 0.05em;
           }
-          .rd-root table td { padding-top: 7px !important; padding-bottom: 7px !important; }
-          .rd-root table th { padding-top: 8px !important; padding-bottom: 8px !important; }
+          .rd-root table:not(.el-table):not(.dw-table):not(.ma-table) td { padding-top: 6px !important; padding-bottom: 6px !important; }
+          .rd-root table:not(.el-table):not(.dw-table):not(.ma-table) th { padding-top: 7px !important; padding-bottom: 7px !important; }
 
           /* Loss / negative values -> always red */
           .rd-root .neg-red,
@@ -811,7 +811,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
             color: #DC2626 !important;
           }
 
-          /* ================= AI Diagnostics (WHITE base) ================= */
+          /* ================= AI Diagnostics (WHITE base, compact) ================= */
           .ai-card {
             position: relative;
             overflow: hidden;
@@ -830,31 +830,31 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
           .ai-inner { position: relative; z-index: 1; }
 
           .ai-badge {
-            display: inline-flex; align-items: center; gap: 6px;
-            padding: 3px 10px; border-radius: 999px;
-            font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 2px 9px; border-radius: 999px;
+            font-size: 9.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
             color: #4338CA;
             background: #EEF2FF;
             border: 1px solid #C7D2FE;
           }
-          .ai-dot { width: 6px; height: 6px; border-radius: 50%; background: #10B981; animation: aiPulse 1.8s ease-in-out infinite; }
+          .ai-dot { width: 5px; height: 5px; border-radius: 50%; background: #10B981; animation: aiPulse 1.8s ease-in-out infinite; }
           @keyframes aiPulse { 0%,100%{opacity:1; transform:scale(1);} 50%{opacity:.4; transform:scale(.8);} }
 
           .ai-logo {
-            width: 38px; height: 38px; border-radius: 10px;
+            width: 32px; height: 32px; border-radius: 9px;
             display: flex; align-items: center; justify-content: center;
             color: #fff;
             background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #06B6D4 100%);
           }
 
           .ai-title {
-            font-size: 16px; font-weight: 700; letter-spacing: -0.01em;
+            font-size: 14px; font-weight: 700; letter-spacing: -0.01em;
             color: #0F1B2D;
           }
 
-          .ai-seg { display: inline-flex; padding: 3px; border-radius: 10px; background: #F1F5F9; border: 1px solid #E2E8F0; }
+          .ai-seg { display: inline-flex; padding: 2px; border-radius: 9px; background: #F1F5F9; border: 1px solid #E2E8F0; }
           .ai-seg button {
-            padding: 5px 13px; font-size: 12px; font-weight: 600; border-radius: 8px; cursor: pointer;
+            padding: 4px 11px; font-size: 11px; font-weight: 600; border-radius: 7px; cursor: pointer;
             color: #64748B; border: 1px solid transparent; transition: all .2s ease; background: transparent;
           }
           .ai-seg button:hover { color: #0F172A; }
@@ -865,17 +865,17 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
           }
 
           .ai-chip {
-            display: inline-flex; align-items: center; gap: 6px;
-            padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 600;
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 3px 9px; border-radius: 999px; font-size: 10px; font-weight: 600;
             background: #F8FAFC; border: 1px solid #E2E8F0; color: #64748B;
           }
           .ai-chip.on { color: #047857; border-color: #A7F3D0; background: #ECFDF5; }
-          .ai-chip .d { width: 6px; height: 6px; border-radius: 50%; background: #CBD5E1; }
+          .ai-chip .d { width: 5px; height: 5px; border-radius: 50%; background: #CBD5E1; }
           .ai-chip.on .d { background: #10B981; }
           .ai-chip b { color: #0F172A; font-weight: 700; }
 
           .ai-input-wrap {
-            border-radius: 12px; padding: 1px;
+            border-radius: 11px; padding: 1px;
             background: #E2E8F0;
             transition: background .2s ease;
           }
@@ -883,24 +883,24 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
             background: linear-gradient(135deg, #6366F1, #06B6D4);
           }
           .ai-input {
-            border-radius: 11px; background: #F8FAFC; padding: 12px 14px 10px;
+            border-radius: 10px; background: #F8FAFC; padding: 10px 12px 8px;
           }
           .ai-input textarea {
-            width: 100%; background: transparent; color: #0F172A; font-size: 13.5px; line-height: 1.6;
+            width: 100%; background: transparent; color: #0F172A; font-size: 12.5px; line-height: 1.55;
             outline: none; resize: none; border: none;
           }
           .ai-input textarea::placeholder { color: #94A3B8; }
 
           .ai-quick {
-            padding: 5px 12px; border-radius: 999px; font-size: 11.5px; font-weight: 600; cursor: pointer;
+            padding: 4px 10px; border-radius: 999px; font-size: 10.5px; font-weight: 600; cursor: pointer;
             color: #4338CA; background: #EEF2FF; border: 1px solid #C7D2FE;
             transition: all .2s ease;
           }
           .ai-quick:hover { background: #E0E7FF; color: #3730A3; }
 
           .ai-cta {
-            position: relative; display: inline-flex; align-items: center; gap: 8px;
-            padding: 8px 18px; border-radius: 10px; font-size: 13px; font-weight: 600; color: #fff; cursor: pointer;
+            position: relative; display: inline-flex; align-items: center; gap: 7px;
+            padding: 6px 14px; border-radius: 9px; font-size: 12px; font-weight: 600; color: #fff; cursor: pointer;
             background: #0F1B2D;
             box-shadow: 0 4px 12px -4px rgba(15,27,45,0.5);
             transition: background .2s ease, opacity .2s ease; border: none;
@@ -909,44 +909,44 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
           .ai-cta:disabled { opacity: .6; cursor: not-allowed; }
 
           .ai-result {
-            border-radius: 12px; padding: 20px 22px;
+            border-radius: 11px; padding: 16px 18px;
             background: #FFFFFF;
             border: 1px solid #E2E8F0;
             border-left: 3px solid #6366F1;
           }
-          .ai-prose { color: #334155; font-size: 13.5px; line-height: 1.75; }
+          .ai-prose { color: #334155; font-size: 12.5px; line-height: 1.7; }
           .ai-h {
-            margin: 18px 0 8px; font-size: 13.5px; font-weight: 700; letter-spacing: .01em; color: #0F1B2D;
-            display: flex; align-items: center; gap: 8px;
+            margin: 14px 0 6px; font-size: 12.5px; font-weight: 700; letter-spacing: .01em; color: #0F1B2D;
+            display: flex; align-items: center; gap: 7px;
           }
           .ai-h::before {
-            content: ''; width: 5px; height: 15px; border-radius: 3px;
+            content: ''; width: 4px; height: 13px; border-radius: 3px;
             background: linear-gradient(180deg, #6366F1, #06B6D4);
           }
           .ai-h:first-child { margin-top: 0; }
-          .ai-p { margin: 0 0 10px; }
-          .ai-ul { margin: 0 0 12px; padding: 0; list-style: none; }
-          .ai-ul li { position: relative; padding: 4px 0 4px 20px; }
+          .ai-p { margin: 0 0 8px; }
+          .ai-ul { margin: 0 0 10px; padding: 0; list-style: none; }
+          .ai-ul li { position: relative; padding: 3px 0 3px 18px; }
           .ai-ul li::before {
-            content: ''; position: absolute; left: 4px; top: 13px; width: 6px; height: 6px; border-radius: 50%;
+            content: ''; position: absolute; left: 3px; top: 11px; width: 5px; height: 5px; border-radius: 50%;
             background: #6366F1;
           }
           .ai-strong { color: #0F172A; font-weight: 700; }
 
           .ai-empty {
-            display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 12px;
+            display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-radius: 11px;
             background: #F8FAFC; border: 1px dashed #CBD5E1;
-            color: #64748B; font-size: 13px; line-height: 1.6;
+            color: #64748B; font-size: 12px; line-height: 1.55;
           }
 
-          .ai-skel { height: 12px; border-radius: 6px; margin-bottom: 12px;
+          .ai-skel { height: 10px; border-radius: 6px; margin-bottom: 10px;
             background: linear-gradient(90deg, #F1F5F9 25%, #E0E7FF 50%, #F1F5F9 75%);
             background-size: 200% 100%; animation: aiShimmer 1.4s linear infinite; }
           @keyframes aiShimmer { 0%{background-position:200% 0;} 100%{background-position:-200% 0;} }
 
           .ai-ghost {
-            display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 8px; cursor: pointer;
-            font-size: 11px; font-weight: 600; color: #475569; background: #fff;
+            display: inline-flex; align-items: center; gap: 5px; padding: 4px 9px; border-radius: 8px; cursor: pointer;
+            font-size: 10.5px; font-weight: 600; color: #475569; background: #fff;
             border: 1px solid #E2E8F0; transition: all .2s ease;
           }
           .ai-ghost:hover { color: #0F172A; border-color: #A5B4FC; }
@@ -980,7 +980,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
       )}
 
       {isExporting && (
-        <div className="mb-6 pb-3 border-b border-slate-200 text-center">
+        <div className="mb-5 pb-3 border-b border-slate-200 text-center">
           <h1 className="text-xl font-semibold text-[#0F1B2D]">
             AlgoSay · Strategy pro report
           </h1>
@@ -991,7 +991,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
       )}
 
       {/* Downloads */}
-      <div className="flex flex-wrap justify-end gap-2 mb-3" data-html2canvas-ignore="true">
+      <div className="flex flex-wrap justify-end gap-1.5 mb-2.5" data-html2canvas-ignore="true">
         <button
           onClick={downloadCSV}
           disabled={isExporting}
@@ -1023,24 +1023,24 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
       </div>
 
       {/* Filters */}
-      <div className="bg-white border border-slate-200 rounded-xl p-4 mb-4 shadow-[0_1px_2px_rgba(15,27,45,0.04)]" data-html2canvas-ignore="true">
-        <div className="flex justify-between items-center mb-3">
-          <h3 className="text-[#0F1B2D] font-semibold text-sm">Strategy filters</h3>
+      <div className="relative overflow-hidden bg-white border border-slate-200 rounded-xl px-3.5 py-3 mb-3 shadow-[0_1px_2px_rgba(15,27,45,0.04)]" data-html2canvas-ignore="true">
+        <div className="flex justify-between items-center mb-2">
+          <h3 className="text-[#0F1B2D] font-semibold text-[13px]">Strategy filters</h3>
           {isRecalculating && (
-            <span className="text-xs text-indigo-600 animate-pulse font-medium">Recalculating metrics...</span>
+            <span className="text-[11px] text-indigo-600 animate-pulse font-medium">Recalculating metrics...</span>
           )}
         </div>
 
-        <div className="flex flex-col md:flex-row gap-6">
+        <div className="flex flex-col md:flex-row gap-4 md:gap-8">
           <div className="flex-1">
-            <span className="text-xs text-slate-500 font-medium mb-2 block">Day of week</span>
-            <div className="flex flex-wrap gap-1.5">
+            <span className="text-[10px] uppercase tracking-[0.1em] text-slate-400 font-semibold mb-1.5 block">Day of week</span>
+            <div className="flex flex-wrap gap-1">
               {allDays.map((day) => {
                 const isActive = selectedDays.includes(day);
                 return (
                   <label
                     key={day}
-                    className={`flex items-center gap-2 text-xs font-semibold cursor-pointer px-3 py-1 rounded-full transition-all border ${isActive ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-white text-slate-500 border-slate-200 hover:border-slate-400'}`}
+                    className={`flex items-center gap-1.5 text-[11px] font-semibold cursor-pointer px-2.5 py-0.5 rounded-full transition-all border ${isActive ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-white text-slate-500 border-slate-200 hover:border-slate-400'}`}
                   >
                     <input type="checkbox" checked={isActive} onChange={() => handleDayToggle(day)} className="hidden" />
                     {day.substring(0, 3)}
@@ -1051,40 +1051,40 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
           </div>
 
           <div className="flex-1">
-            <span className="text-xs text-slate-500 font-medium mb-2 block">Days to expiry (DTE)</span>
-            <div className="flex flex-wrap gap-1.5">
+            <span className="text-[10px] uppercase tracking-[0.1em] text-slate-400 font-semibold mb-1.5 block">Days to expiry (DTE)</span>
+            <div className="flex flex-wrap gap-1">
               {availableDTEs.length > 0 ? availableDTEs.map((dte) => {
                 const isActive = selectedDTEs.includes(dte);
                 return (
                   <label
                     key={dte}
-                    className={`flex items-center gap-2 text-xs font-semibold cursor-pointer px-3 py-1 rounded-full transition-all border ${isActive ? 'bg-violet-50 text-violet-700 border-violet-200' : 'bg-white text-slate-500 border-slate-200 hover:border-slate-400'}`}
+                    className={`flex items-center gap-1.5 text-[11px] font-semibold cursor-pointer px-2.5 py-0.5 rounded-full transition-all border ${isActive ? 'bg-violet-50 text-violet-700 border-violet-200' : 'bg-white text-slate-500 border-slate-200 hover:border-slate-400'}`}
                   >
                     <input type="checkbox" checked={isActive} onChange={() => handleDTEToggle(dte)} className="hidden" />
                     {dte} DTE
                   </label>
                 );
               }) : (
-                <span className="text-xs text-slate-400 italic">No DTE data available.</span>
+                <span className="text-[11px] text-slate-400 italic">No DTE data available.</span>
               )}
             </div>
           </div>
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row justify-between items-end sm:items-center mb-4">
-        <h2 className="text-[15px] font-semibold text-[#0F1B2D] tracking-tight">
+      <div className="flex flex-col sm:flex-row justify-between items-end sm:items-center mb-3">
+        <h2 className="text-[14px] font-semibold text-[#0F1B2D] tracking-tight">
           Performance metrics
         </h2>
-        <div className="flex items-center gap-2.5 bg-white border border-slate-200 px-3 py-1.5 rounded-lg" data-html2canvas-ignore="true">
-          <span className="text-[11px] text-slate-500 font-medium">Brokerage & tax</span>
+        <div className="flex items-center gap-2 bg-white border border-slate-200 px-2.5 py-1 rounded-lg" data-html2canvas-ignore="true">
+          <span className="text-[10.5px] text-slate-500 font-medium">Brokerage & tax</span>
           <div
             onClick={() => setWithTax(!withTax)}
-            className={`w-9 h-5 flex items-center rounded-full p-0.5 cursor-pointer transition-colors ${withTax ? 'bg-[#0F1B2D]' : 'bg-slate-300'}`}
+            className={`w-8 h-[18px] flex items-center rounded-full p-0.5 cursor-pointer transition-colors ${withTax ? 'bg-[#0F1B2D]' : 'bg-slate-300'}`}
           >
-            <div className={`bg-white w-4 h-4 rounded-full shadow transform transition-transform ${withTax ? 'translate-x-4' : 'translate-x-0'}`}></div>
+            <div className={`bg-white w-3.5 h-3.5 rounded-full shadow transform transition-transform ${withTax ? 'translate-x-3.5' : 'translate-x-0'}`}></div>
           </div>
-          <span className={`text-[11px] font-semibold tracking-wide ${withTax ? 'text-[#0F1B2D]' : 'text-slate-400'}`}>
+          <span className={`text-[10.5px] font-semibold tracking-wide ${withTax ? 'text-[#0F1B2D]' : 'text-slate-400'}`}>
             {withTax ? 'NET' : 'GROSS'}
           </span>
         </div>
@@ -1099,7 +1099,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
           <TaxBreakdown result={activeResult} />
         </ErrorBoundary>
 
-        <div className="space-y-4 mt-4">
+        <div className="space-y-3 mt-3">
           <ErrorBoundary name="EquityCurveChart">
             <EquityCurveChart result={activeResult} withTax={withTax} />
           </ErrorBoundary>
@@ -1133,15 +1133,15 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
 
           {/* ================= AI strategy diagnostics (below ledger) ================= */}
           <section className="ai-card" data-no-neg="true">
-            <div className="ai-inner p-5 sm:p-6">
+            <div className="ai-inner p-4 sm:p-5">
               {/* Header */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
-                <div className="flex items-center gap-3.5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                <div className="flex items-center gap-3">
                   <div className="ai-logo">
-                    <SparkIcon className="w-5 h-5" />
+                    <SparkIcon className="w-4 h-4" />
                   </div>
                   <div>
-                    <div className="flex items-center gap-2.5 mb-1">
+                    <div className="flex items-center gap-2 mb-0.5">
                       <span className="ai-badge"><span className="ai-dot" /> AI Engine</span>
                     </div>
                     <h3 className="ai-title">AI strategy diagnostics</h3>
@@ -1162,11 +1162,11 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
               </div>
 
               {/* Data context chips */}
-              <div className="mb-5" data-html2canvas-ignore="true">
-                <p className="text-[11px] uppercase tracking-[0.12em] font-semibold text-slate-500 mb-2">
+              <div className="mb-4" data-html2canvas-ignore="true">
+                <p className="text-[10px] uppercase tracking-[0.1em] font-semibold text-slate-400 mb-1.5">
                   Data fed to AI
                 </p>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1.5">
                   {ctxChips.map((c) => (
                     <span key={c.label} className={`ai-chip ${c.on ? 'on' : ''}`}>
                       <span className="d" />
@@ -1177,7 +1177,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
               </div>
 
               {/* Prompt box */}
-              <div className="ai-input-wrap mb-5" data-html2canvas-ignore="true">
+              <div className="ai-input-wrap mb-4" data-html2canvas-ignore="true">
                 <div className="ai-input">
                   <textarea
                     value={customPrompt}
@@ -1186,7 +1186,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
                     rows="3"
                   />
 
-                  <div className="flex flex-wrap gap-2 mt-2 mb-3">
+                  <div className="flex flex-wrap gap-1.5 mt-1.5 mb-2.5">
                     {QUICK_PROMPTS.map((p) => (
                       <button key={p.label} className="ai-quick" onClick={() => setCustomPrompt(p.q)}>
                         {p.label}
@@ -1194,12 +1194,12 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
                     ))}
                   </div>
 
-                  <div className="flex items-center justify-between pt-3 border-t border-slate-200">
-                    <span className="text-[11px] text-slate-500">
+                  <div className="flex items-center justify-between pt-2.5 border-t border-slate-200">
+                    <span className="text-[10.5px] text-slate-500">
                       Analyzing {analysisContext?.total_trades ?? 0} trades · {aiLanguage}
                     </span>
                     <button onClick={fetchAIInsights} disabled={isLoadingAI} className="ai-cta">
-                      <SparkIcon className="w-4 h-4" />
+                      <SparkIcon className="w-3.5 h-3.5" />
                       {isLoadingAI ? 'Analyzing strategy...' : (aiAdvice ? 'Regenerate analysis' : 'Analyze with AI')}
                     </button>
                   </div>
@@ -1213,7 +1213,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
                   <div className="ai-skel" style={{ width: '96%' }} />
                   <div className="ai-skel" style={{ width: '88%' }} />
                   <div className="ai-skel" style={{ width: '92%' }} />
-                  <div className="ai-skel" style={{ width: '30%', marginTop: 20 }} />
+                  <div className="ai-skel" style={{ width: '30%', marginTop: 16 }} />
                   <div className="ai-skel" style={{ width: '84%' }} />
                   <div className="ai-skel" style={{ width: '70%', marginBottom: 0 }} />
                 </div>
@@ -1222,7 +1222,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
               {/* Result */}
               {!isLoadingAI && aiAdvice && (
                 <div className="ai-result">
-                  <div className="flex items-center justify-between mb-4" data-html2canvas-ignore="true">
+                  <div className="flex items-center justify-between mb-3" data-html2canvas-ignore="true">
                     <span className="ai-badge">Analysis report</span>
                     <button className="ai-ghost" onClick={copyAdvice}>
                       <CopyIcon /> {copied ? 'Copied' : 'Copy'}
@@ -1237,7 +1237,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
               {/* Empty state */}
               {!isLoadingAI && !aiAdvice && (
                 <div className="ai-empty">
-                  <SparkIcon className="w-5 h-5 shrink-0 text-indigo-500" />
+                  <SparkIcon className="w-4 h-4 shrink-0 text-indigo-500" />
                   <span>
                     Review the ledger above, then let the AI study your day-wise, DTE-wise and monthly behaviour
                     to suggest actionable improvements.

@@ -9,11 +9,25 @@ const signedINR = (n) => `${n < 0 ? '−' : '+'}₹${fmt(n)}`;
 const heat = (val, maxAbs) => {
   if (!val || !maxAbs) return {};
   const t = Math.min(1, Math.abs(val) / maxAbs);
-  const a = 0.08 + Math.pow(t, 0.7) * 0.5;
+  const a = 0.1 + Math.pow(t, 0.7) * 0.55;
   return val > 0
-    ? { backgroundColor: `rgba(16,185,129,${a})`, color: '#065F46' }
-    : { backgroundColor: `rgba(244,63,94,${a})`, color: '#9F1239' };
+    ? { backgroundColor: `rgba(16,185,129,${a})`, color: t > 0.7 ? '#064E3B' : '#065F46' }
+    : { backgroundColor: `rgba(244,63,94,${a})`, color: t > 0.7 ? '#881337' : '#9F1239' };
 };
+
+const STYLES = `
+  .rd-root table.ma-table td,
+  .rd-root table.ma-table td * { font-size: 10.5px !important; line-height: 1.3 !important; }
+  .rd-root table.ma-table td { padding: 4px 3px !important; }
+  .rd-root table.ma-table th,
+  .rd-root table.ma-table th * { font-size: 9.5px !important; line-height: 1.2 !important; letter-spacing: .07em; }
+  .rd-root table.ma-table th { padding: 6px 4px !important; }
+  .rd-root table.ma-table td .ma-year { font-size: 11.5px !important; }
+  .rd-root table.ma-table td .ma-tot { font-size: 11px !important; }
+  .rd-root table.ma-table tfoot td, .rd-root table.ma-table tfoot td * { font-size: 10.5px !important; }
+`;
+
+const toneText = (v) => (v >= 0 ? 'text-emerald-600' : 'text-rose-600');
 
 const MonthlyAnalytics = ({ result, withTax }) => {
   const { monthlyPnL, years, maxAbs, yearTotals, colTotals, colCounts, entries, grandTotal, maxYearAbs } =
@@ -102,7 +116,7 @@ const MonthlyAnalytics = ({ result, withTax }) => {
     {
       label: withTax ? 'Net P&L' : 'Gross P&L',
       value: signedINR(grandTotal),
-      tone: grandTotal >= 0 ? 'text-emerald-600' : 'text-rose-600',
+      tone: toneText(grandTotal),
       sub: totalRoi !== null ? `${totalRoi.toFixed(2)}% on margin` : `${years.length} yr${years.length > 1 ? 's' : ''} of data`,
     },
     {
@@ -125,42 +139,43 @@ const MonthlyAnalytics = ({ result, withTax }) => {
     },
   ];
 
-  const th = 'px-1.5 py-2.5 text-center text-[10px] font-semibold uppercase tracking-wider text-slate-400';
+  const th = 'text-center font-semibold uppercase text-slate-400';
 
   return (
     <div className="relative overflow-hidden rounded-xl border border-slate-200 bg-white shadow-[0_1px_3px_rgba(15,27,45,0.06)]">
+      <style>{STYLES}</style>
       <div className="h-[3px] w-full bg-gradient-to-r from-indigo-500 via-violet-500 to-amber-400" />
 
-      <div className="p-4 md:p-5">
+      <div className="p-4">
         {/* Header */}
-        <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <div>
-            <h3 className="text-sm font-semibold text-[#0F1B2D]">Monthly analytics</h3>
-            <p className="mt-0.5 text-[11px] text-slate-500">Month-by-month P&amp;L heatmap with yearly risk metrics · values in ₹</p>
+            <h3 className="text-[13px] font-semibold text-[#0F1B2D]">Monthly analytics</h3>
+            <p className="mt-0.5 text-[10.5px] text-slate-500">Month-by-month P&amp;L with yearly risk metrics · values in ₹</p>
           </div>
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[10px] font-semibold tracking-wider text-slate-600">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[9.5px] font-semibold tracking-wider text-slate-600">
             <span className={`h-1.5 w-1.5 rounded-full ${withTax ? 'bg-amber-500' : 'bg-indigo-500'}`} />
             {withTax ? 'NET · AFTER TAX' : 'GROSS'}
           </span>
         </div>
 
         {/* KPI strip */}
-        <div className="mb-4 grid grid-cols-2 gap-2.5 lg:grid-cols-4">
+        <div className="mb-3.5 grid grid-cols-2 divide-x divide-y divide-slate-100 overflow-hidden rounded-lg border border-slate-200 bg-slate-50/60 lg:grid-cols-4 lg:divide-y-0">
           {kpis.map((k) => (
-            <div key={k.label} className="rounded-lg border border-slate-200 bg-slate-50/60 px-3.5 py-2.5">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">{k.label}</p>
-              <p className={`mt-0.5 text-[15px] font-semibold tabular-nums ${k.tone}`}>{k.value}</p>
-              <p className="mt-0.5 text-[11px] text-slate-500">{k.sub}</p>
+            <div key={k.label} className="px-3.5 py-2">
+              <p className="text-[9.5px] font-semibold uppercase tracking-[0.1em] text-slate-400">{k.label}</p>
+              <p className={`mt-0.5 text-[13px] font-semibold leading-tight tabular-nums ${k.tone}`}>{k.value}</p>
+              <p className="mt-0.5 text-[10px] text-slate-400">{k.sub}</p>
             </div>
           ))}
         </div>
 
         {/* Table */}
         <div className="custom-scrollbar-horizontal w-full overflow-x-auto rounded-lg border border-slate-200">
-          <table className="w-full min-w-[960px] border-collapse text-left text-xs">
+          <table className="ma-table w-full min-w-[900px] border-collapse text-left">
             <thead>
               <tr className="bg-slate-50">
-                <th className="sticky left-0 z-20 bg-slate-50 px-3 py-2.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Year</th>
+                <th className="sticky left-0 z-20 bg-slate-50 px-3 text-left font-semibold uppercase text-slate-400">Year</th>
                 {MONTHS.map((m) => <th key={m} className={th}>{m}</th>)}
                 <th className={`${th} border-l border-slate-200 text-indigo-500`}>Total</th>
                 <th className={`${th} text-amber-600`}>ROI %</th>
@@ -186,8 +201,8 @@ const MonthlyAnalytics = ({ result, withTax }) => {
 
                 return (
                   <tr key={year} className="group border-t border-slate-100 transition-colors hover:bg-indigo-50/30">
-                    <td className="sticky left-0 z-10 bg-white px-3 py-2 transition-colors group-hover:bg-indigo-50/60">
-                      <span className="text-[12px] font-semibold text-[#0F1B2D]">{year}</span>
+                    <td className="sticky left-0 z-10 bg-white px-3 transition-colors group-hover:bg-indigo-50/60">
+                      <span className="ma-year font-semibold text-[#0F1B2D]">{year}</span>
                     </td>
 
                     {MONTHS.map((month) => {
@@ -195,16 +210,16 @@ const MonthlyAnalytics = ({ result, withTax }) => {
                       const isBest = showMarkers && best && best.year === year && best.month === month;
                       const isWorst = showMarkers && worst && worst.year === year && worst.month === month;
                       const ring = isBest
-                        ? 'ring-2 ring-emerald-500/70 ring-offset-1'
+                        ? 'ring-[1.5px] ring-emerald-500/80 ring-offset-1'
                         : isWorst
-                        ? 'ring-2 ring-rose-500/70 ring-offset-1'
+                        ? 'ring-[1.5px] ring-rose-500/80 ring-offset-1'
                         : '';
                       return (
-                        <td key={month} className="px-0.5 py-1.5 text-center">
+                        <td key={month} className="text-center">
                           {val !== 0 ? (
                             <div
                               style={heat(val, maxAbs)}
-                              className={`mx-auto min-w-[54px] rounded-md px-1 py-1 text-[10.5px] font-semibold tabular-nums ${ring}`}
+                              className={`mx-auto min-w-[50px] rounded px-1 py-0.5 font-semibold tabular-nums ${ring}`}
                               title={`${month} ${year}: ${signedINR(val)}`}
                             >
                               {val < 0 ? '−' : ''}{fmt(val)}
@@ -216,11 +231,11 @@ const MonthlyAnalytics = ({ result, withTax }) => {
                       );
                     })}
 
-                    <td className="border-l border-slate-100 px-2.5 py-2 text-center">
-                      <div className={`text-[11.5px] font-semibold tabular-nums ${yearlyTotal >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                    <td className="border-l border-slate-100 text-center">
+                      <div className={`ma-tot font-semibold tabular-nums ${toneText(yearlyTotal)}`}>
                         {signedINR(yearlyTotal)}
                       </div>
-                      <div className="mx-auto mt-1 h-[3px] w-14 overflow-hidden rounded-full bg-slate-100">
+                      <div className="mx-auto mt-0.5 h-[3px] w-12 overflow-hidden rounded-full bg-slate-100">
                         <div
                           className={`h-full rounded-full ${yearlyTotal >= 0 ? 'bg-emerald-400' : 'bg-rose-400'}`}
                           style={{ width: `${barW}%` }}
@@ -228,9 +243,9 @@ const MonthlyAnalytics = ({ result, withTax }) => {
                       </div>
                     </td>
 
-                    <td className="px-2.5 py-2 text-center">
+                    <td className="text-center">
                       {r !== null ? (
-                        <span className="inline-block rounded-md bg-amber-50 px-1.5 py-0.5 text-[10.5px] font-semibold tabular-nums text-amber-700 ring-1 ring-inset ring-amber-200/70">
+                        <span className="inline-block rounded bg-amber-50 px-1.5 py-px font-semibold tabular-nums text-amber-700 ring-1 ring-inset ring-amber-200/70">
                           {r.toFixed(2)}%
                         </span>
                       ) : (
@@ -238,16 +253,16 @@ const MonthlyAnalytics = ({ result, withTax }) => {
                       )}
                     </td>
 
-                    <td className="border-l border-slate-100 px-2.5 py-2 text-center text-[11px] font-medium tabular-nums text-rose-600">
+                    <td className="border-l border-slate-100 text-center font-medium tabular-nums text-rose-600">
                       {ddOk ? Math.round(Number(ddRaw)).toLocaleString('en-IN') : <span className="text-slate-300">—</span>}
                     </td>
-                    <td className="px-2.5 py-2 text-center text-[11px] font-medium tabular-nums text-slate-600">
+                    <td className="text-center font-medium tabular-nums text-slate-600">
                       {mddDays ?? <span className="text-slate-300">—</span>}
                     </td>
-                    <td className="px-2.5 py-2 text-center">
+                    <td className="text-center">
                       {rmOk ? (
                         <span
-                          className={`inline-block rounded-md px-1.5 py-0.5 text-[10.5px] font-semibold tabular-nums ring-1 ring-inset ${
+                          className={`inline-block rounded px-1.5 py-px font-semibold tabular-nums ring-1 ring-inset ${
                             rm >= 0
                               ? 'bg-emerald-50 text-emerald-700 ring-emerald-200/70'
                               : 'bg-rose-50 text-rose-700 ring-rose-200/70'
@@ -266,13 +281,13 @@ const MonthlyAnalytics = ({ result, withTax }) => {
 
             <tfoot>
               <tr className="border-t-2 border-slate-200 bg-slate-50">
-                <td className="sticky left-0 z-10 bg-slate-50 px-3 py-2.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                <td className="sticky left-0 z-10 bg-slate-50 px-3 text-left font-semibold uppercase text-slate-500">
                   All years
                 </td>
                 {MONTHS.map((m) => {
                   const v = colTotals[m];
                   return (
-                    <td key={m} className="px-0.5 py-2.5 text-center text-[10.5px] font-semibold tabular-nums">
+                    <td key={m} className="text-center font-semibold tabular-nums">
                       {colCounts[m] ? (
                         <span className={v >= 0 ? 'text-emerald-700' : 'text-rose-700'}>
                           {v < 0 ? '−' : ''}{fmt(v)}
@@ -283,15 +298,15 @@ const MonthlyAnalytics = ({ result, withTax }) => {
                     </td>
                   );
                 })}
-                <td className="border-l border-slate-200 px-2.5 py-2.5 text-center">
-                  <span className={`text-[11.5px] font-semibold tabular-nums ${grandTotal >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                <td className="border-l border-slate-200 text-center">
+                  <span className={`font-semibold tabular-nums ${toneText(grandTotal)}`}>
                     {signedINR(grandTotal)}
                   </span>
                 </td>
-                <td className="px-2.5 py-2.5 text-center text-[10.5px] font-semibold tabular-nums text-amber-700">
+                <td className="text-center font-semibold tabular-nums text-amber-700">
                   {totalRoi !== null ? `${totalRoi.toFixed(2)}%` : '—'}
                 </td>
-                <td colSpan={3} className="border-l border-slate-200 px-2.5 py-2.5 text-center text-[10px] uppercase tracking-wider text-slate-400">
+                <td colSpan={3} className="border-l border-slate-200 text-center uppercase text-slate-400">
                   Σ all years
                 </td>
               </tr>
@@ -300,24 +315,24 @@ const MonthlyAnalytics = ({ result, withTax }) => {
         </div>
 
         {/* Legend */}
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-[11px] text-slate-500">
+        <div className="mt-2.5 flex flex-wrap items-center justify-between gap-3 text-[10px] text-slate-500">
           <div className="flex items-center gap-2">
             <span>Loss</span>
             <div
-              className="h-1.5 w-36 rounded-full"
+              className="h-1.5 w-32 rounded-full"
               style={{
                 background:
-                  'linear-gradient(90deg, rgba(244,63,94,0.58), rgba(244,63,94,0.12), #F1F5F9, rgba(16,185,129,0.12), rgba(16,185,129,0.58))',
+                  'linear-gradient(90deg, rgba(244,63,94,0.65), rgba(244,63,94,0.14), #F1F5F9, rgba(16,185,129,0.14), rgba(16,185,129,0.65))',
               }}
             />
             <span>Profit</span>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3.5">
             <span className="flex items-center gap-1.5">
-              <span className="h-2.5 w-2.5 rounded-sm ring-2 ring-emerald-500/70 ring-offset-1" /> Best month
+              <span className="h-2.5 w-2.5 rounded-sm ring-[1.5px] ring-emerald-500/80 ring-offset-1" /> Best month
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="h-2.5 w-2.5 rounded-sm ring-2 ring-rose-500/70 ring-offset-1" /> Worst month
+              <span className="h-2.5 w-2.5 rounded-sm ring-[1.5px] ring-rose-500/80 ring-offset-1" /> Worst month
             </span>
           </div>
         </div>
