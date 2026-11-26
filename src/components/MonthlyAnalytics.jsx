@@ -5,16 +5,6 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
 const fmt = (n) => Math.round(Math.abs(n)).toLocaleString('en-IN');
 const signedINR = (n) => `${n < 0 ? '−' : '+'}₹${fmt(n)}`;
 
-// Heat-map colour: intensity scales with the size of the P&L
-const heat = (val, maxAbs) => {
-  if (!val || !maxAbs) return {};
-  const t = Math.min(1, Math.abs(val) / maxAbs);
-  const a = 0.1 + Math.pow(t, 0.7) * 0.55;
-  return val > 0
-    ? { backgroundColor: `rgba(16,185,129,${a})`, color: t > 0.7 ? '#064E3B' : '#065F46' }
-    : { backgroundColor: `rgba(244,63,94,${a})`, color: t > 0.7 ? '#881337' : '#9F1239' };
-};
-
 const STYLES = `
   .rd-root table.ma-table td,
   .rd-root table.ma-table td * { font-size: 10.5px !important; line-height: 1.3 !important; }
@@ -30,7 +20,7 @@ const STYLES = `
 const toneText = (v) => (v >= 0 ? 'text-emerald-600' : 'text-rose-600');
 
 const MonthlyAnalytics = ({ result, withTax }) => {
-  const { monthlyPnL, years, maxAbs, yearTotals, colTotals, colCounts, entries, grandTotal, maxYearAbs } =
+  const { monthlyPnL, years, yearTotals, colTotals, colCounts, entries, grandTotal } =
     useMemo(() => {
       const data = {};
       const src = result?.Heatmap_Data || [];
@@ -61,7 +51,6 @@ const MonthlyAnalytics = ({ result, withTax }) => {
       const cTotals = {};
       const cCounts = {};
       MONTHS.forEach((m) => { cTotals[m] = 0; cCounts[m] = 0; });
-      let max = 0;
       let grand = 0;
 
       ys.forEach((y) => {
@@ -73,17 +62,14 @@ const MonthlyAnalytics = ({ result, withTax }) => {
           if (v !== 0) {
             cCounts[m] += 1;
             list.push({ year: y, month: m, val: v });
-            max = Math.max(max, Math.abs(v));
           }
         });
         grand += yTotals[y];
       });
 
-      const maxY = Math.max(0, ...ys.map((y) => Math.abs(yTotals[y])));
-
       return {
-        monthlyPnL: data, years: ys, maxAbs: max, yearTotals: yTotals,
-        colTotals: cTotals, colCounts: cCounts, entries: list, grandTotal: grand, maxYearAbs: maxY,
+        monthlyPnL: data, years: ys, yearTotals: yTotals,
+        colTotals: cTotals, colCounts: cCounts, entries: list, grandTotal: grand,
       };
     }, [result, withTax]);
 
@@ -110,7 +96,6 @@ const MonthlyAnalytics = ({ result, withTax }) => {
   const winMonths = entries.filter((e) => e.val > 0).length;
   const winPct = entries.length ? (winMonths / entries.length) * 100 : 0;
   const totalRoi = roi(grandTotal);
-  const showMarkers = entries.length > 1;
 
   const kpis = [
     {
@@ -190,7 +175,6 @@ const MonthlyAnalytics = ({ result, withTax }) => {
                 const yearlyTotal = yearTotals[year];
                 const yData = yearlySource?.[year] || yearlySource?.[parseInt(year)] || {};
                 const r = roi(yearlyTotal);
-                const barW = maxYearAbs ? Math.max(6, (Math.abs(yearlyTotal) / maxYearAbs) * 100) : 0;
 
                 const ddRaw = yData?.Max_Drawdown ?? statsSource?.['Max Drawdown'] ?? statsSource?.['Max_Drawdown'];
                 const ddOk = ddRaw !== undefined && ddRaw !== null && !isNaN(ddRaw);
@@ -207,18 +191,10 @@ const MonthlyAnalytics = ({ result, withTax }) => {
 
                     {MONTHS.map((month) => {
                       const val = monthlyPnL[year][month] || 0;
-                      const isBest = showMarkers && best && best.year === year && best.month === month;
-                      const isWorst = showMarkers && worst && worst.year === year && worst.month === month;
-                      const edge = isBest
-                        ? 'inset 0 0 0 2px rgba(16,185,129,0.9)'
-                        : isWorst
-                        ? 'inset 0 0 0 2px rgba(244,63,94,0.9)'
-                        : 'inset 0 0 0 1px #fff';
                       return (
                         <td
                           key={month}
-                          style={val !== 0 ? { ...heat(val, maxAbs), boxShadow: edge } : undefined}
-                          className="text-center font-semibold tabular-nums"
+                          className={`text-center font-semibold tabular-nums ${val !== 0 ? toneText(val) : ''}`}
                           title={`${month} ${year}: ${signedINR(val)}`}
                         >
                           {val !== 0 ? `${val < 0 ? '−' : ''}${fmt(val)}` : <span className="text-slate-300">—</span>}
@@ -229,12 +205,6 @@ const MonthlyAnalytics = ({ result, withTax }) => {
                     <td className="border-l border-slate-100 text-center">
                       <div className={`ma-tot font-semibold tabular-nums ${toneText(yearlyTotal)}`}>
                         {signedINR(yearlyTotal)}
-                      </div>
-                      <div className="mx-auto mt-0.5 h-[3px] w-12 overflow-hidden rounded-full bg-slate-100">
-                        <div
-                          className={`h-full rounded-full ${yearlyTotal >= 0 ? 'bg-emerald-400' : 'bg-rose-400'}`}
-                          style={{ width: `${barW}%` }}
-                        />
                       </div>
                     </td>
 
@@ -301,28 +271,6 @@ const MonthlyAnalytics = ({ result, withTax }) => {
           </table>
         </div>
 
-        {/* Legend */}
-        <div className="mt-2.5 flex flex-wrap items-center justify-between gap-3 text-[10px] text-slate-500">
-          <div className="flex items-center gap-2">
-            <span>Loss</span>
-            <div
-              className="h-1.5 w-32 rounded-full"
-              style={{
-                background:
-                  'linear-gradient(90deg, rgba(244,63,94,0.65), rgba(244,63,94,0.14), #F1F5F9, rgba(16,185,129,0.14), rgba(16,185,129,0.65))',
-              }}
-            />
-            <span>Profit</span>
-          </div>
-          <div className="flex items-center gap-3.5">
-            <span className="flex items-center gap-1.5">
-              <span className="h-2.5 w-2.5 rounded-sm ring-[1.5px] ring-emerald-500/80 ring-offset-1" /> Best month
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="h-2.5 w-2.5 rounded-sm ring-[1.5px] ring-rose-500/80 ring-offset-1" /> Worst month
-            </span>
-          </div>
-        </div>
       </div>
     </div>
   );

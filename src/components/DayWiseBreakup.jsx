@@ -17,15 +17,6 @@ const compact = (n) => {
   return `${sign}₹${t}`;
 };
 
-const heat = (val, maxAbs) => {
-  if (!val || !maxAbs) return {};
-  const t = Math.min(1, Math.abs(val) / maxAbs);
-  const a = 0.1 + Math.pow(t, 0.7) * 0.55;
-  return val > 0
-    ? { backgroundColor: `rgba(16,185,129,${a})`, color: t > 0.7 ? '#064E3B' : '#065F46' }
-    : { backgroundColor: `rgba(244,63,94,${a})`, color: t > 0.7 ? '#881337' : '#9F1239' };
-};
-
 const STYLES = `
   .rd-root table.dw-table td,
   .rd-root table.dw-table td * { font-size: 11px !important; line-height: 1.3 !important; }
@@ -124,7 +115,6 @@ const DayWiseBreakup = ({ ledger, mode = 'NET' }) => {
   const years = Object.keys(data.summary).sort((a, b) => b - a);
   const dayTotals = DAYS.map((d) => ({ day: d, val: data.totals[d] }));
   const maxDayAbs = Math.max(0, ...dayTotals.map((d) => Math.abs(d.val)));
-  const maxCellAbs = Math.max(0, ...years.flatMap((y) => DAYS.map((d) => Math.abs(data.summary[y][d]))));
   const hasSpread = dayTotals.some((d) => d.val !== 0);
   const bestDay = hasSpread ? dayTotals.reduce((a, b) => (b.val > a.val ? b : a)) : null;
   const worstDay = hasSpread ? dayTotals.reduce((a, b) => (b.val < a.val ? b : a)) : null;
@@ -142,7 +132,7 @@ const DayWiseBreakup = ({ ledger, mode = 'NET' }) => {
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <div>
             <h3 className="text-[13px] font-semibold text-[#0F1B2D]">Day wise breakup</h3>
-            <p className="mt-0.5 text-[10.5px] text-slate-500">Which weekdays make and lose your money</p>
+            <p className="mt-0.5 text-[10.5px] text-slate-500">Which weekdays make and lose your money · values in ₹</p>
           </div>
           <div className="flex items-center gap-2.5">
             <div className="text-right leading-tight">
@@ -217,15 +207,14 @@ const DayWiseBreakup = ({ ledger, mode = 'NET' }) => {
                       return (
                         <td
                           key={d}
-                          style={v !== 0 ? { ...heat(v, maxCellAbs), boxShadow: 'inset 0 0 0 1px #fff' } : undefined}
-                          className="font-semibold tabular-nums"
+                          className={`font-semibold tabular-nums ${v > 0 ? 'text-emerald-600' : v < 0 ? 'text-rose-600' : ''}`}
                           title={`${DAY_FULL[d]} ${year}: ${signedINR(v)}`}
                         >
                           {v !== 0 ? `${v < 0 ? '−' : ''}${fmt(v)}` : <span className="text-slate-300">—</span>}
                         </td>
                       );
                     })}
-                    <td className="border-l border-slate-100 bg-slate-50/50">
+                    <td className="border-l border-slate-100">
                       <span className={`font-semibold tabular-nums ${row.Total >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
                         {signedINR(row.Total)}
                       </span>
@@ -244,7 +233,7 @@ const DayWiseBreakup = ({ ledger, mode = 'NET' }) => {
                     </span>
                   </td>
                 ))}
-                <td className="border-l border-slate-200 bg-indigo-50/60">
+                <td className="border-l border-slate-200">
                   <span className={`font-semibold tabular-nums ${grand >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
                     {signedINR(grand)}
                   </span>
@@ -254,19 +243,6 @@ const DayWiseBreakup = ({ ledger, mode = 'NET' }) => {
           </table>
         </div>
 
-        {/* Legend */}
-        <div className="mt-2.5 flex items-center gap-2 text-[10px] text-slate-500">
-          <span>Loss</span>
-          <div
-            className="h-1.5 w-32 rounded-full"
-            style={{
-              background:
-                'linear-gradient(90deg, rgba(244,63,94,0.65), rgba(244,63,94,0.14), #F1F5F9, rgba(16,185,129,0.14), rgba(16,185,129,0.65))',
-            }}
-          />
-          <span>Profit</span>
-          <span className="ml-auto text-slate-400">values in ₹</span>
-        </div>
       </div>
     </div>
   );
