@@ -632,7 +632,15 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
       const options = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ trade_ledger: ledgerData, ai_advice: aiAdvice || '' })
+        body: JSON.stringify({
+          trade_ledger: ledgerData,
+          ai_advice: aiAdvice || '',
+          day_mtm: activeResult?.Day_MTM || {},
+          meta: {
+            capital: activeResult?.Estimated_Margin || activeResult?.estimated_margin || activeResult?.Starting_Capital || null,
+            timeframe: activeResult?.timeframe || ''
+          }
+        })
       };
 
       let response = await fetch(`${base}/generate_pdf`, options);
@@ -662,6 +670,12 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
       setIsExporting(false);
       return;
     }
+
+    // html2canvas crashes on a gradient inside a zero-size element (non-finite colour stop): skip such stops
+    const originalAddColorStop = CanvasGradient.prototype.addColorStop;
+    CanvasGradient.prototype.addColorStop = function addColorStop(offset, color) {
+      if (Number.isFinite(offset)) originalAddColorStop.call(this, offset, color);
+    };
 
     try {
       const canvas = await html2canvas(element, {
@@ -698,6 +712,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
       console.error('Error generating PDF:', error);
       alert('Failed to generate PDF. Please try again.');
     } finally {
+      CanvasGradient.prototype.addColorStop = originalAddColorStop;
       setIsExporting(false);
     }
   };
