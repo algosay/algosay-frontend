@@ -588,13 +588,7 @@ const LegCard = ({ leg, index, updateLeg, removeLeg }) => {
   );
 };
 
-const LegsPanel = ({
-  legs, addLeg, updateLeg, removeLeg,
-  combinedPremiumTarget, setCombinedPremiumTarget,
-  combinedPremiumTargetUnit, setCombinedPremiumTargetUnit,
-  combinedPremiumSL, setCombinedPremiumSL,
-  combinedPremiumSLUnit, setCombinedPremiumSLUnit,
-}) => {
+const LegsPanel = ({ legs, addLeg, updateLeg, removeLeg }) => {
   return (
     <div className="space-y-3">
 
@@ -627,41 +621,6 @@ const LegsPanel = ({
               ))}
             </div>
           )}
-        </div>
-      </section>
-
-      {/* ───── Combined premium risk (all legs together) ───── */}
-      <section className="overflow-hidden rounded-xl border border-amber-200 bg-white shadow-[0_8px_24px_-14px_rgba(217,119,6,0.4)]">
-        <div className="h-[3px] w-full bg-gradient-to-r from-amber-400 to-orange-500" />
-        <header className="border-b border-amber-100 bg-gradient-to-r from-amber-50 via-white to-white px-3 py-2">
-          <h3 className="text-[12px] font-semibold text-slate-900">Combined premium</h3>
-          <p className="text-[10.5px] leading-snug text-slate-500">Target and stop loss on the total premium of all legs.</p>
-        </header>
-        <div className="grid grid-cols-1 gap-2.5 p-3 sm:grid-cols-2">
-          <Group accent="emerald">
-            <Field label="Target">
-              <UnitField
-                units={['Pts', '%', 'Rs']}
-                value={combinedPremiumTarget || ''}
-                onValue={(e) => setCombinedPremiumTarget && setCombinedPremiumTarget(e.target.value)}
-                unit={normalizeUnit(combinedPremiumTargetUnit)}
-                onUnit={(e) => setCombinedPremiumTargetUnit && setCombinedPremiumTargetUnit(e.target.value)}
-                placeholder="e.g. 150"
-              />
-            </Field>
-          </Group>
-          <Group accent="rose">
-            <Field label="Stop loss">
-              <UnitField
-                units={['Pts', '%', 'Rs']}
-                value={combinedPremiumSL || ''}
-                onValue={(e) => setCombinedPremiumSL && setCombinedPremiumSL(e.target.value)}
-                unit={normalizeUnit(combinedPremiumSLUnit)}
-                onUnit={(e) => setCombinedPremiumSLUnit && setCombinedPremiumSLUnit(e.target.value)}
-                placeholder="e.g. 50"
-              />
-            </Field>
-          </Group>
         </div>
       </section>
 

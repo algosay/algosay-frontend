@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import TopHeader from './TopHeader';
 import IndicatorsPanel from './IndicatorsPanel';
 import LegsPanel from './LegsPanel';
-import { calculateLiveMargin } from './utils';
 import { SELECT, NUM, Field, UnitField, Check } from './ui';
 
 const normalizeUnit = (unit) => {
@@ -222,9 +221,6 @@ const StrategyConfig = ({
     if (!v && clear) clear();
   };
 
-  const { totalMargin, ceQty, peQty } = calculateLiveMargin(legs, { timeLoopLimit });
-  const marginText = Number(totalMargin || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 });
-
   return (
     <div className="font-ui w-full animate-fade-in space-y-4 rounded-2xl bg-gradient-to-b from-[#F5F7FC] to-[#ECEFF7] p-3 text-slate-900">
 
@@ -246,14 +242,6 @@ const StrategyConfig = ({
           addLeg={addLeg}
           updateLeg={updateLeg}
           removeLeg={removeLeg}
-          combinedPremiumTarget={combinedPremiumTarget}
-          setCombinedPremiumTarget={setCombinedPremiumTarget}
-          combinedPremiumTargetUnit={combinedPremiumTargetUnit}
-          setCombinedPremiumTargetUnit={setCombinedPremiumTargetUnit}
-          combinedPremiumSL={combinedPremiumSL}
-          setCombinedPremiumSL={setCombinedPremiumSL}
-          combinedPremiumSLUnit={combinedPremiumSLUnit}
-          setCombinedPremiumSLUnit={setCombinedPremiumSLUnit}
         />
       </Section>
 
@@ -305,7 +293,7 @@ const StrategyConfig = ({
                 onUnit={(e) => handleConfigChange(setOverallStrategyTargetUnit, e.target.value)}
               />
             </Item>
-            <Item label="Max loop limit" use="How many times entry can repeat. Also used for worst-case margin." accent="indigo" on={true} onToggle={() => {}}>
+            <Item label="Max loop limit" use="How many times entry can repeat." accent="indigo" on={true} onToggle={() => {}}>
               <input
                 type="number"
                 className={NUM}
@@ -397,25 +385,6 @@ const StrategyConfig = ({
 
         </div>
       </Section>
-
-      {/* ───── Live margin bar (normal flow – NOT sticky, so it never covers the screen) ───── */}
-      <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-[#0F1B2D] via-[#1B1F4B] to-[#2A1B5E] px-4 py-3 text-white shadow-[0_12px_30px_-16px_rgba(42,27,94,0.8)]">
-        <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-violet-500/30 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-12 left-1/3 h-28 w-28 rounded-full bg-indigo-400/20 blur-3xl" />
-        <div className="relative flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="text-[11.5px] font-semibold text-indigo-100">Estimated margin required</p>
-            <div className="mt-1.5 flex flex-wrap gap-1.5">
-              <span className="font-num rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-medium text-indigo-100 ring-1 ring-white/10">CE qty {ceQty || 0}</span>
-              <span className="font-num rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-medium text-indigo-100 ring-1 ring-white/10">PE qty {peQty || 0}</span>
-              <span className="font-num rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-medium text-indigo-100 ring-1 ring-white/10">Loop limit {timeLoopLimit || 1}</span>
-            </div>
-          </div>
-          <p className="font-num bg-gradient-to-r from-white to-indigo-200 bg-clip-text text-[20px] font-semibold tabular-nums text-transparent">
-            ₹ {marginText}
-          </p>
-        </div>
-      </div>
 
     </div>
   );
