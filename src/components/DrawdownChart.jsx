@@ -28,20 +28,20 @@ const DrawdownChart = ({ result, withTax }) => {
   const canvasRef = useRef(null);
   const [hover, setHover] = useState(null);
 
-  const { points, hasData } = useMemo(() => {
+  const { points, hasData, basis } = useMemo(() => {
     const series = buildSeries(result, withTax);
     let peak = 0;
     const dd = series.points.map((p) => {
       if (p.value > peak) peak = p.value;
       return { ...p, value: p.value - peak }; // always 0 or negative
     });
-    return { points: dd, hasData: series.hasData };
+    return { points: dd, hasData: series.hasData, basis: series.basis };
   }, [result, withTax]);
 
   const n = points.length;
   const containerW = useContainerWidth(wrapRef, hasData);
   const fontsReady = useFontsReady();
-  const chartW = Math.max(containerW, n * MIN_STEP + PAD.left + PAD.right);
+  const chartW = Math.max(containerW, n * (basis === 'mtm' ? 0 : MIN_STEP) + PAD.left + PAD.right); // [ui_core patch v1]
 
   const stats = useMemo(() => {
     const vals = points.map((p) => p.value);
@@ -173,7 +173,7 @@ const DrawdownChart = ({ result, withTax }) => {
             <div>
               <h3 className="text-[13px] font-semibold text-[#0F1B2D]">Drawdown curve</h3>
               <p className="mt-0.5 text-[10.5px] text-slate-500">
-                Distance from the running equity peak
+                {basis === 'mtm' ? 'Minute-by-minute MTM, distance from the running peak' : 'Distance from the running equity peak'}
               </p>
             </div>
             <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[9.5px] font-semibold tracking-wider text-slate-600">

@@ -47,6 +47,23 @@ const DATE_KEYS = ['Date', 'TradeDate', 'trade_date', 'Exit_Time', 'time', 'time
 
 // Returns [{ value, short, full }] starting with a "Start" point at 0
 export const buildSeries = (result, withTax) => {
+  // [ui_core patch v1] minute-by-minute MTM curve sent by the backend (same numbers as Excel / PDF)
+  const mtm = result?.Strategy_Stats?.MTM_Curve;
+  const mtmEq = mtm ? mtm[withTax ? 'net_equity' : 'gross_equity'] : null;
+  if (Array.isArray(mtmEq) && mtmEq.length > 1 && Array.isArray(mtm.days) && Array.isArray(mtm.times)) {
+    const mp = [{ value: 0, short: 'Start', full: 'Start' }];
+    mtmEq.forEach((v, i) => {
+      const dt = new Date(`${mtm.days[i]}T00:00:00`);
+      const ok = !Number.isNaN(dt.getTime());
+      const t = mtm.times[i] === '99:99' ? 'exit' : mtm.times[i];
+      mp.push({
+        value: Number(v) || 0,
+        short: mtm.multi && ok ? dt.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }) : t,
+        full: ok ? `${dt.toLocaleDateString('en-IN', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' })} ${t}` : t
+      });
+    });
+    return { points: mp, hasData: true, basis: 'mtm' };
+  }
   const equity = parseList(result?.Equity_Curve);
   const ledger = parseList(result?.Trade_Ledger);
   const points = [{ value: 0, short: 'Start', full: 'Start' }];
@@ -82,7 +99,7 @@ export const buildSeries = (result, withTax) => {
     points.push({ value: withTax ? net : pnl, short, full });
   });
 
-  return { points, hasData: equity.length > 0 };
+  return { points, hasData: equity.length > 0, basis: 'trade' };
 };
 
 // ---------- Formatting ----------

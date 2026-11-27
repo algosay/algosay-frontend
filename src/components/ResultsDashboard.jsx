@@ -307,6 +307,22 @@ const CopyIcon = () => (
   </svg>
 );
 
+// [ui_core patch v1] send only the minute series to the backend (small request); keep the chart curve out of the AI prompt
+const leanDayMtm = (m) => {
+  const out = {};
+  if (!m || typeof m !== 'object') return out;
+  Object.keys(m).forEach((k) => {
+    if (m[k] && Array.isArray(m[k].series)) out[k] = { series: m[k].series };
+  });
+  return out;
+};
+const withoutCurve = (s) => {
+  if (!s || typeof s !== 'object' || !s.MTM_Curve) return s;
+  const rest = { ...s };
+  delete rest.MTM_Curve;
+  return rest;
+};
+
 const ResultsDashboard = ({ result, withTax, setWithTax }) => {
   const [aiAdvice, setAiAdvice] = useState(normalizeAdvice(result?.ai_advice) || null);
   const [isLoadingAI, setIsLoadingAI] = useState(false);
@@ -394,7 +410,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
         const response = await fetch(`${process.env.REACT_APP_API_URL}/api/recalculate_metrics`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ trade_ledger: filteredLedger, starting_capital: startingCapital })
+          body: JSON.stringify({ trade_ledger: filteredLedger, starting_capital: startingCapital, day_mtm: leanDayMtm(result?.Day_MTM) })
         });
 
         const data = await response.json();
@@ -473,7 +489,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
       const ctxText = contextToText(analysisContext);
 
       const payload = {
-        metrics: activeResult?.Strategy_Stats || activeResult?.metrics,
+        metrics: withoutCurve(activeResult?.Strategy_Stats || activeResult?.metrics),
         ledger,
         day_mtm: activeResult?.Day_MTM || {},
         analysis_context: analysisContext,

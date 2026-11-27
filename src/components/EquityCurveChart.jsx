@@ -30,11 +30,11 @@ const EquityCurveChart = ({ result, withTax }) => {
   const canvasRef = useRef(null);
   const [hover, setHover] = useState(null);
 
-  const { points, hasData } = useMemo(() => buildSeries(result, withTax), [result, withTax]);
+  const { points, hasData, basis } = useMemo(() => buildSeries(result, withTax), [result, withTax]);
   const n = points.length;
   const containerW = useContainerWidth(wrapRef, hasData);
   const fontsReady = useFontsReady();
-  const chartW = Math.max(containerW, n * MIN_STEP + PAD.left + PAD.right);
+  const chartW = Math.max(containerW, n * (basis === 'mtm' ? 0 : MIN_STEP) + PAD.left + PAD.right); // [ui_core patch v1]
 
   const scale = useMemo(() => {
     const vals = points.map((p) => p.value);
@@ -178,7 +178,7 @@ const EquityCurveChart = ({ result, withTax }) => {
             <div>
               <h3 className="text-[13px] font-semibold text-[#0F1B2D]">Equity curve</h3>
               <p className="mt-0.5 text-[10.5px] text-slate-500">
-                Cumulative {modeLabel.toLowerCase()} P&amp;L across {n - 1} trades
+                Cumulative {modeLabel.toLowerCase()} P&amp;L {basis === 'mtm' ? 'on minute-by-minute MTM (open positions included)' : `across ${n - 1} trades`}
               </p>
             </div>
             <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[9.5px] font-semibold tracking-wider text-slate-600">
