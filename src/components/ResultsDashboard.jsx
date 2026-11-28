@@ -598,6 +598,8 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
           day_mtm: activeResult?.Day_MTM || {},
           meta: {
             // [report_fix v2] timeframe + SL/Target settings from the saved run
+            // [strategy_sheet v1] original run first, so a day / DTE filter does not drop the texts
+            ...(result?.Strategy_Meta || {}),
             ...(activeResult?.Strategy_Meta || {}),
             capital: activeResult?.Estimated_Margin || activeResult?.Starting_Capital || null,
             timeframe: activeResult?.timeframe || activeResult?.Strategy_Meta?.timeframe || ''

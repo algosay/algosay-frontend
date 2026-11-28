@@ -770,7 +770,12 @@ export const useAppLogic = () => {
         throw new Error(data.detail || data.error || 'Backtest execution encountered an error.');
       }
 
-      setResult(data.results || data); 
+      // [strategy_sheet v1] texts used for this run go into the Excel Strategy sheet
+      const runResult = data.results || data;
+      setResult({
+        ...runResult,
+        Strategy_Meta: { ...(runResult.Strategy_Meta || {}), strategy_text: aiPrompt || '', ai_explanation: aiExplanation || '' }
+      });
     } catch (err) {
       console.error("🚨 Backtest Catch Error:", err);
       setError(`Execution Error: ${err.message || 'Failed to retrieve backtest results from the engine.'}`);
