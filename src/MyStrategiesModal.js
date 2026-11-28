@@ -171,7 +171,7 @@ const DEFAULT_STRATEGIES = [
     's_16', 
     '7-Candle Sequence Momentum Short Strategy (15M)', 
     'Trend & Momentum - 7-candle sequence breakout shorting.', 
-    "Asset & Timeframe: Sensex | 15 Mins Timeframe | 1 Lot\nEntry Rule: The strategy executes based on a 7-candle sequence on a 15-minute timeframe.\nLeg 1 (CE Short): Enters an ATM CE sell when a 7-candle sequence ending in a Green candle is followed by the 8th candle open.\nLeg 2 (PE Short): Enters an ATM PE sell when a 7-candle sequence ending in a Red candle is followed by the 8th candle open.\nRisk Management: 25% Stop Loss & 80% Target calculated per individual leg.\nExit Rule: Universal square-off for all open positions at 15:15 PM.\nPeriod: Aug 14.08.2026 to Aug 14.08.2026", 
+    "Asset & Timeframe: Sensex | 15 Mins Timeframe | 1 Lot\nEntry Rule: The strategy executes based on a 7-candle sequence on a 15-minute timeframe.\nLeg 1 (CE Short): Enters an ATM CE sell when a 7-candle sequence ending in a Green candle is followed by the 8th candle open.\nLeg 2 (PE Short): Enters an ATM PE sell when a 7-candle sequence ending in a Red candle is followed by the 8th candle open.\nRisk Management: 25% Stop Loss & 80% Target calculated per individual leg.\nExit Rule: Universal square-off for all open positions at 15:15 PM.\nPeriod: Aug 17.08.2026 to Aug 17.08.2026", 
     'trend'
   ),
   createDefaultObj(

@@ -75,6 +75,29 @@ const MetricCard = ({ label, value, tone, title }) => (
   </div>
 );
 
+// [report_fix v3] display helpers: dates + clearer labels (drawdown comes from the MTM engine)
+const fmtDay = (iso) => {
+  if (!iso) return '';
+  const d = new Date(`${String(iso).slice(0, 10)}T00:00:00`);
+  if (isNaN(d.getTime())) return '';
+  return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }).replace(' ', '-');
+};
+
+const displayFor = (key, value, mtmDD) => {
+  const n = norm(key);
+  const base = { label: key.replace(/_/g, ' ').toLowerCase(), value: fmtValue(key, value) };
+  if (n === 'sortinoratio') return { ...base, label: 'sortino ratio (per trade)' };
+  if (!mtmDD) return base;
+  if (n === 'maxddoccurrenceperiodindex' && !isNaN(Number(value))) {
+    const day = fmtDay(mtmDD.trough_day);
+    return { label: 'max dd occurrence (trade no.)', value: `Trade ${Math.round(Number(value)) + 1}${day ? ` (${day})` : ''}` };
+  }
+  if (n === 'durationofmaxdrawdownperiods' && mtmDD.unit === 'days') {
+    return { label: 'longest drawdown (days)', value: `${mtmDD.duration} days` };
+  }
+  return base;
+};
+
 const PerformanceStats = ({ result, withTax }) => {
   // Loading state (25 placeholders = 5 x 5)
   if (!result) {
@@ -107,6 +130,7 @@ const PerformanceStats = ({ result, withTax }) => {
 
   const statsSource = withTax ? strategyStats.NET : strategyStats.GROSS;
   const totalTax = strategyStats['Total Tax & Charges'] || 0;
+  const mtmDD = strategyStats.MTM_DD || null; // [report_fix v3]
   if (!statsSource) return null;
 
   // Excluded keys
@@ -156,6 +180,12 @@ const PerformanceStats = ({ result, withTax }) => {
         </div>
       )}
 
+      {mtmDD && mtmDD.trough_day && (
+        <p className="mb-2 text-[10.5px] text-slate-500">
+          {`Max drawdown: ${mtmDD.peak_day ? `peak ${fmtDay(mtmDD.peak_day)} to ` : ''}low ${fmtDay(mtmDD.trough_day)}. Measured on minute-by-minute MTM equity, after charges.`}
+        </p>
+      )}
+
       {/* Metrics grid: margin first, then every metric in backend order (5 columns) */}
       <div className={GRID}>
         <MetricCard
@@ -168,9 +198,9 @@ const PerformanceStats = ({ result, withTax }) => {
         {finalStats.map(([key, value]) => (
           <MetricCard
             key={key}
-            label={key.replace(/_/g, ' ').toLowerCase()}
+            label={displayFor(key, value, mtmDD).label}
             title={key}
-            value={fmtValue(key, value)}
+            value={displayFor(key, value, mtmDD).value}
             tone={pickTone(norm(key), value)}
           />
         ))}

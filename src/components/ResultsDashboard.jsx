@@ -574,7 +574,12 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
           trade_ledger: ledgerData,
           style: 'pro',
           day_mtm: activeResult?.Day_MTM || {},
-          meta: { capital: activeResult?.Estimated_Margin || activeResult?.Starting_Capital || null }
+          meta: {
+            // [report_fix v2] timeframe + SL/Target settings from the saved run
+            ...(activeResult?.Strategy_Meta || {}),
+            capital: activeResult?.Estimated_Margin || activeResult?.Starting_Capital || null,
+            timeframe: activeResult?.timeframe || activeResult?.Strategy_Meta?.timeframe || ''
+          }
         })
       };
 
@@ -653,8 +658,9 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
           ai_advice: aiAdvice || '',
           day_mtm: activeResult?.Day_MTM || {},
           meta: {
+            ...(activeResult?.Strategy_Meta || {}),
             capital: activeResult?.Estimated_Margin || activeResult?.estimated_margin || activeResult?.Starting_Capital || null,
-            timeframe: activeResult?.timeframe || ''
+            timeframe: activeResult?.timeframe || activeResult?.Strategy_Meta?.timeframe || ''
           }
         })
       };

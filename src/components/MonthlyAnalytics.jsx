@@ -90,6 +90,8 @@ const MonthlyAnalytics = ({ result, withTax }) => {
     : (result.GROSS_Yearly_Stats || modeData.Yearly_Stats || base.Yearly_Stats || result.Yearly_Stats || {});
 
   const roi = (total) => (estimatedMargin > 0 ? (total / estimatedMargin) * 100 : null);
+  // [report_fix v2] real "longest time under water" (days) from the backend MTM engine
+  const mtmDD = result?.MTM_DD || result?.Metrics?.MTM_DD || result?.Strategy_Stats?.MTM_DD || base?.MTM_DD || null;
 
   const best = entries.reduce((a, b) => (b.val > (a?.val ?? -Infinity) ? b : a), null);
   const worst = entries.reduce((a, b) => (b.val < (a?.val ?? Infinity) ? b : a), null);
@@ -112,9 +114,9 @@ const MonthlyAnalytics = ({ result, withTax }) => {
     },
     {
       label: 'Worst month',
-      value: worst ? signedINR(worst.val) : '—',
-      tone: 'text-rose-600',
-      sub: worst ? `${worst.month} ${worst.year}` : '',
+      value: worst && worst.val < 0 ? signedINR(worst.val) : '—',
+      tone: worst && worst.val < 0 ? 'text-rose-600' : 'text-slate-400',
+      sub: worst && worst.val < 0 ? `${worst.month} ${worst.year}` : 'No losing month',
     },
     {
       label: 'Profitable months',
@@ -178,7 +180,7 @@ const MonthlyAnalytics = ({ result, withTax }) => {
 
                 const ddRaw = yData?.Max_Drawdown ?? statsSource?.['Max Drawdown'] ?? statsSource?.['Max_Drawdown'];
                 const ddOk = ddRaw !== undefined && ddRaw !== null && !isNaN(ddRaw);
-                const mddDays = yData?.Days_for_MDD ?? statsSource?.['Duration of Max Drawdown (Periods)'] ?? statsSource?.['Days_for_MDD'];
+                const mddDays = yData?.Days_for_MDD ?? (mtmDD && mtmDD.unit === 'days' ? `${mtmDD.duration} Days` : undefined) ?? statsSource?.['Days_for_MDD'];
                 const rmRaw = yData?.R_MDD ?? statsSource?.['Return / Max DD'] ?? statsSource?.['Reward_To_MDD'];
                 const rmOk = rmRaw !== undefined && rmRaw !== null && !isNaN(rmRaw);
                 const rm = Number(rmRaw);
