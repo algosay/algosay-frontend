@@ -32,8 +32,8 @@ const GREEN_KEYS = new Set([
 
 // Explicit format map (no substring guessing)
 const PCT_KEYS = new Set(['winperiods', 'lossperiods']);
-const INT_KEYS = new Set(['nooftradesperiods', 'durationofmaxdrawdownperiods', 'maxwinstreak', 'maxlosingstreak', 'maxddoccurrenceperiodindex']);
-const RATIO_KEYS = new Set(['returnmaxdd', 'rewardtoriskratio', 'profitfactor', 'expectancyratio', 'sortinoratio', 'tailratio']);
+const INT_KEYS = new Set(['nooftradesperiods', 'durationofmaxdrawdownperiods', 'maxwinstreak', 'maxlosingstreak', 'maxddoccurrenceperiodindex', 'tradingdays', 'noofentriessignals']); // [algosay look v1] counts are not money
+const RATIO_KEYS = new Set(['returnmaxdd', 'rewardtoriskratio', 'profitfactor', 'expectancyratio', 'sortinoratio', 'sortinoratiodailyann', 'tailratio']); // [algosay look v1]
 
 const fmtValue = (key, raw) => {
   if (raw === null || raw === undefined || raw === '') return '–';

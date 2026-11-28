@@ -371,68 +371,100 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
     setFilteredLedgerData(null);
   }, [result]);
 
-  // Auto-recalculation when filters change
+  // [filter_fix v1] latest click wins: debounce + abort + timeout, no stale overwrite
+  const [filterError, setFilterError] = useState('');
+  const [retryTick, setRetryTick] = useState(0);
+
   useEffect(() => {
-    const filterAndRecalculate = async () => {
-      if (!result) return;
+    if (!result) return undefined;
+    setFilterError('');
 
-      if (availableDTEs.length > 0 && selectedDTEs.length === 0) {
-        return;
-      }
+    // All filters selected -> show original result
+    if (selectedDays.length === allDays.length && selectedDTEs.length === availableDTEs.length) {
+      setDisplayResult(result);
+      setIsRecalculating(false);
+      return undefined;
+    }
 
-      // All filters selected -> show original result
-      if (selectedDays.length === allDays.length && selectedDTEs.length === availableDTEs.length) {
-        setDisplayResult(result);
-        return;
-      }
+    const filteredLedger = originalLedger.filter(
+      (row) => selectedDays.includes(row?.Day) && selectedDTEs.includes(row?.DTE)
+    );
 
-      setIsRecalculating(true);
+    // keep minute MTM only for the dates left in the filtered ledger
+    const dates = new Set();
+    filteredLedger.forEach((row) => {
+      Object.entries(row || {}).forEach(([key, value]) => {
+        if (/expiry/i.test(key) || typeof value !== 'string') return;
+        const hit = value.match(/\d{4}-\d{2}-\d{2}/);
+        if (hit) dates.add(hit[0]);
+      });
+    });
+    const allMtm = result.Day_MTM || {};
+    const keptKeys = Object.keys(allMtm).filter((k) => dates.has(k.slice(0, 10)));
+    let dayMtm = allMtm;
+    if (!filteredLedger.length) dayMtm = {};
+    else if (keptKeys.length) dayMtm = Object.fromEntries(keptKeys.map((k) => [k, allMtm[k]]));
 
-      const filteredLedger = originalLedger.filter(
-        (row) => selectedDays.includes(row?.Day) && selectedDTEs.includes(row?.DTE)
-      );
+    const emptyView = {
+      ...result,
+      Strategy_Stats: {},
+      Trade_Ledger: filteredLedger,
+      Equity_Curve: [],
+      Heatmap_Data: [],
+      Day_MTM: dayMtm
+    };
 
-      if (filteredLedger.length === 0) {
-        setDisplayResult({
-          ...result,
-          Strategy_Stats: {},
-          Trade_Ledger: [],
-          Equity_Curve: [],
-          Heatmap_Data: []
-        });
-        setIsRecalculating(false);
-        return;
-      }
+    if (!filteredLedger.length) {
+      setDisplayResult(emptyView);
+      setIsRecalculating(false);
+      return undefined;
+    }
 
+    const controller = new AbortController();
+    let cancelled = false;
+    let timeoutId = null;
+    setIsRecalculating(true);
+
+    const debounceId = setTimeout(async () => {
+      timeoutId = setTimeout(() => controller.abort(), 90000);
       try {
         const startingCapital = result.Estimated_Margin || result.Starting_Capital || result.estimated_margin || 100000;
-
         const response = await fetch(`${process.env.REACT_APP_API_URL}/api/recalculate_metrics`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ trade_ledger: filteredLedger, starting_capital: startingCapital, day_mtm: leanDayMtm(result?.Day_MTM) })
+          body: JSON.stringify({ trade_ledger: filteredLedger, starting_capital: startingCapital, day_mtm: leanDayMtm(dayMtm) }),
+          signal: controller.signal
         });
-
+        if (!response.ok) throw new Error(`Server error ${response.status}`);
         const data = await response.json();
-
-        if (data?.status === 'success') {
-          setDisplayResult({
-            ...result,
-            Strategy_Stats: data.Strategy_Stats,
-            Equity_Curve: data.Equity_Curve,
-            Heatmap_Data: data.Heatmap_Data || [],
-            Trade_Ledger: filteredLedger
-          });
-        }
+        if (data?.status !== 'success') throw new Error('Recalculation failed');
+        if (cancelled) return;
+        setDisplayResult({
+          ...emptyView,
+          Strategy_Stats: data.Strategy_Stats,
+          Equity_Curve: data.Equity_Curve,
+          Heatmap_Data: data.Heatmap_Data || []
+        });
       } catch (error) {
+        if (cancelled) return;
         console.error('Error recalculating metrics:', error);
+        // never leave old numbers on screen under a new filter
+        setDisplayResult(emptyView);
+        setFilterError(error.name === 'AbortError' ? 'Server did not respond in 90 seconds.' : error.message);
+      } finally {
+        clearTimeout(timeoutId);
+        if (!cancelled) setIsRecalculating(false);
       }
-      setIsRecalculating(false);
-    };
+    }, 350);
 
-    filterAndRecalculate();
+    return () => {
+      cancelled = true;
+      clearTimeout(debounceId);
+      clearTimeout(timeoutId);
+      controller.abort();
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedDays, selectedDTEs]);
+  }, [result, selectedDays, selectedDTEs, retryTick]);
 
   // Paint negative numbers and loss metrics red (tables, cards, charts, tooltips)
   useEffect(() => {
@@ -441,8 +473,11 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
 
     let rafId = null;
     const schedule = () => {
-      if (rafId) cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(() => paintNegatives(root));
+      if (rafId) return;
+      rafId = setTimeout(() => {
+        rafId = null;
+        paintNegatives(root);
+      }, 200);
     };
 
     schedule();
@@ -455,17 +490,19 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
 
     return () => {
       observer.disconnect();
-      if (rafId) cancelAnimationFrame(rafId);
+      if (rafId) clearTimeout(rafId);
     };
   }, [hasData]);
 
   const handleDayToggle = (day) => {
+    setFilteredLedgerData(null);
     setSelectedDays((prev) =>
       prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
     );
   };
 
   const handleDTEToggle = (dte) => {
+    setFilteredLedgerData(null);
     setSelectedDTEs((prev) =>
       prev.includes(dte) ? prev.filter((d) => d !== dte) : [...prev, dte]
     );
@@ -1031,28 +1068,28 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
       <div className="flex flex-wrap justify-end gap-1.5 mb-2.5" data-html2canvas-ignore="true">
         <button
           onClick={downloadCSV}
-          disabled={isExporting}
+          disabled={isExporting || isRecalculating}
           className={`${btnBase} bg-white hover:bg-slate-50 border border-slate-300 text-slate-700`}
         >
           Trade book (CSV)
         </button>
         <button
           onClick={downloadExcel}
-          disabled={isExporting || isDownloadingExcel}
+          disabled={isExporting || isRecalculating || isDownloadingExcel}
           className={`${btnBase} bg-emerald-600 hover:bg-emerald-700 text-white`}
         >
           {isDownloadingExcel ? 'Building Excel...' : 'Excel report'}
         </button>
         <button
           onClick={downloadMtmExcel}
-          disabled={isExporting || isDownloadingMtm}
+          disabled={isExporting || isRecalculating || isDownloadingMtm}
           className={`${btnBase} bg-amber-600 hover:bg-amber-700 text-white`}
         >
           {isDownloadingMtm ? 'Building MTM...' : 'Daily MTM (Excel)'}
         </button>
         <button
           onClick={downloadProPDF}
-          disabled={isExporting || isDownloadingProPDF}
+          disabled={isExporting || isRecalculating || isDownloadingProPDF}
           className={`${btnBase} bg-[#0F1B2D] hover:bg-[#1c2d47] text-white`}
         >
           {isExporting ? 'Generating PDF...' : (isDownloadingProPDF ? 'Building PDF...' : 'Pro report (PDF)')}
@@ -1067,6 +1104,13 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
             <span className="text-[11px] text-indigo-600 animate-pulse font-medium">Recalculating metrics...</span>
           )}
         </div>
+
+        {filterError && (
+          <div className="mb-2 text-[11px] text-rose-600 font-medium">
+            Could not recalculate metrics: {filterError}{' '}
+            <button type="button" className="underline cursor-pointer" onClick={() => setRetryTick((n) => n + 1)}>Retry</button>
+          </div>
+        )}
 
         <div className="flex flex-col md:flex-row gap-4 md:gap-8">
           <div className="flex-1">
