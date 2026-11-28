@@ -94,6 +94,7 @@ export const useAppLogic = () => {
 
   const [riskExtra, setRiskExtra] = useState(DEFAULT_RISK_EXTRA);
   const [dayFilters, setDayFilters] = useState({ weekdays: [], dtes: [] }); // [day_filter v1]
+  const [slippage, setSlippage] = useState(''); // [slippage pct v1]
 
   const [indicators, setIndicators] = useState([]);
   const [legs, setLegs] = useState([]); 
@@ -189,6 +190,7 @@ export const useAppLogic = () => {
     // 🚀 NEW: Parse time_loop_limit
     const parsedTimeLoopLimit = risk.timeLoopLimit ?? risk.time_loop_limit ?? data.timeLoopLimit ?? data.time_loop_limit ?? 1;
     setTimeLoopLimit(parsedTimeLoopLimit);
+    { const sl = Number(data.slippage); setSlippage(data.slippage !== null && data.slippage !== undefined && data.slippage !== '' && !isNaN(sl) && sl > 0 ? String(sl) : ''); } // [slippage pct v1]
 
     // 🎯 NO DEFAULTS HERE - STRICTLY TAKING WHAT AI PROVIDES 🎯
     setTicker(finalTicker);
@@ -679,6 +681,7 @@ export const useAppLogic = () => {
       fyers_access_token: fyersToken,     
       strategy_text: aiPrompt,
       day_filters: { weekdays: dayFilters.weekdays, dtes: dayFilters.dtes },
+      slippage: slippage === '' ? null : Number(slippage),
       is_dynamic: conditionBasedLoop, 
       timeframe: timeframe, 
       instrument_settings: { ticker, timeframe, underlyingFrom, qty, transactionType },
@@ -814,6 +817,7 @@ export const useAppLogic = () => {
     riskExtra, setRiskExtra,
 
     dayFilters, setDayFilters,
+    slippage, setSlippage,
     indicators, legs,
     loading, result, error, withTax, setWithTax,
     handleParsedDataSuccess, addLeg, updateLeg, removeLeg, addIndicator, updateIndicator, removeIndicator,

@@ -192,6 +192,19 @@ const ProtectedDashboard = ({ logic }) => {
                 />
 
                 {/* 🎬 ACTION BAR: Save + Run (same logic, new look) */}
+                {/* [slippage pct v1] */}
+                <div className="bg-white border border-[#DDE2E9] rounded-lg px-3.5 py-2.5 mt-3 flex flex-wrap items-center gap-3">
+                  <span className="text-[12px] font-semibold text-[#121A2B]">Slippage (%)</span>
+                  <input
+                    type="number" min="0" step="0.05" placeholder="0"
+                    value={logic.slippage}
+                    onChange={(e) => logic.setSlippage(e.target.value)}
+                    className="w-24 h-7 px-2 text-[12px] border border-[#C3CAD6] rounded-md outline-none focus:border-indigo-400"
+                  />
+                  <span className="text-[10.5px] text-[#5B667A]">
+                    {logic.slippage === '' ? 'No slippage. Mention it in the prompt (example: slippage 0.5%) or type it here.' : '% of price, against you on every entry and exit.'}
+                  </span>
+                </div>
                 {/* [day_filter v1] */}
                 <div className="bg-white border border-[#DDE2E9] rounded-lg px-3.5 py-2.5 mt-3">
                   <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
