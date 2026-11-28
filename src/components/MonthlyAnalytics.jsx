@@ -100,6 +100,18 @@ const MonthlyAnalytics = ({ result, withTax }) => {
   // [report_fix v2] real "longest time under water" (days) from the backend MTM engine
   const mtmDD = result?.MTM_DD || result?.Metrics?.MTM_DD || result?.Strategy_Stats?.MTM_DD || base?.MTM_DD || null;
 
+  // [ui_v8] drawdown as % of margin, plus the day it bottomed
+  const ddNote = (value, year) => {
+    const parts = [];
+    if (estimatedMargin > 0) parts.push(`${((Math.abs(Number(value)) / estimatedMargin) * 100).toFixed(2)}%`);
+    const day = String((withTax ? mtmDD?.trough_day : mtmDD?.gross_trough_day) || '');
+    if (day.startsWith(`${year}-`)) {
+      const d = new Date(`${day.slice(0, 10)}T00:00:00`);
+      if (!isNaN(d.getTime())) parts.push(`${d.getDate()} ${MONTHS[d.getMonth()]}`);
+    }
+    return parts.join(' | ');
+  };
+
   const best = entries.reduce((a, b) => (b.val > (a?.val ?? -Infinity) ? b : a), null);
   const worst = entries.reduce((a, b) => (b.val < (a?.val ?? Infinity) ? b : a), null);
   const winMonths = entries.filter((e) => e.val > 0).length;
@@ -231,7 +243,12 @@ const MonthlyAnalytics = ({ result, withTax }) => {
                     </td>
 
                     <td className="border-l border-slate-100 text-center font-medium tabular-nums text-rose-600">
-                      {ddOk ? Math.round(Number(ddRaw)).toLocaleString('en-IN') : <span className="text-slate-300">—</span>}
+                      {ddOk ? (
+                        <>
+                          <div>{Math.round(Number(ddRaw)).toLocaleString('en-IN')}</div>
+                          <div className="ma-roi">{ddNote(ddRaw, year)}</div>
+                        </>
+                      ) : <span className="text-slate-300">{'-'}</span>}
                     </td>
                     <td className="text-center font-medium tabular-nums text-slate-600">
                       {mddDays ?? <span className="text-slate-300">—</span>}

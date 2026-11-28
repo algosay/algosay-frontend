@@ -16,10 +16,11 @@ const PAD = { top: 22, right: 26, bottom: 40, left: 68 };
 const MIN_STEP = 34;
 const LINE = '#E11D48';
 
-const Stat = ({ label, value, valueClass = 'text-slate-800' }) => (
+const Stat = ({ label, value, sub, valueClass = 'text-slate-800' }) => (  // [ui_v8]
   <div className="min-w-[92px] px-3.5 py-1.5">
     <div className="text-[9.5px] font-semibold uppercase tracking-[0.1em] text-slate-400">{label}</div>
     <div className={`mt-0.5 text-[13px] font-semibold leading-tight tabular-nums ${valueClass}`}>{value}</div>
+    {sub && <div className="mt-0.5 text-[9.5px] text-slate-500 tabular-nums">{sub}</div>}
   </div>
 );
 
@@ -148,6 +149,12 @@ const DrawdownChart = ({ result, withTax }) => {
     setHover(Math.max(0, Math.min(n - 1, Math.round(rel * (n - 1)))));
   };
 
+  const margin = Number(result?.Strategy_Stats?.estimated_margin || result?.Strategy_Stats?.Estimated_Margin || result?.Estimated_Margin || 0);
+  const ddSub = stats.max < 0 ? [
+    margin > 0 ? `${((Math.abs(stats.max) / margin) * 100).toFixed(2)}% of margin` : null,
+    points[stats.maxIdx]?.full
+  ].filter(Boolean).join(' | ') : '';
+
   if (!hasData) {
     return (
       <div className="rounded-xl border border-slate-200 bg-white p-5 text-xs text-slate-500 shadow-[0_1px_3px_rgba(15,27,45,0.06)]">
@@ -178,6 +185,7 @@ const DrawdownChart = ({ result, withTax }) => {
             <Stat
               label="Max drawdown"
               value={fmtINR(stats.max)}
+              sub={ddSub}
               valueClass={stats.max < 0 ? 'text-rose-600' : 'text-slate-800'}
             />
             <Stat

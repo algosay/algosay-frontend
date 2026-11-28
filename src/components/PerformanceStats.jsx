@@ -115,10 +115,10 @@ const displayFor = (key, value, mtmDD) => {
 
 // [ui_v7] section order
 const DAY_ORDER = ['overallprofit', 'tradingdays', 'winningdays', 'losingdays', 'avgprofitperday', 'bestday', 'worstday',
-  'maxwinstreakdays', 'maxlosingstreakdays', 'maxdrawdown', 'durationofmaxdrawdownperiods', 'returnmaxdd', 'sortinoratiodailyann'];
+  'maxwinstreakdays', 'maxlosingstreakdays', 'maxdrawdown', 'durationofmaxdrawdownperiods', 'returnmaxdd', 'sortinoratiodailyann', 'expectancyratiodaily'];  // [ui_v8]
 const TRADE_ORDER = ['noofentriessignals', 'nooftradesperiods', 'averageprofitperperiod', 'winperiods', 'lossperiods',
   'averageprofitonwinningperiods', 'averagelossonlosingperiods', 'maxprofitinsingleperiod', 'maxlossinsingleperiod',
-  'maxwinstreak', 'maxlosingstreak', 'profitfactor', 'rewardtoriskratio', 'expectancyratio', 'maxddoccurrenceperiodindex', 'sortinoratio'];
+  'maxwinstreak', 'maxlosingstreak', 'profitfactor', 'rewardtoriskratio', 'maxddoccurrenceperiodindex', 'sortinoratio'];
 
 const PerformanceStats = ({ result, withTax }) => {
   // Loading state (25 placeholders = 5 x 5)
@@ -215,7 +215,7 @@ const PerformanceStats = ({ result, withTax }) => {
       ].map(({ title, order }, i) => {
         const items = order
           ? order.map((k) => finalStats.find(([key]) => norm(key) === k)).filter(Boolean)
-          : finalStats.filter(([key]) => !DAY_ORDER.includes(norm(key)) && !TRADE_ORDER.includes(norm(key)));
+          : finalStats.filter(([key]) => !DAY_ORDER.includes(norm(key)) && !TRADE_ORDER.includes(norm(key)) && norm(key) !== 'expectancyratio');
         return (
           <div key={title} className="mb-3">
             <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">{title}</p>
