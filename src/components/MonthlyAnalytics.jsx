@@ -15,9 +15,16 @@ const STYLES = `
   .rd-root table.ma-table td .ma-year { font-size: 11.5px !important; }
   .rd-root table.ma-table td .ma-tot { font-size: 11px !important; }
   .rd-root table.ma-table tfoot td, .rd-root table.ma-table tfoot td * { font-size: 10.5px !important; }
+  .rd-root table.ma-table tbody td .ma-roi,
+  .rd-root table.ma-table tfoot td .ma-roi { font-size: 9px !important; font-weight: 500; }
 `;
 
 const toneText = (v) => (v >= 0 ? 'text-emerald-600' : 'text-rose-600');
+
+// [ui_v7] ROI line under a month value
+const RoiLine = ({ v }) => (v === null ? null : (
+  <div className={`ma-roi ${toneText(v)}`}>{v.toFixed(2)}%</div>
+));
 
 const MonthlyAnalytics = ({ result, withTax }) => {
   const { monthlyPnL, years, yearTotals, colTotals, colCounts, entries, grandTotal } =
@@ -199,7 +206,12 @@ const MonthlyAnalytics = ({ result, withTax }) => {
                           className={`text-center font-semibold tabular-nums ${val !== 0 ? toneText(val) : ''}`}
                           title={`${month} ${year}: ${signedINR(val)}`}
                         >
-                          {val !== 0 ? `${val < 0 ? '−' : ''}${fmt(val)}` : <span className="text-slate-300">—</span>}
+                          {val !== 0 ? (
+                            <>
+                              <div>{`${val < 0 ? '-' : ''}${fmt(val)}`}</div>
+                              <RoiLine v={roi(val)} />
+                            </>
+                          ) : <span className="text-slate-300">{'-'}</span>}
                         </td>
                       );
                     })}
@@ -212,7 +224,7 @@ const MonthlyAnalytics = ({ result, withTax }) => {
 
                     <td className="text-center">
                       {r !== null ? (
-                        <span className="font-semibold tabular-nums text-amber-700">{r.toFixed(2)}%</span>
+                        <span className={`font-semibold tabular-nums ${toneText(r)}`}>{r.toFixed(2)}%</span>
                       ) : (
                         <span className="text-slate-300">—</span>
                       )}
@@ -248,11 +260,12 @@ const MonthlyAnalytics = ({ result, withTax }) => {
                   return (
                     <td key={m} className="text-center font-semibold tabular-nums">
                       {colCounts[m] ? (
-                        <span className={v >= 0 ? 'text-emerald-700' : 'text-rose-700'}>
-                          {v < 0 ? '−' : ''}{fmt(v)}
-                        </span>
+                        <>
+                          <div className={toneText(v)}>{v < 0 ? '-' : ''}{fmt(v)}</div>
+                          <RoiLine v={roi(v)} />
+                        </>
                       ) : (
-                        <span className="text-slate-300">—</span>
+                        <span className="text-slate-300">{'-'}</span>
                       )}
                     </td>
                   );
@@ -262,7 +275,7 @@ const MonthlyAnalytics = ({ result, withTax }) => {
                     {signedINR(grandTotal)}
                   </span>
                 </td>
-                <td className="text-center font-semibold tabular-nums text-amber-700">
+                <td className={`text-center font-semibold tabular-nums ${toneText(grandTotal)}`}>
                   {totalRoi !== null ? `${totalRoi.toFixed(2)}%` : '—'}
                 </td>
                 <td colSpan={3} className="border-l border-slate-200 text-center uppercase text-slate-400">

@@ -106,14 +106,7 @@ const DrawdownChart = ({ result, withTax }) => {
       ctx.arc(mx, my, 3.6, 0, Math.PI * 2);
       ctx.fill();
 
-      const label = `Max DD ${fmtINR(stats.max)}`;
-      ctx.font = '600 10.5px "Inter", -apple-system, "Segoe UI", Arial, sans-serif';
-      const tw = ctx.measureText(label).width;
-      const flip = mx + tw + 24 > chartW - PAD.right;
-      ctx.textBaseline = 'middle';
-      ctx.textAlign = flip ? 'right' : 'left';
-      ctx.fillStyle = '#B91C1C';
-      ctx.fillText(label, flip ? mx - 11 : mx + 11, Math.max(my - 13, PAD.top + 8));
+      // [ui_v7] in-chart Max DD text removed
     }
 
     // Hover crosshair

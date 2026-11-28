@@ -575,22 +575,7 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
     URL.revokeObjectURL(url);
   };
 
-  const downloadCSV = () => {
-    const ledgerData = getLedgerData();
-
-    if (!ledgerData || ledgerData.length === 0) {
-      alert('No trade data available to download.');
-      return;
-    }
-
-    const headers = Object.keys(ledgerData[0]).join(',');
-    const rows = ledgerData.map((row) =>
-      Object.values(row).map((val) => `"${val !== null && val !== undefined ? val : ''}"`).join(',')
-    );
-    const csvContent = [headers, ...rows].join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    triggerDownload(blob, 'Trade_Ledger_Filtered.csv');
-  };
+  // [ui_v7] Trade book (CSV) removed
 
   // Excel report (Summary / All Trades / By Leg)
   const downloadExcel = async () => {
@@ -1066,13 +1051,6 @@ const ResultsDashboard = ({ result, withTax, setWithTax }) => {
 
       {/* Downloads */}
       <div className="flex flex-wrap justify-end gap-1.5 mb-2.5" data-html2canvas-ignore="true">
-        <button
-          onClick={downloadCSV}
-          disabled={isExporting || isRecalculating}
-          className={`${btnBase} bg-white hover:bg-slate-50 border border-slate-300 text-slate-700`}
-        >
-          Trade book (CSV)
-        </button>
         <button
           onClick={downloadExcel}
           disabled={isExporting || isRecalculating || isDownloadingExcel}

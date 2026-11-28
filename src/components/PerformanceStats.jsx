@@ -113,6 +113,13 @@ const displayFor = (key, value, mtmDD) => {
   return base;
 };
 
+// [ui_v7] section order
+const DAY_ORDER = ['overallprofit', 'tradingdays', 'winningdays', 'losingdays', 'avgprofitperday', 'bestday', 'worstday',
+  'maxwinstreakdays', 'maxlosingstreakdays', 'maxdrawdown', 'durationofmaxdrawdownperiods', 'returnmaxdd', 'sortinoratiodailyann'];
+const TRADE_ORDER = ['noofentriessignals', 'nooftradesperiods', 'averageprofitperperiod', 'winperiods', 'lossperiods',
+  'averageprofitonwinningperiods', 'averagelossonlosingperiods', 'maxprofitinsingleperiod', 'maxlossinsingleperiod',
+  'maxwinstreak', 'maxlosingstreak', 'profitfactor', 'rewardtoriskratio', 'expectancyratio', 'maxddoccurrenceperiodindex', 'sortinoratio'];
+
 const PerformanceStats = ({ result, withTax }) => {
   // Loading state (25 placeholders = 5 x 5)
   if (!result) {
@@ -149,7 +156,7 @@ const PerformanceStats = ({ result, withTax }) => {
   if (!statsSource) return null;
 
   // Excluded keys
-  const excludedKeys = ['sharpe', 'max days in any drawdown', 'gross pnl', 'net pnl', 'recovery speed', 'system edge', 'equity smoothness'];
+  const excludedKeys = ['sharpe', 'max days in any drawdown', 'gross pnl', 'net pnl', 'recovery speed', 'system edge', 'equity smoothness', 'survival'];
 
   const finalStats = Object.entries(statsSource).filter(([key]) => {
     const lowerKey = key.toLowerCase();
@@ -201,25 +208,39 @@ const PerformanceStats = ({ result, withTax }) => {
         </p>
       )}
 
-      {/* Metrics grid: margin first, then every metric in backend order (5 columns) */}
-      <div className={GRID}>
-        <MetricCard
-          label="estimated margin"
-          title="Estimated margin required: peak capital needed to run this strategy"
-          value={marginOk ? inr(marginNum) : 'N/A'}
-          tone={TONES.margin}
-        />
-
-        {finalStats.map(([key, value]) => (
-          <MetricCard
-            key={key}
-            label={displayFor(key, value, mtmDD).label}
-            title={key}
-            value={displayFor(key, value, mtmDD).value}
-            tone={pickTone(norm(key), value)}
-          />
-        ))}
-      </div>
+      {[
+        { title: 'Day-wise', order: DAY_ORDER },
+        { title: 'Trade-wise', order: TRADE_ORDER },
+        { title: 'Risk & sizing', order: null },
+      ].map(({ title, order }, i) => {
+        const items = order
+          ? order.map((k) => finalStats.find(([key]) => norm(key) === k)).filter(Boolean)
+          : finalStats.filter(([key]) => !DAY_ORDER.includes(norm(key)) && !TRADE_ORDER.includes(norm(key)));
+        return (
+          <div key={title} className="mb-3">
+            <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">{title}</p>
+            <div className={GRID}>
+              {i === 0 && (
+                <MetricCard
+                  label="estimated margin"
+                  title="Estimated margin required: peak capital needed to run this strategy"
+                  value={marginOk ? inr(marginNum) : 'N/A'}
+                  tone={TONES.margin}
+                />
+              )}
+              {items.map(([key, value]) => (
+                <MetricCard
+                  key={key}
+                  label={displayFor(key, value, mtmDD).label}
+                  title={key}
+                  value={displayFor(key, value, mtmDD).value}
+                  tone={pickTone(norm(key), value)}
+                />
+              ))}
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 };
