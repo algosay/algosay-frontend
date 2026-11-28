@@ -93,6 +93,7 @@ export const useAppLogic = () => {
   const [combinedPremiumSLUnit, setCombinedPremiumSLUnit] = useState('Pts'); // NEW UNIT STATE
 
   const [riskExtra, setRiskExtra] = useState(DEFAULT_RISK_EXTRA);
+  const [dayFilters, setDayFilters] = useState({ weekdays: [], dtes: [] }); // [day_filter v1]
 
   const [indicators, setIndicators] = useState([]);
   const [legs, setLegs] = useState([]); 
@@ -677,6 +678,7 @@ export const useAppLogic = () => {
       data_source: dataSource,            
       fyers_access_token: fyersToken,     
       strategy_text: aiPrompt,
+      day_filters: { weekdays: dayFilters.weekdays, dtes: dayFilters.dtes },
       is_dynamic: conditionBasedLoop, 
       timeframe: timeframe, 
       instrument_settings: { ticker, timeframe, underlyingFrom, qty, transactionType },
@@ -811,6 +813,7 @@ export const useAppLogic = () => {
     combinedPremiumSLUnit, setCombinedPremiumSLUnit,
     riskExtra, setRiskExtra,
 
+    dayFilters, setDayFilters,
     indicators, legs,
     loading, result, error, withTax, setWithTax,
     handleParsedDataSuccess, addLeg, updateLeg, removeLeg, addIndicator, updateIndicator, removeIndicator,
