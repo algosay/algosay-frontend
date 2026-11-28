@@ -1,4 +1,6 @@
 import React, { useMemo } from 'react';
+import { buildSeries } from './ChartUtils'; // [algosay pro v2]
+import { ddRecovery, fmtDays } from './ddRecovery';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -79,6 +81,15 @@ const MonthlyAnalytics = ({ result, withTax }) => {
         colTotals: cTotals, colCounts: cCounts, entries: list, grandTotal: grand,
       };
     }, [result, withTax]);
+
+  const rec = useMemo(() => {
+    try {
+      const s = buildSeries(result, withTax);
+      let pk = 0;
+      const dd = s.points.map((p) => { if (p.value > pk) pk = p.value; return { ...p, value: p.value - pk }; });
+      return ddRecovery(dd);
+    } catch (e) { return null; }
+  }, [result, withTax]);
 
   if (!result || !result.Heatmap_Data || result.Heatmap_Data.length === 0) return null;
   if (years.length === 0) return null;
@@ -178,7 +189,7 @@ const MonthlyAnalytics = ({ result, withTax }) => {
 
         {/* Table */}
         <div className="custom-scrollbar-horizontal w-full overflow-x-auto rounded-lg border border-slate-200">
-          <table className="ma-table w-full min-w-[900px] border-collapse text-left">
+          <table className="ma-table w-full min-w-[980px] border-collapse text-left">
             <thead>
               <tr className="bg-slate-50">
                 <th className="sticky left-0 z-20 bg-slate-50 px-3 text-left font-semibold uppercase text-slate-400">Year</th>
@@ -188,6 +199,7 @@ const MonthlyAnalytics = ({ result, withTax }) => {
                 <th className={`${th} border-l border-slate-200`}>Max DD</th>
                 <th className={th}>Days MDD</th>
                 <th className={th}>R / MDD</th>
+                <th className={th}>Recovery</th>
               </tr>
             </thead>
 
@@ -262,6 +274,18 @@ const MonthlyAnalytics = ({ result, withTax }) => {
                         <span className="text-slate-300">—</span>
                       )}
                     </td>
+                    <td className="text-center font-medium tabular-nums">
+                      {rec && (String(rec.troughFull).includes(String(year)) || years.length === 1) ? (
+                        <>
+                          <div className={rec.recovered ? 'text-emerald-600' : 'text-rose-600'}>
+                            {rec.recovered ? fmtDays(rec.recoverDays) : 'Not yet'}
+                          </div>
+                          <div className="ma-roi text-slate-500">
+                            {rec.recovered ? `by ${rec.recoverDay}` : `${rec.stillDays} days since low`}
+                          </div>
+                        </>
+                      ) : <span className="text-slate-300">{'-'}</span>}
+                    </td>
                   </tr>
                 );
               })}
@@ -295,7 +319,7 @@ const MonthlyAnalytics = ({ result, withTax }) => {
                 <td className={`text-center font-semibold tabular-nums ${toneText(grandTotal)}`}>
                   {totalRoi !== null ? `${totalRoi.toFixed(2)}%` : '—'}
                 </td>
-                <td colSpan={3} className="border-l border-slate-200 text-center uppercase text-slate-400">
+                <td colSpan={4} className="border-l border-slate-200 text-center uppercase text-slate-400">
                   Σ all years
                 </td>
               </tr>

@@ -27,16 +27,17 @@ const RED_KEYS = new Set([
 const GREEN_KEYS = new Set([
   'overallprofit', 'averageprofitperperiod', 'maxprofitinsingleperiod', 'winperiods',
   'averageprofitonwinningperiods', 'maxwinstreak', 'profitfactor', 'rewardtoriskratio',
-  'expectancyratio', 'returnmaxdd', 'sortinoratio', 'tailratio', 'bestday', 'avgprofitperday',
+  'expectancyratio', 'returnmaxdd', 'sortinoratio', 'tailratio', 'bestday', 'avgprofitperday', 'expectancyratiodaily', 'sortinoratiodailyann',
 ]);
 
 // Explicit format map (no substring guessing)
 const PCT_KEYS = new Set(['winperiods', 'lossperiods']);
 const INT_KEYS = new Set(['nooftradesperiods', 'durationofmaxdrawdownperiods', 'maxwinstreak', 'maxlosingstreak', 'maxddoccurrenceperiodindex', 'tradingdays', 'noofentriessignals']); // [algosay look v1] counts are not money
-const RATIO_KEYS = new Set(['returnmaxdd', 'rewardtoriskratio', 'profitfactor', 'expectancyratio', 'sortinoratio', 'sortinoratiodailyann', 'tailratio']); // [algosay look v1]
+const RATIO_KEYS = new Set(['returnmaxdd', 'rewardtoriskratio', 'profitfactor', 'expectancyratio', 'sortinoratio', 'sortinoratiodailyann', 'expectancyratiodaily', 'tailratio']); // [algosay look v1]
 
 const fmtValue = (key, raw) => {
   if (raw === null || raw === undefined || raw === '') return '–';
+  if (typeof raw === 'string' && RATIO_KEYS.has(norm(key))) return toNumber(raw).toFixed(2); // [algosay pro v2] ratios never show a rupee sign
   if (typeof raw === 'string' && isNaN(Number(raw))) return raw; // "98.5%", "45 / 100", "High"
   const num = Number(raw);
   if (isNaN(num)) return String(raw);
@@ -99,6 +100,8 @@ const displayFor = (key, value, mtmDD) => {
     maxlosingstreak: 'max losing streak (trades)',
     durationofmaxdrawdownperiods: 'duration of max drawdown (trades)',
     maxddoccurrenceperiodindex: 'max dd occurrence (trade no.)',
+    sortinoratiodailyann: 'sortino ratio', // [algosay pro v2]
+    expectancyratiodaily: 'expectancy ratio',
   };
   const base = { label: LABELS[n] || key.replace(/_/g, ' ').toLowerCase(), value: fmtValue(key, value) };
   if (n === 'sortinoratio') return { ...base, label: 'sortino ratio (per trade)' };

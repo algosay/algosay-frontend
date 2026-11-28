@@ -10,6 +10,7 @@ import {
   useContainerWidth,
   useFontsReady
 } from './ChartUtils';
+import { ddRecovery, fmtDays } from './ddRecovery'; // [algosay pro v2]
 
 const HEIGHT = 300;
 const PAD = { top: 22, right: 26, bottom: 40, left: 68 };
@@ -58,6 +59,7 @@ const DrawdownChart = ({ result, withTax }) => {
   }, [points, n]);
 
   const scale = useMemo(() => niceScale(stats.max === 0 ? -1000 : stats.max, 0, 6), [stats.max]);
+  const rec = useMemo(() => ddRecovery(points), [points]);
   const geo = useMemo(() => makeGeo(chartW, HEIGHT, PAD, n, scale.lo, scale.hi), [chartW, n, scale]);
 
   useEffect(() => {
@@ -194,6 +196,17 @@ const DrawdownChart = ({ result, withTax }) => {
               valueClass={stats.current < 0 ? 'text-rose-600' : 'text-emerald-600'}
             />
             <Stat label="Time underwater" value={`${stats.underwaterPct.toFixed(0)}%`} />
+            {rec && (
+              <Stat label="Max DD period" value={fmtDays(rec.fallDays)} sub={`${rec.peakDay} to ${rec.troughDay}`} />
+            )}
+            {rec && (
+              <Stat
+                label="Recovery"
+                value={rec.recovered ? fmtDays(rec.recoverDays) : 'Not yet'}
+                sub={rec.recovered ? `Recovered ${rec.recoverDay}` : `${rec.stillDays} days since low`}
+                valueClass={rec.recovered ? 'text-emerald-600' : 'text-rose-600'}
+              />
+            )}
           </div>
         </div>
 
