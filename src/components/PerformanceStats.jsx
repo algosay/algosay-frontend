@@ -27,7 +27,7 @@ const RED_KEYS = new Set([
 const GREEN_KEYS = new Set([
   'overallprofit', 'averageprofitperperiod', 'maxprofitinsingleperiod', 'winperiods',
   'averageprofitonwinningperiods', 'maxwinstreak', 'profitfactor', 'rewardtoriskratio',
-  'expectancyratio', 'returnmaxdd', 'sortinoratio', 'tailratio',
+  'expectancyratio', 'returnmaxdd', 'sortinoratio', 'tailratio', 'bestday', 'avgprofitperday',
 ]);
 
 // Explicit format map (no substring guessing)
@@ -85,7 +85,22 @@ const fmtDay = (iso) => {
 
 const displayFor = (key, value, mtmDD) => {
   const n = norm(key);
-  const base = { label: key.replace(/_/g, ' ').toLowerCase(), value: fmtValue(key, value) };
+  // [report_fix v6] trade-level metrics say "trades", day-level ones say "days"
+  const LABELS = {
+    nooftradesperiods: 'no. of trades (legs)',
+    averageprofitperperiod: 'avg profit per trade',
+    winperiods: 'win % (trades)',
+    lossperiods: 'loss % (trades)',
+    averageprofitonwinningperiods: 'avg profit on winning trades',
+    averagelossonlosingperiods: 'avg loss on losing trades',
+    maxprofitinsingleperiod: 'max profit in single trade',
+    maxlossinsingleperiod: 'max loss in single trade',
+    maxwinstreak: 'max win streak (trades)',
+    maxlosingstreak: 'max losing streak (trades)',
+    durationofmaxdrawdownperiods: 'duration of max drawdown (trades)',
+    maxddoccurrenceperiodindex: 'max dd occurrence (trade no.)',
+  };
+  const base = { label: LABELS[n] || key.replace(/_/g, ' ').toLowerCase(), value: fmtValue(key, value) };
   if (n === 'sortinoratio') return { ...base, label: 'sortino ratio (per trade)' };
   if (!mtmDD) return base;
   if (n === 'maxddoccurrenceperiodindex' && !isNaN(Number(value))) {
@@ -93,7 +108,7 @@ const displayFor = (key, value, mtmDD) => {
     return { label: 'max dd occurrence (trade no.)', value: `Trade ${Math.round(Number(value)) + 1}${day ? ` (${day})` : ''}` };
   }
   if (n === 'durationofmaxdrawdownperiods' && mtmDD.unit === 'days') {
-    return { label: 'longest drawdown (days)', value: `${mtmDD.duration} days` };
+    return { label: 'longest drawdown (days)', value: `${mtmDD.duration} days${mtmDD.range ? ` (${mtmDD.range})` : ''}` };
   }
   return base;
 };

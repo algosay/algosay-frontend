@@ -7,10 +7,11 @@ const CELL = 16;
 const GAP = 3;
 const MONTH_GAP = 8; // extra space where a new month starts
 
-const PROFIT_SHADES = ['#BBF7D0', '#4ADE80', '#16A34A', '#065F46'];
-const LOSS_SHADES = ['#FECDD3', '#FB7185', '#E11D48', '#881337'];
-const EMPTY_COLOR = '#F1F4F8';
-const FLAT_COLOR = '#CBD5E1';
+// [report_fix v5] soft palette
+const PROFIT_SHADES = ['#E6F7EC', '#C8EDD6', '#9DDDB6', '#6CC995'];
+const LOSS_SHADES = ['#FDECEE', '#FAD2D7', '#F4AEB7', '#E98A96'];
+const EMPTY_COLOR = '#F8FAFC';
+const FLAT_COLOR = '#E2E8F0';
 
 const pad = (n) => String(n).padStart(2, '0');
 const toKey = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
